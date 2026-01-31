@@ -1,0 +1,35 @@
+services:
+  holter:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /usr/src/holter
+    entrypoint: ./entrypoint.sh
+    ports:
+      - 4000:4000
+    volumes:
+      - ./:/usr/src/holter
+      - elixir_deps:/home/holter/.mix
+      - elixir_build:/usr/src/holter/_build
+    command: mix phx.server
+    environment:
+      HOME: /usr/src/holter/.docker/home
+      DB_NAME: holter_dev
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_HOST: db
+    depends_on:
+      - db
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: holter_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
+  elixir_deps:
+  elixir_build:

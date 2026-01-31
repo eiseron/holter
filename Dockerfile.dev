@@ -1,0 +1,15 @@
+FROM elixir:1.19-otp-28-slim
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    git \
+    inotify-tools \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /usr/src/holter
+RUN groupadd -g 1000 holter && \
+    useradd -m -u 1000 -g holter holter
+RUN mkdir -p /usr/src/holter && chown holter:holter /usr/src/holter
+USER holter
+COPY entrypoint.sh .
+RUN mix local.hex --force && mix local.rebar --force
+CMD ["tail", "-f", "/dev/null"]
