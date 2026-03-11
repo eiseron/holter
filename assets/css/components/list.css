@@ -1,0 +1,32 @@
+.h-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.h-list-row {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.h-list-col-grow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.h-list-title {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.h-list-content {
+  font-size: 0.875rem;
+  color: #475569;
+}

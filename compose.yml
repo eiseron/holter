@@ -2,7 +2,7 @@ services:
   holter:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: .docker/Dockerfile.dev
     working_dir: /usr/src/holter
     entrypoint: ./entrypoint.sh
     ports:

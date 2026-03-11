@@ -8,16 +8,15 @@ defmodule HolterWeb.CoreComponents do
   with doc strings and declarative assigns. You may customize and style
   them in any way you want, based on your application growth and needs.
 
-  The foundation for styling is Tailwind CSS, a utility-first CSS framework,
-  augmented with daisyUI, a Tailwind CSS plugin that provides UI components
-  and themes. Here are useful references:
+  The foundation for styling is pure CSS with modern nesting support,
+  modularized in the `assets/css/` directory. Each component has its
+  corresponding semantic classes (prefixed with `h-`) and styles in
+  `assets/css/components/`.
 
-    * [daisyUI](https://daisyui.com/docs/intro/) - a good place to get
-      started and see the available components.
+  Key technical references:
 
-    * [Tailwind CSS](https://tailwindcss.com) - the foundational framework
-      we build on. You will use it for layout, sizing, flexbox, grid, and
-      spacing.
+    * [CSS Nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting) -
+      the syntax used for modularized component styles.
 
     * [Heroicons](https://heroicons.com) - see `icon/1` for usage.
 
@@ -56,23 +55,27 @@ defmodule HolterWeb.CoreComponents do
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
-      class="toast toast-top toast-end z-50"
+      class="h-toast h-toast-top h-toast-end"
       {@rest}
     >
       <div class={[
-        "alert w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap",
-        @kind == :info && "alert-info",
-        @kind == :error && "alert-error"
+        "h-alert",
+        @kind == :info && "h-alert-info",
+        @kind == :error && "h-alert-error"
       ]}>
-        <.icon :if={@kind == :info} name="hero-information-circle" class="size-5 shrink-0" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle" class="size-5 shrink-0" />
+        <.icon :if={@kind == :info} name="hero-information-circle" class="h-icon-size-5" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle" class="h-icon-size-5" />
         <div>
-          <p :if={@title} class="font-semibold">{@title}</p>
+          <p :if={@title} class="h-font-semibold">{@title}</p>
           <p>{msg}</p>
         </div>
-        <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("close")}>
-          <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
+        <div class="h-flex-1" />
+        <button
+          type="button"
+          class="h-group h-self-start h-cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark" class="h-icon-size-5 h-opacity-40 h-group-hover-opacity-70" />
         </button>
       </div>
     </div>
@@ -94,11 +97,11 @@ defmodule HolterWeb.CoreComponents do
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+    variants = %{"primary" => "h-btn-primary", nil => "h-btn-primary h-btn-soft"}
 
     assigns =
       assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
+        ["h-btn", Map.fetch!(variants, assigns[:variant])]
       end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
@@ -205,8 +208,8 @@ defmodule HolterWeb.CoreComponents do
       end)
 
     ~H"""
-    <div class="fieldset mb-2">
-      <label>
+    <div class="h-fieldset">
+      <label class="h-label-checkbox">
         <input
           type="hidden"
           name={@name}
@@ -214,17 +217,16 @@ defmodule HolterWeb.CoreComponents do
           disabled={@rest[:disabled]}
           form={@rest[:form]}
         />
-        <span class="label">
-          <input
-            type="checkbox"
-            id={@id}
-            name={@name}
-            value="true"
-            checked={@checked}
-            class={@class || "checkbox checkbox-sm"}
-            {@rest}
-          />{@label}
-        </span>
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={@class || "h-checkbox"}
+          {@rest}
+        />
+        <span class="h-label-text">{@label}</span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
@@ -233,13 +235,13 @@ defmodule HolterWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="h-fieldset">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="h-label-text">{@label}</span>
         <select
           id={@id}
           name={@name}
-          class={[@class || "w-full select", @errors != [] && (@error_class || "select-error")]}
+          class={[@class || "h-select", @errors != [] && (@error_class || "h-select-error")]}
           multiple={@multiple}
           {@rest}
         >
@@ -254,15 +256,15 @@ defmodule HolterWeb.CoreComponents do
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="h-fieldset">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="h-label-text">{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
-            @errors != [] && (@error_class || "textarea-error")
+            @class || "h-textarea",
+            @errors != [] && (@error_class || "h-textarea-error")
           ]}
           {@rest}
         >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
@@ -275,17 +277,17 @@ defmodule HolterWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div class="fieldset mb-2">
+    <div class="h-fieldset">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="h-label-text">{@label}</span>
         <input
           type={@type}
           name={@name}
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
-            @errors != [] && (@error_class || "input-error")
+            @class || "h-input",
+            @errors != [] && (@error_class || "h-input-error")
           ]}
           {@rest}
         />
@@ -298,8 +300,8 @@ defmodule HolterWeb.CoreComponents do
   # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
-      <.icon name="hero-exclamation-circle" class="size-5" />
+    <p class="h-error-message">
+      <.icon name="hero-exclamation-circle" />
       {render_slot(@inner_block)}
     </p>
     """
@@ -314,16 +316,16 @@ defmodule HolterWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", "pb-4"]}>
-      <div>
-        <h1 class="text-lg font-semibold leading-8">
+    <header class={["h-header", @actions != [] && "h-header-with-actions"]}>
+      <div class="h-header-content">
+        <h1 class="h-header-title">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
+        <p :if={@subtitle != []} class="h-header-subtitle">
           {render_slot(@subtitle)}
         </p>
       </div>
-      <div class="flex-none">{render_slot(@actions)}</div>
+      <div :if={@actions != []} class="h-header-actions">{render_slot(@actions)}</div>
     </header>
     """
   end
@@ -360,12 +362,12 @@ defmodule HolterWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
+    <table class="h-table h-table-zebra">
       <thead>
         <tr>
           <th :for={col <- @col}>{col[:label]}</th>
           <th :if={@action != []}>
-            <span class="sr-only">{gettext("Actions")}</span>
+            <span class="h-sr-only">{gettext("Actions")}</span>
           </th>
         </tr>
       </thead>
@@ -374,12 +376,12 @@ defmodule HolterWeb.CoreComponents do
           <td
             :for={col <- @col}
             phx-click={@row_click && @row_click.(row)}
-            class={@row_click && "hover:cursor-pointer"}
+            class={@row_click && "h-table-row-click"}
           >
             {render_slot(col, @row_item.(row))}
           </td>
-          <td :if={@action != []} class="w-0 font-semibold">
-            <div class="flex gap-4">
+          <td :if={@action != []} class="h-table-actions">
+            <div class="h-flex-gap-4">
               <%= for action <- @action do %>
                 {render_slot(action, @row_item.(row))}
               <% end %>
@@ -407,11 +409,11 @@ defmodule HolterWeb.CoreComponents do
 
   def list(assigns) do
     ~H"""
-    <ul class="list">
-      <li :for={item <- @item} class="list-row">
-        <div class="list-col-grow">
-          <div class="font-bold">{item.title}</div>
-          <div>{render_slot(item)}</div>
+    <ul class="h-list">
+      <li :for={item <- @item} class="h-list-row">
+        <div class="h-list-col-grow">
+          <div class="h-list-title">{item.title}</div>
+          <div class="h-list-content">{render_slot(item)}</div>
         </div>
       </li>
     </ul>
@@ -437,7 +439,7 @@ defmodule HolterWeb.CoreComponents do
       <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
   """
   attr :name, :string, required: true
-  attr :class, :any, default: "size-4"
+  attr :class, :any, default: "h-icon-size-4"
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""

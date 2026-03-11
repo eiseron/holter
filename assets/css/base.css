@@ -1,0 +1,16 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--color-base-content);
+  background-color: var(--color-base-100);
+  line-height: 1.5;
+  margin: 0;
+}
+
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}

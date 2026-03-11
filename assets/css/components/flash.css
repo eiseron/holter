@@ -1,0 +1,46 @@
+.h-toast {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 50;
+  
+  &.h-toast-top {
+    top: 1rem;
+  }
+  
+  &.h-toast-end {
+    right: 1rem;
+  }
+}
+
+.h-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius-field);
+  width: 20rem;
+  max-width: 80vw;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  
+  &.h-alert-info {
+    background-color: var(--color-info);
+    color: white;
+  }
+  
+  &.h-alert-error {
+    background-color: var(--color-error);
+    color: white;
+  }
+}
+
+.h-font-semibold { font-weight: 600; }
+.h-flex-1 { flex: 1; }
+.h-self-start { align-self: flex-start; }
+.h-cursor-pointer { cursor: pointer; }
+.h-opacity-40 { opacity: 0.4; }
+
+.h-group:hover .h-group-hover-opacity-70 {
+  opacity: 0.7;
+}

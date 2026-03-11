@@ -1,0 +1,11 @@
+/* Main application CSS */
+@import "./variables.css";
+@import "./base.css";
+@import "./components/button.css";
+@import "./components/form.css";
+@import "./components/table.css";
+@import "./components/flash.css";
+@import "./components/header.css";
+@import "./components/list.css";
+@import "./components/icon.css";
+@import "./home.css";
