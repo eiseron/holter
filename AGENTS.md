@@ -5,6 +5,15 @@ This is a web application written using the Phoenix web framework.
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
 
+### Docker guidelines
+
+- **Prefer** executing all commands (mix, npm, etc.) inside the Docker environment
+- Use `docker compose exec holter [command]` to run commands in the already running container
+- If you need to adjust the development environment:
+  - Inject environment variables via `compose.yml`
+  - Modify the Docker configuration in `.docker/Dockerfile.dev`
+  - Adjust volume mounts in `compose.yml` if necessary
+
 ### Phoenix v1.8 guidelines
 
 - **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
