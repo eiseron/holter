@@ -4,16 +4,17 @@ services:
       context: .
       dockerfile: .docker/Dockerfile.dev
     working_dir: /usr/src/holter
-    entrypoint: ./entrypoint.sh
+    entrypoint: .docker/entrypoint.sh
     ports:
       - 4000:4000
     volumes:
       - ./:/usr/src/holter
+      - .docker/home:/home/holter
       - elixir_deps:/home/holter/.mix
       - elixir_build:/usr/src/holter/_build
     command: mix phx.server
     environment:
-      HOME: /usr/src/holter/.docker/home
+      HOME: /home/holter
       DB_NAME: holter_dev
       DB_USER: postgres
       DB_PASS: postgres
