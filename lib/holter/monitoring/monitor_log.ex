@@ -5,9 +5,11 @@ defmodule Holter.Monitoring.MonitorLog do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "monitor_logs" do
-    field :status, Ecto.Enum, values: [:up, :down, :degraded, :compromised, :unknown]
-    field :http_status, :integer
-    field :response_time_ms, :integer
+    field :status, Ecto.Enum, values: [:success, :failure, :suspicious, :unknown]
+    field :status_code, :integer
+    field :latency_ms, :integer
+    field :region, :string
+    field :response_snippet, :string
     field :error_message, :string
     field :checked_at, :utc_datetime
 
@@ -22,8 +24,10 @@ defmodule Holter.Monitoring.MonitorLog do
     |> cast(attrs, [
       :monitor_id,
       :status,
-      :http_status,
-      :response_time_ms,
+      :status_code,
+      :latency_ms,
+      :region,
+      :response_snippet,
       :error_message,
       :checked_at
     ])
