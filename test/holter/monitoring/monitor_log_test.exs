@@ -3,9 +3,10 @@ defmodule Holter.Monitoring.MonitorLogTest do
   alias Holter.Monitoring.MonitorLog
 
   @valid_attrs %{
-    status: :up,
-    http_status: 200,
-    response_time_ms: 150,
+    status: :success,
+    status_code: 200,
+    latency_ms: 150,
+    region: "br-sp-1",
     checked_at: DateTime.utc_now() |> DateTime.truncate(:second)
   }
 

@@ -1,13 +1,12 @@
 defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   use Holter.DataCase, async: true
+  use Oban.Testing, repo: Holter.Repo
   
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.MonitorDispatcher
   alias Holter.Monitoring.Workers.HTTPCheck
 
   setup do
-    Oban.drain_queue(Oban, queue: :dispatchers)
-    
     monitor = create_active_monitor()
     %{monitor: monitor}
   end
@@ -60,10 +59,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   end
 
   defp assert_enqueued_check(monitor_id) do
-    Oban.Testing.assert_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
+    assert_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
   end
 
   defp refute_enqueued_check(monitor_id) do
-    Oban.Testing.refute_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
+    refute_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
   end
 end
