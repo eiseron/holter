@@ -25,6 +25,7 @@ defmodule HolterWeb.Router do
 
     live "/dashboard", MonitorLive.Index, :index
     live "/monitor/new", MonitorLive.New, :new
+    live "/monitor/:id", MonitorLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

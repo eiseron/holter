@@ -36,7 +36,12 @@ defmodule Holter.MonitoringTest do
     end
 
     test "Given valid attributes, when creating a monitor, then it successfully persists and returns the structured data" do
-      assert {:ok, %Monitor{url: "https://example.com", keyword_positive: ["success", "login"], keyword_negative: ["hacked", "defaced"]}} =
+      assert {:ok,
+              %Monitor{
+                url: "https://example.com",
+                keyword_positive: ["success", "login"],
+                keyword_negative: ["hacked", "defaced"]
+              }} =
                Monitoring.create_monitor(@valid_attrs)
     end
 

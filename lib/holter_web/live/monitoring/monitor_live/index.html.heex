@@ -1,22 +1,24 @@
 <div class="monitor-dashboard">
   <header class="dashboard-header">
-    <h1><%= gettext("Monitoring Dashboard") %></h1>
+    <h1>{gettext("Monitoring Dashboard")}</h1>
     <.link navigate={~p"/monitoring/monitor/new"} class="btn-primary">
-      <%= gettext("Create New Monitor") %>
+      {gettext("Create New Monitor")}
     </.link>
   </header>
 
   <div class="monitor-list">
     <%= if Enum.empty?(@monitors) do %>
-      <div class="empty-state"><%= gettext("No monitors found. Create one to get started!") %></div>
+      <div class="empty-state">{gettext("No monitors found. Create one to get started!")}</div>
     <% else %>
       <%= for monitor <- @monitors do %>
         <div class="monitor-card">
-          <div class="card-title"><%= monitor.url %></div>
+          <div class="card-title">{monitor.url}</div>
           <div class="card-details">
-            <span class="badge method-badge"><%= monitor.method %></span>
-            <span class="badge state-badge"><%= monitor.logical_state %></span>
-            <span class="interval-text"><%= gettext("Checks every") %> <%= monitor.interval_seconds %>s</span>
+            <span class="badge method-badge">{monitor.method}</span>
+            <span class="badge state-badge">{monitor.logical_state}</span>
+            <span class="interval-text">
+              {gettext("Checks every")} {monitor.interval_seconds}s
+            </span>
           </div>
         </div>
       <% end %>
