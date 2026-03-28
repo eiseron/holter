@@ -22,127 +22,129 @@
       phx-submit="save"
       class="mt-12 space-y-12"
     >
-      <div class="h-grid h-grid-2 gap-12">
-        <div class="space-y-12">
-          <!-- Configuração -->
-          <fieldset class="h-card">
-            <header class="h-card-header pb-4 mb-4 border-b border-ghost">
-              <h3 class="h-card-title">{gettext("Technical")}</h3>
-            </header>
-            <div class="h-card-body space-y-8">
-              <.input
-                field={@form[:url]}
-                type="url"
-                label={gettext("URL")}
-                placeholder="https://example.com"
-                required
-              />
-              <div class="h-grid h-grid-2">
-                <.input
-                  field={@form[:method]}
-                  type="select"
-                  label={gettext("Method")}
-                  options={["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]}
-                  required
-                />
-                <.input
-                  field={@form[:logical_state]}
-                  type="select"
-                  label={gettext("Monitor State")}
-                  options={[
-                    {gettext("Active"), :active},
-                    {gettext("Paused"), :paused}
-                  ]}
-                  required
-                />
-              </div>
-            </div>
-          </fieldset>
-          
-<!-- Intervalos -->
-          <fieldset class="h-card">
-            <header class="h-card-header pb-4 mb-4 border-b border-ghost">
-              <h3 class="h-card-title">{gettext("Performance")}</h3>
-            </header>
-            <div class="h-card-body">
-              <div class="h-grid h-grid-2">
-                <.input
-                  field={@form[:interval_seconds]}
-                  type="select"
-                  label={gettext("Frequency")}
-                  options={[
-                    {gettext("1 Minute"), 60},
-                    {gettext("5 Minutes"), 300},
-                    {gettext("10 Minutes"), 600}
-                  ]}
-                  required
-                />
-                <.input
-                  field={@form[:timeout_seconds]}
-                  type="number"
-                  label={gettext("Timeout (Seconds)")}
-                  required
-                />
-              </div>
-            </div>
-          </fieldset>
-        </div>
+      <fieldset class="h-card">
+        <header class="h-card-header pb-4 mb-4 border-b border-ghost">
+          <h3 class="h-card-title">{gettext("Technical Configuration")}</h3>
+        </header>
 
-        <div class="space-y-12">
-          <!-- Regras de Validação -->
-          <fieldset class="h-card">
-            <header class="h-card-header pb-4 mb-4 border-b border-ghost">
-              <h3 class="h-card-title">{gettext("Integrity Rules")}</h3>
-            </header>
-            <div class="h-card-body space-y-8">
-              <div class="h-grid h-grid-2">
-                <.input
-                  field={@form[:raw_keyword_positive]}
-                  type="text"
-                  label={gettext("Must Contain")}
-                  placeholder="Success, Logged, etc"
-                />
-                <.input
-                  field={@form[:raw_keyword_negative]}
-                  type="text"
-                  label={gettext("Must Not Contain")}
-                  placeholder="Error, Failure, Hacked"
-                />
-              </div>
+        <div class="h-card-body space-y-8">
+          <div class="h-grid h-grid-3">
+            <.input
+              field={@form[:url]}
+              type="url"
+              label={gettext("URL")}
+              placeholder="https://example.com.br"
+              help={gettext("The target endpoint to be monitored (HTTPS recommended).")}
+              required
+            />
+
+            <.input
+              field={@form[:method]}
+              type="select"
+              label={gettext("Method")}
+              help={gettext("The HTTP method used for the request (e.g. GET, POST).")}
+              options={["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]}
+              required
+            />
+
+            <.input
+              field={@form[:logical_state]}
+              type="select"
+              label={gettext("Monitor State")}
+              help={gettext("Controls whether the monitor is currently running or paused.")}
+              options={[
+                {gettext("Active"), :active},
+                {gettext("Paused"), :paused}
+              ]}
+              required
+            />
+          </div>
+
+          <div class="h-grid h-grid-3 items-start">
+            <.input
+              field={@form[:interval_seconds]}
+              type="select"
+              label={gettext("Check Interval")}
+              help={gettext("How often the audit should be performed.")}
+              options={[
+                {gettext("1 Minute"), 60},
+                {gettext("5 Minutes"), 300},
+                {gettext("10 Minutes"), 600}
+              ]}
+              required
+            />
+
+            <.input
+              field={@form[:timeout_seconds]}
+              type="number"
+              label={gettext("Timeout (Seconds)")}
+              placeholder="30"
+              help={gettext("Maximum wait time for a response before marking the request as failed.")}
+              required
+            />
+
+            <div class="h-col-span-1">
+              <p class="text-xs text-secondary mt-1 max-w-sm">
+                {gettext("Configure the connection limit to avoid hanging audits.")}
+              </p>
+            </div>
+          </div>
+
+          <div class="h-grid h-grid-2">
+            <.input
+              field={@form[:raw_headers]}
+              type="textarea"
+              label={gettext("HTTP Headers (JSON)")}
+              help={gettext("Custom HTTP headers in JSON format (e.g. {'Authorization': 'Bearer ...'}).")}
+              placeholder='{"Authorization": "Bearer token"}'
+              rows="3"
+            />
+
+            <.input
+              field={@form[:body]}
+              type="textarea"
+              label={gettext("Request Body (JSON)")}
+              help={gettext("The request body for POST/PUT methods in JSON format.")}
+              placeholder='{"key": "value"}'
+              rows="3"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="h-card">
+        <header class="h-card-header pb-4 mb-4 border-b border-ghost">
+          <h3 class="h-card-title">{gettext("Integrity and Validation")}</h3>
+        </header>
+
+        <div class="h-card-body space-y-8">
+          <div class="h-grid h-grid-3">
+            <.input
+              field={@form[:raw_keyword_positive]}
+              type="text"
+              label={gettext("Must Contain (Keywords)")}
+              help={gettext("Optional keyword that must be present in the response body.")}
+              placeholder={gettext("Ex: Success, Brand Name")}
+            />
+            <.input
+              field={@form[:raw_keyword_negative]}
+              type="text"
+              label={gettext("Must Not Contain")}
+              help={gettext("Optional keyword that must NOT be present in the response body.")}
+              placeholder={gettext("Ex: error, failure, hacked")}
+            />
+            <div class="h-grid-center">
               <.input
                 field={@form[:ssl_ignore]}
                 type="checkbox"
-                label={gettext("Ignore SSL Errors")}
+                label={gettext("Ignore SSL Certificate Errors")}
+                help={gettext("Ignore SSL certificate validation errors (unsecure).")}
               />
             </div>
-          </fieldset>
-          
-<!-- Headers & Corpo -->
-          <fieldset class="h-card">
-            <header class="h-card-header pb-4 mb-4 border-b border-ghost">
-              <h3 class="h-card-title">{gettext("Payload and Headers")}</h3>
-            </header>
-            <div class="h-card-body space-y-8">
-              <div class="h-grid h-grid-2">
-                <.input
-                  field={@form[:raw_headers]}
-                  type="textarea"
-                  label={gettext("Custom Headers (JSON)")}
-                  rows="3"
-                />
-                <.input
-                  field={@form[:body]}
-                  type="textarea"
-                  label={gettext("Request Body")}
-                  rows="3"
-                />
-              </div>
-            </div>
-          </fieldset>
+          </div>
         </div>
-      </div>
-      
-<!-- Action Row -->
+      </fieldset>
+
       <footer class="h-form-actions justify-between border-structural">
         <.button
           type="button"

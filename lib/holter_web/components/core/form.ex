@@ -104,7 +104,6 @@ defmodule HolterWeb.CoreComponents.Form do
           <option :if={@prompt} value="">{@prompt}</option>
           {Phoenix.HTML.Form.options_for_select(@options, @value)}
         </select>
-      </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """

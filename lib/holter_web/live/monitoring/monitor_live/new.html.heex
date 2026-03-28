@@ -41,6 +41,7 @@
               field={@form[:method]}
               type="select"
               label={gettext("Method")}
+              help={gettext("The HTTP method used for the request (e.g. GET, POST).")}
               options={["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]}
               required
             />
@@ -64,12 +65,14 @@
               field={@form[:timeout_seconds]}
               type="number"
               label={gettext("Timeout (Seconds)")}
+              placeholder="30"
+              help={gettext("Maximum wait time for a response before marking the request as failed.")}
               required
             />
 
             <div class="h-col-span-2">
               <p class="text-xs text-secondary mt-1 max-w-sm">
-                {gettext("Maximum wait time for a response before marking the request as failed.")}
+                {gettext("Configure the connection limit to avoid hanging audits.")}
               </p>
             </div>
           </div>
@@ -79,6 +82,7 @@
               field={@form[:raw_headers]}
               type="textarea"
               label={gettext("HTTP Headers (JSON)")}
+              help={gettext("Custom HTTP headers in JSON format (e.g. {'Authorization': 'Bearer ...'}).")}
               placeholder='{"Authorization": "Bearer token"}'
               rows="3"
             />
@@ -87,6 +91,7 @@
               field={@form[:body]}
               type="textarea"
               label={gettext("Request Body (JSON)")}
+              help={gettext("The request body for POST/PUT methods in JSON format.")}
               placeholder='{"key": "value"}'
               rows="3"
             />
@@ -105,12 +110,14 @@
               field={@form[:raw_keyword_positive]}
               type="text"
               label={gettext("Must Contain (Keywords)")}
+              help={gettext("Optional keyword that must be present in the response body.")}
               placeholder={gettext("Ex: Success, Brand Name")}
             />
             <.input
               field={@form[:raw_keyword_negative]}
               type="text"
               label={gettext("Must Not Contain")}
+              help={gettext("Optional keyword that must NOT be present in the response body.")}
               placeholder={gettext("Ex: error, failure, hacked")}
             />
             <div class="h-grid-center">
@@ -118,6 +125,7 @@
                 field={@form[:ssl_ignore]}
                 type="checkbox"
                 label={gettext("Ignore SSL Certificate Errors")}
+                help={gettext("Ignore SSL certificate validation errors (unsecure).")}
               />
             </div>
           </div>
