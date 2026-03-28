@@ -176,6 +176,23 @@
               required
             />
           </div>
+
+          <div class="input-group">
+            <label for={@form[:logical_state].id}>
+              {gettext("Monitor State")}
+              <div class="tooltip-wrapper">
+                ?<span class="tooltip-text"><%= gettext("Active monitors are checked periodically. Paused monitors remain dormant.") %></span>
+              </div>
+            </label>
+            <select name={@form[:logical_state].name} id={@form[:logical_state].id} required>
+              <option value="active" selected={to_string(@form[:logical_state].value) == "active"}>
+                {gettext("Active")}
+              </option>
+              <option value="paused" selected={to_string(@form[:logical_state].value) == "paused"}>
+                {gettext("Paused")}
+              </option>
+            </select>
+          </div>
         </div>
       </fieldset>
     </div>

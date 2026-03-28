@@ -284,3 +284,16 @@ msgstr "Salvar Alterações"
 #, elixir-autogen, elixir-format
 msgid "Yes, Delete Completely"
 msgstr "Sim, Excluir Definitivamente"
+
+msgid "Monitor State"
+msgstr "Estado do Monitor"
+
+msgid "Active"
+msgstr "Ativo"
+
+msgid "Paused"
+msgstr "Pausado"
+
+msgid "Active monitors are checked periodically. Paused monitors remain dormant."
+msgstr "Monitores ativos são verificados periodicamente. Monitores pausados permanecem adormecidos."
+
