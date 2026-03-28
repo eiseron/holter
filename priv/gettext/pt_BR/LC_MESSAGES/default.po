@@ -80,7 +80,7 @@ msgstr "Monitor criado com sucesso"
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Must Not Contain (Defacement)"
-msgstr "Não Deve Conter (Desfiguração)"
+msgstr "Não Deve Conter (Desfigurações)"
 
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:118
 #, elixir-autogen, elixir-format
