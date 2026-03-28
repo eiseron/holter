@@ -45,3 +45,5 @@ config :holter, Oban,
   testing: :manual,
   queues: false,
   plugins: false
+
+config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
