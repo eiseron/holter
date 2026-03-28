@@ -34,7 +34,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
       |> form("#monitor-form", monitor: @valid_attrs)
       |> render_submit()
 
-      assert %{"info" => "Monitor criado com sucesso"} = assert_redirect(view, "/")
+      assert %{"info" => "Monitor criado com sucesso"} = assert_redirect(view, "/monitoring/dashboard")
     end
   end
 end

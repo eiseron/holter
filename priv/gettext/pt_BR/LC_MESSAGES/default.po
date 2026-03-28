@@ -191,3 +191,23 @@ msgstr "O endpoint exato de destino ou site que você deseja monitorar."
 #, elixir-autogen, elixir-format
 msgid "Timeout Threshold (Seconds)"
 msgstr "Tempo Limite de Espera (Segundos)"
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "Checks every"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:5
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Create New Monitor"
+msgstr "Criar Monitor"
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "Monitoring Dashboard"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "No monitors found. Create one to get started!"
+msgstr ""

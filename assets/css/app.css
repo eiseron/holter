@@ -9,3 +9,6 @@
 @import "./components/list.css";
 @import "./components/icon.css";
 @import "./home.css";
+
+/* Global overrides for components extracted without Tailwind */
+.hidden { display: none !important; }

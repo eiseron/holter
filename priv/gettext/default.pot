@@ -191,3 +191,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Timeout Threshold (Seconds)"
 msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "Checks every"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Create New Monitor"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "Monitoring Dashboard"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/index.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "No monitors found. Create one to get started!"
+msgstr ""

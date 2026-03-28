@@ -23,6 +23,7 @@ defmodule HolterWeb.Router do
   scope "/monitoring", HolterWeb.Monitoring do
     pipe_through :browser
 
+    live "/dashboard", MonitorLive.Index, :index
     live "/monitor/new", MonitorLive.New, :new
   end
 

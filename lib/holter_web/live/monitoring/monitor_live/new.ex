@@ -27,7 +27,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.New do
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor created successfully"))
-         |> redirect(to: ~p"/")}
+         |> push_navigate(to: ~p"/monitoring/dashboard")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
