@@ -23,6 +23,11 @@ body {
   color: var(--fg);
   background-color: var(--bg);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Headings — display font for authority */
@@ -31,10 +36,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: var(--weight-semibold);
   line-height: var(--leading-tight);
   color: var(--fg);
-  text-align: left; /* The Hierarchy Rule: never center technical data */
+  text-align: left; /* Optical balance: never center technical data */
 }
 
-h1 { font-size: var(--text-headline-sm); }
+h1 { font-size: var(--text-headline-sm); line-height: 1; }
 h2 { font-size: 1.25rem; }
 h3 { font-size: 1rem; }
 
@@ -81,7 +86,9 @@ hr {
   color: var(--text-inverse);
 }
 
-/* Utility */
+/* ============================================================
+   UTILITIES — Rigid Monolinear Layout
+   ============================================================ */
 .hidden { display: none !important; }
 
 .sr-only {
@@ -94,4 +101,33 @@ hr {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* The Grid — Monolinear alignment only */
+.h-grid {
+  display: grid;
+  gap: var(--space-12);
+  width: 100%;
+}
+
+.h-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.h-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.h-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Containers — Centralization and width caps */
+.h-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 90rem;
+  margin: 0 auto !important;
+  padding: 0 var(--space-8);
+  align-items: center;
+}
+
+.h-content-wrapper {
+  display: block;
+  margin: 0 auto !important;
+  width: 100%;
+  max-width: inherit;
 }
