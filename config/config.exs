@@ -57,10 +57,7 @@ config :holter, Oban,
   repo: Holter.Repo,
   plugins: [
     Oban.Plugins.Pruner,
-    {Oban.Plugins.Cron,
-     schedule: [
-       {"@every 20s", Holter.Monitoring.Workers.MonitorDispatcher}
-     ]}
+    {Oban.Plugins.Cron, crontab: [{"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher}]}
   ],
   queues: [dispatchers: 1, checks: 50]
 
