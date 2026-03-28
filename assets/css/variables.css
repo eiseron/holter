@@ -1,16 +1,120 @@
+/* ============================================================
+   HOLTER DESIGN SYSTEM — CSS Custom Properties
+   The Sentinel Ethos: Technical Autocrat / The Ruler
+
+   Governing rules:
+   - border-radius: 0 everywhere (zero curves, ever)
+   - No gradients, no shadows, no blur
+   - Depth via opacity only — never z-axis effects
+   - Cyber Blue (#37B9FF) is the sole luminous element
+   - Base unit: 2px (mirrors 14×24 logo grid)
+   ============================================================ */
+
 :root {
-  --color-primary: #29d;
-  --color-primary-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f8fafc;
-  --color-base-content: #1e293b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
-  
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-4: 1rem;
+  /* --------------------------------------------------
+     SURFACE HIERARCHY — Dark Mode (Native / Default)
+     -------------------------------------------------- */
+  --surface-void:          #121212; /* The Void — base layer, Absolute Graphite */
+  --surface-layer-1:       #1E1E1E; /* Elevated cards — slightly above the void */
+  --surface-layer-2:       #2A2A2A; /* Hover state, secondary cards */
+  --surface-past:          #5A5A5A; /* Past Data — white @30% on graphite */
+  --surface-transition:    #A6A6A6; /* Transition Data — white @60% on graphite */
+
+  /* --------------------------------------------------
+     TEXT — Pillar & Structural
+     -------------------------------------------------- */
+  --text-primary:          #FAFAFA; /* Pure White / Digital Concrete */
+  --text-secondary:        #A6A6A6; /* Transition Data */
+  --text-muted:            #5A5A5A; /* Past Data */
+  --text-inverse:          #121212; /* Used on primary (blue) fills */
+
+  /* --------------------------------------------------
+     SIGNATURE PALETTE — Semantic Precision
+     -------------------------------------------------- */
+  --color-pulse:           #37B9FF; /* Cyber Blue — the ONLY luminous element */
+  --color-pulse-hover:     #1FA8EE; /* Pulse darkened for dry hover snap */
+  --color-alert:           #FF3366; /* Alert Red — breaks coldness, demands attention */
+  --color-alert-hover:     #E0254E;
+
+  /* --------------------------------------------------
+     BORDERS — Monolinear Ghost
+     -------------------------------------------------- */
+  --border-ghost:          1px solid #5A5A5A;  /* Ghost border for sectioning */
+  --border-structural:     2px solid #FAFAFA;  /* Modal / context menu separation */
+  --border-active:         2px solid #37B9FF;  /* Active input focus */
+  --border-error:          2px solid #FF3366;  /* Validation error state */
+
+  /* --------------------------------------------------
+     TYPOGRAPHY — Editorial Utility
+     -------------------------------------------------- */
+  --font-display:          "Roboto Mono", monospace; /* Headlines, metrics, branding */
+  --font-ui:               "Inter", sans-serif;       /* All UI, logs, tables */
+
+  --text-display-lg:       3.5rem;   /* Critical uptime %, main branding */
+  --text-headline-sm:      1.5rem;   /* Section titles (e.g. "Network Latency") */
+  --text-body-md:          0.875rem; /* Logs, data tables — the workhorse */
+  --text-label-sm:         0.6875rem;/* Timestamps, metadata */
+
+  --weight-bold:           700;
+  --weight-semibold:       600;
+  --weight-medium:         500;
+  --weight-regular:        400;
+
+  --leading-tight:         1.25;
+  --leading-data:          1.5;  /* Dense logs feel structured, scannable */
+  --leading-loose:         1.75;
+
+  /* --------------------------------------------------
+     SPACING — Rigid Monolinear Grid (base-2 system)
+     Mirrors the logo's 14×24 construction grid.
+     -------------------------------------------------- */
+  --space-1:               0.125rem; /*  2px — base unit */
+  --space-2:               0.25rem;  /*  4px */
+  --space-4:               0.5rem;   /*  8px */
+  --space-6:               0.75rem;  /* 12px */
+  --space-8:               1rem;     /* 16px — standard cell padding */
+  --space-12:              1.5rem;   /* 24px — gutter between widgets */
+  --space-16:              2rem;     /* 32px */
+  --space-24:              3rem;     /* 48px */
+  --space-32:              4rem;     /* 64px */
+
+  /* --------------------------------------------------
+     GEOMETRY — The 90-Degree Rule
+     -------------------------------------------------- */
+  --radius:                0;  /* ABSOLUTE. No curves. Ever. */
+
+  /* --------------------------------------------------
+     TRANSITIONS — Dry Cuts, No Elasticity
+     Programmatic steps only. No bouncy / organic motion.
+     -------------------------------------------------- */
+  --transition-snap:       background-color 80ms linear,
+                           border-color 80ms linear,
+                           color 80ms linear;
+
+  /* --------------------------------------------------
+     BADGE VARIANTS — Status Indicators
+     -------------------------------------------------- */
+  --badge-active-bg:       #37B9FF;
+  --badge-active-text:     #121212;
+  --badge-inactive-bg:     #5A5A5A;
+  --badge-inactive-text:   #FAFAFA;
+  --badge-failed-bg:       #FF3366;
+  --badge-failed-text:     #121212;
+
+  /* --------------------------------------------------
+     CHART / SPARKLINE
+     -------------------------------------------------- */
+  --chart-stroke:          #37B9FF;
+  --chart-stroke-width:    2px;
+
+  /* --------------------------------------------------
+     SEMANTIC ALIASES — component-level shortcuts
+     -------------------------------------------------- */
+  --bg:                    var(--surface-void);
+  --bg-card:               var(--surface-layer-1);
+  --bg-hover:              var(--surface-layer-2);
+  --fg:                    var(--text-primary);
+  --fg-muted:              var(--text-secondary);
+  --accent:                var(--color-pulse);
+  --danger:                var(--color-alert);
 }

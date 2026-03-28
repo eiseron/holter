@@ -1,14 +1,21 @@
-/* Main application CSS */
+/* ============================================================
+   HOLTER DESIGN SYSTEM — Main entry point
+   Import order: tokens → base → components → layout
+   ============================================================ */
+
 @import "./variables.css";
 @import "./base.css";
+
+/* Components */
+@import "./components/icon.css";
+@import "./components/badge.css";
 @import "./components/button.css";
 @import "./components/form.css";
 @import "./components/table.css";
 @import "./components/flash.css";
 @import "./components/header.css";
+@import "./components/card.css";
 @import "./components/list.css";
-@import "./components/icon.css";
-@import "./home.css";
 
-/* Global overrides for structural components */
-.hidden { display: none !important; }
+/* Page-level */
+@import "./home.css";

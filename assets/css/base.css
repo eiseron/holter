@@ -1,16 +1,97 @@
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: var(--color-base-content);
-  background-color: var(--color-base-100);
-  line-height: 1.5;
-  margin: 0;
-}
+/* ============================================================
+   BASE — Global resets and document defaults
+   ============================================================ */
 
-*, ::after, ::before {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-data);
+  color: var(--fg);
+  background-color: var(--bg);
+  min-height: 100vh;
+}
+
+/* Headings — display font for authority */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--fg);
+  text-align: left; /* The Hierarchy Rule: never center technical data */
+}
+
+h1 { font-size: var(--text-headline-sm); }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+
+/* Anchors — no decoration defaults */
 a {
-  color: inherit;
-  text-decoration: inherit;
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition-snap);
+}
+
+a:hover { color: var(--color-pulse-hover); }
+
+/* Code and monospace */
+code, pre, kbd, samp {
+  font-family: var(--font-display);
+  font-size: 0.875em;
+}
+
+/* Lists — stripped */
+ul, ol { list-style: none; }
+
+/* Horizontal rule — ghost border */
+hr {
+  border: none;
+  border-top: var(--border-ghost);
+  margin: var(--space-8) 0;
+}
+
+/* Focus — APCA-accessible, no browser default ring */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar — minimal, on-brand */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface-void); }
+::-webkit-scrollbar-thumb { background: var(--surface-past); }
+::-webkit-scrollbar-thumb:hover { background: var(--surface-transition); }
+
+/* Selection */
+::selection {
+  background-color: var(--color-pulse);
+  color: var(--text-inverse);
+}
+
+/* Utility */
+.hidden { display: none !important; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
