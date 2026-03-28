@@ -52,6 +52,18 @@ config :logger, :default_formatter,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Configure Oban
+config :holter, Oban,
+  repo: Holter.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     schedule: [
+       {"@every 20s", Holter.Monitoring.Workers.MonitorDispatcher}
+     ]}
+  ],
+  queues: [dispatchers: 1, checks: 50]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

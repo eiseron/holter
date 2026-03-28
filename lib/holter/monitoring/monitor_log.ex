@@ -1,0 +1,32 @@
+defmodule Holter.Monitoring.MonitorLog do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+  schema "monitor_logs" do
+    field :status, Ecto.Enum, values: [:up, :down, :degraded, :compromised, :unknown]
+    field :http_status, :integer
+    field :response_time_ms, :integer
+    field :error_message, :string
+    field :checked_at, :utc_datetime
+
+    belongs_to :monitor, Holter.Monitoring.Monitor
+
+    timestamps(type: :utc_datetime)
+  end
+
+  @doc false
+  def changeset(monitor_log, attrs) do
+    monitor_log
+    |> cast(attrs, [
+      :monitor_id,
+      :status,
+      :http_status,
+      :response_time_ms,
+      :error_message,
+      :checked_at
+    ])
+    |> validate_required([:monitor_id, :status, :checked_at])
+  end
+end

@@ -51,4 +51,41 @@ defmodule Holter.Monitoring do
   def change_monitor(%Monitor{} = monitor, attrs \\ %{}) do
     Monitor.changeset(monitor, attrs)
   end
+
+  # Monitor Logs
+
+  alias Holter.Monitoring.MonitorLog
+
+  def list_monitor_logs(monitor_id) do
+    MonitorLog
+    |> where([l], l.monitor_id == ^monitor_id)
+    |> order_by([l], desc: l.checked_at)
+    |> Repo.all()
+  end
+
+  def create_monitor_log(attrs \\ %{}) do
+    %MonitorLog{}
+    |> MonitorLog.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  # Engine Queries
+
+  def list_monitors_for_dispatch do
+    now = DateTime.utc_now()
+
+    Monitor
+    |> where([m], m.logical_state == :active)
+    |> where(
+      [m],
+      is_nil(m.last_checked_at) or
+        fragment(
+          "? + (? * interval '1 second') <= ?",
+          m.last_checked_at,
+          m.interval_seconds,
+          ^now
+        )
+    )
+    |> Repo.all()
+  end
 end
