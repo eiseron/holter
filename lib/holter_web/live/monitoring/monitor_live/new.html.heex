@@ -17,17 +17,41 @@
         <legend><%= gettext("Technical Configuration") %></legend>
         <div class="form-grid">
           <div class="input-group">
-            <label for={@form[:url].id}><%= gettext("URL") %></label>
+            <label for={@form[:url].id}>
+              <%= gettext("URL") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The precise target endpoint or website you want to monitor.") %></span></div>
+            </label>
             <input type="url" name={@form[:url].name} id={@form[:url].id} value={@form[:url].value} placeholder="https://example.com" required />
+            <div class="error-msg"><%= Enum.map(@form[:url].errors, fn {msg, _} -> msg end) |> Enum.join(", ") %></div>
           </div>
 
           <div class="input-group">
-            <label for={@form[:method].id}><%= gettext("Method") %></label>
+            <label for={@form[:method].id}>
+              <%= gettext("Method") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The HTTP method to use for the request.") %></span></div>
+            </label>
             <select name={@form[:method].name} id={@form[:method].id} required>
-              <option value="GET" selected={@form[:method].value == :GET || @form[:method].value == "GET"}>GET</option>
-              <option value="POST" selected={@form[:method].value == :POST || @form[:method].value == "POST"}>POST</option>
-              <option value="HEAD" selected={@form[:method].value == :HEAD || @form[:method].value == "HEAD"}>HEAD</option>
+              <%= for method <- ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"] do %>
+                <option value={method} selected={to_string(@form[:method].value) == method}><%= method %></option>
+              <% end %>
             </select>
+          </div>
+          
+          <div class="input-group span-2">
+            <label for={@form[:raw_headers].id}>
+              <%= gettext("Custom Headers (JSON)") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("Additional HTTP headers formatted as a valid JSON object.") %></span></div>
+            </label>
+            <textarea name={@form[:raw_headers].name} id={@form[:raw_headers].id} rows="2" placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'><%= @form[:raw_headers].value %></textarea>
+            <div class="error-msg"><%= Enum.map(@form[:raw_headers].errors, fn {msg, _} -> msg end) |> Enum.join(", ") %></div>
+          </div>
+          
+          <div class="input-group span-2">
+            <label for={@form[:body].id}>
+              <%= gettext("Request Body") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("Payload to send with POST/PUT requests (JSON, text, XML).") %></span></div>
+            </label>
+            <textarea name={@form[:body].name} id={@form[:body].id} rows="3" placeholder='{"my_key": "my_value"}'><%= @form[:body].value %></textarea>
           </div>
         </div>
       </fieldset>
@@ -37,19 +61,28 @@
         <legend><%= gettext("Security & Validation Rules") %></legend>
         <div class="form-grid">
           <div class="input-group">
-            <label for={@form[:keyword_positive].id}><%= gettext("Must Contain (Keyword)") %></label>
+            <label for={@form[:keyword_positive].id}>
+              <%= gettext("Must Contain (Keyword)") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response body MUST contain this exact word, otherwise it is considered DOWN.") %></span></div>
+            </label>
             <input type="text" name={@form[:keyword_positive].name} id={@form[:keyword_positive].id} value={@form[:keyword_positive].value} placeholder={gettext("My Brand Name")} />
           </div>
 
           <div class="input-group">
-            <label for={@form[:keyword_negative].id}><%= gettext("Must Not Contain (Defacement)") %></label>
+            <label for={@form[:keyword_negative].id}>
+              <%= gettext("Must Not Contain (Defacement)") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response body MUST NOT contain this word. Useful to detect hacks/defacements.") %></span></div>
+            </label>
             <input type="text" name={@form[:keyword_negative].name} id={@form[:keyword_negative].id} value={@form[:keyword_negative].value} placeholder={gettext("hacked")} />
           </div>
 
-          <div class="input-group checkbox-group">
+          <div class="input-group checkbox-group span-2">
             <input type="hidden" name={@form[:ssl_ignore].name} value="false" />
-            <input type="checkbox" name={@form[:ssl_ignore].name} id={@form[:ssl_ignore].id} value="true" checked={@form[:ssl_ignore].value == true || @form[:ssl_ignore].value == "true"} />
-            <label for={@form[:ssl_ignore].id}><%= gettext("Ignore SSL Validation Errors") %></label>
+            <input type="checkbox" name={@form[:ssl_ignore].name} id={@form[:ssl_ignore].id} value="true" checked={to_string(@form[:ssl_ignore].value) == "true"} />
+            <label for={@form[:ssl_ignore].id}>
+              <%= gettext("Ignore SSL Validation Errors") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("Check this if your endpoint uses self-signed certificates or expired SSL.") %></span></div>
+            </label>
           </div>
         </div>
       </fieldset>
@@ -59,16 +92,22 @@
         <legend><%= gettext("Interval Defaults") %></legend>
         <div class="form-grid">
           <div class="input-group">
-            <label for={@form[:interval_seconds].id}><%= gettext("Check Interval") %></label>
+            <label for={@form[:interval_seconds].id}>
+              <%= gettext("Check Interval") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("How frequently our worker nodes will ping your URL.") %></span></div>
+            </label>
             <select name={@form[:interval_seconds].name} id={@form[:interval_seconds].id} required>
-              <option value="60" selected={@form[:interval_seconds].value == 60 || @form[:interval_seconds].value == "60"}><%= gettext("1 Minute") %></option>
-              <option value="300" selected={@form[:interval_seconds].value == 300 || @form[:interval_seconds].value == "300"}><%= gettext("5 Minutes") %></option>
-              <option value="600" selected={@form[:interval_seconds].value == 600 || @form[:interval_seconds].value == "600"}><%= gettext("10 Minutes") %></option>
+              <option value="60" selected={to_string(@form[:interval_seconds].value) == "60"}><%= gettext("1 Minute") %></option>
+              <option value="300" selected={to_string(@form[:interval_seconds].value) == "300"}><%= gettext("5 Minutes") %></option>
+              <option value="600" selected={to_string(@form[:interval_seconds].value) == "600"}><%= gettext("10 Minutes") %></option>
             </select>
           </div>
 
           <div class="input-group">
-            <label for={@form[:timeout_seconds].id}><%= gettext("Timeout (Seconds)") %></label>
+            <label for={@form[:timeout_seconds].id}>
+              <%= gettext("Timeout Threshold (Seconds)") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("Maximum time to wait for a response before declaring the endpoint DOWN.") %></span></div>
+            </label>
             <input type="number" name={@form[:timeout_seconds].name} id={@form[:timeout_seconds].id} value={@form[:timeout_seconds].value || 30} required />
           </div>
         </div>
@@ -131,6 +170,10 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+  
+  .span-2 {
+    grid-column: 1 / -1;
+  }
 
   .input-group {
     display: flex;
@@ -142,20 +185,30 @@
     font-weight: 500;
     font-size: 0.95rem;
     color: #444;
+    display: flex;
+    align-items: center;
   }
 
   .input-group input[type="text"],
   .input-group input[type="url"],
   .input-group input[type="number"],
+  .input-group textarea,
   .input-group select {
     padding: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
     transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  
+  .input-group textarea {
+    resize: vertical;
   }
 
-  .input-group input:focus, .input-group select:focus {
+  .input-group input:focus, 
+  .input-group textarea:focus,
+  .input-group select:focus {
     outline: none;
     border-color: #007bff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
@@ -170,6 +223,67 @@
   .checkbox-group label {
     margin: 0;
     font-weight: 400;
+  }
+  
+  .error-msg {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: -0.25rem;
+  }
+
+  /* Tooltip Styles */
+  .tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    cursor: help;
+    margin-left: 0.5rem;
+    background-color: #e0e0e0;
+    color: #555;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+  .tooltip-wrapper:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+  .tooltip-wrapper .tooltip-text {
+    visibility: hidden;
+    width: 260px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    position: absolute;
+    z-index: 10;
+    bottom: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.85rem;
+    font-weight: normal;
+    line-height: 1.4;
+  }
+  .tooltip-wrapper .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+  .tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
   }
 
   @media (min-width: 768px) {

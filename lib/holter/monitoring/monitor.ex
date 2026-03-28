@@ -10,12 +10,13 @@ defmodule Holter.Monitoring.Monitor do
     field :health_status, Ecto.Enum, values: [:up, :down, :degraded, :compromised, :unknown], default: :unknown
     
     field :url, :string
-    field :method, Ecto.Enum, values: [:GET, :POST, :HEAD], default: :GET
+    field :method, Ecto.Enum, values: [:GET, :POST, :HEAD, :PUT, :PATCH, :DELETE, :OPTIONS], default: :GET
     
     field :interval_seconds, :integer, default: 60
     field :timeout_seconds, :integer, default: 30
     
     field :headers, :map, default: %{}
+    field :raw_headers, :string, virtual: true
     field :body, :string
     
     field :ssl_ignore, :boolean, default: false
@@ -34,12 +35,25 @@ defmodule Holter.Monitoring.Monitor do
     monitor
     |> cast(attrs, [
       :user_id, :logical_state, :health_status, :url, :method,
-      :interval_seconds, :timeout_seconds, :headers, :body,
+      :interval_seconds, :timeout_seconds, :headers, :raw_headers, :body,
       :ssl_ignore, :keyword_positive, :keyword_negative,
       :last_checked_at, :last_success_at, :last_manual_check_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
     |> validate_url()
+    |> validate_raw_headers()
+  end
+
+  defp validate_raw_headers(changeset) do
+    case get_change(changeset, :raw_headers) do
+      nil -> changeset
+      "" -> put_change(changeset, :headers, %{})
+      json_str ->
+        case Jason.decode(json_str) do
+          {:ok, map} when is_map(map) -> put_change(changeset, :headers, map)
+          _ -> add_error(changeset, :raw_headers, "must be a valid JSON object")
+        end
+    end
   end
 
   defp validate_url(changeset) do
