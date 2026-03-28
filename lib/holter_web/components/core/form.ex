@@ -5,7 +5,6 @@ defmodule HolterWeb.CoreComponents.Form do
   use Phoenix.Component
   use Gettext, backend: HolterWeb.Gettext
 
-
   @doc """
   Renders an input with label and error messages.
 
@@ -37,7 +36,7 @@ defmodule HolterWeb.CoreComponents.Form do
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
-                multiple pattern placeholder readonly required rows size step)
+                multiple pattern placeholder readonly required rows size step help)
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
@@ -112,9 +111,11 @@ defmodule HolterWeb.CoreComponents.Form do
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div class="h-form-group">
-      <label>
-        <span :if={@label} class="h-form-label">{@label}</span>
-        <textarea
+      <label class="h-form-label">
+        <span :if={@label}>{@label}</span>
+        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+      </label>
+      <textarea
           id={@id}
           name={@name}
           class={[
@@ -132,9 +133,11 @@ defmodule HolterWeb.CoreComponents.Form do
   def input(assigns) do
     ~H"""
     <div class="h-form-group">
-      <label>
-        <span :if={@label} class="h-form-label">{@label}</span>
-        <input
+      <label class="h-form-label">
+        <span :if={@label}>{@label}</span>
+        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+      </label>
+      <input
           type={@type}
           name={@name}
           id={@id}

@@ -1,64 +1,74 @@
 /* ============================================================
-   COMPONENT: Card — Monitoring Blocks
-   Rules: border-radius 0, flat background, ghost border,
-          hover snaps background (no shadow, no lift)
+   COMPONENT: Card — Monitoring Blocks (h-card)
+   Rules: border-radius 0, flat background, ghost border
+   Ergonomics: Standardized padding var(--space-8)
    ============================================================ */
 
-.card {
+.h-card {
   background-color: var(--bg-card);
   border: var(--border-ghost);
   border-radius: var(--radius);
-  padding: var(--space-8);
+  padding: var(--space-12);
   transition: background-color 80ms linear;
+  display: flex;
+  flex-direction: column;
 }
 
-.card:hover {
+.h-card:hover {
   background-color: var(--bg-hover);
 }
 
-.card-header {
+.h-card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-8);
-  margin-bottom: var(--space-8);
-  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-12);
+  padding-bottom: var(--space-12);
   border-bottom: var(--border-ghost);
 }
 
-.card-title {
+.h-card-title {
   font-family: var(--font-display);
   font-size: 0.875rem;
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  margin: 0;
 }
 
-.card-subtitle {
+.h-card-subtitle {
   font-size: var(--text-label-sm);
   color: var(--text-secondary);
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
 }
 
-.card-body {
+.h-card-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-8);
+  flex: 1;
 }
 
-.card-footer {
+.h-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-8);
-  margin-top: var(--space-8);
-  padding-top: var(--space-8);
+  margin-top: var(--space-12);
+  padding-top: var(--space-12);
   border-top: var(--border-ghost);
 }
 
+.h-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
 /* Metric display inside cards */
-.card-metric {
+.h-card-metric {
   font-family: var(--font-display);
   font-size: var(--text-display-lg);
   font-weight: var(--weight-bold);
@@ -66,7 +76,7 @@
   line-height: 1;
 }
 
-.card-metric-label {
+.h-card-metric-label {
   font-size: var(--text-label-sm);
   font-weight: var(--weight-semibold);
   color: var(--text-secondary);
@@ -76,7 +86,7 @@
 }
 
 /* Grid layout for dashboard cards */
-.card-grid {
+.h-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
   gap: var(--space-12);

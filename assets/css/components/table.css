@@ -1,15 +1,15 @@
 /* ============================================================
-   COMPONENT: Table — Data-Heavy Logs & Technical Tables
+   COMPONENT: Table — Data-Heavy Logs & Technical Tables (h-table)
    Rules: strict flush-left, 1px ghost borders between rows,
           dry snap hover (#5A5A5A), border-radius 0
    ============================================================ */
 
-.table-container {
+.h-table-container {
   width: 100%;
   overflow-x: auto;
 }
 
-.table {
+.h-table {
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-ui);
@@ -19,40 +19,40 @@
 }
 
 /* Header */
-.table thead {
+.h-table thead {
   border-bottom: 2px solid var(--surface-past);
 }
 
-.table th {
+.h-table th {
   padding: var(--space-4) var(--space-8);
   font-family: var(--font-ui);
   font-size: var(--text-label-sm);
   font-weight: var(--weight-semibold);
   color: var(--text-secondary);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 /* Body rows */
-.table td {
-  padding: var(--space-4) var(--space-8);
+.h-table td {
+  padding: var(--space-6) var(--space-8);
   line-height: var(--leading-data);
   border-bottom: var(--border-ghost);
   vertical-align: middle;
 }
 
 /* Dry row hover — instant background snap, no shadow */
-.table tbody tr {
+.h-table tbody tr {
   transition: background-color 80ms linear;
 }
 
-.table tbody tr:hover {
+.h-table tbody tr:hover {
   background-color: var(--surface-layer-2);
 }
 
 /* Monospace cells — for IDs, hashes, timestamps */
-.table .cell-mono {
+.h-table .h-cell-mono {
   font-family: var(--font-display);
   font-size: var(--text-label-sm);
   color: var(--text-secondary);
@@ -60,7 +60,7 @@
 }
 
 /* Numeric / metric cells — right-align */
-.table .cell-metric {
+.h-table .h-cell-metric {
   text-align: right;
   font-family: var(--font-display);
   font-weight: var(--weight-semibold);
@@ -68,13 +68,13 @@
 }
 
 /* Actions cell */
-.table .cell-actions {
+.h-table .h-cell-actions {
   text-align: right;
   white-space: nowrap;
 }
 
 /* Empty state row */
-.table .table-empty {
+.h-table .h-table-empty {
   padding: var(--space-16) var(--space-8);
   color: var(--text-muted);
   font-size: var(--text-label-sm);

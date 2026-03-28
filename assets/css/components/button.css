@@ -1,14 +1,16 @@
 /* ============================================================
-   COMPONENT: Button
+   COMPONENT: Button (h-btn)
    Rules: border-radius 0, no gradients, dry snap on hover
+   Ergonomics: min-height 2.5rem, robust inner-block padding
    ============================================================ */
 
-.btn {
+.h-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
   padding: var(--space-4) var(--space-8);
+  min-height: 2.5rem;
   font-family: var(--font-ui);
   font-size: var(--text-body-md);
   font-weight: var(--weight-semibold);
@@ -22,69 +24,73 @@
   letter-spacing: 0.02em;
 }
 
-.btn:disabled,
-.btn[aria-disabled="true"] {
+.h-btn:disabled,
+.h-btn[aria-disabled="true"] {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 /* Primary — Solid Cyber Blue fill, Graphite text */
-.btn-primary {
+.h-btn-primary {
   background-color: var(--color-pulse);
   color: var(--text-inverse);
   border-color: var(--color-pulse);
 }
 
-.btn-primary:hover {
+.h-btn-primary:hover {
   background-color: var(--color-pulse-hover);
   border-color: var(--color-pulse-hover);
   color: var(--text-inverse);
 }
 
 /* Secondary — Transparent, 2px structural border */
-.btn-secondary {
+.h-btn-secondary {
   background-color: transparent;
   color: var(--text-primary);
   border-color: var(--text-primary);
 }
 
-.btn-secondary:hover {
+.h-btn-secondary:hover {
   background-color: var(--surface-layer-2);
   color: var(--text-primary);
 }
 
 /* Danger — Alert Red fill */
-.btn-danger {
+.h-btn-danger {
   background-color: var(--color-alert);
   color: var(--text-inverse);
   border-color: var(--color-alert);
 }
 
-.btn-danger:hover {
+.h-btn-danger:hover {
   background-color: var(--color-alert-hover);
   border-color: var(--color-alert-hover);
 }
 
 /* Ghost — no fill, no border, for inline actions */
-.btn-ghost {
+.h-btn-ghost {
   background-color: transparent;
   color: var(--text-secondary);
   border-color: transparent;
 }
 
-.btn-ghost:hover {
+.h-btn-ghost:hover {
   background-color: var(--surface-layer-2);
   color: var(--text-primary);
 }
 
 /* Size modifiers */
-.btn-sm {
+.h-btn-sm {
   padding: var(--space-2) var(--space-6);
+  min-height: 2rem;
   font-size: var(--text-label-sm);
 }
 
-.btn-lg {
+.h-btn-lg {
   padding: var(--space-6) var(--space-12);
-  font-size: 1rem;
+  min-height: 3.5rem;
+  font-size: 1.125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }

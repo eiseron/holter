@@ -4,7 +4,10 @@ defmodule Holter.Repo.Migrations.CreateIncidents do
   def change do
     create table(:incidents, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :monitor_id, references(:monitors, on_delete: :delete_all, type: :binary_id), null: false
+
+      add :monitor_id, references(:monitors, on_delete: :delete_all, type: :binary_id),
+        null: false
+
       add :type, :string, null: false
       add :started_at, :utc_datetime, null: false
       add :resolved_at, :utc_datetime

@@ -1,10 +1,10 @@
 /* ============================================================
-   COMPONENT: Flash / Alert
-   Rules: 2px monolinear left border as severity indicator,
-          no rounded corners, direct proactive copy (no "Oops!")
+   COMPONENT: Flash / Alert (h-flash)
+   Rules: 4px monolinear left border as severity indicator,
+          no rounded corners, direct proactive copy
    ============================================================ */
 
-.flash {
+.h-flash {
   display: flex;
   align-items: flex-start;
   gap: var(--space-8);
@@ -19,28 +19,28 @@
   background-color: var(--surface-layer-1);
 }
 
-.flash-info {
+.h-flash-info {
   border-left-color: var(--color-pulse);
   color: var(--text-primary);
 }
 
-.flash-success {
+.h-flash-success {
   border-left-color: var(--color-pulse);
   color: var(--text-primary);
 }
 
-.flash-warning {
+.h-flash-warning {
   border-left-color: var(--surface-transition);
   color: var(--text-primary);
 }
 
-.flash-error {
+.h-flash-error {
   border-left-color: var(--color-alert);
   color: var(--text-primary);
 }
 
 /* Dismiss button */
-.flash-close {
+.h-flash-close {
   margin-left: auto;
   flex-shrink: 0;
   background: none;
@@ -52,12 +52,12 @@
   transition: var(--transition-snap);
 }
 
-.flash-close:hover {
+.h-flash-close:hover {
   color: var(--text-primary);
 }
 
 /* Flash group container */
-.flash-group {
+.h-flash-group {
   position: fixed;
   top: var(--space-12);
   right: var(--space-12);

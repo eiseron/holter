@@ -44,7 +44,7 @@ defmodule Holter.Test.DummyService do
     end
   end
 
-  match _, do: send_resp(conn, 404, "Not Found: #{conn.request_path}")
+  match(_, do: send_resp(conn, 404, "Not Found: #{conn.request_path}"))
 
   defp dequeue(call_id) do
     Agent.get_and_update(@agent, fn state ->

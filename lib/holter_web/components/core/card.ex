@@ -3,6 +3,7 @@ defmodule HolterWeb.CoreComponents.Card do
   Core Card components for Monitoring Blocks (h-card).
   """
   use Phoenix.Component
+  use Gettext, backend: HolterWeb.Gettext
 
   @doc """
   Renders a flat monitoring card with Sentinel Ethos (90-degree corners).
@@ -11,39 +12,41 @@ defmodule HolterWeb.CoreComponents.Card do
 
       <.card>
         <:header title="System Uptime" />
-        <div class="metric">99.8%</div>
+        <div class="h-card-metric">99.8%</div>
       </.card>
   """
   attr :class, :any, default: nil
+
   slot :header do
     attr :title, :string, required: true
     attr :subtitle, :string
   end
+
   slot :actions
   slot :footer
   slot :inner_block, required: true
 
   def card(assigns) do
     ~H"""
-    <div class={["card", @class]}>
+    <article class={["h-card", @class]}>
       <%= if @header != [] do %>
-        <div :for={header <- @header} class="card-header">
+        <header :for={header <- @header} class="h-card-header">
           <div>
-            <h3 class="card-title">{header.title}</h3>
-            <p :if={Map.get(header, :subtitle)} class="card-subtitle">{header[:subtitle]}</p>
+            <h3 class="h-card-title">{header.title}</h3>
+            <p :if={Map.get(header, :subtitle)} class="h-card-subtitle">{header[:subtitle]}</p>
           </div>
-          <div :if={@actions != []} class="card-actions">
+          <div :if={@actions != []} class="h-card-actions">
             {render_slot(@actions)}
           </div>
-        </div>
+        </header>
       <% end %>
-      <div class="card-body">
+      <div class="h-card-body">
         {render_slot(@inner_block)}
       </div>
-      <div :if={@footer != [] && @header == []} class="card-footer">
+      <footer :if={@footer != [] && @header == []} class="h-card-footer">
         {render_slot(@footer)}
-      </div>
-    </div>
+      </footer>
+    </article>
     """
   end
 
@@ -56,8 +59,8 @@ defmodule HolterWeb.CoreComponents.Card do
   def card_metric(assigns) do
     ~H"""
     <div class="flex flex-col gap-1 mt-2">
-      <div class="card-metric">{render_slot(@inner_block)}</div>
-      <div class="card-metric-label">{@label}</div>
+      <div class="h-card-metric">{render_slot(@inner_block)}</div>
+      <div class="h-card-metric-label">{@label}</div>
     </div>
     """
   end

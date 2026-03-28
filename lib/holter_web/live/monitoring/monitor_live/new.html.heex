@@ -32,6 +32,7 @@
                 type="url"
                 label={gettext("URL")}
                 placeholder="https://example.com.br"
+                help={gettext("The target endpoint to be monitored (HTTPS recommended).")}
                 required
               />
             </div>
@@ -48,6 +49,7 @@
               field={@form[:interval_seconds]}
               type="select"
               label={gettext("Check Interval")}
+              help={gettext("How often the audit should be performed.")}
               options={[
                 {gettext("1 Minute"), 60},
                 {gettext("5 Minutes"), 300},

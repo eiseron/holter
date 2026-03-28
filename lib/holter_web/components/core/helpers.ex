@@ -8,10 +8,7 @@ defmodule HolterWeb.CoreComponents.Helpers do
     JS.show(js,
       to: selector,
       time: 80,
-      transition:
-        {"transition-opacity duration-80 linear",
-         "opacity-0",
-         "opacity-100"}
+      transition: {"transition-opacity duration-80 linear", "opacity-0", "opacity-100"}
     )
   end
 
@@ -19,10 +16,7 @@ defmodule HolterWeb.CoreComponents.Helpers do
     JS.hide(js,
       to: selector,
       time: 80,
-      transition:
-        {"transition-opacity duration-80 linear",
-         "opacity-100",
-         "opacity-0"}
+      transition: {"transition-opacity duration-80 linear", "opacity-100", "opacity-0"}
     )
   end
 end

@@ -5,6 +5,8 @@ This is a web application written using the Phoenix web framework.
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
 - **CSS Strategy**: All UI styling must be implemented strictly using pure, modern Vanilla CSS with native features (like CSS Grid, Flexbox, and CSS Variables). Write dedicated, semantic CSS classes and attach them to the HTML elements.
+- **Semantic HTML**: Prioritize meaningful structure (tags like `<section>`, `<article>`, `<header>`, `<nav>`) over generic `<div>` layouts. Use HTML to define the document's meaning and delegate all visual styling to CSS.
+- **Internationalization (Gettext)**: Always use **English** as the source language in `gettext` calls within HEEx and Elixir code. Manage all translations (including Portuguese) strictly in the `.po` files located in `priv/gettext`.
 
 ### Phoenix v1.8 guidelines
 

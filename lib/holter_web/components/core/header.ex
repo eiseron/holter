@@ -14,16 +14,16 @@ defmodule HolterWeb.CoreComponents.Header do
 
   def header(assigns) do
     ~H"""
-    <header class={["app-header", @actions != [] && "flex items-center justify-between", @class]}>
+    <header class={["h-header", @actions != [] && "flex items-center justify-between", @class]}>
       <div>
-        <h1 class="app-header-wordmark">
+        <h1 class="h-header-wordmark">
           {render_slot(@inner_block)}
         </h1>
         <p :if={@subtitle != []} class="text-sm text-secondary mt-1">
           {render_slot(@subtitle)}
         </p>
       </div>
-      <div :if={@actions != []} class="app-header-end">{render_slot(@actions)}</div>
+      <div :if={@actions != []} class="h-header-end">{render_slot(@actions)}</div>
     </header>
     """
   end

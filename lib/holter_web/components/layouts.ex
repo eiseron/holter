@@ -62,5 +62,4 @@ defmodule HolterWeb.Layouts do
     <.flash_group flash={@flash} />
     """
   end
-
 end

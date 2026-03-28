@@ -38,8 +38,8 @@ defmodule HolterWeb.CoreComponents.Table do
       end
 
     ~H"""
-    <div class="table-container">
-      <table class="table">
+    <div class="h-table-container">
+      <table class="h-table">
         <thead>
           <tr>
             <th :for={col <- @col}>{col[:label]}</th>
@@ -57,7 +57,7 @@ defmodule HolterWeb.CoreComponents.Table do
             >
               {render_slot(col, @row_item.(row))}
             </td>
-            <td :if={@action != []} class="cell-actions">
+            <td :if={@action != []} class="h-cell-actions">
               <div class="flex items-center justify-end gap-2">
                 <%= for action <- @action do %>
                   {render_slot(action, @row_item.(row))}

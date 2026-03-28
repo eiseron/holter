@@ -1,23 +1,27 @@
-<div class="h-container">
-  <div class="h-content-wrapper" style="max-width: 60rem;">
+<main class="h-container">
+  <section class="h-content-wrapper" style="max-width: 60rem;">
     <.header>
       {gettext("Monitoring Dashboard")}
       <:actions>
         <.button navigate={~p"/monitoring/monitor/new"} variant="primary" size="lg">
-          <icon name="hero-plus" class="icon-sm" />
-          {gettext("Create New Monitor")}
+          <.icon name="hero-plus" class="icon-sm" />
+          {gettext("New Monitor")}
         </.button>
       </:actions>
     </.header>
 
-    <div class="card-grid mt-8">
+    <div class="h-card-grid mt-12">
       <%= if Enum.empty?(@monitors) do %>
-        <div class="card col-span-full">
-          <div class="card-body py-12 text-center">
-            <icon name="hero-magnifying-glass" class="icon-xl text-muted mx-auto mb-4" />
-            <p class="text-secondary font-medium">{gettext("No monitors found. Create one to start auditing your digital assets.")}</p>
+        <.card class="col-span-full">
+          <div class="h-card-body py-12 text-center text-secondary">
+            <.icon name="hero-magnifying-glass" class="icon-xl text-muted mx-auto mb-4" />
+            <p class="font-medium">
+              {gettext(
+                "No monitors found. Create a new one to start auditing your digital assets."
+              )}
+            </p>
           </div>
-        </div>
+        </.card>
       <% else %>
         <%= for monitor <- @monitors do %>
           <.card class="h-full">
@@ -27,25 +31,34 @@
                 {gettext("Settings")}
               </.button>
             </:actions>
-            
-            <div class="flex flex-col gap-4">
+
+            <div class="flex flex-col gap-6">
               <div class="flex items-center gap-3">
                 <.badge kind={:active}>{monitor.method}</.badge>
-                <.badge kind={monitor.logical_state}>{monitor.logical_state}</.badge>
+                <.badge kind={monitor.logical_state}>
+                  <%= case monitor.logical_state do %>
+                    <% :active -> %>
+                      {gettext("Active")}
+                    <% :paused -> %>
+                      {gettext("Paused")}
+                    <% _ -> %>
+                      {monitor.logical_state}
+                  <% end %>
+                </.badge>
               </div>
-              
-              <div class="flex items-center justify-between mt-auto pt-4 border-t border-ghost">
+
+              <footer class="flex items-center justify-between mt-auto pt-4 border-t border-ghost">
                 <span class="text-label-sm text-secondary uppercase tracking-widest">
-                   {gettext("Frequency")}
+                  {gettext("Frequency")}
                 </span>
                 <span class="font-display font-semibold text-sm">
                   {monitor.interval_seconds}s
                 </span>
-              </div>
+              </footer>
             </div>
           </.card>
         <% end %>
       <% end %>
     </div>
-  </div>
-</div>
+  </section>
+</main>

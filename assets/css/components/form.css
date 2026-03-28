@@ -14,7 +14,9 @@
 
 /* Label */
 .h-form-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-family: var(--font-ui);
   font-size: var(--text-label-sm);
   font-weight: var(--weight-semibold);
@@ -22,6 +24,28 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: var(--space-2);
+}
+
+.h-form-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: var(--weight-bold);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 0; /* Sentinel Ethos Square Icon */
+  cursor: help;
+  user-select: none;
+  transition: var(--transition-snap);
+}
+
+.h-form-help-icon:hover {
+  background-color: var(--accent);
+  color: var(--text-inverse);
 }
 
 /* Base input / textarea / select */
@@ -46,7 +70,8 @@
 
 .h-form-input::placeholder,
 .h-form-textarea::placeholder {
-  color: var(--surface-past);
+  color: var(--text-secondary); /* Restored for visibility on dark backgrounds */
+  opacity: 0.6;
 }
 
 /* Active / focus — structural white border */

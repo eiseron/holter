@@ -3,11 +3,11 @@ defmodule HolterWeb.CoreComponents.Button do
   Core Button components with Sentinel Ethos (border-radius: 0).
   """
   use Phoenix.Component
+
   use Phoenix.VerifiedRoutes,
     endpoint: HolterWeb.Endpoint,
     router: HolterWeb.Router,
     statics: HolterWeb.static_paths()
-
 
   @doc """
   Renders a button with navigation support.
