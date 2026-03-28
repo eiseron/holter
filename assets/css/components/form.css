@@ -48,6 +48,10 @@
   color: var(--text-inverse);
 }
 
+.h-form-checkbox .h-form-help-icon {
+  margin-left: var(--space-2);
+}
+
 /* Base input / textarea / select */
 .h-form-input,
 .h-form-textarea,

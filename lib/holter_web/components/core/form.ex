@@ -80,7 +80,10 @@ defmodule HolterWeb.CoreComponents.Form do
           class={@class || ""}
           {@rest}
         />
-        <span class="h-label-text">{@label}</span>
+        <span class="h-label-text">
+          {@label}
+          <span :if={@rest[:help]} class="h-form-help-icon ml-2" title={@rest[:help]}>?</span>
+        </span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
