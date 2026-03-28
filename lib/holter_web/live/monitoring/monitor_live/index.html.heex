@@ -11,7 +11,7 @@
       <div class="empty-state">{gettext("No monitors found. Create one to get started!")}</div>
     <% else %>
       <%= for monitor <- @monitors do %>
-        <div class="monitor-card">
+        <.link navigate={~p"/monitoring/monitor/#{monitor.id}"} class="monitor-card">
           <div class="card-title">{monitor.url}</div>
           <div class="card-details">
             <span class="badge method-badge">{monitor.method}</span>
@@ -20,7 +20,7 @@
               {gettext("Checks every")} {monitor.interval_seconds}s
             </span>
           </div>
-        </div>
+        </.link>
       <% end %>
     <% end %>
   </div>
@@ -89,6 +89,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .monitor-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.06);
   }
 
   .card-title {
