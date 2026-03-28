@@ -90,9 +90,11 @@ defmodule HolterWeb.CoreComponents.Form do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div class="h-form-group">
-      <label>
-        <span :if={@label} class="h-form-label">{@label}</span>
-        <select
+      <label class="h-form-label">
+        <span :if={@label}>{@label}</span>
+        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+      </label>
+      <select
           id={@id}
           name={@name}
           class={[@class || "h-form-select", @errors != [] && (@error_class || "is-error")]}
@@ -116,15 +118,14 @@ defmodule HolterWeb.CoreComponents.Form do
         <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
       </label>
       <textarea
-          id={@id}
-          name={@name}
-          class={[
-            @class || "h-form-textarea",
-            @errors != [] && (@error_class || "is-error")
-          ]}
-          {@rest}
-        >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
-      </label>
+        id={@id}
+        name={@name}
+        class={[
+          @class || "h-form-textarea",
+          @errors != [] && (@error_class || "is-error")
+        ]}
+        {@rest}
+      >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -138,17 +139,16 @@ defmodule HolterWeb.CoreComponents.Form do
         <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
       </label>
       <input
-          type={@type}
-          name={@name}
-          id={@id}
-          value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-          class={[
-            @class || "h-form-input",
-            @errors != [] && (@error_class || "is-error")
-          ]}
-          {@rest}
-        />
-      </label>
+        type={@type}
+        name={@name}
+        id={@id}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={[
+          @class || "h-form-input",
+          @errors != [] && (@error_class || "is-error")
+        ]}
+        {@rest}
+      />
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
