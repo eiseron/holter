@@ -1,5 +1,5 @@
-<div class="h-container">
-  <div class="h-content-wrapper" style="max-width: 48rem;">
+<main class="h-container">
+  <section class="h-content-wrapper" style="max-width: 64rem;">
     <.header>
       {gettext("Create a new Monitor")}
       <:subtitle>
@@ -19,51 +19,124 @@
       phx-submit="save"
       class="mt-12 space-y-12"
     >
-      <fieldset class="card">
-        <div class="card-header pb-4 mb-4 border-b border-ghost">
-          <h3 class="card-title">{gettext("Technical Configuration")}</h3>
-        </div>
-        
-        <div class="card-body space-y-6">
-          <.input field={@form[:url]} type="url" label={gettext("URL")} placeholder="https://example.com" required />
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <.input field={@form[:method]} type="select" label={gettext("Method")} options={["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]} required />
-            <.input field={@form[:interval_seconds]} type="select" label={gettext("Check Interval")} 
-              options={[{"1 Minute", 60}, {"5 Minutes", 300}, {"10 Minutes", 600}]} required />
+      <fieldset class="h-card">
+        <header class="h-card-header pb-4 mb-4 border-b border-ghost">
+          <h3 class="h-card-title">{gettext("Technical Configuration")}</h3>
+        </header>
+
+        <div class="h-card-body space-y-8">
+          <div class="h-grid h-grid-3">
+            <div class="md:col-span-2 lg:col-span-1">
+              <.input
+                field={@form[:url]}
+                type="url"
+                label={gettext("URL")}
+                placeholder="https://example.com.br"
+                required
+              />
+            </div>
+
+            <.input
+              field={@form[:method]}
+              type="select"
+              label={gettext("Method")}
+              options={["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]}
+              required
+            />
+
+            <.input
+              field={@form[:interval_seconds]}
+              type="select"
+              label={gettext("Check Interval")}
+              options={[
+                {gettext("1 Minute"), 60},
+                {gettext("5 Minutes"), 300},
+                {gettext("10 Minutes"), 600}
+              ]}
+              required
+            />
           </div>
 
-          <.input field={@form[:raw_headers]} type="textarea" label={gettext("Custom Headers (JSON)")} 
-            placeholder='{"Authorization": "Bearer token"}' rows="2" />
-          
-          <.input field={@form[:body]} type="textarea" label={gettext("Request Body")} 
-            placeholder='{"key": "value"}' rows="3" />
+          <div class="h-grid h-grid-3 items-start">
+            <.input
+              field={@form[:timeout_seconds]}
+              type="number"
+              label={gettext("Timeout (Seconds)")}
+              required
+            />
+
+            <div class="h-col-span-2">
+              <p class="text-xs text-secondary mt-1 max-w-sm">
+                {gettext("Maximum wait time for a response before marking the request as failed.")}
+              </p>
+            </div>
+          </div>
+
+          <div class="h-grid h-grid-2">
+            <.input
+              field={@form[:raw_headers]}
+              type="textarea"
+              label={gettext("HTTP Headers (JSON)")}
+              placeholder='{"Authorization": "Bearer token"}'
+              rows="3"
+            />
+
+            <.input
+              field={@form[:body]}
+              type="textarea"
+              label={gettext("Request Body (JSON)")}
+              placeholder='{"key": "value"}'
+              rows="3"
+            />
+          </div>
         </div>
       </fieldset>
 
-      <fieldset class="card">
-        <div class="card-header pb-4 mb-4 border-b border-ghost">
-          <h3 class="card-title">{gettext("Security & Validation")}</h3>
-        </div>
-        
-        <div class="card-body space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <.input field={@form[:raw_keyword_positive]} type="text" label={gettext("Must Contain (Keywords)")} 
-              placeholder={gettext("Brand Name, Success")} />
-            <.input field={@form[:raw_keyword_negative]} type="text" label={gettext("Must Not Contain (Defacement)")} 
-              placeholder={gettext("hacked, error")} />
-          </div>
+      <fieldset class="h-card">
+        <header class="h-card-header pb-4 mb-4 border-b border-ghost">
+          <h3 class="h-card-title">{gettext("Integrity and Validation")}</h3>
+        </header>
 
-          <.input field={@form[:ssl_ignore]} type="checkbox" label={gettext("Ignore SSL Validation Errors")} />
+        <div class="h-card-body space-y-8">
+          <div class="h-grid h-grid-3">
+            <.input
+              field={@form[:raw_keyword_positive]}
+              type="text"
+              label={gettext("Must Contain (Keywords)")}
+              placeholder={gettext("Ex: Success, Brand Name")}
+            />
+            <.input
+              field={@form[:raw_keyword_negative]}
+              type="text"
+              label={gettext("Must Not Contain")}
+              placeholder={gettext("Ex: error, failure, hacked")}
+            />
+            <div class="h-grid-center">
+              <.input
+                field={@form[:ssl_ignore]}
+                type="checkbox"
+                label={gettext("Ignore SSL Certificate Errors")}
+              />
+            </div>
+          </div>
         </div>
       </fieldset>
 
-      <div class="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-ghost">
-        <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary" size="lg">
-          <icon name="hero-plus" class="icon-sm" />
+      <footer class="h-form-actions">
+        <.button
+          type="submit"
+          phx-disable-with={gettext("Saving...")}
+          variant="primary"
+          size="lg"
+        >
+          <.icon name="hero-plus" class="icon-sm" />
           {gettext("Create Monitor")}
         </.button>
-      </div>
+
+        <.button navigate={~p"/monitoring/dashboard"} variant="secondary" size="lg">
+          {gettext("Cancel")}
+        </.button>
+      </footer>
     </.form>
-  </div>
-</div>
+  </section>
+</main>

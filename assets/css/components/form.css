@@ -1,31 +1,36 @@
 /* ============================================================
-   COMPONENT: Form — Inputs, Labels, Validation
+   COMPONENT: Form — Inputs, Labels, Validation (h-form)
    Rules: active border 2px #FAFAFA, error border 2px #FF3366
           background always #121212, border-radius 0
+   Ergonomics: min-height 2.75rem, vertical gap var(--space-4)
    ============================================================ */
 
-.form-group {
+.h-form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
 }
 
 /* Label */
-.form-label {
+.h-form-label {
+  display: block;
   font-family: var(--font-ui);
   font-size: var(--text-label-sm);
   font-weight: var(--weight-semibold);
   color: var(--text-secondary);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin-bottom: var(--space-2);
 }
 
 /* Base input / textarea / select */
-.form-input,
-.form-textarea,
-.form-select {
+.h-form-input,
+.h-form-textarea,
+.h-form-select {
   width: 100%;
   padding: var(--space-4) var(--space-8);
+  min-height: 2.75rem;
   font-family: var(--font-ui);
   font-size: var(--text-body-md);
   font-weight: var(--weight-regular);
@@ -39,50 +44,54 @@
   appearance: none;
 }
 
-.form-input::placeholder,
-.form-textarea::placeholder {
+.h-form-input::placeholder,
+.h-form-textarea::placeholder {
   color: var(--surface-past);
 }
 
 /* Active / focus — structural white border */
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
+.h-form-input:focus,
+.h-form-textarea:focus,
+.h-form-select:focus {
   border-color: var(--text-primary);
+  background-color: var(--surface-layer-1);
 }
 
 /* Disabled */
-.form-input:disabled,
-.form-textarea:disabled,
-.form-select:disabled {
+.h-form-input:disabled,
+.h-form-textarea:disabled,
+.h-form-select:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
 /* Error state — snaps border to Alert Red */
-.form-input.is-error,
-.form-textarea.is-error,
-.form-select.is-error {
+.h-form-input.is-error,
+.h-form-textarea.is-error,
+.h-form-select.is-error {
   border-color: var(--color-alert);
 }
 
-/* Validation error message — direct, proactive (no "Oops!") */
-.form-error {
+/* Validation error message — direct, proactive */
+.h-form-error {
+  display: block;
   font-family: var(--font-ui);
   font-size: var(--text-label-sm);
   font-weight: var(--weight-medium);
   color: var(--color-alert);
   letter-spacing: 0.02em;
+  margin-top: var(--space-1);
 }
 
 /* Textarea */
-.form-textarea {
+.h-form-textarea {
   resize: vertical;
-  min-height: 6rem;
+  min-height: 8rem;
+  padding-top: var(--space-6);
 }
 
 /* Select arrow */
-.form-select {
+.h-form-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23A6A6A6' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right var(--space-8) center;
@@ -90,19 +99,29 @@
 }
 
 /* Checkbox / Radio — monolinear, on-brand */
-.form-checkbox,
-.form-radio {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+.h-label-text {
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
-.form-checkbox input[type="checkbox"],
-.form-radio input[type="radio"] {
+.h-form-checkbox,
+.h-form-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  min-height: 2.75rem;
+  align-self: flex-end; /* Baseline match with inputs */
+}
+
+.h-form-checkbox input[type="checkbox"],
+.h-form-radio input[type="radio"] {
   appearance: none;
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border: 2px solid var(--surface-past);
   border-radius: var(--radius);
   background-color: var(--surface-void);
@@ -111,7 +130,7 @@
   flex-shrink: 0;
 }
 
-.form-checkbox input[type="checkbox"]:checked {
+.h-form-checkbox input[type="checkbox"]:checked {
   background-color: var(--color-pulse);
   border-color: var(--color-pulse);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath fill='%23121212' d='M1 4l3 3 5-6'/%3E%3C/svg%3E");
@@ -119,19 +138,30 @@
   background-position: center;
 }
 
-.form-radio input[type="radio"] {
+.h-form-radio input[type="radio"] {
   border-radius: var(--radius);
 }
 
-.form-radio input[type="radio"]:checked {
+.h-form-radio input[type="radio"]:checked {
   border-color: var(--color-pulse);
   background-color: var(--color-pulse);
 }
 
 /* Form actions row */
-.form-actions {
+.h-form-actions {
   display: flex;
   align-items: center;
   gap: var(--space-8);
+  margin-top: var(--space-16);
   padding-top: var(--space-8);
+  border-top: 1px solid var(--surface-layer-2);
+}
+
+/* Grid utility for centering items or baseline alignment */
+.h-grid-center {
+  display: flex !important;
+  align-items: center !important;
+  height: 100%;
+  min-height: 2.75rem;
+  align-self: flex-end !important; /* Force baseline match with text inputs in grids */
 }
