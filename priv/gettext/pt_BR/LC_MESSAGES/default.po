@@ -1,0 +1,138 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "1 Minute"
+msgstr "1 Minuto"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "10 Minutes"
+msgstr "10 Minutos"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "5 Minutes"
+msgstr "5 Minutos"
+
+#: lib/holter_web/components/core_components.ex:370
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Ações"
+
+#: lib/holter_web/components/layouts.ex:96
+#: lib/holter_web/components/layouts.ex:108
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Tentando reconectar"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Check Interval"
+msgstr "Intervalo de Verificação"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Configure technical details, security rules, and intervals."
+msgstr "Configure os detalhes técnicos, regras de segurança e intervalos."
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Create Monitor"
+msgstr "Criar Monitor"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "Create a new Monitor"
+msgstr "Criar um novo Monitor"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Ignore SSL Validation Errors"
+msgstr "Ignorar Erros de Validação SSL"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Interval Defaults"
+msgstr "Padrões de Intervalo"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Method"
+msgstr "Método"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.ex:29
+#, elixir-autogen, elixir-format
+msgid "Monitor created successfully"
+msgstr "Monitor criado com sucesso"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "Must Contain (Keyword)"
+msgstr "Deve Conter (Palavra-chave)"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "Must Not Contain (Defacement)"
+msgstr "Não Deve Conter (Desfiguração)"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "My Brand Name"
+msgstr "Nome da Minha Marca"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Saving..."
+msgstr "Salvando..."
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "Security & Validation Rules"
+msgstr "Regras de Segurança e Validação"
+
+#: lib/holter_web/components/layouts.ex:103
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Algo deu errado!"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Technical Configuration"
+msgstr "Configuração Técnica"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "Timeout (Seconds)"
+msgstr "Tempo Limite (Segundos)"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "URL"
+msgstr "URL"
+
+#: lib/holter_web/components/layouts.ex:91
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Não conseguimos encontrar a internet"
+
+#: lib/holter_web/components/core_components.ex:76
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "fechar"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "hacked"
+msgstr "hacked"

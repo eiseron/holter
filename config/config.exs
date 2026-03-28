@@ -11,6 +11,9 @@ config :holter,
   ecto_repos: [Holter.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
+# Configure Gettext default locale
+config :holter, HolterWeb.Gettext, default_locale: "pt_BR"
+
 # Configure the endpoint
 config :holter, HolterWeb.Endpoint,
   url: [host: "localhost"],

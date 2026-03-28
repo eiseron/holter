@@ -1,0 +1,202 @@
+<div class="monitor-creation-container">
+  <header class="monitor-header">
+    <h1><%= gettext("Create a new Monitor") %></h1>
+    <p><%= gettext("Configure technical details, security rules, and intervals.") %></p>
+  </header>
+
+  <.form
+    for={@form}
+    id="monitor-form"
+    phx-change="validate"
+    phx-submit="save"
+    class="monitor-form"
+  >
+    <div class="form-sections">
+      <!-- Technical Config -->
+      <fieldset class="form-fieldset">
+        <legend><%= gettext("Technical Configuration") %></legend>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for={@form[:url].id}><%= gettext("URL") %></label>
+            <input type="url" name={@form[:url].name} id={@form[:url].id} value={@form[:url].value} placeholder="https://example.com" required />
+          </div>
+
+          <div class="input-group">
+            <label for={@form[:method].id}><%= gettext("Method") %></label>
+            <select name={@form[:method].name} id={@form[:method].id} required>
+              <option value="GET" selected={@form[:method].value == :GET || @form[:method].value == "GET"}>GET</option>
+              <option value="POST" selected={@form[:method].value == :POST || @form[:method].value == "POST"}>POST</option>
+              <option value="HEAD" selected={@form[:method].value == :HEAD || @form[:method].value == "HEAD"}>HEAD</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Security Rules -->
+      <fieldset class="form-fieldset">
+        <legend><%= gettext("Security & Validation Rules") %></legend>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for={@form[:keyword_positive].id}><%= gettext("Must Contain (Keyword)") %></label>
+            <input type="text" name={@form[:keyword_positive].name} id={@form[:keyword_positive].id} value={@form[:keyword_positive].value} placeholder={gettext("My Brand Name")} />
+          </div>
+
+          <div class="input-group">
+            <label for={@form[:keyword_negative].id}><%= gettext("Must Not Contain (Defacement)") %></label>
+            <input type="text" name={@form[:keyword_negative].name} id={@form[:keyword_negative].id} value={@form[:keyword_negative].value} placeholder={gettext("hacked")} />
+          </div>
+
+          <div class="input-group checkbox-group">
+            <input type="hidden" name={@form[:ssl_ignore].name} value="false" />
+            <input type="checkbox" name={@form[:ssl_ignore].name} id={@form[:ssl_ignore].id} value="true" checked={@form[:ssl_ignore].value == true || @form[:ssl_ignore].value == "true"} />
+            <label for={@form[:ssl_ignore].id}><%= gettext("Ignore SSL Validation Errors") %></label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Settings -->
+      <fieldset class="form-fieldset">
+        <legend><%= gettext("Interval Defaults") %></legend>
+        <div class="form-grid">
+          <div class="input-group">
+            <label for={@form[:interval_seconds].id}><%= gettext("Check Interval") %></label>
+            <select name={@form[:interval_seconds].name} id={@form[:interval_seconds].id} required>
+              <option value="60" selected={@form[:interval_seconds].value == 60 || @form[:interval_seconds].value == "60"}><%= gettext("1 Minute") %></option>
+              <option value="300" selected={@form[:interval_seconds].value == 300 || @form[:interval_seconds].value == "300"}><%= gettext("5 Minutes") %></option>
+              <option value="600" selected={@form[:interval_seconds].value == 600 || @form[:interval_seconds].value == "600"}><%= gettext("10 Minutes") %></option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for={@form[:timeout_seconds].id}><%= gettext("Timeout (Seconds)") %></label>
+            <input type="number" name={@form[:timeout_seconds].name} id={@form[:timeout_seconds].id} value={@form[:timeout_seconds].value || 30} required />
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="actions">
+      <button type="submit" phx-disable-with={gettext("Saving...")} class="btn-primary"><%= gettext("Create Monitor") %></button>
+    </div>
+  </.form>
+</div>
+
+<style>
+  .monitor-creation-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    font-family: inherit;
+  }
+
+  .monitor-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+  }
+
+  .monitor-header p {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .form-fieldset {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #fafafa;
+  }
+
+  .form-fieldset legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    padding: 0 0.5rem;
+    background: #fafafa;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-group label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #444;
+  }
+
+  .input-group input[type="text"],
+  .input-group input[type="url"],
+  .input-group input[type="number"],
+  .input-group select {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+
+  .checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .checkbox-group label {
+    margin: 0;
+    font-weight: 400;
+  }
+
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .btn-primary {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #0056b3;
+  }
+</style>

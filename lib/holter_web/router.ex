@@ -20,6 +20,12 @@ defmodule HolterWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/monitoring", HolterWeb.Monitoring do
+    pipe_through :browser
+
+    live "/monitor/new", MonitorLive.New, :new
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", HolterWeb do
   #   pipe_through :api
