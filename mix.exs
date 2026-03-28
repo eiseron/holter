@@ -58,7 +58,8 @@ defmodule Holter.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:oban, "~> 2.21"}
+      {:oban, "~> 2.21"},
+      {:mox, "~> 1.2", only: :test}
     ]
   end
 
