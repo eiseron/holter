@@ -17,11 +17,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp build_req_options(monitor) do
     [
       url: monitor.url,
-      method: monitor.method,
+      method: monitor.method |> to_string() |> String.downcase(),
       headers: monitor.headers,
       body: monitor.body,
-      receive_timeout: (monitor.timeout_seconds || 30) * 1000,
-      connect_timeout: 10_000
+      receive_timeout: (monitor.timeout_seconds || 30) * 1000
     ]
     |> maybe_ignore_ssl(monitor.ssl_ignore)
   end
