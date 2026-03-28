@@ -4,6 +4,7 @@ This is a web application written using the Phoenix web framework.
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
+- **CSS Strategy**: All UI styling must be implemented strictly using pure, modern Vanilla CSS with native features (like CSS Grid, Flexbox, and CSS Variables). Write dedicated, semantic CSS classes and attach them to the HTML elements.
 
 ### Phoenix v1.8 guidelines
 
@@ -223,10 +224,10 @@ custom classes must fully style the input
          |> stream(:messages, messages, reset: true)}
       end
 
-- LiveView streams *do not support counting or empty states*. If you need to display a count, you must track it using a separate assign. For empty states, you can use Tailwind classes:
+- LiveView streams *do not support counting or empty states*. If you need to display a count, you must track it using a separate assign. For empty states, you can use regular semantic CSS classes:
 
       <div id="tasks" phx-update="stream">
-        <div class="hidden only:block">No tasks yet</div>
+        <div class="empty-state-message">No tasks yet</div>
         <div :for={{id, task} <- @stream.tasks} id={id}>
           {task.name}
         </div>
