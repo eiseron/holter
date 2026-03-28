@@ -1,66 +1,82 @@
-.h-table {
+/* ============================================================
+   COMPONENT: Table — Data-Heavy Logs & Technical Tables
+   Rules: strict flush-left, 1px ghost borders between rows,
+          dry snap hover (#5A5A5A), border-radius 0
+   ============================================================ */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md);
+  color: var(--text-primary);
   text-align: left;
-  
-  thead {
-    th {
-      padding: 0.75rem 1rem;
-      font-weight: 600;
-      color: #64748b;
-      border-bottom: 1px solid #e2e8f0;
-    }
-  }
-  
-  tbody {
-    tr {
-      border-bottom: 1px solid #f1f5f9;
-      
-      td {
-        padding: 0.75rem 1rem;
-        vertical-align: middle;
-      }
-      
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-  
-  &.h-table-zebra {
-    tbody tr:nth-child(even) {
-      background-color: var(--color-base-200);
-    }
-  }
 }
 
-.h-table-row-click {
-  cursor: pointer;
-  
-  &:hover {
-    color: var(--color-primary);
-  }
+/* Header */
+.table thead {
+  border-bottom: 2px solid var(--surface-past);
 }
 
-.h-table-actions {
+.table th {
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-ui);
+  font-size: var(--text-label-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
-  font-weight: 600;
 }
 
-.h-flex-gap-4 {
-  display: flex;
-  gap: 1rem;
+/* Body rows */
+.table td {
+  padding: var(--space-4) var(--space-8);
+  line-height: var(--leading-data);
+  border-bottom: var(--border-ghost);
+  vertical-align: middle;
 }
 
-.h-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+/* Dry row hover — instant background snap, no shadow */
+.table tbody tr {
+  transition: background-color 80ms linear;
+}
+
+.table tbody tr:hover {
+  background-color: var(--surface-layer-2);
+}
+
+/* Monospace cells — for IDs, hashes, timestamps */
+.table .cell-mono {
+  font-family: var(--font-display);
+  font-size: var(--text-label-sm);
+  color: var(--text-secondary);
   white-space: nowrap;
-  border-width: 0;
+}
+
+/* Numeric / metric cells — right-align */
+.table .cell-metric {
+  text-align: right;
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+/* Actions cell */
+.table .cell-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Empty state row */
+.table .table-empty {
+  padding: var(--space-16) var(--space-8);
+  color: var(--text-muted);
+  font-size: var(--text-label-sm);
+  letter-spacing: 0.04em;
 }

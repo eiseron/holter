@@ -1,32 +1,39 @@
-.h-list {
+/* ============================================================
+   COMPONENT: List — Structural item lists
+   ============================================================ */
+
+.list {
   display: flex;
   flex-direction: column;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  border: var(--border-ghost);
 }
 
-.h-list-row {
-  padding: 1rem;
-  border-bottom: 1px solid #f1f5f9;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.h-list-col-grow {
+.list-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-6) var(--space-8);
+  border-bottom: var(--border-ghost);
+  transition: background-color 80ms linear;
 }
 
-.h-list-title {
-  font-weight: 700;
-  font-size: 0.875rem;
+.list-item:last-child {
+  border-bottom: none;
 }
 
-.h-list-content {
-  font-size: 0.875rem;
-  color: #475569;
+.list-item:hover {
+  background-color: var(--surface-layer-2);
+}
+
+.list-item-label {
+  flex: 1;
+  font-size: var(--text-body-md);
+  color: var(--text-primary);
+}
+
+.list-item-meta {
+  font-size: var(--text-label-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  white-space: nowrap;
 }

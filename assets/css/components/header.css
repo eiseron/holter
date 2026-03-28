@@ -1,29 +1,83 @@
-.h-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-  
-  &.h-header-with-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
+/* ============================================================
+   COMPONENT: Header / Navigation
+   Rules: 2px bottom ghost border, no shadow, flush-left brand
+   ============================================================ */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 0 var(--space-12);
+  height: 3.5rem;
+  background-color: var(--surface-void);
+  border-bottom: 2px solid var(--surface-past);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.h-header-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 2rem;
-  margin: 0;
+/* Brand lockup */
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
-.h-header-subtitle {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+.app-header-logo {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
-.h-header-actions {
-  flex: none;
+.app-header-wordmark {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Nav links */
+.app-header-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-12);
+  flex: 1;
+}
+
+.app-header-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-6);
+  font-family: var(--font-ui);
+  font-size: var(--text-label-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-snap);
+}
+
+.app-header-nav-link:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--surface-past);
+}
+
+.app-header-nav-link.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--color-pulse);
+}
+
+/* Header end slot */
+.app-header-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
 }

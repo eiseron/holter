@@ -1,46 +1,70 @@
-.h-toast {
+/* ============================================================
+   COMPONENT: Flash / Alert
+   Rules: 2px monolinear left border as severity indicator,
+          no rounded corners, direct proactive copy (no "Oops!")
+   ============================================================ */
+
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius);
+  border: var(--border-ghost);
+  border-left-width: 4px;
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-data);
+  background-color: var(--surface-layer-1);
+}
+
+.flash-info {
+  border-left-color: var(--color-pulse);
+  color: var(--text-primary);
+}
+
+.flash-success {
+  border-left-color: var(--color-pulse);
+  color: var(--text-primary);
+}
+
+.flash-warning {
+  border-left-color: var(--surface-transition);
+  color: var(--text-primary);
+}
+
+.flash-error {
+  border-left-color: var(--color-alert);
+  color: var(--text-primary);
+}
+
+/* Dismiss button */
+.flash-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: var(--transition-snap);
+}
+
+.flash-close:hover {
+  color: var(--text-primary);
+}
+
+/* Flash group container */
+.flash-group {
   position: fixed;
+  top: var(--space-12);
+  right: var(--space-12);
+  z-index: 900;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  z-index: 50;
-  
-  &.h-toast-top {
-    top: 1rem;
-  }
-  
-  &.h-toast-end {
-    right: 1rem;
-  }
-}
-
-.h-alert {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: var(--radius-field);
-  width: 20rem;
-  max-width: 80vw;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  
-  &.h-alert-info {
-    background-color: var(--color-info);
-    color: white;
-  }
-  
-  &.h-alert-error {
-    background-color: var(--color-error);
-    color: white;
-  }
-}
-
-.h-font-semibold { font-weight: 600; }
-.h-flex-1 { flex: 1; }
-.h-self-start { align-self: flex-start; }
-.h-cursor-pointer { cursor: pointer; }
-.h-opacity-40 { opacity: 0.4; }
-
-.h-group:hover .h-group-hover-opacity-70 {
-  opacity: 0.7;
+  gap: var(--space-4);
+  width: 24rem;
+  max-width: calc(100vw - var(--space-24));
 }

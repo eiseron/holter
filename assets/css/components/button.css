@@ -1,35 +1,90 @@
-.h-btn {
+/* ============================================================
+   COMPONENT: Button
+   Rules: border-radius 0, no gradients, dry snap on hover
+   ============================================================ */
+
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  border-radius: var(--radius-field);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-ui);
+  font-size: var(--text-body-md);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-  font-size: 0.875rem;
   text-decoration: none;
+  white-space: nowrap;
+  transition: var(--transition-snap);
+  letter-spacing: 0.02em;
+}
 
-  &:hover {
-    opacity: 0.9;
-  }
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
-  &:active {
-    transform: translateY(1px);
-  }
+/* Primary — Solid Cyber Blue fill, Graphite text */
+.btn-primary {
+  background-color: var(--color-pulse);
+  color: var(--text-inverse);
+  border-color: var(--color-pulse);
+}
 
-  &.h-btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-primary-content);
+.btn-primary:hover {
+  background-color: var(--color-pulse-hover);
+  border-color: var(--color-pulse-hover);
+  color: var(--text-inverse);
+}
 
-    &.h-btn-soft {
-      background-color: color-mix(in srgb, var(--color-primary), transparent 85%);
-      color: var(--color-primary);
-      
-      &:hover {
-        background-color: color-mix(in srgb, var(--color-primary), transparent 75%);
-      }
-    }
-  }
+/* Secondary — Transparent, 2px structural border */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--surface-layer-2);
+  color: var(--text-primary);
+}
+
+/* Danger — Alert Red fill */
+.btn-danger {
+  background-color: var(--color-alert);
+  color: var(--text-inverse);
+  border-color: var(--color-alert);
+}
+
+.btn-danger:hover {
+  background-color: var(--color-alert-hover);
+  border-color: var(--color-alert-hover);
+}
+
+/* Ghost — no fill, no border, for inline actions */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover {
+  background-color: var(--surface-layer-2);
+  color: var(--text-primary);
+}
+
+/* Size modifiers */
+.btn-sm {
+  padding: var(--space-2) var(--space-6);
+  font-size: var(--text-label-sm);
+}
+
+.btn-lg {
+  padding: var(--space-6) var(--space-12);
+  font-size: 1rem;
 }
