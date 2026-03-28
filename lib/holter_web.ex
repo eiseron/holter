@@ -85,7 +85,15 @@ defmodule HolterWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import HolterWeb.CoreComponents
+      import HolterWeb.CoreComponents.Button
+      import HolterWeb.CoreComponents.Form
+      import HolterWeb.CoreComponents.Table
+      import HolterWeb.CoreComponents.Flash
+      import HolterWeb.CoreComponents.Icon
+      import HolterWeb.CoreComponents.Badge
+      import HolterWeb.CoreComponents.Card
+      import HolterWeb.CoreComponents.Header
+      import HolterWeb.CoreComponents.List
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
