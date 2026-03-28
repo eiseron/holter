@@ -19,8 +19,8 @@ defmodule Holter.Repo.Migrations.CreateMonitors do
       add :body, :text
       
       add :ssl_ignore, :boolean, default: false, null: false
-      add :keyword_positive, :string
-      add :keyword_negative, :string
+      add :keyword_positive, {:array, :string}, default: []
+      add :keyword_negative, {:array, :string}, default: []
       
       add :last_checked_at, :utc_datetime
       add :last_success_at, :utc_datetime

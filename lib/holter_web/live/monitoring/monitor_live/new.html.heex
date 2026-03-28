@@ -61,19 +61,19 @@
         <legend><%= gettext("Security & Validation Rules") %></legend>
         <div class="form-grid">
           <div class="input-group">
-            <label for={@form[:keyword_positive].id}>
-              <%= gettext("Must Contain (Keyword)") %>
-              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response body MUST contain this exact word, otherwise it is considered DOWN.") %></span></div>
+            <label for={@form[:raw_keyword_positive].id}>
+              <%= gettext("Must Contain (Keywords)") %>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response MUST contain these words, otherwise it is considered DOWN. Separate multiple words by comma.") %></span></div>
             </label>
-            <input type="text" name={@form[:keyword_positive].name} id={@form[:keyword_positive].id} value={@form[:keyword_positive].value} placeholder={gettext("My Brand Name")} />
+            <input type="text" name={@form[:raw_keyword_positive].name} id={@form[:raw_keyword_positive].id} value={@form[:raw_keyword_positive].value} placeholder={gettext("Brand Name, Title, Success")} />
           </div>
 
           <div class="input-group">
-            <label for={@form[:keyword_negative].id}>
+            <label for={@form[:raw_keyword_negative].id}>
               <%= gettext("Must Not Contain (Defacement)") %>
-              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response body MUST NOT contain this word. Useful to detect hacks/defacements.") %></span></div>
+              <div class="tooltip-wrapper">?<span class="tooltip-text"><%= gettext("The endpoint response MUST NOT contain these words. Useful to detect hacks/defacements. Separate by comma.") %></span></div>
             </label>
-            <input type="text" name={@form[:keyword_negative].name} id={@form[:keyword_negative].id} value={@form[:keyword_negative].value} placeholder={gettext("hacked")} />
+            <input type="text" name={@form[:raw_keyword_negative].name} id={@form[:raw_keyword_negative].id} value={@form[:raw_keyword_negative].value} placeholder={gettext("hacked, database error")} />
           </div>
 
           <div class="input-group checkbox-group span-2">

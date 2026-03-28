@@ -20,8 +20,10 @@ defmodule Holter.Monitoring.Monitor do
     field :body, :string
     
     field :ssl_ignore, :boolean, default: false
-    field :keyword_positive, :string
-    field :keyword_negative, :string
+    field :raw_keyword_positive, :string, virtual: true
+    field :raw_keyword_negative, :string, virtual: true
+    field :keyword_positive, {:array, :string}, default: []
+    field :keyword_negative, {:array, :string}, default: []
 
     field :last_checked_at, :utc_datetime
     field :last_success_at, :utc_datetime
@@ -36,12 +38,24 @@ defmodule Holter.Monitoring.Monitor do
     |> cast(attrs, [
       :user_id, :logical_state, :health_status, :url, :method,
       :interval_seconds, :timeout_seconds, :headers, :raw_headers, :body,
-      :ssl_ignore, :keyword_positive, :keyword_negative,
+      :ssl_ignore, :raw_keyword_positive, :raw_keyword_negative,
       :last_checked_at, :last_success_at, :last_manual_check_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
     |> validate_url()
     |> validate_raw_headers()
+    |> parse_keywords(:raw_keyword_positive, :keyword_positive)
+    |> parse_keywords(:raw_keyword_negative, :keyword_negative)
+  end
+
+  defp parse_keywords(changeset, raw_field, target_field) do
+    case get_change(changeset, raw_field) do
+      nil -> changeset
+      "" -> put_change(changeset, target_field, [])
+      str ->
+        list = str |> String.split(~r/[,;]+/, trim: true) |> Enum.map(&String.trim/1) |> Enum.reject(&(&1 == ""))
+        put_change(changeset, target_field, list)
+    end
   end
 
   defp validate_raw_headers(changeset) do

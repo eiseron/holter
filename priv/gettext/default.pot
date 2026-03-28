@@ -77,19 +77,9 @@ msgstr ""
 msgid "Monitor created successfully"
 msgstr ""
 
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:65
-#, elixir-autogen, elixir-format
-msgid "Must Contain (Keyword)"
-msgstr ""
-
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Must Not Contain (Defacement)"
-msgstr ""
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:68
-#, elixir-autogen, elixir-format
-msgid "My Brand Name"
 msgstr ""
 
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:118
@@ -125,11 +115,6 @@ msgstr ""
 #: lib/holter_web/components/core_components.ex:76
 #, elixir-autogen, elixir-format
 msgid "close"
-msgstr ""
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:76
-#, elixir-autogen, elixir-format
-msgid "hacked"
 msgstr ""
 
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:43
@@ -172,16 +157,6 @@ msgstr ""
 msgid "The HTTP method to use for the request."
 msgstr ""
 
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:74
-#, elixir-autogen, elixir-format
-msgid "The endpoint response body MUST NOT contain this word. Useful to detect hacks/defacements."
-msgstr ""
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:66
-#, elixir-autogen, elixir-format
-msgid "The endpoint response body MUST contain this exact word, otherwise it is considered DOWN."
-msgstr ""
-
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "The precise target endpoint or website you want to monitor."
@@ -210,4 +185,29 @@ msgstr ""
 #: lib/holter_web/live/monitoring/monitor_live/index.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "No monitors found. Create one to get started!"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Brand Name, Title, Success"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Must Contain (Keywords)"
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "The endpoint response MUST NOT contain these words. Useful to detect hacks/defacements. Separate by comma."
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "The endpoint response MUST contain these words, otherwise it is considered DOWN. Separate multiple words by comma."
+msgstr ""
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "hacked, database error"
 msgstr ""

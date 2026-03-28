@@ -77,20 +77,10 @@ msgstr "Método"
 msgid "Monitor created successfully"
 msgstr "Monitor criado com sucesso"
 
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:65
-#, elixir-autogen, elixir-format
-msgid "Must Contain (Keyword)"
-msgstr "Deve Conter (Palavra-chave)"
-
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Must Not Contain (Defacement)"
 msgstr "Não Deve Conter (Desfiguração)"
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:68
-#, elixir-autogen, elixir-format
-msgid "My Brand Name"
-msgstr "Nome da Minha Marca"
 
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:118
 #, elixir-autogen, elixir-format
@@ -126,11 +116,6 @@ msgstr "Não conseguimos encontrar a internet"
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "fechar"
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:76
-#, elixir-autogen, elixir-format
-msgid "hacked"
-msgstr "hacked"
 
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:43
 #, elixir-autogen, elixir-format
@@ -172,16 +157,6 @@ msgstr "Corpo da Requisição (Body)"
 msgid "The HTTP method to use for the request."
 msgstr "O método HTTP a ser utilizado para a requisição."
 
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:74
-#, elixir-autogen, elixir-format
-msgid "The endpoint response body MUST NOT contain this word. Useful to detect hacks/defacements."
-msgstr "O corpo de resposta do endpoint NÃO DEVE conter essa palavra. Útil contra desfigurações/hacks."
-
-#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:66
-#, elixir-autogen, elixir-format
-msgid "The endpoint response body MUST contain this exact word, otherwise it is considered DOWN."
-msgstr "O corpo de resposta do endpoint DEVE conter exatamente essa palavra, caso contrário será falha."
-
 #: lib/holter_web/live/monitoring/monitor_live/new.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "The precise target endpoint or website you want to monitor."
@@ -195,19 +170,44 @@ msgstr "Tempo Limite de Espera (Segundos)"
 #: lib/holter_web/live/monitoring/monitor_live/index.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "Checks every"
-msgstr ""
+msgstr "Testará a cada"
 
 #: lib/holter_web/live/monitoring/monitor_live/index.html.heex:5
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Create New Monitor"
-msgstr "Criar Monitor"
+msgstr "Criar Novo Monitor"
 
 #: lib/holter_web/live/monitoring/monitor_live/index.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Monitoring Dashboard"
-msgstr ""
+msgstr "Painel de Monitores"
 
 #: lib/holter_web/live/monitoring/monitor_live/index.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "No monitors found. Create one to get started!"
-msgstr ""
+msgstr "Nenhum monitor encontrado. Crie um para começar!"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Brand Name, Title, Success"
+msgstr "Nome da Marca, Título, Sucesso"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Must Contain (Keywords)"
+msgstr "Deve Conter (Palavras-chave)"
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "The endpoint response MUST NOT contain these words. Useful to detect hacks/defacements. Separate by comma."
+msgstr "O corpo de resposta do endpoint NÃO DEVE conter essas palavras. Útil contra desfigurações/hacks. Separe por vírgula."
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "The endpoint response MUST contain these words, otherwise it is considered DOWN. Separate multiple words by comma."
+msgstr "O corpo de resposta do endpoint DEVE conter essas exatas palavras, caso contrário será falha. Separe as palavras por vírgula."
+
+#: lib/holter_web/live/monitoring/monitor_live/new.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "hacked, database error"
+msgstr "hacked, erro no banco de dados"
