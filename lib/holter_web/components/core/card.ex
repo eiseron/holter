@@ -30,7 +30,7 @@ defmodule HolterWeb.CoreComponents.Card do
         <div :for={header <- @header} class="card-header">
           <div>
             <h3 class="card-title">{header.title}</h3>
-            <p :if={header.subtitle} class="card-subtitle">{header.subtitle}</p>
+            <p :if={Map.get(header, :subtitle)} class="card-subtitle">{header[:subtitle]}</p>
           </div>
           <div :if={@actions != []} class="card-actions">
             {render_slot(@actions)}

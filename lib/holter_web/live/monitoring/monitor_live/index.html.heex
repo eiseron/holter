@@ -31,7 +31,7 @@
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-3">
                 <.badge kind={:active}>{monitor.method}</.badge>
-                <.badge kind={String.to_atom(monitor.logical_state)}>{monitor.logical_state}</.badge>
+                <.badge kind={monitor.logical_state}>{monitor.logical_state}</.badge>
               </div>
               
               <div class="flex items-center justify-between mt-auto pt-4 border-t border-ghost">
