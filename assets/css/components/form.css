@@ -30,22 +30,55 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  font-family: var(--font-display);
-  font-size: 0.625rem;
-  font-weight: var(--weight-bold);
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 0; /* Sentinel Ethos Square Icon */
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: var(--accent);
+  color: var(--text-inverse);
+  font-size: 0.75rem;
+  font-weight: 700;
   cursor: help;
   user-select: none;
   transition: var(--transition-snap);
+  position: relative;
 }
 
 .h-form-help-icon:hover {
-  background-color: var(--accent);
-  color: var(--text-inverse);
+  background-color: var(--surface-vibrant);
+  color: var(--text-primary);
+}
+
+/* Tooltip Engine — Premium nested span implementation */
+.h-form-tooltip {
+  display: block;
+  content: "";
+  position: absolute;
+  bottom: calc(100% + var(--space-4));
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  width: max-content;
+  max-width: 20rem;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-layer-2);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow-deep);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity var(--transition-snap), transform var(--transition-snap);
+  white-space: normal;
+}
+
+.h-form-help-icon:hover .h-form-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .h-form-checkbox .h-form-help-icon {
