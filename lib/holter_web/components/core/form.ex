@@ -99,7 +99,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon" class="h-form-help-icon-wrapper">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
       </label>
       <select
           id={@id}
@@ -121,7 +121,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon" class="h-form-help-icon-wrapper">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
       </label>
       <textarea
         id={@id}
@@ -142,7 +142,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon" class="h-form-help-icon-wrapper">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
       </label>
       <input
         type={@type}
