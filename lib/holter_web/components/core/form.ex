@@ -33,10 +33,11 @@ defmodule HolterWeb.CoreComponents.Form do
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :class, :any, default: nil, doc: "the input class to use over defaults"
   attr :error_class, :any, default: nil, doc: "the input error class to use over defaults"
+  attr :help, :string, default: nil, doc: "contextual help text displayed on hover of the (?) icon"
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
-                multiple pattern placeholder readonly required rows size step help)
+                multiple pattern placeholder readonly required rows size step)
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
@@ -82,7 +83,7 @@ defmodule HolterWeb.CoreComponents.Form do
         />
         <span class="h-label-text">
           {@label}
-          <span :if={@rest[:help]} class="h-form-help-icon ml-2" title={@rest[:help]}>?</span>
+          <span :if={@help} class="h-form-help-icon ml-2" title={@help}>?</span>
         </span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
@@ -95,7 +96,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+        <span :if={@help} class="h-form-help-icon" title={@help}>?</span>
       </label>
       <select
           id={@id}
@@ -117,7 +118,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+        <span :if={@help} class="h-form-help-icon" title={@help}>?</span>
       </label>
       <textarea
         id={@id}
@@ -138,7 +139,7 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@rest[:help]} class="h-form-help-icon" title={@rest[:help]}>?</span>
+        <span :if={@help} class="h-form-help-icon" title={@help}>?</span>
       </label>
       <input
         type={@type}
