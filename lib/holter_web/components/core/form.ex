@@ -99,18 +99,21 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">
+          ?
+          <span class="h-form-tooltip">{@help}</span>
+        </span>
       </label>
       <select
-          id={@id}
-          name={@name}
-          class={[@class || "h-form-select", @errors != [] && (@error_class || "is-error")]}
-          multiple={@multiple}
-          {@rest}
-        >
-          <option :if={@prompt} value="">{@prompt}</option>
-          {Phoenix.HTML.Form.options_for_select(@options, @value)}
-        </select>
+        id={@id}
+        name={@name}
+        class={[@class || "h-form-select", @errors != [] && (@error_class || "is-error")]}
+        multiple={@multiple}
+        {@rest}
+      >
+        <option :if={@prompt} value="">{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
+      </select>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -121,7 +124,10 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">
+          ?
+          <span class="h-form-tooltip">{@help}</span>
+        </span>
       </label>
       <textarea
         id={@id}
@@ -142,7 +148,10 @@ defmodule HolterWeb.CoreComponents.Form do
     <div class="h-form-group">
       <label class="h-form-label">
         <span :if={@label}>{@label}</span>
-        <span :if={@help} class="h-form-help-icon">? <span class="h-form-tooltip">{@help}</span></span>
+        <span :if={@help} class="h-form-help-icon">
+          ?
+          <span class="h-form-tooltip">{@help}</span>
+        </span>
       </label>
       <input
         type={@type}
