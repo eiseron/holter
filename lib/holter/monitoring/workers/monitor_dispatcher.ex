@@ -2,15 +2,21 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
   use Oban.Worker, queue: :dispatchers, max_attempts: 1
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Workers.HTTPCheck
+  alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     monitors = Monitoring.list_monitors_for_dispatch()
 
     jobs =
-      Enum.map(monitors, fn monitor ->
-        HTTPCheck.new(%{id: monitor.id})
+      Enum.flat_map(monitors, fn monitor ->
+        http_job = HTTPCheck.new(%{id: monitor.id})
+
+        if String.starts_with?(monitor.url, "https") do
+          [http_job, SSLCheck.new(%{id: monitor.id})]
+        else
+          [http_job]
+        end
       end)
 
     if Enum.any?(jobs) do

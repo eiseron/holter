@@ -92,6 +92,12 @@ defmodule Holter.Monitoring do
     |> Repo.insert()
   end
 
+  def update_incident(%Incident{} = incident, attrs) do
+    incident
+    |> Incident.changeset(attrs)
+    |> Repo.update()
+  end
+
   def resolve_incident(%Incident{} = incident, resolved_at) do
     duration = DateTime.diff(resolved_at, incident.started_at)
 

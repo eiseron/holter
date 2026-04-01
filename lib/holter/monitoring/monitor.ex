@@ -34,6 +34,7 @@ defmodule Holter.Monitoring.Monitor do
     field :last_checked_at, :utc_datetime
     field :last_success_at, :utc_datetime
     field :last_manual_check_at, :utc_datetime
+    field :ssl_expires_at, :utc_datetime
 
     has_many :daily_metrics, Holter.Monitoring.DailyMetric
 
@@ -59,7 +60,8 @@ defmodule Holter.Monitoring.Monitor do
       :raw_keyword_negative,
       :last_checked_at,
       :last_success_at,
-      :last_manual_check_at
+      :last_manual_check_at,
+      :ssl_expires_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
     |> validate_url()
