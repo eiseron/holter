@@ -11,11 +11,13 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
       |> Monitoring.get_monitor!()
       |> hydrate_virtual_array_fields()
 
+    daily_metrics = Monitoring.list_daily_metrics(id)
     changeset = Monitoring.change_monitor(hydrated_monitor)
 
     {:ok,
      socket
      |> assign(:monitor, hydrated_monitor)
+     |> assign(:daily_metrics, daily_metrics)
      |> assign(:form, to_form(changeset))}
   end
 

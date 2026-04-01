@@ -35,6 +35,8 @@ defmodule Holter.Monitoring.Monitor do
     field :last_success_at, :utc_datetime
     field :last_manual_check_at, :utc_datetime
 
+    has_many :daily_metrics, Holter.Monitoring.DailyMetric
+
     timestamps(type: :utc_datetime)
   end
 

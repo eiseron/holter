@@ -58,9 +58,13 @@ config :holter, Oban,
   repo: Holter.Repo,
   plugins: [
     Oban.Plugins.Pruner,
-    {Oban.Plugins.Cron, crontab: [{"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher}]}
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher},
+       {"5 0 * * *", Holter.Monitoring.Workers.DailyMetricsAggregator}
+     ]}
   ],
-  queues: [dispatchers: 1, checks: 50]
+  queues: [dispatchers: 1, checks: 50, metrics: 5]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

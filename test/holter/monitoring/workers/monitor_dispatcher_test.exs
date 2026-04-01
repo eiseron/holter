@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   use Holter.DataCase, async: true
   use Oban.Testing, repo: Holter.Repo
-  
+
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.MonitorDispatcher
   alias Holter.Monitoring.Workers.HTTPCheck
@@ -44,12 +44,14 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   end
 
   defp create_active_monitor do
-    {:ok, monitor} = Monitoring.create_monitor(%{
-      url: "https://active.local",
-      method: "GET",
-      interval_seconds: 60,
-      logical_state: :active
-    })
+    {:ok, monitor} =
+      Monitoring.create_monitor(%{
+        url: "https://active.local",
+        method: "GET",
+        interval_seconds: 60,
+        logical_state: :active
+      })
+
     monitor
   end
 

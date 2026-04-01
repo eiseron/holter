@@ -4,6 +4,40 @@
     <p class="monitor-id-subtitle">UUID: {@monitor.id}</p>
   </header>
 
+  <section class="metrics-section">
+    <h2>{gettext("Daily Uptime History")}</h2>
+    <%= if Enum.empty?(@daily_metrics) do %>
+      <div class="empty-state">
+        <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
+      </div>
+    <% else %>
+      <div class="metrics-table-wrapper">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>{gettext("Date")}</th>
+              <th>{gettext("Uptime (%)")}</th>
+              <th>{gettext("Avg Latency")}</th>
+              <th>{gettext("Downtime")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for metric <- @daily_metrics do %>
+              <tr>
+                <td>{Calendar.strftime(metric.date, "%Y-%m-%d")}</td>
+                <td class={"uptime-cell #{if Decimal.to_float(metric.uptime_percent) < 99.0, do: "low-uptime", else: "high-uptime"}"}>
+                  {metric.uptime_percent}%
+                </td>
+                <td>{metric.avg_latency_ms}ms</td>
+                <td>{metric.total_downtime_minutes} {gettext("min")}</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
   <.form
     for={@form}
     id="monitor-form"
@@ -281,6 +315,58 @@
     font-size: 0.85rem;
     margin-bottom: 2rem;
   }
+
+  .metrics-section {
+    margin-bottom: 3rem;
+    background: #fdfdfd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .metrics-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #777;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border: 1px dashed #ddd;
+  }
+
+  .metrics-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+
+  .metrics-table th, .metrics-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .metrics-table th {
+    font-weight: 600;
+    color: #666;
+    background: #fafafa;
+  }
+
+  .uptime-cell {
+    font-weight: 700;
+  }
+
+  .high-uptime { color: #28a745; }
+  .low-uptime { color: #dc3545; }
 
   .form-sections {
     display: flex;
