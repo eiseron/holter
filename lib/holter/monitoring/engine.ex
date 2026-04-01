@@ -11,12 +11,13 @@ defmodule Holter.Monitoring.Engine do
   """
   def process_response(monitor, response, duration_ms) do
     status_ok = response.status >= 200 and response.status < 400
-    
-    body = case response.body do
-      body when is_binary(body) -> body
-      body when is_map(body) -> Jason.encode!(body)
-      _ -> ""
-    end
+
+    body =
+      case response.body do
+        body when is_binary(body) -> body
+        body when is_map(body) -> Jason.encode!(body)
+        _ -> ""
+      end
 
     keywords_ok =
       validate_positive(body, monitor.keyword_positive) and
@@ -27,7 +28,15 @@ defmodule Holter.Monitoring.Engine do
     snippet = if final_status != monitor.health_status, do: String.slice(body, 0, 512), else: nil
     error_msg = determine_error_message(status_ok, keywords_ok, response.status)
 
-    finalize_check(monitor, final_status, log_status, response.status, duration_ms, error_msg, snippet)
+    finalize_check(
+      monitor,
+      final_status,
+      log_status,
+      response.status,
+      duration_ms,
+      error_msg,
+      snippet
+    )
   end
 
   @doc """
@@ -46,7 +55,7 @@ defmodule Holter.Monitoring.Engine do
 
     handle_incident_logic(monitor, status, error_msg, now)
     update_monitor_state(monitor, status, now)
-    
+
     record_monitor_log(%{
       monitor_id: monitor.id,
       status: log_status,
