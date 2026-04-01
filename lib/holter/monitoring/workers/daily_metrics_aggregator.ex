@@ -19,15 +19,12 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregator do
         new(%{monitor_id: monitor.id, date: date_str})
       end)
 
-    if Enum.any?(jobs) do
-      Oban.insert_all(jobs)
-    end
+    if Enum.any?(jobs), do: Oban.insert_all(jobs)
 
     :ok
   end
 
   def perform(%Oban.Job{}) do
-    # Default: run for all monitors for yesterday
     yesterday = Date.utc_today() |> Date.add(-1)
     perform(%Oban.Job{args: %{"all_monitors" => true, "date" => Date.to_iso8601(yesterday)}})
   end
