@@ -21,14 +21,8 @@ defmodule Holter.Monitoring.CertificateParserTest do
 
   describe "extract_expiration_from_otp/1" do
     test "extracts time from a mock OTP structure" do
-      # Mocking the :OTPCertificate tuple structure
-      # {OTPCertificate, OTPSubjectPublicKeyInfo, AlgorithmIdentifier, binary()}
-      # where OTPSubjectPublicKeyInfo contains the validity at index 7 (1-based index)
-
       validity = {:Validity, nil, {:utcTime, ~c"491231235959Z"}}
 
-      # TBS record (index 1 of OTPCertificate)
-      # Index 7 of TBS is validity
       tbs = {
         :OTPTBSCertificate,
         nil,
@@ -37,7 +31,6 @@ defmodule Holter.Monitoring.CertificateParserTest do
         nil,
         nil,
         nil,
-        # Index 7
         validity,
         nil,
         nil,
