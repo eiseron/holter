@@ -66,7 +66,6 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
           timeout_seconds: 30
         })
 
-      # No expectation for get_ssl_expiration means it shouldn't be called
       :ok = perform_job(SSLCheck, %{"id" => plain_monitor.id})
       %{plain_monitor: plain_monitor}
     end

@@ -52,8 +52,6 @@ defmodule Holter.Monitoring do
     Monitor.changeset(monitor, attrs)
   end
 
-  # Monitor Logs
-
   alias Holter.Monitoring.MonitorLog
 
   def list_monitor_logs(monitor_id) do
@@ -68,8 +66,6 @@ defmodule Holter.Monitoring do
     |> MonitorLog.changeset(attrs)
     |> Repo.insert()
   end
-
-  # Incidents
 
   alias Holter.Monitoring.Incident
 
@@ -106,8 +102,6 @@ defmodule Holter.Monitoring do
     |> Repo.update()
   end
 
-  # Daily Metrics
-
   alias Holter.Monitoring.DailyMetric
 
   def list_daily_metrics(monitor_id) do
@@ -129,8 +123,6 @@ defmodule Holter.Monitoring do
       conflict_target: [:monitor_id, :date]
     )
   end
-
-  # Engine Queries
 
   def list_monitors_for_dispatch do
     now = DateTime.utc_now()

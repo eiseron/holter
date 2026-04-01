@@ -77,7 +77,6 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "maintains the same incident record", %{monitor: monitor} do
-      # Since we only have one open incident, we check if it was updated
       assert %{type: :ssl_expiry} = Monitoring.get_open_incident(monitor.id)
     end
 
