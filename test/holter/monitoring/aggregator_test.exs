@@ -21,7 +21,6 @@ defmodule Holter.Monitoring.AggregatorTest do
       date = ~D[2026-04-01]
       start_of_day = DateTime.new!(date, ~T[10:00:00], "Etc/UTC")
 
-      # Success check
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
         status: :success,
@@ -29,7 +28,6 @@ defmodule Holter.Monitoring.AggregatorTest do
         checked_at: start_of_day
       })
 
-      # Another check
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
         status: :success,
@@ -37,7 +35,6 @@ defmodule Holter.Monitoring.AggregatorTest do
         checked_at: DateTime.add(start_of_day, 3600)
       })
 
-      # Incident: 10 minutes downtime
       incident_start = DateTime.new!(date, ~T[12:00:00], "Etc/UTC")
 
       {:ok, incident} =
@@ -54,7 +51,6 @@ defmodule Holter.Monitoring.AggregatorTest do
       assert metric.date == date
       assert metric.avg_latency_ms == 150
       assert metric.total_downtime_minutes == 10
-      # (1440 - 10) / 1440 * 100 = 99.3055... -> 99.31
       assert Decimal.to_float(metric.uptime_percent) == 99.31
     end
 
@@ -62,7 +58,6 @@ defmodule Holter.Monitoring.AggregatorTest do
       day1 = ~D[2026-04-01]
       day2 = ~D[2026-04-02]
 
-      # Incident starts at 23:50 on day 1 and ends at 00:10 on day 2
       incident_start = DateTime.new!(day1, ~T[23:50:00], "Etc/UTC")
 
       {:ok, incident} =
@@ -72,7 +67,6 @@ defmodule Holter.Monitoring.AggregatorTest do
           started_at: incident_start
         })
 
-      # 20 mins
       Monitoring.resolve_incident(incident, DateTime.add(incident_start, 1200))
 
       {:ok, metric1} = Aggregator.aggregate_monitor_date(monitor.id, day1)
@@ -88,7 +82,6 @@ defmodule Holter.Monitoring.AggregatorTest do
       Aggregator.aggregate_monitor_date(monitor.id, date)
       {:ok, _metric} = Aggregator.aggregate_monitor_date(monitor.id, date)
 
-      # Check that it didn't create a new record (unique constraint handled by upsert)
       assert Repo.aggregate(Holter.Monitoring.DailyMetric, :count, :id) == 1
     end
   end

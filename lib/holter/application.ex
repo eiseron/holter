@@ -1,6 +1,4 @@
 defmodule Holter.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
 
   use Application
@@ -12,21 +10,14 @@ defmodule Holter.Application do
       Holter.Repo,
       {DNSCluster, query: Application.get_env(:holter, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Holter.PubSub},
-      # Start a worker by calling: Holter.Worker.start_link(arg)
-      # {Holter.Worker, arg},
       {Oban, Application.fetch_env!(:holter, Oban)},
-      # Start to serve requests, typically the last entry
       HolterWeb.Endpoint
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Holter.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
     HolterWeb.Endpoint.config_change(changed, removed)

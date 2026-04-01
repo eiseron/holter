@@ -1,57 +1,62 @@
 defmodule Holter.Test.DummyService do
   @moduledoc """
-  Local HTTP test server backed by a FIFO queue per `call_id`.
-
-  Responses are dequeued in registration order. Sending the same `call_id`
-  multiple times allows modelling distinct responses per consecutive request,
-  independent of any domain concept such as a monitor ID.
+  A simple HTTP server for integration testing.
 
   ## Usage
 
+      # Reset all queues
+      DummyService.reset()
+
+      # Enqueue responses for a specific call_id
       DummyService.enqueue("mycheck", status: 500, body: "Error")
       DummyService.enqueue("mycheck", status: 200, body: "OK")
 
+      # Perform requests
       # GET /probe/mycheck -> 500 (first call)
       # GET /probe/mycheck -> 200 (second call)
       # GET /probe/mycheck -> 404 (queue exhausted)
   """
   use Plug.Router
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
-  @agent __MODULE__.State
-
-  def start_link(_opts), do: Agent.start_link(fn -> %{} end, name: @agent)
-
-  def enqueue(call_id, response_attrs) do
-    Agent.update(@agent, fn state ->
-      Map.update(state, to_string(call_id), [response_attrs], &(&1 ++ [response_attrs]))
+  def enqueue(call_id, opts) do
+    Agent.update(__MODULE__, fn state ->
+      responses = Map.get(state, call_id, [])
+      Map.put(state, call_id, responses ++ [opts])
     end)
   end
 
-  def reset, do: Agent.update(@agent, fn _ -> %{} end)
+  def reset do
+    Agent.update(__MODULE__, fn _ -> %{} end)
+  end
 
   get "/probe/:call_id" do
-    case dequeue(call_id) do
-      :empty ->
-        send_resp(conn, 404, "No responses queued for: #{call_id}")
+    state = Agent.get(__MODULE__, & &1)
 
-      attrs ->
-        conn
-        |> put_resp_content_type("text/plain")
-        |> send_resp(Keyword.get(attrs, :status, 200), Keyword.get(attrs, :body, "OK"))
+    case Map.get(state, call_id) do
+      [next | rest] ->
+        Agent.update(__MODULE__, &Map.put(&1, call_id, rest))
+        status = Keyword.get(next, :status, 200)
+        body = Keyword.get(next, :body, "OK")
+        send_resp(conn, status, body)
+
+      _ ->
+        send_resp(conn, 404, "No responses queued for: #{call_id}")
     end
   end
 
   match(_, do: send_resp(conn, 404, "Not Found: #{conn.request_path}"))
 
-  defp dequeue(call_id) do
-    Agent.get_and_update(@agent, fn state ->
-      case Map.get(state, call_id, []) do
-        [] -> {:empty, state}
-        [next | rest] -> {next, Map.put(state, call_id, rest)}
-      end
-    end)
+  def start_link(_) do
+    Agent.start_link(fn -> %{} end, name: __MODULE__)
+  end
+
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
   end
 end
