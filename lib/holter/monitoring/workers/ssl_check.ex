@@ -15,11 +15,8 @@ defmodule Holter.Monitoring.Workers.SSLCheck do
           SecurityScanner.process_ssl(monitor, expiration_date)
 
         {:error, reason} ->
-          # If we can't even check SSL, we might want to log this but not necessarily
-          # open an incident unless it's a persistent failure.
-          # For now, we'll just log it.
           require Logger
-          Logger.warning("Failed to check SSL for monitor #{monitor.id}: #{inspect(reason)}")
+          Logger.error("Failed to check SSL for monitor #{monitor.id}: #{inspect(reason)}")
       end
     end
 
