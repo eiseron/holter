@@ -25,6 +25,7 @@ defmodule Holter.DataCase do
       import Ecto.Query
       import Holter.DataCase
       import Mox
+      use Oban.Testing, repo: Holter.Repo
     end
   end
 

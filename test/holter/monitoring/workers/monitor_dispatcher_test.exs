@@ -1,6 +1,5 @@
 defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   use Holter.DataCase, async: true
-  use Oban.Testing, repo: Holter.Repo
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.MonitorDispatcher

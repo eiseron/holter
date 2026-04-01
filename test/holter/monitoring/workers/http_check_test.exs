@@ -1,6 +1,6 @@
 defmodule Holter.Monitoring.Workers.HTTPCheckTest do
   use Holter.DataCase, async: true
-  use Oban.Testing, repo: Holter.Repo
+  import Mox
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.HTTPCheck
