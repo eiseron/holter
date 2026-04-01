@@ -14,6 +14,7 @@ defmodule Holter.Application do
       {Phoenix.PubSub, name: Holter.PubSub},
       # Start a worker by calling: Holter.Worker.start_link(arg)
       # {Holter.Worker, arg},
+      {Oban, Application.fetch_env!(:holter, Oban)},
       # Start to serve requests, typically the last entry
       HolterWeb.Endpoint
     ]

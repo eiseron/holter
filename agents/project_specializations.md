@@ -4,6 +4,7 @@ This is a web application written using the Phoenix web framework.
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
+- **CSS Strategy**: All UI styling must be implemented strictly using pure, modern Vanilla CSS with native features (like CSS Grid, Flexbox, and CSS Variables). Write dedicated, semantic CSS classes and attach them to the HTML elements.
 
 ### Phoenix v1.8 guidelines
 
@@ -77,6 +78,93 @@ custom classes must fully style the input
 
    - Instead of sleeping to synchronize before the next call, **always** use `_ = :sys.get_state/1` to ensure the process has handled prior messages
 <!-- phoenix:elixir-end -->
+
+<!-- holter:monitoring-testing-start -->
+## Monitoring Engine — Testing Guidelines
+
+### Monitor Changeset & Keyword Fields
+
+- The `Monitor` changeset **only** accepts `raw_keyword_positive` and `raw_keyword_negative` (virtual string fields). Passing `keyword_positive: [...]` directly is **silently ignored** by `cast/3`.
+- **Always** use the raw fields when creating monitors in tests:
+
+      %{raw_keyword_positive: "success", raw_keyword_negative: "error"}
+
+### Oban Worker Tests
+
+- **Always** use `use Oban.Testing, repo: Holter.Repo` to unlock `perform_job/2`, `assert_enqueued/1`, and `refute_enqueued/1`.
+- Use `perform_job(Worker, args)` — not `Worker.perform(%Oban.Job{args: args})` — to execute workers synchronously in the test process. This ensures Mox expectations set in the test process are visible to the worker.
+- **Never** call `Oban.Testing.assert_enqueued/1` as a module-qualified function (it uses a nil repo). **Always** use the imported macro version injected by `use Oban.Testing`.
+
+### MonitorClient HTTP Behaviour
+
+- The `MonitorClient.HTTP` implementation **must** set `retry: false` on all `Req` calls. Req's default retry policy retries `5xx` responses, which masks the original status code and causes flaky test assertions.
+- The `:method` option passed to `Req` **must be an atom** (e.g. `:get`), never a lowercase string (`"get"`). Passing a string causes the wrong HTTP method to be sent, resulting in 404s from local test servers.
+
+### Integration Tests with DummyService
+
+- `Holter.Test.DummyService` is a local `Plug.Router` + `Bandit` server running on the port configured in `config :holter, :dummy_port`.
+- Use simple **alphanumeric `call_id`s** (e.g. `"check1"`). The `Plug.Router` `:param` binding **does not support hyphens or underscores** mid-token — they break route matching silently.
+- Use `DummyService.enqueue(call_id, status: ..., body: ...)` to register FIFO responses. Each `GET /probe/:call_id` consumes one entry from the queue. This allows testing response sequences without coupling the URL path to domain IDs.
+- **Always** call `DummyService.reset()` in `setup` to prevent cross-test state pollution.
+- Extract the `call_id` as a module attribute (`@call_id`) to avoid repetition across setup and test body.
+
+### Architecture: Engine vs Worker Separation
+
+- Business logic (status evaluation, keyword validation, incident lifecycle, log creation) lives in `Holter.Monitoring.Engine`.
+- `Holter.Monitoring.Workers.HTTPCheck` is a thin Oban wrapper: it only fetches the monitor, resolves the HTTP client, executes the request, and delegates to the Engine.
+- Test the Engine directly (`EngineTest`) with plain `%Req.Response{}` structs — no network, no Oban required.
+- Test the Worker (`HTTPCheckTest`) only to verify the client injection and delegation chain using Mox.
+- Test the full stack (`IntegrationTest`) with `DummyService` as a real HTTP server to validate the network path.
+
+### One Assert Per Test
+
+Each `test` block **must contain exactly one `assert`**. This makes failures immediately pinpoint the broken behaviour without scanning multiple assertions.
+
+Move the action (the operation under test) into the `setup` block using a strict match (`:ok = action()`), not `assert`. Each resulting `test` block then contains a single `assert` for one specific outcome.
+
+ExUnit **does not support nested `describe` blocks**. Model stateful sequences as flat, independent `describe` blocks where each `setup` builds the required state from scratch:
+
+```elixir
+describe "when monitor goes down" do
+  setup %{monitor: monitor, job_args: job_args} do
+    DummyService.enqueue("check1", status: 500, body: "Error")
+    :ok = perform_job(HTTPCheck, job_args)      # action — not an assert
+  end
+
+  test "sets health_status to :down", %{monitor: monitor} do
+    assert Monitoring.get_monitor!(monitor.id).health_status == :down
+  end
+
+  test "opens a downtime incident", %{monitor: monitor} do
+    assert Monitoring.get_open_incident(monitor.id)
+  end
+
+  test "sets root_cause from HTTP status", %{monitor: monitor} do
+    assert %{root_cause: "HTTP Error: 500"} = Monitoring.get_open_incident(monitor.id)
+  end
+end
+
+describe "when monitor recovers after downtime" do
+  setup %{monitor: monitor, job_args: job_args} do
+    DummyService.enqueue("check1", status: 500, body: "Error")
+    :ok = perform_job(HTTPCheck, job_args)
+    incident = Monitoring.get_open_incident(monitor.id)
+    DummyService.enqueue("check1", status: 200, body: "OK")
+    :ok = perform_job(HTTPCheck, job_args)
+    %{incident: incident}
+  end
+
+  test "sets health_status to :up", %{monitor: monitor} do
+    assert Monitoring.get_monitor!(monitor.id).health_status == :up
+  end
+
+  test "closes the incident", %{monitor: monitor} do
+    assert is_nil(Monitoring.get_open_incident(monitor.id))
+  end
+end
+```
+<!-- holter:monitoring-testing-end -->
+
 
 <!-- phoenix:phoenix-start -->
 ## Phoenix guidelines
@@ -223,10 +311,10 @@ custom classes must fully style the input
          |> stream(:messages, messages, reset: true)}
       end
 
-- LiveView streams *do not support counting or empty states*. If you need to display a count, you must track it using a separate assign. For empty states, you can use Tailwind classes:
+- LiveView streams *do not support counting or empty states*. If you need to display a count, you must track it using a separate assign. For empty states, you can use regular semantic CSS classes:
 
       <div id="tasks" phx-update="stream">
-        <div class="hidden only:block">No tasks yet</div>
+        <div class="empty-state-message">No tasks yet</div>
         <div :for={{id, task} <- @stream.tasks} id={id}>
           {task.name}
         </div>

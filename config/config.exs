@@ -9,7 +9,11 @@ import Config
 
 config :holter,
   ecto_repos: [Holter.Repo],
-  generators: [timestamp_type: :utc_datetime, binary_id: true]
+  generators: [timestamp_type: :utc_datetime, binary_id: true],
+  monitor_client: Holter.Monitoring.MonitorClient.HTTP
+
+# Configure Gettext default locale
+config :holter, HolterWeb.Gettext, default_locale: "pt_BR"
 
 # Configure the endpoint
 config :holter, HolterWeb.Endpoint,
@@ -48,6 +52,19 @@ config :logger, :default_formatter,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Configure Oban
+config :holter, Oban,
+  repo: Holter.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher},
+       {"5 0 * * *", Holter.Monitoring.Workers.DailyMetricsAggregator}
+     ]}
+  ],
+  queues: [dispatchers: 1, checks: 50, metrics: 5]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

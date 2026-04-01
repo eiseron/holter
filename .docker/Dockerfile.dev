@@ -1,4 +1,4 @@
-FROM elixir:1.19-otp-28-slim
+FROM --platform=linux/arm64 elixir:1.19-otp-28-slim
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     git \
@@ -9,7 +9,8 @@ WORKDIR /usr/src/holter
 RUN groupadd -g 1000 holter && \
     useradd -m -u 1000 -g holter holter
 RUN mkdir -p /usr/src/holter && chown holter:holter /usr/src/holter
+ENV HOME=/home/holter
+ENV USER=holter
 USER holter
 COPY .docker/entrypoint.sh .
-RUN mix local.hex --force && mix local.rebar --force
 CMD ["tail", "-f", "/dev/null"]

@@ -9,3 +9,6 @@
 @import "./components/list.css";
 @import "./components/icon.css";
 @import "./home.css";
+
+/* Global overrides for structural components */
+.hidden { display: none !important; }

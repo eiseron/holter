@@ -24,11 +24,13 @@ defmodule Holter.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Holter.DataCase
+      import Mox
     end
   end
 
   setup tags do
     Holter.DataCase.setup_sandbox(tags)
+    Mox.verify_on_exit!()
     :ok
   end
 
