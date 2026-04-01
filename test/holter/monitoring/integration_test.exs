@@ -12,15 +12,16 @@ defmodule Holter.Monitoring.IntegrationTest do
     DummyService.reset()
     port = Application.get_env(:holter, :dummy_port)
 
-    {:ok, monitor} = Monitoring.create_monitor(%{
-      url: "http://localhost:#{port}/probe/#{@call_id}",
-      method: "GET",
-      interval_seconds: 60,
-      logical_state: :active,
-      health_status: :up,
-      raw_keyword_positive: "OK",
-      raw_keyword_negative: "FAIL"
-    })
+    {:ok, monitor} =
+      Monitoring.create_monitor(%{
+        url: "http://localhost:#{port}/probe/#{@call_id}",
+        method: "GET",
+        interval_seconds: 60,
+        logical_state: :active,
+        health_status: :up,
+        raw_keyword_positive: "OK",
+        raw_keyword_negative: "FAIL"
+      })
 
     %{monitor: monitor, job_args: %{"id" => monitor.id, "client_name" => "http"}}
   end

@@ -76,7 +76,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
 
     test "records keyword validation error message", %{monitor: monitor} do
-      assert [%{error_message: "Keyword validation failed"}] = Monitoring.list_monitor_logs(monitor.id)
+      assert [%{error_message: "Keyword validation failed"}] =
+               Monitoring.list_monitor_logs(monitor.id)
     end
   end
 
@@ -85,6 +86,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       expect(MonitorClientMock, :request, fn _opts ->
         {:error, %RuntimeError{message: "timeout"}}
       end)
+
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
@@ -98,6 +100,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       expect(MonitorClientMock, :request, fn _opts ->
         {:ok, %Req.Response{status: 200, body: "response has failure in it"}}
       end)
+
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
