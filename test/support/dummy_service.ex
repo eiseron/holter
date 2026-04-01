@@ -1,4 +1,21 @@
 defmodule Holter.Test.DummyService do
+  @moduledoc """
+  A simple HTTP server for integration testing.
+
+  ## Usage
+
+      # Reset all queues
+      DummyService.reset()
+
+      # Enqueue responses for a specific call_id
+      DummyService.enqueue("mycheck", status: 500, body: "Error")
+      DummyService.enqueue("mycheck", status: 200, body: "OK")
+
+      # Perform requests
+      # GET /probe/mycheck -> 500 (first call)
+      # GET /probe/mycheck -> 200 (second call)
+      # GET /probe/mycheck -> 404 (queue exhausted)
+  """
   use Plug.Router
 
   plug(:match)

@@ -1,5 +1,6 @@
 defmodule Holter.Monitoring.Workers.DailyMetricsAggregatorTest do
   use Holter.DataCase, async: true
+  use Oban.Testing, repo: Holter.Repo
   alias Holter.Monitoring.Workers.DailyMetricsAggregator
   alias Holter.Monitoring
 
