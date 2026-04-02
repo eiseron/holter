@@ -4,34 +4,18 @@ defmodule Holter.Monitoring.Engine do
   This service handles response processing, keyword validation, 
   incident lifecycle, and monitor log creation.
   """
+
   alias Holter.Monitoring
 
-  @doc """
-  Processes a successful HTTP response against a monitor.
-  """
   def process_response(monitor, response, duration_ms) do
-    status_ok = response.status >= 200 and response.status < 400
+    body = normalize_body(response.body)
+    {positive_ok, negative_ok} = validate_keywords(body, monitor)
 
-    body =
-      case response.body do
-        body when is_binary(body) -> body
-        body when is_map(body) -> Jason.encode!(body)
-        _ -> ""
-      end
+    check_status = determine_check_status(response.status, positive_ok, negative_ok)
+    log_status = determine_log_status(check_status)
 
-    positive_ok = validate_positive(body, monitor.keyword_positive)
-    negative_ok = validate_negative(body, monitor.keyword_negative)
-
-    check_status =
-      cond do
-        not status_ok or not positive_ok -> :down
-        not negative_ok -> :compromised
-        true -> :up
-      end
-
-    log_status = if check_status == :up, do: :success, else: :failure
-    snippet = if check_status != monitor.health_status, do: String.slice(body, 0, 512), else: nil
-    error_msg = determine_error_message(status_ok, positive_ok, negative_ok, response.status)
+    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+    snippet = determine_snippet(check_status, monitor.health_status, body)
 
     finalize_check(
       monitor,
@@ -44,17 +28,41 @@ defmodule Holter.Monitoring.Engine do
     )
   end
 
-  @doc """
-  Processes a network/request failure.
-  """
   def handle_failure(monitor, error, duration_ms) do
     finalize_check(monitor, :down, :failure, nil, duration_ms, Exception.message(error), nil)
   end
 
-  defp determine_error_message(false, _, _, status), do: "HTTP Error: #{status}"
-  defp determine_error_message(true, false, _, _), do: "Missing required keywords"
-  defp determine_error_message(true, true, false, _), do: "Found forbidden keywords"
-  defp determine_error_message(_, _, _, _), do: nil
+  defp normalize_body(body) when is_binary(body), do: body
+  defp normalize_body(body) when is_map(body), do: Jason.encode!(body)
+  defp normalize_body(_), do: ""
+
+  defp validate_keywords(body, monitor) do
+    {
+      validate_positive(body, monitor.keyword_positive),
+      validate_negative(body, monitor.keyword_negative)
+    }
+  end
+
+  defp determine_check_status(status, positive_ok, _negative_ok)
+       when status < 200 or status >= 400 or not positive_ok, do: :down
+
+  defp determine_check_status(_status, _positive_ok, false), do: :compromised
+  defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
+
+  defp determine_log_status(:up), do: :success
+  defp determine_log_status(_), do: :failure
+
+  defp determine_error_message(status, _, _) when status < 200 or status >= 400,
+    do: "HTTP Error: #{status}"
+
+  defp determine_error_message(_, false, _), do: "Missing required keywords"
+  defp determine_error_message(_, _, false), do: "Found forbidden keywords"
+  defp determine_error_message(_, _, _), do: nil
+
+  defp determine_snippet(status, current_health, body) when status != current_health,
+    do: String.slice(body, 0, 512)
+
+  defp determine_snippet(_, _, _), do: nil
 
   defp finalize_check(
          monitor,
@@ -131,13 +139,9 @@ defmodule Holter.Monitoring.Engine do
     fully_updated
   end
 
-  defp record_monitor_log(attrs) do
-    Monitoring.create_monitor_log(attrs)
-  end
+  defp record_monitor_log(attrs), do: Monitoring.create_monitor_log(attrs)
 
-  defp get_region do
-    System.get_env("MONITOR_REGION", "br-sp-1")
-  end
+  defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
 
   defp validate_positive(_body, empty) when empty in [nil, []], do: true
   defp validate_positive(body, keywords), do: Enum.all?(keywords, &String.contains?(body, &1))

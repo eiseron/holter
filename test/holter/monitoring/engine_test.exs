@@ -91,11 +91,9 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when transitioning from down to compromised" do
     setup %{monitor: monitor} do
-      # 1. Goes Down
       {:ok, _} = Engine.process_response(monitor, error_response(500, ""), 100)
       monitor_after_down = Monitoring.get_monitor!(monitor.id)
 
-      # 2. Site is up but hacked
       {:ok, _} = Engine.process_response(monitor_after_down, ok_response("success error"), 100)
       :ok
     end
@@ -115,11 +113,9 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when recovering from defacement" do
     setup %{monitor: monitor} do
-      # 1. Hacked
       {:ok, _} = Engine.process_response(monitor, ok_response("success error"), 100)
       monitor_after_hacked = Monitoring.get_monitor!(monitor.id)
 
-      # 2. Fixed
       {:ok, _} = Engine.process_response(monitor_after_hacked, ok_response("success"), 100)
       :ok
     end
