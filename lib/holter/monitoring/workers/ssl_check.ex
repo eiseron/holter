@@ -1,4 +1,7 @@
 defmodule Holter.Monitoring.Workers.SSLCheck do
+  @moduledoc """
+  Oban worker responsible for performing SSL expiration and handshake checks.
+  """
   use Oban.Worker, queue: :checks, max_attempts: 2
 
   alias Holter.Monitoring
@@ -37,6 +40,7 @@ defmodule Holter.Monitoring.Workers.SSLCheck do
   defp handle_expiration_result({:error, reason}, monitor) do
     require Logger
     Logger.error("Failed to check SSL for monitor #{monitor.id}: #{inspect(reason)}")
+    SecurityScanner.handle_ssl_error(monitor, reason)
     :ok
   end
 end

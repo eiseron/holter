@@ -2,6 +2,7 @@ defmodule Holter.Monitoring.SecurityScanner do
   @moduledoc """
   Logic for processing security-related checks like SSL expiration.
   """
+
   alias Holter.Monitoring
 
   def process_ssl(monitor, expiration_date) do
@@ -10,6 +11,12 @@ defmodule Holter.Monitoring.SecurityScanner do
 
     update_monitor_expiry(monitor, expiration_date)
     dispatch_incident_logic(monitor, days_until_expiry, now)
+  end
+
+  def handle_ssl_error(monitor, reason) do
+    now = DateTime.utc_now()
+    cause = "SSL Error: #{inspect(reason)}"
+    upsert_incident(monitor, :ssl_expiry, now, cause)
   end
 
   defp update_monitor_expiry(monitor, expiration_date) do
