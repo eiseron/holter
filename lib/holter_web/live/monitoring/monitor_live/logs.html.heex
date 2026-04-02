@@ -1,0 +1,244 @@
+<div class="logs-container">
+  <header class="logs-header">
+    <div class="header-title-row">
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}"} class="btn-back">
+        &larr;
+      </.link>
+      <h1>{gettext("Technical Logs")}</h1>
+      <span class="monitor-url">{@monitor.url}</span>
+    </div>
+  </header>
+
+  <div class="logs-table-wrapper">
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>{gettext("Time")}</th>
+          <th>{gettext("Status")}</th>
+          <th>{gettext("Latency")}</th>
+          <th>{gettext("Evidence")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for log <- @logs do %>
+          <tr class={if log.response_headers, do: "has-evidence"}>
+            <td>{Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}</td>
+            <td>
+              <span class={"status-pill status-#{log.status}"}>
+                {String.upcase(to_string(log.status))}
+                <%= if log.status_code do %>
+                  ({log.status_code})
+                <% end %>
+              </span>
+            </td>
+            <td>{log.latency_ms}ms</td>
+            <td>
+              <%= if log.response_headers || log.response_snippet || log.error_message do %>
+                <button
+                  phx-click="view_evidence"
+                  phx-value-id={log.id}
+                  class="btn-evidence"
+                >
+                  {gettext("View Evidence")}
+                </button>
+              <% else %>
+                <span class="text-muted">-</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= if @selected_log do %>
+  <div class="modal-overlay" phx-click="close_modal">
+    <div class="modal-content large" phx-click-stop>
+      <div class="modal-header">
+        <h2>{gettext("Technical Evidence")}</h2>
+        <button phx-click="close_modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="evidence-grid">
+          <div class="evidence-meta">
+            <div class="meta-item">
+              <label>{gettext("Status")}</label>
+              <span>{@selected_log.status_code}</span>
+            </div>
+            <div class="meta-item">
+              <label>{gettext("Latency")}</label>
+              <span>{@selected_log.latency_ms}ms</span>
+            </div>
+            <div class="meta-item">
+              <label>{gettext("Region")}</label>
+              <span>{@selected_log.region}</span>
+            </div>
+          </div>
+
+          <%= if @selected_log.error_message do %>
+            <div class="evidence-block error">
+              <label>{gettext("Error Message")}</label>
+              <pre>{@selected_log.error_message}</pre>
+            </div>
+          <% end %>
+
+          <%= if @selected_log.response_headers do %>
+            <div class="evidence-block">
+              <label>{gettext("Response Headers")}</label>
+              <pre>{Jason.encode!(@selected_log.response_headers, pretty: true)}</pre>
+            </div>
+          <% end %>
+
+          <%= if @selected_log.response_snippet do %>
+            <div class="evidence-block">
+              <label>{gettext("Content Snippet (Sanitized)")}</label>
+              <div class="snippet-content">{@selected_log.response_snippet}</div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button phx-click="close_modal" class="btn-secondary">{gettext("Close")}</button>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+  .logs-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+
+  .logs-header { margin-bottom: 2rem; }
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .monitor-url {
+    color: #666;
+    font-size: 1.1rem;
+    font-family: monospace;
+  }
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f4f4f4;
+    color: #333;
+    text-decoration: none;
+  }
+
+  .logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .logs-table th, .logs-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  .has-evidence { background: #fcfaff; }
+
+  .status-pill {
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  .status-success { background: #d4edda; color: #155724; }
+  .status-failure { background: #f8d7da; color: #721c24; }
+
+  .btn-evidence {
+    background: #6f42c1;
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .evidence-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .evidence-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .meta-item label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  .evidence-block label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .evidence-block pre {
+    background: #272822;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+  }
+
+  .snippet-content {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    color: #444;
+  }
+
+  .error pre { background: #fee; color: #c00; border: 1px solid #fcc; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content.large {
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+</style>

@@ -15,7 +15,18 @@ defmodule Holter.Monitoring.Engine do
     log_status = determine_log_status(check_status)
 
     error_msg = determine_error_message(response.status, positive_ok, negative_ok)
-    snippet = determine_snippet(check_status, monitor.health_status, body)
+
+    # Selective Evidence: Only populate if status changed
+    {headers, snippet, ip} =
+      if check_status != monitor.health_status do
+        {
+          filter_headers(response.headers),
+          clean_body_snippet(body, get_header(response.headers, "content-type")),
+          extract_ip(response)
+        }
+      else
+        {nil, nil, nil}
+      end
 
     finalize_check(
       monitor,
@@ -24,12 +35,24 @@ defmodule Holter.Monitoring.Engine do
       response.status,
       duration_ms,
       error_msg,
-      snippet
+      snippet,
+      headers,
+      ip
     )
   end
 
   def handle_failure(monitor, error, duration_ms) do
-    finalize_check(monitor, :down, :failure, nil, duration_ms, Exception.message(error), nil)
+    finalize_check(
+      monitor,
+      :down,
+      :failure,
+      nil,
+      duration_ms,
+      Exception.message(error),
+      nil,
+      nil,
+      nil
+    )
   end
 
   defp normalize_body(body) when is_binary(body), do: body
@@ -44,7 +67,8 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp determine_check_status(status, positive_ok, _negative_ok)
-       when status < 200 or status >= 400 or not positive_ok, do: :down
+       when status < 200 or status >= 400 or not positive_ok,
+       do: :down
 
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
@@ -59,11 +83,6 @@ defmodule Holter.Monitoring.Engine do
   defp determine_error_message(_, _, false), do: "Found forbidden keywords"
   defp determine_error_message(_, _, _), do: nil
 
-  defp determine_snippet(status, current_health, body) when status != current_health,
-    do: String.slice(body, 0, 512)
-
-  defp determine_snippet(_, _, _), do: nil
-
   defp finalize_check(
          monitor,
          check_status,
@@ -71,7 +90,9 @@ defmodule Holter.Monitoring.Engine do
          status_code,
          duration_ms,
          error_msg,
-         snippet
+         snippet,
+         headers,
+         ip
        ) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -85,6 +106,8 @@ defmodule Holter.Monitoring.Engine do
       latency_ms: duration_ms,
       error_message: error_msg,
       response_snippet: snippet,
+      response_headers: headers,
+      response_ip: ip,
       region: get_region(),
       checked_at: now
     })
@@ -148,4 +171,49 @@ defmodule Holter.Monitoring.Engine do
 
   defp validate_negative(_body, empty) when empty in [nil, []], do: true
   defp validate_negative(body, keywords), do: not Enum.any?(keywords, &String.contains?(body, &1))
+
+  defp filter_headers(headers) do
+    interesting = ["server", "cf-ray", "content-type", "cache-control", "x-cache", "via"]
+
+    headers
+    |> Enum.into(%{})
+    |> Map.take(interesting)
+  end
+
+  defp extract_ip(response) do
+    case response.private[:req_remote_addr] do
+      nil -> nil
+      addr -> :inet.ntoa(addr) |> to_string()
+    end
+  end
+
+  defp get_header(headers, key) do
+    headers |> Enum.find_value(fn {k, v} -> if k == key, do: v end)
+  end
+
+  defp clean_body_snippet(body, content_type) do
+    type = content_type || "text/plain"
+
+    if String.contains?(type, ["text", "json", "xml"]) do
+      body
+      |> strip_html_tags()
+      |> normalize_whitespace()
+      |> String.slice(0, 512)
+    else
+      "Binary content (skipped)"
+    end
+  end
+
+  defp strip_html_tags(html) do
+    html
+    |> String.replace(~r/<script.*?>.*?<\/script>/is, " ")
+    |> String.replace(~r/<style.*?>.*?<\/style>/is, " ")
+    |> String.replace(~r/<.*?>/, " ")
+  end
+
+  defp normalize_whitespace(text) do
+    text
+    |> String.replace(~r/\s+/, " ")
+    |> String.trim()
+  end
 end

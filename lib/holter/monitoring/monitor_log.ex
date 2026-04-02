@@ -10,6 +10,8 @@ defmodule Holter.Monitoring.MonitorLog do
     field :latency_ms, :integer
     field :region, :string
     field :response_snippet, :string
+    field :response_headers, :map
+    field :response_ip, :string
     field :error_message, :string
     field :checked_at, :utc_datetime
 
@@ -28,6 +30,8 @@ defmodule Holter.Monitoring.MonitorLog do
       :latency_ms,
       :region,
       :response_snippet,
+      :response_headers,
+      :response_ip,
       :error_message,
       :checked_at
     ])

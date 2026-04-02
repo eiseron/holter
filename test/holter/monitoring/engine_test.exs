@@ -91,10 +91,10 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when transitioning from down to compromised" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, error_response(500, ""), 100)
-      monitor_after_down = Monitoring.get_monitor!(monitor.id)
-
-      {:ok, _} = Engine.process_response(monitor_after_down, ok_response("success error"), 100)
+      # 1. Goes Down
+      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, ""), 100)
+      # 2. Site is up but hacked
+      {:ok, _} = Engine.process_response(monitor_down, ok_response("success error"), 100)
       :ok
     end
 
@@ -113,10 +113,10 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when recovering from defacement" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, ok_response("success error"), 100)
-      monitor_after_hacked = Monitoring.get_monitor!(monitor.id)
-
-      {:ok, _} = Engine.process_response(monitor_after_hacked, ok_response("success"), 100)
+      # 1. Hacked
+      {:ok, monitor_hacked} = Engine.process_response(monitor, ok_response("success error"), 100)
+      # 2. Fixed
+      {:ok, _} = Engine.process_response(monitor_hacked, ok_response("success"), 100)
       :ok
     end
 
@@ -144,6 +144,38 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
-  defp ok_response(body), do: %Req.Response{status: 200, body: body}
-  defp error_response(status, body), do: %Req.Response{status: status, body: body}
+  describe "selective evidence storage" do
+    test "populates evidence when health status changes", %{monitor: monitor} do
+      {:ok, _} =
+        Engine.process_response(
+          monitor,
+          error_response(500, "<html><body>Internal Error</body></html>"),
+          100
+        )
+
+      [log] = Monitoring.list_monitor_logs(monitor.id)
+      assert log.status == :failure
+      assert log.response_headers["content-type"] == "text/plain"
+      assert log.response_snippet == "Internal Error"
+    end
+
+    test "omits evidence when health status remains the same", %{monitor: monitor} do
+      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
+      # Wait a tiny bit to ensure different timestamps if needed, or just rely on ID
+      {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
+
+      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.inserted_at)
+      [log1, log2] = logs
+
+      assert log1.response_snippet == "Error 1"
+      assert is_nil(log2.response_snippet)
+      assert is_nil(log2.response_headers)
+    end
+  end
+
+  defp ok_response(body),
+    do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
+
+  defp error_response(status, body),
+    do: %Req.Response{status: status, body: body, headers: [{"content-type", "text/plain"}]}
 end

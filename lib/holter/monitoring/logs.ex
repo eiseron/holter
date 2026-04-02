@@ -9,8 +9,11 @@ defmodule Holter.Monitoring.Logs do
     MonitorLog
     |> where([l], l.monitor_id == ^monitor_id)
     |> order_by([l], desc: l.checked_at)
+    |> limit(100)
     |> Repo.all()
   end
+
+  def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
   def create_monitor_log(attrs \\ %{}) do
     %MonitorLog{}
