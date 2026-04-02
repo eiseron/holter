@@ -30,6 +30,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     setup %{job_args: job_args} do
       DummyService.enqueue(@call_id, status: 500, body: "Internal Server Error")
       :ok = perform_job(HTTPCheck, job_args)
+      :ok
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
@@ -37,11 +38,12 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
-      assert Monitoring.get_open_incident(monitor.id)
+      assert Monitoring.get_open_incident(monitor.id, :downtime)
     end
 
     test "sets root_cause from HTTP status code", %{monitor: monitor} do
-      assert %{root_cause: "HTTP Error: 500"} = Monitoring.get_open_incident(monitor.id)
+      assert %{root_cause: "HTTP Error: 500"} =
+               Monitoring.get_open_incident(monitor.id, :downtime)
     end
   end
 
@@ -49,14 +51,16 @@ defmodule Holter.Monitoring.IntegrationTest do
     setup %{monitor: monitor, job_args: job_args} do
       DummyService.enqueue(@call_id, status: 500, body: "Down")
       :ok = perform_job(HTTPCheck, job_args)
-      first_incident = Monitoring.get_open_incident(monitor.id)
+      first_incident = Monitoring.get_open_incident(monitor.id, :downtime)
+
       DummyService.enqueue(@call_id, status: 500, body: "Still down")
       :ok = perform_job(HTTPCheck, job_args)
+
       %{first_incident: first_incident}
     end
 
     test "does not open a second incident", %{monitor: monitor, first_incident: first_incident} do
-      assert Monitoring.get_open_incident(monitor.id).id == first_incident.id
+      assert Monitoring.get_open_incident(monitor.id, :downtime).id == first_incident.id
     end
   end
 
@@ -64,9 +68,11 @@ defmodule Holter.Monitoring.IntegrationTest do
     setup %{monitor: monitor, job_args: job_args} do
       DummyService.enqueue(@call_id, status: 500, body: "Down")
       :ok = perform_job(HTTPCheck, job_args)
-      incident = Monitoring.get_open_incident(monitor.id)
+      incident = Monitoring.get_open_incident(monitor.id, :downtime)
+
       DummyService.enqueue(@call_id, status: 200, body: "Everything is OK")
       :ok = perform_job(HTTPCheck, job_args)
+
       %{incident: incident}
     end
 
@@ -75,7 +81,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "closes the open incident", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_open_incident(monitor.id))
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :downtime))
     end
 
     test "stamps resolved_at on the incident", %{incident: incident} do
@@ -84,6 +90,22 @@ defmodule Holter.Monitoring.IntegrationTest do
 
     test "records duration_seconds on the incident", %{incident: incident} do
       assert Holter.Repo.get!(Holter.Monitoring.Incident, incident.id).duration_seconds >= 0
+    end
+  end
+
+  describe "when monitor is defaced (forbidden keyword found)" do
+    setup %{job_args: job_args} do
+      DummyService.enqueue(@call_id, status: 200, body: "OK but has FAIL")
+      :ok = perform_job(HTTPCheck, job_args)
+      :ok
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+
+    test "opens a defacement incident", %{monitor: monitor} do
+      assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
     end
   end
 end
