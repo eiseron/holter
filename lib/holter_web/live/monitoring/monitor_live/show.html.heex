@@ -1,6 +1,9 @@
 <div class="monitor-creation-container">
   <header class="monitor-header">
-    <h1>{gettext("Monitor Settings")}</h1>
+    <div class="header-title-row">
+      <h1>{gettext("Monitor Settings")}</h1>
+      <.health_badge status={@monitor.health_status} />
+    </div>
     <p class="monitor-id-subtitle">UUID: {@monitor.id}</p>
   </header>
 
@@ -304,6 +307,26 @@
     color: #1a1a1a;
     margin-bottom: 0.25rem;
   }
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .status-up { background: #28a745; color: #fff; }
+  .status-down { background: #dc3545; color: #fff; }
+  .status-degraded { background: #ffc107; color: #212529; }
+  .status-compromised { background: #6f42c1; color: #fff; }
+  .status-unknown { background: #6c757d; color: #fff; }
 
   .monitor-id-subtitle {
     font-family: monospace;
