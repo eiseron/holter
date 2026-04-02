@@ -82,20 +82,20 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp handle_incident_logic(monitor, :up, _error_msg, now) do
-    if monitor.health_status == :down do
-      case Monitoring.get_open_incident(monitor.id) do
-        nil -> :ok
-        incident -> Monitoring.resolve_incident(incident, now)
-      end
+    case Monitoring.get_open_incident(monitor.id, :downtime) do
+      nil -> :ok
+      incident -> Monitoring.resolve_incident(incident, now)
     end
   end
 
   defp update_monitor_state(monitor, status, now) do
-    Monitoring.update_monitor(monitor, %{
-      health_status: status,
-      last_checked_at: now,
-      last_success_at: if(status == :up, do: now, else: monitor.last_success_at)
-    })
+    {:ok, updated_monitor} =
+      Monitoring.update_monitor(monitor, %{
+        last_checked_at: now,
+        last_success_at: if(status == :up, do: now, else: monitor.last_success_at)
+      })
+
+    Monitoring.recalculate_health_status(updated_monitor)
   end
 
   defp record_monitor_log(attrs) do

@@ -47,6 +47,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     test "does not open any SSL incident", %{monitor: monitor} do
       assert is_nil(Monitoring.get_open_incident(monitor.id, :ssl_expiry))
     end
+
+    test "sets health_status to :up", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+    end
   end
 
   describe "when SSL handshake fails" do
@@ -68,6 +72,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
       assert cause =~ "connection_refused"
     end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
   end
 
   describe "when certificate is critically close to expiry" do
@@ -86,6 +94,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     test "sets the root cause to critical", %{monitor: monitor} do
       assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
       assert cause =~ "Critical"
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 
@@ -107,6 +119,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
 
     test "resolves the existing SSL incident", %{monitor: monitor} do
       assert is_nil(Monitoring.get_open_incident(monitor.id, :ssl_expiry))
+    end
+
+    test "restores health_status to :up", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
   end
 end

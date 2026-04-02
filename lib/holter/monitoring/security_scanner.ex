@@ -11,6 +11,7 @@ defmodule Holter.Monitoring.SecurityScanner do
 
     update_monitor_expiry(monitor, expiration_date)
     dispatch_incident_logic(monitor, days_until_expiry, now)
+    Monitoring.recalculate_health_status(monitor)
   end
 
   def handle_ssl_error(monitor, reason) do
@@ -41,15 +42,24 @@ defmodule Holter.Monitoring.SecurityScanner do
 
   def resolve_ssl_incident(monitor, now) do
     case Monitoring.get_open_incident(monitor.id, :ssl_expiry) do
-      nil -> :ok
-      incident -> Monitoring.resolve_incident(incident, now)
+      nil ->
+        Monitoring.recalculate_health_status(monitor)
+
+      incident ->
+        {:ok, _} = Monitoring.resolve_incident(incident, now)
+        Monitoring.recalculate_health_status(monitor)
     end
   end
 
   defp upsert_incident(monitor, type, now, cause) do
     case Monitoring.get_open_incident(monitor.id, type) do
-      nil -> create_ssl_incident(monitor, type, now, cause)
-      incident -> update_ssl_incident(incident, cause)
+      nil ->
+        create_ssl_incident(monitor, type, now, cause)
+        Monitoring.recalculate_health_status(monitor)
+
+      incident ->
+        update_ssl_incident(incident, cause)
+        Monitoring.recalculate_health_status(monitor)
     end
   end
 

@@ -11,6 +11,7 @@ defmodule Holter.Monitoring do
   defdelegate update_monitor(monitor, attrs), to: Monitors
   defdelegate delete_monitor(monitor), to: Monitors
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
+  defdelegate recalculate_health_status(monitor), to: Monitors
   defdelegate list_monitors_for_dispatch, to: Monitors
 
   defdelegate list_monitor_logs(monitor_id), to: Logs
@@ -19,6 +20,7 @@ defmodule Holter.Monitoring do
   defdelegate list_incidents(monitor_id), to: Incidents
   defdelegate get_open_incident(monitor_id), to: Incidents
   defdelegate get_open_incident(monitor_id, type), to: Incidents
+  defdelegate list_open_incidents(monitor_id), to: Incidents
   defdelegate create_incident(attrs \\ %{}), to: Incidents
   defdelegate update_incident(incident, attrs), to: Incidents
   defdelegate resolve_incident(incident, resolved_at), to: Incidents
