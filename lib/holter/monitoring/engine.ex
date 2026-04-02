@@ -19,18 +19,23 @@ defmodule Holter.Monitoring.Engine do
         _ -> ""
       end
 
-    keywords_ok =
-      validate_positive(body, monitor.keyword_positive) and
-        validate_negative(body, monitor.keyword_negative)
+    positive_ok = validate_positive(body, monitor.keyword_positive)
+    negative_ok = validate_negative(body, monitor.keyword_negative)
 
-    final_status = if status_ok and keywords_ok, do: :up, else: :down
-    log_status = if final_status == :up, do: :success, else: :failure
-    snippet = if final_status != monitor.health_status, do: String.slice(body, 0, 512), else: nil
-    error_msg = determine_error_message(status_ok, keywords_ok, response.status)
+    check_status =
+      cond do
+        not status_ok or not positive_ok -> :down
+        not negative_ok -> :compromised
+        true -> :up
+      end
+
+    log_status = if check_status == :up, do: :success, else: :failure
+    snippet = if check_status != monitor.health_status, do: String.slice(body, 0, 512), else: nil
+    error_msg = determine_error_message(status_ok, positive_ok, negative_ok, response.status)
 
     finalize_check(
       monitor,
-      final_status,
+      check_status,
       log_status,
       response.status,
       duration_ms,
@@ -46,15 +51,24 @@ defmodule Holter.Monitoring.Engine do
     finalize_check(monitor, :down, :failure, nil, duration_ms, Exception.message(error), nil)
   end
 
-  defp determine_error_message(false, _, status), do: "HTTP Error: #{status}"
-  defp determine_error_message(_, false, _), do: "Keyword validation failed"
-  defp determine_error_message(_, _, _), do: nil
+  defp determine_error_message(false, _, _, status), do: "HTTP Error: #{status}"
+  defp determine_error_message(true, false, _, _), do: "Missing required keywords"
+  defp determine_error_message(true, true, false, _), do: "Found forbidden keywords"
+  defp determine_error_message(_, _, _, _), do: nil
 
-  defp finalize_check(monitor, status, log_status, status_code, duration_ms, error_msg, snippet) do
+  defp finalize_check(
+         monitor,
+         check_status,
+         log_status,
+         status_code,
+         duration_ms,
+         error_msg,
+         snippet
+       ) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    handle_incident_logic(monitor, status, error_msg, now)
-    update_monitor_state(monitor, status, now)
+    handle_incident_logic(monitor, check_status, error_msg, now)
+    updated_monitor = update_monitor_state(monitor, check_status, now)
 
     record_monitor_log(%{
       monitor_id: monitor.id,
@@ -67,35 +81,54 @@ defmodule Holter.Monitoring.Engine do
       checked_at: now
     })
 
-    :ok
-  end
-
-  defp handle_incident_logic(monitor, :down, error_msg, now) do
-    if monitor.health_status == :up or is_nil(monitor.health_status) do
-      Monitoring.create_incident(%{
-        monitor_id: monitor.id,
-        type: :downtime,
-        started_at: now,
-        root_cause: error_msg
-      })
-    end
+    {:ok, updated_monitor}
   end
 
   defp handle_incident_logic(monitor, :up, _error_msg, now) do
-    case Monitoring.get_open_incident(monitor.id, :downtime) do
+    resolve_if_open(monitor, :downtime, now)
+    resolve_if_open(monitor, :defacement, now)
+  end
+
+  defp handle_incident_logic(monitor, :down, error_msg, now) do
+    open_if_missing(monitor, :downtime, error_msg, now)
+  end
+
+  defp handle_incident_logic(monitor, :compromised, error_msg, now) do
+    resolve_if_open(monitor, :downtime, now)
+    open_if_missing(monitor, :defacement, error_msg, now)
+  end
+
+  defp resolve_if_open(monitor, type, now) do
+    case Monitoring.get_open_incident(monitor.id, type) do
       nil -> :ok
       incident -> Monitoring.resolve_incident(incident, now)
     end
   end
 
-  defp update_monitor_state(monitor, status, now) do
+  defp open_if_missing(monitor, type, error_msg, now) do
+    case Monitoring.get_open_incident(monitor.id, type) do
+      nil ->
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: type,
+          started_at: now,
+          root_cause: error_msg
+        })
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp update_monitor_state(monitor, check_status, now) do
     {:ok, updated_monitor} =
       Monitoring.update_monitor(monitor, %{
         last_checked_at: now,
-        last_success_at: if(status == :up, do: now, else: monitor.last_success_at)
+        last_success_at: if(check_status == :up, do: now, else: monitor.last_success_at)
       })
 
-    Monitoring.recalculate_health_status(updated_monitor)
+    {:ok, fully_updated} = Monitoring.recalculate_health_status(updated_monitor)
+    fully_updated
   end
 
   defp record_monitor_log(attrs) do

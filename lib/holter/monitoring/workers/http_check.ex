@@ -15,6 +15,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     |> build_req_options()
     |> then(&apply(client, :request, [&1]))
     |> handle_request_result(monitor, start_time)
+
+    :ok
   end
 
   defp get_client("mock"), do: Holter.Monitoring.MonitorClientMock

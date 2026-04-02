@@ -18,9 +18,10 @@ defmodule Holter.Monitoring.EngineTest do
     %{monitor: monitor}
   end
 
-  describe "process_response/3 with 200 OK and matching keyword" do
+  describe "when response is 200 OK and matching keywords" do
     setup %{monitor: monitor} do
-      :ok = Engine.process_response(monitor, ok_response("Everything is a success!"), 100)
+      {:ok, _} = Engine.process_response(monitor, ok_response("Everything is a success!"), 100)
+      :ok
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
@@ -28,9 +29,10 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
-  describe "process_response/3 with HTTP 500" do
+  describe "when response is HTTP 500" do
     setup %{monitor: monitor} do
-      :ok = Engine.process_response(monitor, error_response(500, "Internal Error"), 100)
+      {:ok, _} = Engine.process_response(monitor, error_response(500, "Internal Error"), 100)
+      :ok
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
@@ -38,17 +40,19 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
-      assert Monitoring.get_open_incident(monitor.id)
+      assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
     end
 
     test "sets the incident root_cause from the HTTP status", %{monitor: monitor} do
-      assert %{root_cause: "HTTP Error: 500"} = Monitoring.get_open_incident(monitor.id)
+      assert %{root_cause: "HTTP Error: 500"} =
+               Monitoring.get_open_incident(monitor.id, :downtime)
     end
   end
 
-  describe "process_response/3 with missing positive keyword" do
+  describe "when positive keyword is missing" do
     setup %{monitor: monitor} do
-      :ok = Engine.process_response(monitor, ok_response("No match here"), 100)
+      {:ok, _} = Engine.process_response(monitor, ok_response("No match here"), 100)
+      :ok
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
@@ -56,48 +60,83 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
-      assert Monitoring.get_open_incident(monitor.id)
+      assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
     end
 
-    test "sets root_cause to keyword validation failure", %{monitor: monitor} do
-      assert %{root_cause: "Keyword validation failed"} = Monitoring.get_open_incident(monitor.id)
-    end
-  end
-
-  describe "process_response/3 with negative keyword present" do
-    setup %{monitor: monitor} do
-      :ok = Engine.process_response(monitor, ok_response("success but has an error"), 100)
-    end
-
-    test "sets health_status to :down", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :down
-    end
-
-    test "sets root_cause to keyword validation failure", %{monitor: monitor} do
-      assert %{root_cause: "Keyword validation failed"} = Monitoring.get_open_incident(monitor.id)
+    test "sets root_cause to missing keywords message", %{monitor: monitor} do
+      assert %{root_cause: "Missing required keywords"} =
+               Monitoring.get_open_incident(monitor.id, :downtime)
     end
   end
 
-  describe "process_response/3 on recovery after downtime" do
+  describe "when forbidden keyword is found (defacement)" do
     setup %{monitor: monitor} do
-      :ok = Engine.process_response(monitor, error_response(500, ""), 100)
-      monitor = Monitoring.get_monitor!(monitor.id)
-      monitor = %{monitor | keyword_positive: ["success"], keyword_negative: []}
-      :ok = Engine.process_response(monitor, ok_response("Everything is success"), 100)
+      {:ok, _} = Engine.process_response(monitor, ok_response("success but has an error"), 100)
+      :ok
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+
+    test "opens a defacement incident", %{monitor: monitor} do
+      assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
+    end
+
+    test "sets root_cause to found forbidden keywords message", %{monitor: monitor} do
+      assert %{root_cause: "Found forbidden keywords"} =
+               Monitoring.get_open_incident(monitor.id, :defacement)
+    end
+  end
+
+  describe "when transitioning from down to compromised" do
+    setup %{monitor: monitor} do
+      # 1. Goes Down
+      {:ok, _} = Engine.process_response(monitor, error_response(500, ""), 100)
+      monitor_after_down = Monitoring.get_monitor!(monitor.id)
+
+      # 2. Site is up but hacked
+      {:ok, _} = Engine.process_response(monitor_after_down, ok_response("success error"), 100)
+      :ok
+    end
+
+    test "resolves the downtime incident", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :downtime))
+    end
+
+    test "opens a defacement incident", %{monitor: monitor} do
+      assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+  end
+
+  describe "when recovering from defacement" do
+    setup %{monitor: monitor} do
+      # 1. Hacked
+      {:ok, _} = Engine.process_response(monitor, ok_response("success error"), 100)
+      monitor_after_hacked = Monitoring.get_monitor!(monitor.id)
+
+      # 2. Fixed
+      {:ok, _} = Engine.process_response(monitor_after_hacked, ok_response("success"), 100)
+      :ok
+    end
+
+    test "resolves the defacement incident", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :defacement))
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
       assert Monitoring.get_monitor!(monitor.id).health_status == :up
-    end
-
-    test "closes the open incident", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_open_incident(monitor.id))
     end
   end
 
   describe "handle_failure/3 on network error" do
     setup %{monitor: monitor} do
-      :ok = Engine.handle_failure(monitor, %RuntimeError{message: "connection refused"}, 50)
+      {:ok, _} = Engine.handle_failure(monitor, %RuntimeError{message: "connection refused"}, 50)
+      :ok
     end
 
     test "sets health_status to :down", %{monitor: monitor} do

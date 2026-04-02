@@ -86,4 +86,20 @@ defmodule Holter.Monitoring.IntegrationTest do
       assert Holter.Repo.get!(Holter.Monitoring.Incident, incident.id).duration_seconds >= 0
     end
   end
+
+  describe "when monitor is defaced (forbidden keyword found)" do
+    setup %{job_args: job_args} do
+      DummyService.enqueue(@call_id, status: 200, body: "OK but has FAIL")
+      :ok = perform_job(HTTPCheck, job_args)
+      :ok
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+
+    test "opens a defacement incident", %{monitor: monitor} do
+      assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
+    end
+  end
 end

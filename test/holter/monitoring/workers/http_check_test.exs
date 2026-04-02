@@ -50,8 +50,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
-    test "sets health_status to :down", %{monitor: monitor} do
-      assert current_status(monitor) == :down
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert current_status(monitor) == :compromised
     end
   end
 
@@ -70,14 +70,26 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
   end
 
-  describe "perform/1 logging on keyword failure" do
+  describe "perform/1 logging on missing keyword failure" do
     setup %{monitor: monitor} do
       stub_response(%{message: "failure"}, 200)
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
     test "records keyword validation error message", %{monitor: monitor} do
-      assert [%{error_message: "Keyword validation failed"}] =
+      assert [%{error_message: "Missing required keywords"}] =
+               Monitoring.list_monitor_logs(monitor.id)
+    end
+  end
+
+  describe "perform/1 logging on negative keyword failure" do
+    setup %{monitor: monitor} do
+      stub_response("success but has error", 200)
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+    end
+
+    test "records forbidden keyword error message", %{monitor: monitor} do
+      assert [%{error_message: "Found forbidden keywords"}] =
                Monitoring.list_monitor_logs(monitor.id)
     end
   end
