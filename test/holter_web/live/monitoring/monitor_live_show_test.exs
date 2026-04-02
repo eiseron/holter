@@ -1,5 +1,6 @@
 defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
   use HolterWeb.ConnCase
+  use Oban.Testing, repo: Holter.Repo
 
   import Phoenix.LiveViewTest
 
@@ -136,6 +137,19 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       assert_raise Ecto.NoResultsError, fn ->
         Monitoring.get_monitor!(monitor.id)
       end
+    end
+
+    test "Given a monitor, when user clicks Run Now, then it enqueues jobs and starts cooldown",
+         %{
+           conn: conn,
+           monitor: monitor
+         } do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      view |> element("button.btn-run-now") |> render_click()
+
+      assert render(view) =~ "Wait 30s"
+      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
   end
 end
