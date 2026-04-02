@@ -12,7 +12,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
       Enum.flat_map(monitors, fn monitor ->
         http_job = HTTPCheck.new(%{id: monitor.id})
 
-        if String.starts_with?(monitor.url, "https") do
+        if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
           [http_job, SSLCheck.new(%{id: monitor.id})]
         else
           [http_job]

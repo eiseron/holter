@@ -111,6 +111,23 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
   end
 
+  describe "perform/1 with ssl_ignore enabled" do
+    setup %{monitor: monitor} do
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+
+      expect(MonitorClientMock, :request, fn opts ->
+        assert opts[:connect_options][:transport_opts][:verify] == :verify_none
+        {:ok, %Req.Response{status: 200, body: "success"}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+    end
+
+    test "passes verify_none to the client", %{monitor: monitor} do
+      assert current_status(monitor) == :up
+    end
+  end
+
   defp stub_response(body, status) do
     expect(MonitorClientMock, :request, fn _opts ->
       {:ok, %Req.Response{status: status, body: body}}

@@ -75,4 +75,28 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
       assert is_nil(Monitoring.get_monitor!(plain_monitor.id).ssl_expires_at)
     end
   end
+
+  describe "when ssl_ignore is true" do
+    setup %{monitor: monitor} do
+      {:ok, _} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :ssl_expiry,
+          started_at: DateTime.utc_now() |> DateTime.add(-1, :day)
+        })
+
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok
+    end
+
+    test "resolves any open SSL incident", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_open_incident(monitor.id))
+    end
+
+    test "does not perform the SSL check", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_monitor!(monitor.id).ssl_expires_at)
+    end
+  end
 end
