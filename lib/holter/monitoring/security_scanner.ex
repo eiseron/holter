@@ -33,14 +33,14 @@ defmodule Holter.Monitoring.SecurityScanner do
   end
 
   def resolve_ssl_incident(monitor, now) do
-    case Monitoring.get_open_incident(monitor.id) do
-      %{type: :ssl_expiry} = incident -> Monitoring.resolve_incident(incident, now)
-      _ -> :ok
+    case Monitoring.get_open_incident(monitor.id, :ssl_expiry) do
+      nil -> :ok
+      incident -> Monitoring.resolve_incident(incident, now)
     end
   end
 
   defp upsert_incident(monitor, type, now, cause) do
-    case Monitoring.get_open_incident(monitor.id) do
+    case Monitoring.get_open_incident(monitor.id, type) do
       nil -> create_ssl_incident(monitor, type, now, cause)
       incident -> update_ssl_incident(incident, cause)
     end

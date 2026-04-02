@@ -18,6 +18,7 @@ defmodule Holter.Monitoring do
 
   defdelegate list_incidents(monitor_id), to: Incidents
   defdelegate get_open_incident(monitor_id), to: Incidents
+  defdelegate get_open_incident(monitor_id, type), to: Incidents
   defdelegate create_incident(attrs \\ %{}), to: Incidents
   defdelegate update_incident(incident, attrs), to: Incidents
   defdelegate resolve_incident(incident, resolved_at), to: Incidents

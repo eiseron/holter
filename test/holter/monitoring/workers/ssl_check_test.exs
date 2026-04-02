@@ -78,12 +78,11 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
 
   describe "when ssl_ignore is true" do
     setup %{monitor: monitor} do
-      {:ok, _} =
-        Monitoring.create_incident(%{
-          monitor_id: monitor.id,
-          type: :ssl_expiry,
-          started_at: DateTime.utc_now() |> DateTime.add(-1, :day)
-        })
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :ssl_expiry,
+        started_at: DateTime.utc_now() |> DateTime.add(-1, :day)
+      })
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
 
