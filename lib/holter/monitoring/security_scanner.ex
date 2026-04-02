@@ -2,6 +2,7 @@ defmodule Holter.Monitoring.SecurityScanner do
   @moduledoc """
   Logic for processing security-related checks like SSL expiration.
   """
+
   alias Holter.Monitoring
 
   def process_ssl(monitor, expiration_date) do
@@ -10,6 +11,12 @@ defmodule Holter.Monitoring.SecurityScanner do
 
     update_monitor_expiry(monitor, expiration_date)
     dispatch_incident_logic(monitor, days_until_expiry, now)
+  end
+
+  def handle_ssl_error(monitor, reason) do
+    now = DateTime.utc_now()
+    cause = "SSL Error: #{inspect(reason)}"
+    upsert_incident(monitor, :ssl_expiry, now, cause)
   end
 
   defp update_monitor_expiry(monitor, expiration_date) do
@@ -32,8 +39,15 @@ defmodule Holter.Monitoring.SecurityScanner do
     resolve_ssl_incident(monitor, now)
   end
 
+  def resolve_ssl_incident(monitor, now) do
+    case Monitoring.get_open_incident(monitor.id, :ssl_expiry) do
+      nil -> :ok
+      incident -> Monitoring.resolve_incident(incident, now)
+    end
+  end
+
   defp upsert_incident(monitor, type, now, cause) do
-    case Monitoring.get_open_incident(monitor.id) do
+    case Monitoring.get_open_incident(monitor.id, type) do
       nil -> create_ssl_incident(monitor, type, now, cause)
       incident -> update_ssl_incident(incident, cause)
     end
@@ -51,13 +65,6 @@ defmodule Holter.Monitoring.SecurityScanner do
   defp update_ssl_incident(incident, cause) do
     if incident.root_cause != cause do
       Monitoring.update_incident(incident, %{root_cause: cause})
-    end
-  end
-
-  defp resolve_ssl_incident(monitor, now) do
-    case Monitoring.get_open_incident(monitor.id) do
-      %{type: :ssl_expiry} = incident -> Monitoring.resolve_incident(incident, now)
-      _ -> :ok
     end
   end
 end

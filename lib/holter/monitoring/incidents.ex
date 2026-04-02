@@ -18,6 +18,12 @@ defmodule Holter.Monitoring.Incidents do
     |> Repo.one()
   end
 
+  def get_open_incident(monitor_id, type) do
+    Incident
+    |> where([i], i.monitor_id == ^monitor_id and i.type == ^type and is_nil(i.resolved_at))
+    |> Repo.one()
+  end
+
   def create_incident(attrs \\ %{}) do
     %Incident{}
     |> Incident.changeset(attrs)

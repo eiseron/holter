@@ -41,6 +41,15 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       refute_enqueued_check(monitor.id)
     end
+
+    test "skips SSLCheck enqueue when ssl_ignore is true", %{monitor: monitor} do
+      Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+
+      :ok = MonitorDispatcher.perform(%Oban.Job{})
+
+      assert_enqueued(worker: HTTPCheck, args: %{id: monitor.id})
+      refute_enqueued(worker: Holter.Monitoring.Workers.SSLCheck, args: %{id: monitor.id})
+    end
   end
 
   defp create_active_monitor do
