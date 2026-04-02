@@ -71,14 +71,11 @@ defmodule Holter.Monitoring.Monitor do
   end
 
   defp parse_keywords(changeset, raw_field, target_field) do
-    case get_change(changeset, raw_field) do
-      nil ->
-        changeset
-
-      "" ->
+    case fetch_change(changeset, raw_field) do
+      {:ok, nil} ->
         put_change(changeset, target_field, [])
 
-      str ->
+      {:ok, str} when is_binary(str) ->
         list =
           str
           |> String.split(~r/[,;]+/, trim: true)
@@ -86,22 +83,25 @@ defmodule Holter.Monitoring.Monitor do
           |> Enum.reject(&(&1 == ""))
 
         put_change(changeset, target_field, list)
+
+      :error ->
+        changeset
     end
   end
 
   defp validate_raw_headers(changeset) do
-    case get_change(changeset, :raw_headers) do
-      nil ->
-        changeset
-
-      "" ->
+    case fetch_change(changeset, :raw_headers) do
+      {:ok, nil} ->
         put_change(changeset, :headers, %{})
 
-      json_str ->
+      {:ok, json_str} when is_binary(json_str) ->
         case Jason.decode(json_str) do
           {:ok, map} when is_map(map) -> put_change(changeset, :headers, map)
           _ -> add_error(changeset, :raw_headers, "must be a valid JSON object")
         end
+
+      :error ->
+        changeset
     end
   end
 

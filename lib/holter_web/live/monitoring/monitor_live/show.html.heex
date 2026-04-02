@@ -1,6 +1,9 @@
 <div class="monitor-creation-container">
   <header class="monitor-header">
     <div class="header-title-row">
+      <.link navigate={~p"/monitoring/dashboard"} class="btn-back">
+        &larr;
+      </.link>
       <h1>{gettext("Monitor Settings")}</h1>
       <.health_badge status={@monitor.health_status} />
     </div>
@@ -313,6 +316,25 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: 0.5rem;
+  }
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f4f4f4;
+    color: #333;
+    text-decoration: none;
+    font-size: 1.25rem;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover {
+    background: #e0e0e0;
+    transform: translateX(-2px);
   }
 
   .badge {

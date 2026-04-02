@@ -53,5 +53,26 @@ defmodule Holter.MonitoringTest do
       {:ok, monitor} = Monitoring.create_monitor(@valid_attrs)
       assert %Ecto.Changeset{valid?: true} = Monitoring.change_monitor(monitor)
     end
+
+    test "Given a monitor with keywords, when clearing keywords, then it persists empty lists" do
+      {:ok, monitor} = Monitoring.create_monitor(@valid_attrs)
+
+      {:ok, updated} =
+        Monitoring.update_monitor(monitor, %{
+          "raw_keyword_positive" => "",
+          "raw_keyword_negative" => ""
+        })
+
+      assert updated.keyword_positive == []
+      assert updated.keyword_negative == []
+    end
+
+    test "Given a monitor with custom headers, when clearing headers, then it persists an empty map" do
+      {:ok, monitor} =
+        Monitoring.create_monitor(Map.put(@valid_attrs, :raw_headers, "{\"X-Test\": \"Value\"}"))
+
+      {:ok, updated} = Monitoring.update_monitor(monitor, %{"raw_headers" => ""})
+      assert updated.headers == %{}
+    end
   end
 end
