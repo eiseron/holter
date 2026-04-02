@@ -47,6 +47,10 @@ defmodule Holter.Monitoring.SecurityScannerTest do
       assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id)
       assert cause =~ "Warning"
     end
+
+    test "downgrades monitor health to :degraded", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
+    end
   end
 
   describe "when certificate is critically close to expiry (Critical - 5 days)" do
@@ -63,6 +67,22 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     test "sets appropriate root cause for critical", %{monitor: monitor} do
       assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id)
       assert cause =~ "Critical"
+    end
+
+    test "downgrades monitor health to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+  end
+
+  describe "when certificate is expired" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(-1, :day)
+      SecurityScanner.process_ssl(monitor, expiry)
+      :ok
+    end
+
+    test "downgrades monitor health to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 
@@ -84,6 +104,10 @@ defmodule Holter.Monitoring.SecurityScannerTest do
       assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id)
       assert cause =~ "Critical"
     end
+
+    test "updates monitor health to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
   end
 
   describe "when a pending SSL incident is resolved" do
@@ -98,6 +122,25 @@ defmodule Holter.Monitoring.SecurityScannerTest do
 
     test "closes the open incident", %{monitor: monitor} do
       assert is_nil(Monitoring.get_open_incident(monitor.id))
+    end
+
+    test "restores monitor health to :up", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+    end
+  end
+
+  describe "handle_ssl_error/2" do
+    setup %{monitor: monitor} do
+      SecurityScanner.handle_ssl_error(monitor, :nxdomain)
+      :ok
+    end
+
+    test "creates an incident", %{monitor: monitor} do
+      assert %{type: :ssl_expiry} = Monitoring.get_open_incident(monitor.id)
+    end
+
+    test "sets health_status to :compromised", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 end

@@ -14,6 +14,7 @@
         <.link navigate={~p"/monitoring/monitor/#{monitor.id}"} class="monitor-card">
           <div class="card-title">{monitor.url}</div>
           <div class="card-details">
+            <.health_badge status={monitor.health_status} />
             <span class="badge method-badge">{monitor.method}</span>
             <span class="badge state-badge">{monitor.logical_state}</span>
             <span class="interval-text">
@@ -127,6 +128,12 @@
     background: #d4edda;
     color: #155724;
   }
+
+  .status-up { background: #28a745; color: #fff; }
+  .status-down { background: #dc3545; color: #fff; }
+  .status-degraded { background: #ffc107; color: #212529; }
+  .status-compromised { background: #6f42c1; color: #fff; }
+  .status-unknown { background: #6c757d; color: #fff; }
 
   .interval-text {
     font-size: 0.9rem;
