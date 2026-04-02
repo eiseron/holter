@@ -6,6 +6,18 @@
       </.link>
       <h1>{gettext("Monitor Settings")}</h1>
       <.health_badge status={@monitor.health_status} />
+      <button
+        type="button"
+        class="btn-run-now"
+        phx-click="run_now"
+        disabled={@cooldown_remaining > 0}
+      >
+        <%= if @cooldown_remaining > 0 do %>
+          {gettext("Wait")} {@cooldown_remaining}s
+        <% else %>
+          {gettext("Run Now")}
+        <% end %>
+      </button>
     </div>
     <p class="monitor-id-subtitle">UUID: {@monitor.id}</p>
   </header>
@@ -349,6 +361,29 @@
   .status-degraded { background: #ffc107; color: #212529; }
   .status-compromised { background: #6f42c1; color: #fff; }
   .status-unknown { background: #6c757d; color: #fff; }
+
+  .btn-run-now {
+    margin-left: auto;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-run-now:hover:not(:disabled) {
+    background: #218838;
+  }
+
+  .btn-run-now:disabled {
+    background: #e0e0e0;
+    color: #888;
+    cursor: not_allowed;
+  }
 
   .monitor-id-subtitle {
     font-family: monospace;
