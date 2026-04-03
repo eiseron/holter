@@ -146,7 +146,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end)
   end
 
-  defp job_args(monitor), do: %{"id" => monitor.id, "client_name" => "mock"}
+  defp job_args(monitor), do: %{"id" => monitor.id}
 
   defp current_status(monitor) do
     Monitoring.get_monitor!(monitor.id).health_status

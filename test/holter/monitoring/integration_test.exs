@@ -1,5 +1,5 @@
 defmodule Holter.Monitoring.IntegrationTest do
-  use Holter.DataCase, async: true
+  use Holter.DataCase, async: false
   use Oban.Testing, repo: Holter.Repo
 
   alias Holter.Monitoring
@@ -9,6 +9,13 @@ defmodule Holter.Monitoring.IntegrationTest do
   @call_id "check1"
 
   setup do
+    old_client = Application.get_env(:holter, :monitor_client)
+    Application.put_env(:holter, :monitor_client, Holter.Monitoring.MonitorClient.HTTP)
+
+    on_exit(fn ->
+      Application.put_env(:holter, :monitor_client, old_client)
+    end)
+
     DummyService.reset()
     port = Application.get_env(:holter, :dummy_port)
 
@@ -23,7 +30,7 @@ defmodule Holter.Monitoring.IntegrationTest do
         raw_keyword_negative: "FAIL"
       })
 
-    %{monitor: monitor, job_args: %{"id" => monitor.id, "client_name" => "http"}}
+    %{monitor: monitor, job_args: %{"id" => monitor.id}}
   end
 
   describe "when the first check fails (500)" do

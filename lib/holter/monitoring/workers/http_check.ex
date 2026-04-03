@@ -7,13 +7,12 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
-  alias Holter.Monitoring.MonitorClientMock
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id} = args}) do
+  def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
     start_time = System.monotonic_time()
-    client = fetch_client(args["client_name"])
+    client = Application.get_env(:holter, :monitor_client, HTTP)
 
     monitor
     |> build_request_options()
@@ -22,10 +21,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
     :ok
   end
-
-  defp fetch_client("mock"), do: MonitorClientMock
-  defp fetch_client("http"), do: HTTP
-  defp fetch_client(_), do: Application.get_env(:holter, :monitor_client, HTTP)
 
   defp perform_request(opts, client), do: client.request(opts)
 
