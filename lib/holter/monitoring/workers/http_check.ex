@@ -14,7 +14,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     start_time = System.monotonic_time()
     client = Application.get_env(:holter, :monitor_client, HTTP)
 
-    # SSRF Protection: Pre-request DNS validation
     case validate_destination(monitor.url) do
       :ok ->
         monitor
@@ -23,7 +22,11 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         |> process_result(monitor, start_time)
 
       {:error, reason} ->
-        Engine.handle_failure(monitor, %RuntimeError{message: reason}, calculate_duration(start_time))
+        Engine.handle_failure(
+          monitor,
+          %RuntimeError{message: reason},
+          calculate_duration(start_time)
+        )
     end
 
     :ok
@@ -51,12 +54,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         end
 
       {:error, _} ->
-        # If DNS fails, we let the HTTP client handle it (it will fail anyway)
         :ok
     end
   end
 
-  # This function is public-private to allow overriding in tests if needed
   def resolve_host(nil), do: {:error, :no_host}
 
   def resolve_host(host) do
