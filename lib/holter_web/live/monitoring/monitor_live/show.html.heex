@@ -103,7 +103,7 @@
             <select name={@form[:method].name} id={@form[:method].id} required>
               <%= for method <- ["get", "post", "head", "put", "patch", "delete", "options"] do %>
                 <option value={method} selected={to_string(@form[:method].value) == method}>
-                  {method}
+                  {String.upcase(method)}
                 </option>
               <% end %>
             </select>
