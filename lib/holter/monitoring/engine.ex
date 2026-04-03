@@ -206,13 +206,23 @@ defmodule Holter.Monitoring.Engine do
     headers
     |> Enum.into(%{})
     |> Map.take(interesting)
-    |> Map.new(fn {k, v} -> {k, v |> sanitize_for_db() |> truncate_value(1024)} end)
+    |> Map.new(fn {k, v} -> {k, v |> sanitize_for_db() |> mask_secrets() |> truncate_value(1024)} end)
   end
+
+  defp mask_secrets(value) when is_binary(value) do
+    value
+    |> String.replace(~r"Bearer\s+[a-zA-Z0-9\-\._~+/]+=*"i, "Bearer [REDACTED]")
+    |> String.replace(~r"eyJ[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+(\.[a-zA-Z0-9\-_]+)?"i, "[REDACTED]")
+    |> String.replace(~r"(api_key|access_token|auth_token|secret|password|key)=[^&\s]+"i, "\\1=[REDACTED]")
+    |> String.replace(~r"(sk|pk)_(live|test)_[a-zA-Z0-9]{20,}"i, "[REDACTED]")
+  end
+
+  defp mask_secrets(value), do: value
 
   defp sanitize_for_db(value) when is_binary(value) do
     value
     |> String.replace("\0", "")
-    |> String.replace(~r/[\r\n]+/, " ")
+    |> String.replace(~r"[\r\n]+", " ")
   end
 
   defp sanitize_for_db(value), do: value
@@ -246,6 +256,7 @@ defmodule Holter.Monitoring.Engine do
       |> strip_html_tags()
       |> normalize_whitespace()
       |> sanitize_for_db()
+      |> mask_secrets()
       |> String.slice(0, 512)
     else
       "Binary content (skipped)"
@@ -261,13 +272,13 @@ defmodule Holter.Monitoring.Engine do
         |> Floki.text(sep: " ")
 
       _ ->
-        html |> String.replace(~r/<[^>]*>/U, " ")
+        html |> String.replace(~r"<[^>]*>"U, " ")
     end
   end
 
   defp normalize_whitespace(text) do
     text
-    |> String.replace(~r/\s+/, " ")
+    |> String.replace(~r"\s+", " ")
     |> String.trim()
   end
 end
