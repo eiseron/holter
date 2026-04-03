@@ -31,8 +31,9 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
       {:ok, _} = Monitoring.update_monitor(monitor, %{last_manual_check_at: now})
-
-      Holter.Monitoring.Workers.HTTPCheck.new(%{id: monitor.id}) |> Oban.insert()
+      # 2. Enqueue checks
+      Holter.Monitoring.Workers.HTTPCheck.new(%{"client_name" => "http", id: monitor.id})
+      |> Oban.insert()
 
       if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
         Holter.Monitoring.Workers.SSLCheck.new(%{id: monitor.id}) |> Oban.insert()
