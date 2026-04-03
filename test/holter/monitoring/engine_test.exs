@@ -91,9 +91,7 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when transitioning from down to compromised" do
     setup %{monitor: monitor} do
-      # 1. Goes Down
       {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, ""), 100)
-      # 2. Site is up but hacked
       {:ok, _} = Engine.process_response(monitor_down, ok_response("success error"), 100)
       :ok
     end
@@ -113,9 +111,7 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when recovering from defacement" do
     setup %{monitor: monitor} do
-      # 1. Hacked
       {:ok, monitor_hacked} = Engine.process_response(monitor, ok_response("success error"), 100)
-      # 2. Fixed
       {:ok, _} = Engine.process_response(monitor_hacked, ok_response("success"), 100)
       :ok
     end
@@ -144,8 +140,8 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
-  describe "selective evidence storage" do
-    test "populates evidence when health status changes", %{monitor: monitor} do
+  describe "selective evidence storage on failure" do
+    setup %{monitor: monitor} do
       {:ok, _} =
         Engine.process_response(
           monitor,
@@ -153,22 +149,40 @@ defmodule Holter.Monitoring.EngineTest do
           100
         )
 
-      [log] = Monitoring.list_monitor_logs(monitor.id)
-      assert log.status == :failure
-      assert log.response_headers["content-type"] == "text/plain"
-      assert log.response_snippet == "Internal Error"
+      %{log: List.first(Monitoring.list_monitor_logs(monitor.id))}
     end
 
-    test "omits evidence when health status remains the same", %{monitor: monitor} do
+    test "records failure status", %{log: log} do
+      assert log.status == :failure
+    end
+
+    test "captures response headers", %{log: log} do
+      assert log.response_headers["content-type"] == "text/plain"
+    end
+
+    test "captures sanitized response snippet", %{log: log} do
+      assert log.response_snippet == "Internal Error"
+    end
+  end
+
+  describe "selective evidence storage on identical checks" do
+    setup %{monitor: monitor} do
       {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
-      # Wait a tiny bit to ensure different timestamps if needed, or just rely on ID
       {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
 
       logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.inserted_at)
-      [log1, log2] = logs
+      %{logs: logs}
+    end
 
+    test "stores evidence for the first transition log", %{logs: [log1, _log2]} do
       assert log1.response_snippet == "Error 1"
+    end
+
+    test "omits snippet for the second identical check", %{logs: [_log1, log2]} do
       assert is_nil(log2.response_snippet)
+    end
+
+    test "omits headers for the second identical check", %{logs: [_log1, log2]} do
       assert is_nil(log2.response_headers)
     end
   end

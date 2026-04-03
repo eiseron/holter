@@ -208,7 +208,7 @@ defmodule Holter.Monitoring.Engine do
     html
     |> String.replace(~r/<script.*?>.*?<\/script>/is, " ")
     |> String.replace(~r/<style.*?>.*?<\/style>/is, " ")
-    |> String.replace(~r/<.*?>/, " ")
+    |> String.replace(~r/<[^>]*>/, " ")
   end
 
   defp normalize_whitespace(text) do
