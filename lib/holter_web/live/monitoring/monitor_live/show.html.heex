@@ -13,7 +13,7 @@
         disabled={@cooldown_remaining > 0}
       >
         <%= if @cooldown_remaining > 0 do %>
-          {gettext("Wait")} {@cooldown_remaining}s
+          {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
         <% else %>
           {gettext("Run Now")}
         <% end %>
@@ -23,7 +23,12 @@
   </header>
 
   <section class="metrics-section">
-    <h2>{gettext("Daily Uptime History")}</h2>
+    <div class="section-header-row">
+      <h2>{gettext("Daily Uptime History")}</h2>
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="btn-secondary small">
+        {gettext("View Technical Logs")}
+      </.link>
+    </div>
     <%= if Enum.empty?(@daily_metrics) do %>
       <div class="empty-state">
         <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
@@ -406,8 +411,20 @@
 
   .metrics-section h2 {
     font-size: 1.25rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     color: #333;
+  }
+
+  .section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .btn-secondary.small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 
   .empty-state {

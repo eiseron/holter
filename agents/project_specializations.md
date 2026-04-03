@@ -98,7 +98,7 @@ custom classes must fully style the input
 ### MonitorClient HTTP Behaviour
 
 - The `MonitorClient.HTTP` implementation **must** set `retry: false` on all `Req` calls. Req's default retry policy retries `5xx` responses, which masks the original status code and causes flaky test assertions.
-- The `:method` option passed to `Req` **must be an atom** (e.g. `:get`), never a lowercase string (`"get"`). Passing a string causes the wrong HTTP method to be sent, resulting in 404s from local test servers.
+- The `:method` option passed to `Req` **must be an atom** (e.g. `:GET`), never a lowercase string (`"get"`). Passing a string causes the wrong HTTP method to be sent, resulting in 404s from local test servers.
 
 ### Integration Tests with DummyService
 

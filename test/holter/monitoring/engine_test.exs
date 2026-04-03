@@ -1,11 +1,11 @@
 defmodule Holter.Monitoring.EngineTest do
   use Holter.DataCase, async: true
-  alias Holter.Monitoring.Engine
   alias Holter.Monitoring
+  alias Holter.Monitoring.Engine
 
   @monitor_attrs %{
     url: "https://test.local",
-    method: "GET",
+    method: :GET,
     interval_seconds: 60,
     logical_state: :active,
     raw_keyword_positive: "success",
@@ -91,10 +91,8 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when transitioning from down to compromised" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, error_response(500, ""), 100)
-      monitor_after_down = Monitoring.get_monitor!(monitor.id)
-
-      {:ok, _} = Engine.process_response(monitor_after_down, ok_response("success error"), 100)
+      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, ""), 100)
+      {:ok, _} = Engine.process_response(monitor_down, ok_response("success error"), 100)
       :ok
     end
 
@@ -113,10 +111,8 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when recovering from defacement" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, ok_response("success error"), 100)
-      monitor_after_hacked = Monitoring.get_monitor!(monitor.id)
-
-      {:ok, _} = Engine.process_response(monitor_after_hacked, ok_response("success"), 100)
+      {:ok, monitor_hacked} = Engine.process_response(monitor, ok_response("success error"), 100)
+      {:ok, _} = Engine.process_response(monitor_hacked, ok_response("success"), 100)
       :ok
     end
 
@@ -144,6 +140,88 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
-  defp ok_response(body), do: %Req.Response{status: 200, body: body}
-  defp error_response(status, body), do: %Req.Response{status: status, body: body}
+  describe "selective evidence storage on failure" do
+    setup %{monitor: monitor} do
+      {:ok, _} =
+        Engine.process_response(
+          monitor,
+          error_response(500, "<html><body>Internal Error</body></html>"),
+          100
+        )
+
+      %{log: List.first(Monitoring.list_monitor_logs(monitor.id))}
+    end
+
+    test "records failure status", %{log: log} do
+      assert log.status == :failure
+    end
+
+    test "captures response headers", %{log: log} do
+      assert log.response_headers["content-type"] == "text/plain"
+    end
+
+    test "captures sanitized response snippet", %{log: log} do
+      assert log.response_snippet == "Internal Error"
+    end
+  end
+
+  describe "selective evidence storage on identical checks" do
+    setup %{monitor: monitor} do
+      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
+      {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
+
+      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.inserted_at)
+      %{logs: logs}
+    end
+
+    test "stores evidence for the first transition log", %{logs: [log1, _log2]} do
+      assert log1.response_snippet == "Error 1"
+    end
+
+    test "omits snippet for the second identical check", %{logs: [_log1, log2]} do
+      assert is_nil(log2.response_snippet)
+    end
+
+    test "omits headers for the second identical check", %{logs: [_log1, log2]} do
+      assert is_nil(log2.response_headers)
+    end
+  end
+
+  describe "robustness against real-world data variability" do
+    test "handles content-type when it comes as a list", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", ["text/html; charset=utf-8"]}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles headers when they come as a string", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", "text/plain"}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles missing body gracefully", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: nil,
+        headers: []
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+  end
+
+  defp ok_response(body),
+    do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
+
+  defp error_response(status, body),
+    do: %Req.Response{status: status, body: body, headers: [{"content-type", "text/plain"}]}
 end

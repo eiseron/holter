@@ -9,12 +9,30 @@ defmodule Holter.Monitoring.Logs do
     MonitorLog
     |> where([l], l.monitor_id == ^monitor_id)
     |> order_by([l], desc: l.checked_at)
+    |> limit(100)
     |> Repo.all()
   end
 
+  def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
+
   def create_monitor_log(attrs \\ %{}) do
-    %MonitorLog{}
-    |> MonitorLog.changeset(attrs)
-    |> Repo.insert()
+    case %MonitorLog{}
+         |> MonitorLog.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, log} ->
+        broadcast({:ok, log}, :log_created)
+        {:ok, log}
+
+      error ->
+        error
+    end
   end
+
+  defp broadcast({:ok, log}, event) do
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitor:#{log.monitor_id}", {event, log})
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, log})
+    {:ok, log}
+  end
+
+  defp broadcast(error, _), do: error
 end

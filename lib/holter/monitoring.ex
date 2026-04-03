@@ -15,6 +15,7 @@ defmodule Holter.Monitoring do
   defdelegate list_monitors_for_dispatch, to: Monitors
 
   defdelegate list_monitor_logs(monitor_id), to: Logs
+  defdelegate get_monitor_log!(id), to: Logs
   defdelegate create_monitor_log(attrs \\ %{}), to: Logs
 
   defdelegate list_incidents(monitor_id), to: Incidents
