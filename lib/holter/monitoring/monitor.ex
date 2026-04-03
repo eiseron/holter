@@ -72,7 +72,10 @@ defmodule Holter.Monitoring.Monitor do
       :ssl_expires_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
-    |> validate_number(:interval_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 86400)
+    |> validate_number(:interval_seconds,
+      greater_than_or_equal_to: 1,
+      less_than_or_equal_to: 86_400
+    )
     |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 300)
     |> validate_length(:url, max: 2048)
     |> validate_length(:raw_headers, max: 4096)
