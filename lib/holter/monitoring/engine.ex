@@ -206,14 +206,19 @@ defmodule Holter.Monitoring.Engine do
     headers
     |> Enum.into(%{})
     |> Map.take(interesting)
-    |> Map.new(fn {k, v} -> {k, v |> sanitize_for_db() |> mask_secrets() |> truncate_value(1024)} end)
+    |> Map.new(fn {k, v} ->
+      {k, v |> sanitize_for_db() |> mask_secrets() |> truncate_value(1024)}
+    end)
   end
 
   defp mask_secrets(value) when is_binary(value) do
     value
     |> String.replace(~r"Bearer\s+[a-zA-Z0-9\-\._~+/]+=*"i, "Bearer [REDACTED]")
     |> String.replace(~r"eyJ[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+(\.[a-zA-Z0-9\-_]+)?"i, "[REDACTED]")
-    |> String.replace(~r"(api_key|access_token|auth_token|secret|password|key)=[^&\s]+"i, "\\1=[REDACTED]")
+    |> String.replace(
+      ~r"(api_key|access_token|auth_token|secret|password|key)=[^&\s]+"i,
+      "\\1=[REDACTED]"
+    )
     |> String.replace(~r"(sk|pk)_(live|test)_[a-zA-Z0-9]{20,}"i, "[REDACTED]")
   end
 
