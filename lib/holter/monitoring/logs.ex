@@ -8,7 +8,7 @@ defmodule Holter.Monitoring.Logs do
   def list_monitor_logs(monitor_id) do
     MonitorLog
     |> where([l], l.monitor_id == ^monitor_id)
-    |> order_by([l], desc: l.checked_at)
+    |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
     |> limit(100)
     |> Repo.all()
   end

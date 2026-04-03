@@ -6,6 +6,7 @@ defmodule Holter.Monitoring.Engine do
   """
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Monitor
 
   def process_response(monitor, response, duration_ms) do
     ip = extract_ip(response)
@@ -97,8 +98,9 @@ defmodule Holter.Monitoring.Engine do
 
   defp finalize_check(monitor, params) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
+    snapshot = Monitor.capture_snapshot(monitor)
 
-    handle_incident_logic(monitor, params.check_status, params.error_msg, now)
+    handle_incident_logic(monitor, params.check_status, params.error_msg, snapshot, now)
     updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     record_monitor_log(%{
@@ -111,24 +113,25 @@ defmodule Holter.Monitoring.Engine do
       response_headers: params.headers,
       response_ip: params.ip,
       region: get_region(),
-      checked_at: now
+      checked_at: now,
+      monitor_snapshot: snapshot
     })
 
     {:ok, updated_monitor}
   end
 
-  defp handle_incident_logic(monitor, :up, _error_msg, now) do
+  defp handle_incident_logic(monitor, :up, _error_msg, _snapshot, now) do
     resolve_if_open(monitor, :downtime, now)
     resolve_if_open(monitor, :defacement, now)
   end
 
-  defp handle_incident_logic(monitor, :down, error_msg, now) do
-    open_if_missing(monitor, :downtime, error_msg, now)
+  defp handle_incident_logic(monitor, :down, error_msg, snapshot, now) do
+    open_if_missing(monitor, :downtime, error_msg, snapshot, now)
   end
 
-  defp handle_incident_logic(monitor, :compromised, error_msg, now) do
+  defp handle_incident_logic(monitor, :compromised, error_msg, snapshot, now) do
     resolve_if_open(monitor, :downtime, now)
-    open_if_missing(monitor, :defacement, error_msg, now)
+    open_if_missing(monitor, :defacement, error_msg, snapshot, now)
   end
 
   defp resolve_if_open(monitor, type, now) do
@@ -138,14 +141,15 @@ defmodule Holter.Monitoring.Engine do
     end
   end
 
-  defp open_if_missing(monitor, type, error_msg, now) do
+  defp open_if_missing(monitor, type, error_msg, snapshot, now) do
     case Monitoring.get_open_incident(monitor.id, type) do
       nil ->
         Monitoring.create_incident(%{
           monitor_id: monitor.id,
           type: type,
           started_at: now,
-          root_cause: error_msg
+          root_cause: error_msg,
+          monitor_snapshot: snapshot
         })
 
       _ ->
