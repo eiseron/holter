@@ -13,7 +13,7 @@
         disabled={@cooldown_remaining > 0}
       >
         <%= if @cooldown_remaining > 0 do %>
-          {gettext("Wait")} {@cooldown_remaining}s
+          {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
         <% else %>
           {gettext("Run Now")}
         <% end %>
