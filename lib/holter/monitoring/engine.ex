@@ -261,7 +261,7 @@ defmodule Holter.Monitoring.Engine do
         |> Floki.text(sep: " ")
 
       _ ->
-        html |> String.replace(~r/<[^>]*>/, " ")
+        html |> String.replace(~r/<[^>]*>/U, " ")
     end
   end
 
