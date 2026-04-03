@@ -3,7 +3,7 @@ defmodule Holter.Monitoring do
   The Monitoring context.
   """
 
-  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors}
+  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, TenantLimits}
 
   defdelegate list_monitors, to: Monitors
   defdelegate get_monitor!(id), to: Monitors
@@ -29,4 +29,6 @@ defmodule Holter.Monitoring do
   defdelegate list_daily_metrics(monitor_id), to: Metrics
   defdelegate get_daily_metric(monitor_id, date), to: Metrics
   defdelegate upsert_daily_metric(attrs), to: Metrics
+
+  defdelegate get_retention_days(user_id), to: TenantLimits
 end
