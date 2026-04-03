@@ -12,7 +12,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "https://secure-service.local",
-        method: :GET,
+        method: :get,
         interval_seconds: 60,
         logical_state: :active
       })

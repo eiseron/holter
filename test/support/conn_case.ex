@@ -19,12 +19,10 @@ defmodule HolterWeb.ConnCase do
 
   using do
     quote do
-      # The default endpoint for testing
       @endpoint HolterWeb.Endpoint
 
       use HolterWeb, :verified_routes
 
-      # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import HolterWeb.ConnCase

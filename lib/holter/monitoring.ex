@@ -3,7 +3,7 @@ defmodule Holter.Monitoring do
   The Monitoring context.
   """
 
-  alias Holter.Monitoring.{Monitors, Logs, Incidents, Metrics}
+  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors}
 
   defdelegate list_monitors, to: Monitors
   defdelegate get_monitor!(id), to: Monitors

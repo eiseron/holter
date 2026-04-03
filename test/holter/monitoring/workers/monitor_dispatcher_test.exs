@@ -3,8 +3,8 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   use Oban.Testing, repo: Holter.Repo
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Workers.MonitorDispatcher
   alias Holter.Monitoring.Workers.HTTPCheck
+  alias Holter.Monitoring.Workers.MonitorDispatcher
 
   setup do
     monitor = create_active_monitor()
@@ -56,7 +56,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "https://active.local",
-        method: "GET",
+        method: :get,
         interval_seconds: 60,
         logical_state: :active
       })

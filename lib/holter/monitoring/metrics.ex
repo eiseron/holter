@@ -2,8 +2,8 @@ defmodule Holter.Monitoring.Metrics do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Repo
   alias Holter.Monitoring.DailyMetric
+  alias Holter.Repo
 
   def list_daily_metrics(monitor_id) do
     DailyMetric

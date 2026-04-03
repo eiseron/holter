@@ -5,7 +5,7 @@ defmodule Holter.Monitoring.EngineTest do
 
   @monitor_attrs %{
     url: "https://test.local",
-    method: :GET,
+    method: :get,
     interval_seconds: 60,
     logical_state: :active,
     raw_keyword_positive: "success",
@@ -170,7 +170,7 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
       {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
 
-      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.inserted_at)
+      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.checked_at)
       %{logs: logs}
     end
 

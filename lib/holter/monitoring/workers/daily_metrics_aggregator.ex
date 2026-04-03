@@ -1,4 +1,7 @@
 defmodule Holter.Monitoring.Workers.DailyMetricsAggregator do
+  @moduledoc """
+  Worker for aggregating daily monitor performance metrics.
+  """
   use Oban.Worker, queue: :metrics, max_attempts: 3
 
   alias Holter.Monitoring

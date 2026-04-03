@@ -15,7 +15,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "http://localhost:#{port}/probe/#{@call_id}",
-        method: "GET",
+        method: :get,
         interval_seconds: 60,
         logical_state: :active,
         health_status: :up,

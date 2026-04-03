@@ -39,11 +39,11 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp build_request_options(monitor) do
     [
-      url: monitor.url,
       method: normalize_method(monitor.method),
+      url: monitor.url,
       headers: monitor.headers,
       body: monitor.body,
-      receive_timeout: (monitor.timeout_seconds || 30) * 1000
+      receive_timeout: monitor.timeout_seconds * 1000
     ]
     |> apply_ssl_options(monitor.ssl_ignore)
   end

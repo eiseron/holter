@@ -3,8 +3,8 @@ defmodule Holter.Monitoring.Aggregator do
   Service for aggregating monitoring data into daily metrics.
   """
   import Ecto.Query
+  alias Holter.Monitoring.{Incident, MonitorLog}
   alias Holter.Repo
-  alias Holter.Monitoring.{MonitorLog, Incident}
 
   def aggregate_monitor_date(monitor_id, date) do
     time_range = build_day_range(date)

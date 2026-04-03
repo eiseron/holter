@@ -4,12 +4,12 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
   import Mox
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Workers.HTTPCheck
   alias Holter.Monitoring.MonitorClientMock
+  alias Holter.Monitoring.Workers.HTTPCheck
 
   @monitor_attrs %{
     url: "https://test.local",
-    method: "GET",
+    method: :get,
     interval_seconds: 60,
     logical_state: :active,
     raw_keyword_positive: "success",

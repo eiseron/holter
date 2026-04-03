@@ -1,14 +1,14 @@
 defmodule Holter.Monitoring.Workers.DailyMetricsAggregatorTest do
   use Holter.DataCase, async: true
   use Oban.Testing, repo: Holter.Repo
-  alias Holter.Monitoring.Workers.DailyMetricsAggregator
   alias Holter.Monitoring
+  alias Holter.Monitoring.Workers.DailyMetricsAggregator
 
   setup do
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "https://example.com",
-        method: :GET,
+        method: :get,
         interval_seconds: 60,
         timeout_seconds: 30
       })

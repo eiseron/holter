@@ -2,8 +2,9 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Repo
+  alias Holter.Monitoring.Incidents
   alias Holter.Monitoring.Monitor
+  alias Holter.Repo
 
   def list_monitors do
     Repo.all(Monitor)
@@ -58,7 +59,7 @@ defmodule Holter.Monitoring.Monitors do
   Returns {:ok, updated_monitor}.
   """
   def recalculate_health_status(%Monitor{} = monitor) do
-    open_incidents = Holter.Monitoring.Incidents.list_open_incidents(monitor.id)
+    open_incidents = Incidents.list_open_incidents(monitor.id)
     new_status = determine_overall_status(open_incidents)
 
     if monitor.health_status != new_status do
