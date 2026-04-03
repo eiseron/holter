@@ -206,8 +206,16 @@ defmodule Holter.Monitoring.Engine do
     headers
     |> Enum.into(%{})
     |> Map.take(interesting)
-    |> Map.new(fn {k, v} -> {k, truncate_value(v, 1024)} end)
+    |> Map.new(fn {k, v} -> {k, v |> sanitize_for_db() |> truncate_value(1024)} end)
   end
+
+  defp sanitize_for_db(value) when is_binary(value) do
+    value
+    |> String.replace("\0", "")
+    |> String.replace(~r/[\r\n]+/, " ")
+  end
+
+  defp sanitize_for_db(value), do: value
 
   defp truncate_value(v, limit) when is_binary(v) do
     if byte_size(v) > limit, do: String.slice(v, 0, limit), else: v
@@ -237,6 +245,7 @@ defmodule Holter.Monitoring.Engine do
       body
       |> strip_html_tags()
       |> normalize_whitespace()
+      |> sanitize_for_db()
       |> String.slice(0, 512)
     else
       "Binary content (skipped)"
