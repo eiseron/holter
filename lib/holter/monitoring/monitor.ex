@@ -144,7 +144,11 @@ defmodule Holter.Monitoring.Monitor do
     host = String.downcase(host)
     trusted = get_trusted_hosts()
 
-    (localhost?(host) or private_ip?(host)) and host not in trusted
+    (localhost?(host) or private_ip?(host) or single_token_host?(host)) and host not in trusted
+  end
+
+  defp single_token_host?(host) do
+    not String.contains?(host, ".")
   end
 
   defp get_trusted_hosts do
