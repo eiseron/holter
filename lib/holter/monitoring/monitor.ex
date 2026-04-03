@@ -72,6 +72,8 @@ defmodule Holter.Monitoring.Monitor do
       :ssl_expires_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
+    |> validate_number(:interval_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 86400)
+    |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 300)
     |> validate_length(:url, max: 2048)
     |> validate_length(:raw_headers, max: 4096)
     |> validate_length(:body, max: 8192)
@@ -108,14 +110,34 @@ defmodule Holter.Monitoring.Monitor do
 
       {:ok, json_str} when is_binary(json_str) ->
         case Jason.decode(json_str) do
-          {:ok, map} when is_map(map) -> put_change(changeset, :headers, map)
-          _ -> add_error(changeset, :raw_headers, "must be a valid JSON object")
+          {:ok, map} when is_map(map) ->
+            sanitized_map = sanitize_map(map)
+            put_change(changeset, :headers, sanitized_map)
+
+          _ ->
+            add_error(changeset, :raw_headers, "must be a valid JSON object")
         end
 
       :error ->
         changeset
     end
   end
+
+  defp sanitize_map(map) do
+    map
+    |> Map.new(fn {k, v} ->
+      {sanitize_string(k), sanitize_string(v)}
+    end)
+  end
+
+  defp sanitize_string(value) when is_binary(value) do
+    value
+    |> String.replace("\0", "")
+    |> String.replace(~r/[\r\n]+/, " ")
+    |> String.trim()
+  end
+
+  defp sanitize_string(value), do: value
 
   defp validate_url(changeset) do
     validate_change(changeset, :url, fn :url, url ->
@@ -141,7 +163,7 @@ defmodule Holter.Monitoring.Monitor do
   defp restricted_host?(nil), do: true
 
   defp restricted_host?(host) do
-    host = String.downcase(host)
+    host = host |> String.downcase() |> String.replace("[", "") |> String.replace("]", "")
     trusted = get_trusted_hosts()
 
     (localhost?(host) or private_ip?(host) or single_token_host?(host)) and host not in trusted
@@ -158,18 +180,27 @@ defmodule Holter.Monitoring.Monitor do
   end
 
   defp localhost?(host) do
-    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"]
+    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"] or
+      String.starts_with?(host, "127.") or
+      String.starts_with?(host, "::ffff:127.")
   end
 
   defp private_ip?(host) do
     case :inet.parse_address(to_charlist(host)) do
+      {:ok, {127, _, _, _}} -> true
       {:ok, {10, _, _, _}} -> true
       {:ok, {172, second, _, _}} when second >= 16 and second <= 31 -> true
       {:ok, {192, 168, _, _}} -> true
       {:ok, {169, 254, _, _}} -> true
-      {:ok, {127, _, _, _}} -> true
-      _ -> false
+      _ -> encoded_ip?(host)
     end
+  end
+
+  defp encoded_ip?(host) do
+    is_numeric = Regex.match?(~r/^(0x[0-9a-f]+|[0-9]+)$/i, host)
+    is_short_ip = Regex.match?(~r/^[0-9]+\.[0-9]+(\.[0-9]+)?$/, host)
+
+    is_numeric or is_short_ip
   end
 
   defp parse_url(url) do
