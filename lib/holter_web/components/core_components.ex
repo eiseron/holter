@@ -503,4 +503,66 @@ defmodule HolterWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc """
+  Renders a tooltip.
+  """
+  attr :text, :string, required: true
+  attr :rest, :global
+  slot :inner_block
+
+  def tooltip(assigns) do
+    ~H"""
+    <div class="h-tooltip-wrapper" {@rest}>
+      {render_slot(@inner_block)}
+      <span class="h-tooltip-text">{@text}</span>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a modal overlay.
+  """
+  attr :id, :string, required: true
+  attr :title, :string, default: nil
+  attr :show, :boolean, default: false
+  attr :class, :string, default: "h-modal-content"
+  slot :inner_block, required: true
+  slot :footer
+
+  def modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class="h-modal-overlay"
+      phx-mounted={@show && JS.remove_attribute("hidden")}
+      hidden={not @show}
+    >
+      <div
+        id={"#{@id}-content"}
+        class={@class}
+        phx-click-away={JS.set_attribute({"hidden", ""}, to: "##{@id}")}
+        phx-window-keydown={JS.set_attribute({"hidden", ""}, to: "##{@id}")}
+        phx-key="escape"
+      >
+        <div :if={@title} class="h-modal-header">
+          <h2>{@title}</h2>
+          <button
+            type="button"
+            class="h-close-btn"
+            phx-click={JS.set_attribute({"hidden", ""}, to: "##{@id}")}
+          >
+            <.icon name="hero-x-mark" />
+          </button>
+        </div>
+        <div class="h-modal-body">
+          {render_slot(@inner_block)}
+        </div>
+        <div :if={@footer != []} class="h-modal-footer">
+          {render_slot(@footer)}
+        </div>
+      </div>
+    </div>
+    """
+  end
 end
