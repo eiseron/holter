@@ -60,6 +60,7 @@ custom classes must fully style the input
 - Predicate function names should not start with `is_` and should end in a question mark. Names like `is_thing` should be reserved for guards
 - Elixir's builtin OTP primitives like `DynamicSupervisor` and `Registry`, require names in the child spec, such as `{DynamicSupervisor, name: MyApp.MyDynamicSup}`, then you can use `DynamicSupervisor.start_child(MyApp.MyDynamicSup, child_spec)`
 - Use `Task.async_stream(collection, callback, options)` for concurrent enumeration with back-pressure. The majority of times you will want to pass `timeout: :infinity` as option
+- **Self-documenting variables over comments**: Prefer descriptive variable names over explanatory comments. For example, instead of `# Non-UTF8 binary data`, use `non_utf8_binary_body = <<...>>`. This is mandatory to comply with the project's strict **NoComments** rule.
 
 ## Mix guidelines
 
