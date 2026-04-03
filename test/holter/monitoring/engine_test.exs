@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.EngineTest do
   use Holter.DataCase, async: true
-  alias Holter.Monitoring.Engine
   alias Holter.Monitoring
+  alias Holter.Monitoring.Engine
 
   @monitor_attrs %{
     url: "https://test.local",
@@ -184,6 +184,38 @@ defmodule Holter.Monitoring.EngineTest do
 
     test "omits headers for the second identical check", %{logs: [_log1, log2]} do
       assert is_nil(log2.response_headers)
+    end
+  end
+
+  describe "robustness against real-world data variability" do
+    test "handles content-type when it comes as a list", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", ["text/html; charset=utf-8"]}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles headers when they come as a string", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", "text/plain"}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles missing body gracefully", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: nil,
+        headers: []
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
     end
   end
 
