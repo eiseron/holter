@@ -8,6 +8,10 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
+    end
+
     monitor = Monitoring.get_monitor!(id)
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
 
@@ -34,10 +38,11 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
       {:ok, _} = Monitoring.update_monitor(monitor, %{last_manual_check_at: now})
 
-      HTTPCheck.new(%{id: monitor.id}) |> Oban.insert()
+      HTTPCheck.new(%{"client_name" => "http", "id" => monitor.id})
+      |> Oban.insert()
 
       if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
-        SSLCheck.new(%{id: monitor.id}) |> Oban.insert()
+        SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
       end
 
       if connected?(socket), do: Process.send_after(self(), :tick, 1000)
@@ -84,6 +89,24 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
      socket
      |> put_flash(:info, gettext("Monitor deleted successfully"))
      |> push_navigate(to: ~p"/monitoring/dashboard")}
+  end
+
+  @impl true
+  def handle_info({event, _data}, socket)
+      when event in [
+             :log_created,
+             :monitor_updated,
+             :incident_created,
+             :incident_resolved,
+             :incident_updated
+           ] do
+    monitor = Monitoring.get_monitor!(socket.assigns.monitor.id)
+    hydrated_monitor = hydrate_virtual_array_fields(monitor)
+
+    {:noreply,
+     socket
+     |> assign(:monitor, hydrated_monitor)
+     |> assign(:daily_metrics, Monitoring.list_daily_metrics(monitor.id))}
   end
 
   @impl true

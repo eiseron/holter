@@ -1,62 +1,64 @@
 defmodule Holter.Monitoring.Workers.HTTPCheck do
   @moduledoc """
-  Worker for performing HTTP availability checks.
+  Oban worker for performing HTTP availability checks.
   """
   use Oban.Worker, queue: :checks, max_attempts: 3
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
+  alias Holter.Monitoring.MonitorClientMock
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id} = args}) do
     monitor = Monitoring.get_monitor!(id)
     start_time = System.monotonic_time()
-    client = get_client(args["client_name"])
+    client = fetch_client(args["client_name"])
 
-    opts = build_req_options(monitor)
-
-    client
-    |> request(opts)
-    |> handle_request_result(monitor, start_time)
+    monitor
+    |> build_request_options()
+    |> perform_request(client)
+    |> process_result(monitor, start_time)
 
     :ok
   end
 
-  defp request(client, opts) do
-    client.request(opts)
+  defp fetch_client("mock"), do: MonitorClientMock
+  defp fetch_client("http"), do: HTTP
+  defp fetch_client(_), do: Application.get_env(:holter, :monitor_client, HTTP)
+
+  defp perform_request(opts, client), do: client.request(opts)
+
+  defp process_result({:ok, response}, monitor, start_time) do
+    Engine.process_response(monitor, response, calculate_duration(start_time))
   end
 
-  defp get_client("mock"), do: Holter.Monitoring.MonitorClientMock
-  defp get_client("http"), do: HTTP
-  defp get_client(_), do: Application.get_env(:holter, :monitor_client)
+  defp process_result({:error, error}, monitor, start_time) do
+    Engine.handle_failure(monitor, error, calculate_duration(start_time))
+  end
 
-  defp build_req_options(monitor) do
+  defp build_request_options(monitor) do
     [
-      method: monitor.method,
+      method: normalize_method(monitor.method),
       url: monitor.url,
       headers: monitor.headers,
       body: monitor.body,
       receive_timeout: monitor.timeout_seconds * 1000
     ]
-    |> maybe_ignore_ssl(monitor.ssl_ignore)
+    |> apply_ssl_options(monitor.ssl_ignore)
   end
 
-  defp maybe_ignore_ssl(opts, true) do
+  defp normalize_method(method) do
+    method |> to_string() |> String.downcase() |> String.to_existing_atom()
+  end
+
+  defp apply_ssl_options(opts, true) do
     Keyword.put(opts, :connect_options, transport_opts: [verify: :verify_none])
   end
 
-  defp maybe_ignore_ssl(opts, _), do: opts
+  defp apply_ssl_options(opts, _), do: opts
 
-  defp handle_request_result({:ok, response}, monitor, start_time) do
-    Engine.process_response(monitor, response, duration_ms(start_time))
-  end
-
-  defp handle_request_result({:error, error}, monitor, start_time) do
-    Engine.handle_failure(monitor, error, duration_ms(start_time))
-  end
-
-  defp duration_ms(start_time) do
+  defp calculate_duration(start_time) do
     (System.monotonic_time() - start_time)
     |> System.convert_time_unit(:native, :millisecond)
   end

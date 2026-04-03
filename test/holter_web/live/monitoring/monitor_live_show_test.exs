@@ -151,5 +151,26 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       assert render(view) =~ "Wait 30s"
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
+
+    test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
+         %{conn: conn, monitor: monitor} do
+      import Mox
+      alias Holter.Monitoring.Workers.HTTPCheck
+
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :down})
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert render(view) =~ "status-down"
+
+      view |> element("button.btn-run-now") |> render_click()
+
+      expect(Holter.Monitoring.MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 200, body: "success", headers: []}}
+      end)
+
+      assert_enqueued(worker: HTTPCheck, args: %{id: monitor.id})
+      :ok = perform_job(HTTPCheck, %{"id" => monitor.id, "client_name" => "mock"})
+
+      assert render(view) =~ "status-up"
+    end
   end
 end

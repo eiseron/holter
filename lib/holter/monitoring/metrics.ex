@@ -17,11 +17,31 @@ defmodule Holter.Monitoring.Metrics do
   end
 
   def upsert_daily_metric(attrs) do
-    %DailyMetric{}
-    |> DailyMetric.changeset(attrs)
-    |> Repo.insert(
-      on_conflict: {:replace_all_except, [:id, :monitor_id, :date, :inserted_at]},
-      conflict_target: [:monitor_id, :date]
-    )
+    case %DailyMetric{}
+         |> DailyMetric.changeset(attrs)
+         |> Repo.insert(
+           on_conflict: {:replace_all_except, [:id, :monitor_id, :date, :inserted_at]},
+           conflict_target: [:monitor_id, :date]
+         ) do
+      {:ok, metric} ->
+        broadcast({:ok, metric}, :metric_updated)
+        {:ok, metric}
+
+      error ->
+        error
+    end
   end
+
+  defp broadcast({:ok, metric}, event) do
+    Phoenix.PubSub.broadcast(
+      Holter.PubSub,
+      "monitoring:monitor:#{metric.monitor_id}",
+      {event, metric}
+    )
+
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, metric})
+    {:ok, metric}
+  end
+
+  defp broadcast(error, _), do: error
 end

@@ -13,16 +13,38 @@ defmodule Holter.Monitoring.Monitors do
   def get_monitor!(id), do: Repo.get!(Monitor, id)
 
   def create_monitor(attrs \\ %{}) do
-    %Monitor{}
-    |> Monitor.changeset(attrs)
-    |> Repo.insert()
+    case %Monitor{}
+         |> Monitor.changeset(attrs)
+         |> Repo.insert() do
+      {:ok, monitor} ->
+        broadcast({:ok, monitor}, :monitor_created)
+        {:ok, monitor}
+
+      error ->
+        error
+    end
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
-    monitor
-    |> Monitor.changeset(attrs)
-    |> Repo.update()
+    case monitor
+         |> Monitor.changeset(attrs)
+         |> Repo.update() do
+      {:ok, updated} ->
+        broadcast({:ok, updated}, :monitor_updated)
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
+
+  defp broadcast({:ok, monitor}, event) do
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitor:#{monitor.id}", {event, monitor})
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, monitor})
+    {:ok, monitor}
+  end
+
+  defp broadcast(error, _), do: error
 
   def delete_monitor(%Monitor{} = monitor) do
     Repo.delete(monitor)
@@ -32,11 +54,13 @@ defmodule Holter.Monitoring.Monitors do
     Monitor.changeset(monitor, attrs)
   end
 
+  @doc """
+  Recalculates overall health status based on all open incidents.
+  Returns {:ok, updated_monitor}.
+  """
   def recalculate_health_status(%Monitor{} = monitor) do
-    new_status =
-      monitor.id
-      |> Incidents.list_open_incidents()
-      |> determine_overall_status()
+    open_incidents = Incidents.list_open_incidents(monitor.id)
+    new_status = determine_overall_status(open_incidents)
 
     if monitor.health_status != new_status do
       update_monitor(monitor, %{health_status: new_status})

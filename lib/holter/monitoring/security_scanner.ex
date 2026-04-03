@@ -9,19 +9,18 @@ defmodule Holter.Monitoring.SecurityScanner do
     now = DateTime.utc_now()
     days_until_expiry = DateTime.diff(expiration_date, now, :day)
 
-    update_monitor_expiry(monitor, expiration_date)
-    dispatch_incident_logic(monitor, days_until_expiry, now)
-    Monitoring.recalculate_health_status(monitor)
+    {:ok, updated_monitor} =
+      Monitoring.update_monitor(monitor, %{ssl_expires_at: expiration_date})
+
+    dispatch_incident_logic(updated_monitor, days_until_expiry, now)
+    Monitoring.recalculate_health_status(updated_monitor)
   end
 
   def handle_ssl_error(monitor, reason) do
     now = DateTime.utc_now()
     cause = "SSL Error: #{inspect(reason)}"
     upsert_incident(monitor, :ssl_expiry, now, cause)
-  end
-
-  defp update_monitor_expiry(monitor, expiration_date) do
-    Monitoring.update_monitor(monitor, %{ssl_expires_at: expiration_date})
+    Monitoring.recalculate_health_status(monitor)
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 0 do

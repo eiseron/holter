@@ -54,15 +54,16 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
 
   describe "when clicking view evidence" do
     setup %{conn: conn, monitor: monitor} do
-      Monitoring.create_monitor_log(%{
-        monitor_id: monitor.id,
-        status: :failure,
-        status_code: 500,
-        latency_ms: 456,
-        response_headers: %{"server" => "nginx"},
-        response_snippet: "Server Error",
-        checked_at: DateTime.utc_now()
-      })
+      {:ok, _log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :failure,
+          status_code: 500,
+          latency_ms: 456,
+          response_headers: %{"server" => "nginx"},
+          response_snippet: "Server Error",
+          checked_at: DateTime.utc_now()
+        })
 
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
       view |> element("button.btn-evidence") |> render_click()

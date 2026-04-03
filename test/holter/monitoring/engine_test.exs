@@ -170,7 +170,7 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
       {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
 
-      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.inserted_at)
+      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.checked_at)
       %{logs: logs}
     end
 
@@ -184,6 +184,38 @@ defmodule Holter.Monitoring.EngineTest do
 
     test "omits headers for the second identical check", %{logs: [_log1, log2]} do
       assert is_nil(log2.response_headers)
+    end
+  end
+
+  describe "robustness against real-world data variability" do
+    test "handles content-type when it comes as a list", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", ["text/html; charset=utf-8"]}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles headers when they come as a string", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: "success",
+        headers: [{"content-type", "text/plain"}]
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
+
+    test "handles missing body gracefully", %{monitor: monitor} do
+      response = %Req.Response{
+        status: 200,
+        body: nil,
+        headers: []
+      }
+
+      assert {:ok, _} = Engine.process_response(monitor, response, 100)
     end
   end
 
