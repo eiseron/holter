@@ -215,4 +215,18 @@ defmodule Holter.Monitoring.Monitor do
         {:error, "must be a valid http or https URL"}
     end
   end
+
+  def capture_snapshot(%__MODULE__{} = monitor) do
+    %{
+      url: monitor.url,
+      method: monitor.method,
+      interval_seconds: monitor.interval_seconds,
+      timeout_seconds: monitor.timeout_seconds,
+      headers: monitor.headers,
+      body: monitor.body,
+      keyword_positive: monitor.keyword_positive,
+      keyword_negative: monitor.keyword_negative,
+      ssl_ignore: monitor.ssl_ignore
+    }
+  end
 end

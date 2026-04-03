@@ -14,6 +14,7 @@ defmodule Holter.Monitoring.MonitorLog do
     field :response_ip, :string
     field :error_message, :string
     field :checked_at, :utc_datetime
+    field :monitor_snapshot, :map
 
     belongs_to :monitor, Holter.Monitoring.Monitor
 
@@ -33,7 +34,8 @@ defmodule Holter.Monitoring.MonitorLog do
       :response_headers,
       :response_ip,
       :error_message,
-      :checked_at
+      :checked_at,
+      :monitor_snapshot
     ])
     |> validate_required([:monitor_id, :status, :checked_at])
   end

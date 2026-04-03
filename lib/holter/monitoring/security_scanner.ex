@@ -4,6 +4,7 @@ defmodule Holter.Monitoring.SecurityScanner do
   """
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Monitor
 
   def process_ssl(monitor, expiration_date) do
     now = DateTime.utc_now()
@@ -67,7 +68,8 @@ defmodule Holter.Monitoring.SecurityScanner do
       monitor_id: monitor.id,
       type: type,
       started_at: now,
-      root_cause: cause
+      root_cause: cause,
+      monitor_snapshot: Monitor.capture_snapshot(monitor)
     })
   end
 
