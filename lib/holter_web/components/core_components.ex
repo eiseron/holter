@@ -117,7 +117,7 @@ defmodule HolterWeb.CoreComponents do
         ["h-btn", Map.fetch!(variants, assigns[:variant])]
       end)
 
-    if rest[:href] || rest[:navigate] || rest[:patch] do
+    if rest[:href] || rest[:navigate] || rest[:PATCH] do
       ~H"""
       <.link class={@class} {@rest}>
         {render_slot(@inner_block)}
@@ -188,7 +188,7 @@ defmodule HolterWeb.CoreComponents do
   attr :errors, :list, default: []
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
-  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+  attr :OPTIONS, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :class, :any, default: nil, doc: "the input class to use over defaults"
   attr :error_class, :any, default: nil, doc: "the input error class to use over defaults"

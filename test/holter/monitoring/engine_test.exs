@@ -5,7 +5,7 @@ defmodule Holter.Monitoring.EngineTest do
 
   @monitor_attrs %{
     url: "https://test.local",
-    method: "GET",
+    method: :GET,
     interval_seconds: 60,
     logical_state: :active,
     raw_keyword_positive: "success",

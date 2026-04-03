@@ -59,7 +59,7 @@ defmodule Holter.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.21"},
-      {:floki, ">= 0.30.0"},
+      {:floki, "~> 0.38.1"},
       {:mox, "~> 1.2", only: :test}
     ]
   end

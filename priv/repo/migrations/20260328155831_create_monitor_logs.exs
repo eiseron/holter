@@ -5,7 +5,7 @@ defmodule Holter.Repo.Migrations.CreateMonitorLogs do
     create table(:monitor_logs, primary_key: false) do
       add :id, :binary_id, primary_key: true
 
-      add :monitor_id, references(:monitors, on_delete: :delete_all, type: :binary_id),
+      add :monitor_id, references(:monitors, on_delete: :DELETE_all, type: :binary_id),
         null: false
 
       add :status, :string, null: false

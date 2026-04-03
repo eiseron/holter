@@ -16,7 +16,7 @@ defmodule Holter.Repo.Migrations.CreateMonitors do
       add :interval_seconds, :integer, default: 60, null: false
       add :timeout_seconds, :integer, default: 30, null: false
 
-      add :headers, :map, default: %{}
+      add :HEADers, :map, default: %{}
       add :body, :text
 
       add :ssl_ignore, :boolean, default: false, null: false
