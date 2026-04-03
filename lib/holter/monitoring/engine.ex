@@ -179,7 +179,11 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp clean_body_snippet(body, content_type) do
-    type = content_type || "text/plain"
+    type =
+      content_type
+      |> List.wrap()
+      |> List.first()
+      |> Kernel.||("text/plain")
 
     if String.contains?(type, ["text", "json", "xml"]) do
       body
