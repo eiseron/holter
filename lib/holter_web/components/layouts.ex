@@ -4,11 +4,8 @@ defmodule HolterWeb.Layouts do
   used by your application.
   """
   use HolterWeb, :html
+  import Phoenix.Component
 
-  # Embed all files in layouts/* within this module.
-  # The default root.html.heex file contains the HTML
-  # skeleton of your application, namely HTML headers
-  # and other static content.
   embed_templates "layouts/*"
 
   @doc """
@@ -61,7 +58,7 @@ defmodule HolterWeb.Layouts do
 
     <main class="px-4 py-20 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-2xl space-y-4">
-        {render_slot(@inner_block)}
+        {@inner_content}
       </div>
     </main>
 

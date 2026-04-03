@@ -8,7 +8,7 @@ defmodule Holter.MonitoringTest do
 
     @valid_attrs %{
       url: "https://example.com",
-      method: :GET,
+      method: :get,
       interval_seconds: 60,
       timeout_seconds: 30,
       ssl_ignore: false,
@@ -54,7 +54,7 @@ defmodule Holter.MonitoringTest do
       assert %Ecto.Changeset{valid?: true} = Monitoring.change_monitor(monitor)
     end
 
-    test "Given a monitor with keywords, when clearing keywords, then it persists empty lists" do
+    test "Given a monitor with keywords, when clearing keywords, then it persists empty positive list" do
       {:ok, monitor} = Monitoring.create_monitor(@valid_attrs)
 
       {:ok, updated} =
@@ -64,6 +64,17 @@ defmodule Holter.MonitoringTest do
         })
 
       assert updated.keyword_positive == []
+    end
+
+    test "Given a monitor with keywords, when clearing keywords, then it persists empty negative list" do
+      {:ok, monitor} = Monitoring.create_monitor(@valid_attrs)
+
+      {:ok, updated} =
+        Monitoring.update_monitor(monitor, %{
+          "raw_keyword_positive" => "",
+          "raw_keyword_negative" => ""
+        })
+
       assert updated.keyword_negative == []
     end
 

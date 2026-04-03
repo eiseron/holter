@@ -1,7 +1,7 @@
 defmodule HolterWeb do
   @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, components, channels, and so on.
+  The entrypoint for defining your web interface, such as
+  controllers, components, channels, and so on.
 
   This can be used in your application as:
 
@@ -23,7 +23,6 @@ defmodule HolterWeb do
     quote do
       use Phoenix.Router, helpers: false
 
-      # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
       import Phoenix.LiveView.Router
@@ -38,11 +37,12 @@ defmodule HolterWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, formats: [:html, :json]
-
-      use Gettext, backend: HolterWeb.Gettext
+      use Phoenix.Controller,
+        formats: [:html, :json],
+        layouts: [html: HolterWeb.Layouts]
 
       import Plug.Conn
+      use Gettext, backend: HolterWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -50,7 +50,8 @@ defmodule HolterWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -68,30 +69,24 @@ defmodule HolterWeb do
     quote do
       use Phoenix.Component
 
-      # Import convenience functions from controllers
       import Phoenix.Controller,
-        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
+        only: [get_csrf_token: 0, get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
-      # Include general helpers for rendering HTML
       unquote(html_helpers())
     end
   end
 
   defp html_helpers do
     quote do
-      # Translation
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+      import Phoenix.Component
+
+      import HolterWeb.CoreComponents
       use Gettext, backend: HolterWeb.Gettext
 
-      # HTML escaping functionality
-      import Phoenix.HTML
-      # Core UI components
-      import HolterWeb.CoreComponents
-
-      # Common modules used in templates
       alias Phoenix.LiveView.JS
-      alias HolterWeb.Layouts
 
-      # Routes generation with the ~p sigil
       unquote(verified_routes())
     end
   end
@@ -106,7 +101,7 @@ defmodule HolterWeb do
   end
 
   @doc """
-  When used, dispatch to the appropriate controller/live_view/etc.
+  When used, dispatch to the appropriate controller/view/etc.
   """
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])

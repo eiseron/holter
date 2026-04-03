@@ -2,8 +2,8 @@ defmodule Holter.Monitoring.Incidents do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Repo
   alias Holter.Monitoring.Incident
+  alias Holter.Repo
 
   def list_incidents(monitor_id) do
     Incident

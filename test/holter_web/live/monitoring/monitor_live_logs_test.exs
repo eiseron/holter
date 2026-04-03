@@ -5,7 +5,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
 
   @monitor_attrs %{
     url: "https://example.local",
-    method: :GET,
+    method: :get,
     interval_seconds: 60,
     logical_state: :active
   }

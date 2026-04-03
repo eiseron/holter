@@ -1,11 +1,11 @@
 defmodule Holter.Monitoring.EngineTest do
   use Holter.DataCase, async: true
-  alias Holter.Monitoring.Engine
   alias Holter.Monitoring
+  alias Holter.Monitoring.Engine
 
   @monitor_attrs %{
     url: "https://test.local",
-    method: "GET",
+    method: :get,
     interval_seconds: 60,
     logical_state: :active,
     raw_keyword_positive: "success",

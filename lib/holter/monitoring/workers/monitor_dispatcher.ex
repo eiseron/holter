@@ -1,4 +1,7 @@
 defmodule Holter.Monitoring.Workers.MonitorDispatcher do
+  @moduledoc """
+  Worker for dispatching periodic monitor checks.
+  """
   use Oban.Worker, queue: :dispatchers, max_attempts: 1
 
   alias Holter.Monitoring

@@ -49,7 +49,7 @@
               </div>
             </label>
             <select name={@form[:method].name} id={@form[:method].id} required>
-              <%= for method <- ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"] do %>
+              <%= for method <- ["get", "post", "head", "put", "patch", "delete", "options"] do %>
                 <option value={method} selected={to_string(@form[:method].value) == method}>
                   {method}
                 </option>

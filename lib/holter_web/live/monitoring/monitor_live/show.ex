@@ -3,6 +3,8 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Workers.HTTPCheck
+  alias Holter.Monitoring.Workers.SSLCheck
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -32,10 +34,10 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
       {:ok, _} = Monitoring.update_monitor(monitor, %{last_manual_check_at: now})
 
-      Holter.Monitoring.Workers.HTTPCheck.new(%{id: monitor.id}) |> Oban.insert()
+      HTTPCheck.new(%{id: monitor.id}) |> Oban.insert()
 
       if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
-        Holter.Monitoring.Workers.SSLCheck.new(%{id: monitor.id}) |> Oban.insert()
+        SSLCheck.new(%{id: monitor.id}) |> Oban.insert()
       end
 
       if connected?(socket), do: Process.send_after(self(), :tick, 1000)

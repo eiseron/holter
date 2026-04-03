@@ -9,7 +9,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
   describe "Monitor LiveView Show/Edit User Flow" do
     @valid_attrs %{
       url: "https://example.local",
-      method: :GET,
+      method: :get,
       interval_seconds: 300,
       timeout_seconds: 10,
       ssl_ignore: false,

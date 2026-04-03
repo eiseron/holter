@@ -59,7 +59,8 @@ defmodule Holter.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:oban, "~> 2.21"},
-      {:floki, ">= 0.30.0"},
+      {:floki, "~> 0.38.1"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.2", only: :test}
     ]
   end
@@ -82,7 +83,13 @@ defmodule Holter.MixProject do
         "esbuild holter --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: [
+        "compile --warnings-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "credo --strict",
+        "test"
+      ]
     ]
   end
 end

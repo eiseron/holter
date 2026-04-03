@@ -27,31 +27,29 @@ defmodule Holter.Monitoring.Engine do
         {nil, nil, nil}
       end
 
-    finalize_check(
-      monitor,
-      check_status,
-      log_status,
-      response.status,
-      duration_ms,
-      error_msg,
-      snippet,
-      headers,
-      ip
-    )
+    finalize_check(monitor, %{
+      check_status: check_status,
+      log_status: log_status,
+      status_code: response.status,
+      duration_ms: duration_ms,
+      error_msg: error_msg,
+      snippet: snippet,
+      headers: headers,
+      ip: ip
+    })
   end
 
   def handle_failure(monitor, error, duration_ms) do
-    finalize_check(
-      monitor,
-      :down,
-      :failure,
-      nil,
-      duration_ms,
-      Exception.message(error),
-      nil,
-      nil,
-      nil
-    )
+    finalize_check(monitor, %{
+      check_status: :down,
+      log_status: :failure,
+      status_code: nil,
+      duration_ms: duration_ms,
+      error_msg: Exception.message(error),
+      snippet: nil,
+      headers: nil,
+      ip: nil
+    })
   end
 
   defp normalize_body(body) when is_binary(body), do: body
@@ -82,31 +80,21 @@ defmodule Holter.Monitoring.Engine do
   defp determine_error_message(_, _, false), do: "Found forbidden keywords"
   defp determine_error_message(_, _, _), do: nil
 
-  defp finalize_check(
-         monitor,
-         check_status,
-         log_status,
-         status_code,
-         duration_ms,
-         error_msg,
-         snippet,
-         headers,
-         ip
-       ) do
+  defp finalize_check(monitor, params) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    handle_incident_logic(monitor, check_status, error_msg, now)
-    updated_monitor = update_monitor_state(monitor, check_status, now)
+    handle_incident_logic(monitor, params.check_status, params.error_msg, now)
+    updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     record_monitor_log(%{
       monitor_id: monitor.id,
-      status: log_status,
-      status_code: status_code,
-      latency_ms: duration_ms,
-      error_message: error_msg,
-      response_snippet: snippet,
-      response_headers: headers,
-      response_ip: ip,
+      status: params.log_status,
+      status_code: params.status_code,
+      latency_ms: params.duration_ms,
+      error_message: params.error_msg,
+      response_snippet: params.snippet,
+      response_headers: params.headers,
+      response_ip: params.ip,
       region: get_region(),
       checked_at: now
     })

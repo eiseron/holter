@@ -1,35 +1,43 @@
 defmodule Holter.Monitoring.Workers.HTTPCheck do
+  @moduledoc """
+  Worker for performing HTTP availability checks.
+  """
   use Oban.Worker, queue: :checks, max_attempts: 3
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
+  alias Holter.Monitoring.MonitorClient.HTTP
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id} = args}) do
     monitor = Monitoring.get_monitor!(id)
     start_time = System.monotonic_time()
+    client = get_client(args["client_name"])
 
-    client = get_client(Map.get(args, "client_name"))
+    opts = build_req_options(monitor)
 
-    monitor
-    |> build_req_options()
-    |> then(&apply(client, :request, [&1]))
+    client
+    |> request(opts)
     |> handle_request_result(monitor, start_time)
 
     :ok
   end
 
+  defp request(client, opts) do
+    client.request(opts)
+  end
+
   defp get_client("mock"), do: Holter.Monitoring.MonitorClientMock
-  defp get_client("http"), do: Holter.Monitoring.MonitorClient.HTTP
+  defp get_client("http"), do: HTTP
   defp get_client(_), do: Application.get_env(:holter, :monitor_client)
 
   defp build_req_options(monitor) do
     [
+      method: monitor.method,
       url: monitor.url,
-      method: monitor.method |> to_string() |> String.downcase() |> String.to_existing_atom(),
       headers: monitor.headers,
       body: monitor.body,
-      receive_timeout: (monitor.timeout_seconds || 30) * 1000
+      receive_timeout: monitor.timeout_seconds * 1000
     ]
     |> maybe_ignore_ssl(monitor.ssl_ignore)
   end

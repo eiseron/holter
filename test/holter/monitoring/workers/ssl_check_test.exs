@@ -12,7 +12,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "https://secure.example.com",
-        method: :GET,
+        method: :get,
         interval_seconds: 60,
         timeout_seconds: 30
       })
@@ -62,7 +62,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
       {:ok, plain_monitor} =
         Monitoring.create_monitor(%{
           url: "http://plain.example.com",
-          method: :GET,
+          method: :get,
           interval_seconds: 60,
           timeout_seconds: 30
         })

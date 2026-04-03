@@ -6,7 +6,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
   describe "Monitor Creation User Flow" do
     @valid_attrs %{
       url: "https://example.local",
-      method: "GET",
+      method: :get,
       interval_seconds: "300",
       timeout_seconds: "10"
     }
@@ -22,7 +22,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
          %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/new")
 
-      invalid_attrs = %{url: "", method: "GET"}
+      invalid_attrs = %{url: "", method: :get}
 
       assert view
              |> form("#monitor-form", monitor: invalid_attrs)
