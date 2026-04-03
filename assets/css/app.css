@@ -8,6 +8,9 @@
 @import "./components/header.css";
 @import "./components/list.css";
 @import "./components/icon.css";
+@import "./components/modal.css";
+@import "./components/tooltip.css";
+@import "./components/monitor.css";
 @import "./home.css";
 
 /* Global overrides for structural components */

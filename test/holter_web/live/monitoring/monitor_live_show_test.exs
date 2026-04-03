@@ -144,7 +144,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
          } do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
-      view |> element("button.confirm-btn") |> render_click()
+      view |> element("button[phx-click=\"delete\"]") |> render_click()
       assert_redirected(view, "/monitoring/dashboard")
     end
 
@@ -155,7 +155,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
          } do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
-      view |> element("button.confirm-btn") |> render_click()
+      view |> element("button[phx-click=\"delete\"]") |> render_click()
       assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
     end
 
@@ -166,7 +166,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
          } do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
-      view |> element("button.btn-run-now") |> render_click()
+      view |> element("button[phx-click=\"run_now\"]") |> render_click()
       assert render(view) =~ "Aguarde 30s"
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
@@ -180,7 +180,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
       assert render(view) =~ "status-down"
 
-      view |> element("button.btn-run-now") |> render_click()
+      view |> element("button[phx-click=\"run_now\"]") |> render_click()
 
       expect(Holter.Monitoring.MonitorClientMock, :request, fn _opts ->
         {:ok, %Req.Response{status: 200, body: "success", headers: []}}
