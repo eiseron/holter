@@ -16,7 +16,6 @@ defmodule Holter.Monitoring.Engine do
 
     error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-    # Selective Evidence: Only populate if status changed
     {headers, snippet, ip} =
       if check_status != monitor.health_status do
         {
@@ -205,10 +204,16 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp strip_html_tags(html) do
-    html
-    |> String.replace(~r/<script.*?>.*?<\/script>/is, " ")
-    |> String.replace(~r/<style.*?>.*?<\/style>/is, " ")
-    |> String.replace(~r/<[^>]*>/, " ")
+    case Floki.parse_document(html) do
+      {:ok, document} ->
+        document
+        |> Floki.filter_out("script")
+        |> Floki.filter_out("style")
+        |> Floki.text(sep: " ")
+
+      _ ->
+        html |> String.replace(~r/<[^>]*>/, " ")
+    end
   end
 
   defp normalize_whitespace(text) do
