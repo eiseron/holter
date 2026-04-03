@@ -187,7 +187,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       end)
 
       assert_enqueued(worker: HTTPCheck, args: %{id: monitor.id})
-      :ok = perform_job(HTTPCheck, %{"id" => monitor.id, "client_name" => "mock"})
+      :ok = perform_job(HTTPCheck, %{"id" => monitor.id})
 
       assert render(view) =~ "status-up"
     end

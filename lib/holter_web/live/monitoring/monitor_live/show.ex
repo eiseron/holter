@@ -38,7 +38,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
       {:ok, _} = Monitoring.update_monitor(monitor, %{last_manual_check_at: now})
 
-      HTTPCheck.new(%{"client_name" => "http", "id" => monitor.id})
+      HTTPCheck.new(%{"id" => monitor.id})
       |> Oban.insert()
 
       if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
