@@ -22,7 +22,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
     end
 
     test "it displays the page title", %{html: html} do
-      assert html =~ "Technical Logs"
+      assert html =~ "Logs Técnicos"
     end
 
     test "it displays the monitor URL", %{monitor: monitor, html: html} do
@@ -71,7 +71,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
     end
 
     test "it opens the technical evidence modal", %{view: view} do
-      assert has_element?(view, "h2", "Technical Evidence")
+      assert has_element?(view, "h2", "Evidência Técnica")
     end
 
     test "it displays recorded headers in the modal", %{view: view} do

@@ -15,7 +15,15 @@ defmodule Holter.Monitoring.Monitor do
     field :url, :string
 
     field :method, Ecto.Enum,
-      values: [:get, :post, :head, :put, :patch, :delete, :options],
+      values: [
+        get: "GET",
+        post: "POST",
+        head: "HEAD",
+        put: "PUT",
+        patch: "PATCH",
+        delete: "DELETE",
+        options: "OPTIONS"
+      ],
       default: :get
 
     field :interval_seconds, :integer, default: 60

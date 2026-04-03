@@ -44,3 +44,16 @@
 .h-group:hover .h-group-hover-opacity-70 {
   opacity: 0.7;
 }
+
+/* Phoenix connection error handling */
+#client-error, #server-error {
+  display: none;
+}
+
+.phx-client-error #client-error {
+  display: flex;
+}
+
+.phx-server-error #server-error {
+  display: flex;
+}

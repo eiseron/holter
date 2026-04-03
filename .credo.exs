@@ -41,8 +41,8 @@
       # If you create your own checks, you must specify the source files for
       # them here, so they can be loaded by Credo before running the analysis.
       requires: [
-        "lib/credo/check/readability/no_comments.ex",
-        "lib/credo/check/testing/one_assert_per_test.ex"
+        "credo_checks/readability/no_comments.ex",
+        "credo_checks/testing/one_assert_per_test.ex"
       ],
       #
       # If you want to enforce a style guide and need a more traditional linting
