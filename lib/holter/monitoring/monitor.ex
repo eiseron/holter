@@ -72,7 +72,11 @@ defmodule Holter.Monitoring.Monitor do
       :ssl_expires_at
     ])
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
+    |> validate_length(:url, max: 2048)
+    |> validate_length(:raw_headers, max: 4096)
+    |> validate_length(:body, max: 8192)
     |> validate_url()
+    |> validate_ssrf()
     |> validate_raw_headers()
     |> parse_keywords(:raw_keyword_positive, :keyword_positive)
     |> parse_keywords(:raw_keyword_negative, :keyword_negative)
@@ -116,10 +120,52 @@ defmodule Holter.Monitoring.Monitor do
   defp validate_url(changeset) do
     validate_change(changeset, :url, fn :url, url ->
       case parse_url(url) do
-        {:ok, _} -> []
+        {:ok, true} -> []
         {:error, msg} -> [url: msg]
       end
     end)
+  end
+
+  defp validate_ssrf(changeset) do
+    validate_change(changeset, :url, fn :url, url ->
+      host = URI.parse(url).host
+
+      if restricted_host?(host) do
+        [url: "is a restricted internal address"]
+      else
+        []
+      end
+    end)
+  end
+
+  defp restricted_host?(nil), do: true
+
+  defp restricted_host?(host) do
+    host = String.downcase(host)
+    trusted = get_trusted_hosts()
+
+    (localhost?(host) or private_ip?(host)) and host not in trusted
+  end
+
+  defp get_trusted_hosts do
+    :holter
+    |> Application.get_env(:monitoring, [])
+    |> Keyword.get(:trusted_hosts, [])
+  end
+
+  defp localhost?(host) do
+    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"]
+  end
+
+  defp private_ip?(host) do
+    case :inet.parse_address(to_charlist(host)) do
+      {:ok, {10, _, _, _}} -> true
+      {:ok, {172, second, _, _}} when second >= 16 and second <= 31 -> true
+      {:ok, {192, 168, _, _}} -> true
+      {:ok, {169, 254, _, _}} -> true
+      {:ok, {127, _, _, _}} -> true
+      _ -> false
+    end
   end
 
   defp parse_url(url) do

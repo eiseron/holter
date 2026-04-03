@@ -8,35 +8,50 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring
 
   def process_response(monitor, response, duration_ms) do
-    body = normalize_body(response.body)
-    {positive_ok, negative_ok} = validate_keywords(body, monitor)
+    ip = extract_ip(response)
 
-    check_status = determine_check_status(response.status, positive_ok, negative_ok)
-    log_status = determine_log_status(check_status)
+    if restricted_ip?(ip) do
+      finalize_check(monitor, %{
+        check_status: :down,
+        log_status: :failure,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: "Access to restricted internal address blocked",
+        snippet: nil,
+        headers: nil,
+        ip: ip
+      })
+    else
+      body = normalize_body(response.body)
+      {positive_ok, negative_ok} = validate_keywords(body, monitor)
 
-    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+      check_status = determine_check_status(response.status, positive_ok, negative_ok)
+      log_status = determine_log_status(check_status)
 
-    {headers, snippet, ip} =
-      if check_status != monitor.health_status do
-        {
-          filter_headers(response.headers),
-          clean_body_snippet(body, get_header(response.headers, "content-type")),
-          extract_ip(response)
-        }
-      else
-        {nil, nil, nil}
-      end
+      error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-    finalize_check(monitor, %{
-      check_status: check_status,
-      log_status: log_status,
-      status_code: response.status,
-      duration_ms: duration_ms,
-      error_msg: error_msg,
-      snippet: snippet,
-      headers: headers,
-      ip: ip
-    })
+      {headers, snippet, ip} =
+        if check_status != monitor.health_status do
+          {
+            filter_headers(response.headers),
+            clean_body_snippet(body, get_header(response.headers, "content-type")),
+            ip
+          }
+        else
+          {nil, nil, ip}
+        end
+
+      finalize_check(monitor, %{
+        check_status: check_status,
+        log_status: log_status,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: error_msg,
+        snippet: snippet,
+        headers: headers,
+        ip: ip
+      })
+    end
   end
 
   def handle_failure(monitor, error, duration_ms) do
@@ -159,13 +174,46 @@ defmodule Holter.Monitoring.Engine do
   defp validate_negative(_body, empty) when empty in [nil, []], do: true
   defp validate_negative(body, keywords), do: not Enum.any?(keywords, &String.contains?(body, &1))
 
+  defp restricted_ip?(nil), do: false
+
+  defp restricted_ip?(ip) do
+    trusted = get_trusted_hosts()
+
+    case :inet.parse_address(to_charlist(ip)) do
+      {:ok, addr} -> private_network_address?(addr) and ip not in trusted
+      _ -> false
+    end
+  end
+
+  defp get_trusted_hosts do
+    :holter
+    |> Application.get_env(:monitoring, [])
+    |> Keyword.get(:trusted_hosts, [])
+  end
+
+  defp private_network_address?({127, _, _, _}), do: true
+  defp private_network_address?({10, _, _, _}), do: true
+  defp private_network_address?({172, s, _, _}) when s >= 16 and s <= 31, do: true
+  defp private_network_address?({192, 168, _, _}), do: true
+  defp private_network_address?({169, 254, _, _}), do: true
+  defp private_network_address?({0, 0, 0, 0}), do: true
+  defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
+  defp private_network_address?(_), do: false
+
   defp filter_headers(headers) do
     interesting = ["server", "cf-ray", "content-type", "cache-control", "x-cache", "via"]
 
     headers
     |> Enum.into(%{})
     |> Map.take(interesting)
+    |> Map.new(fn {k, v} -> {k, truncate_value(v, 1024)} end)
   end
+
+  defp truncate_value(v, limit) when is_binary(v) do
+    if byte_size(v) > limit, do: String.slice(v, 0, limit), else: v
+  end
+
+  defp truncate_value(v, _limit), do: v
 
   defp extract_ip(response) do
     case response.private[:req_remote_addr] do

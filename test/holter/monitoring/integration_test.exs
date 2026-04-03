@@ -10,10 +10,19 @@ defmodule Holter.Monitoring.IntegrationTest do
 
   setup do
     old_client = Application.get_env(:holter, :monitor_client)
+    old_monitoring = Application.get_env(:holter, :monitoring, [])
+
     Application.put_env(:holter, :monitor_client, Holter.Monitoring.MonitorClient.HTTP)
+
+    Application.put_env(
+      :holter,
+      :monitoring,
+      Keyword.put(old_monitoring, :trusted_hosts, ["localhost", "127.0.0.1"])
+    )
 
     on_exit(fn ->
       Application.put_env(:holter, :monitor_client, old_client)
+      Application.put_env(:holter, :monitoring, old_monitoring)
     end)
 
     DummyService.reset()
