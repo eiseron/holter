@@ -61,7 +61,8 @@ config :holter, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher},
-       {"5 0 * * *", Holter.Monitoring.Workers.DailyMetricsAggregator}
+       {System.get_env("METRICS_CRON_SCHEDULE", "0 7 * * *"),
+        Holter.Monitoring.Workers.DailyMetricsAggregator}
      ]}
   ],
   queues: [dispatchers: 1, checks: 50, metrics: 5]

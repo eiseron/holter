@@ -26,6 +26,15 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregatorTest do
     test "creates a daily metric record", %{monitor: monitor, date: date} do
       assert Monitoring.get_daily_metric(monitor.id, date)
     end
+
+    test "enqueues LogsPruner after aggregation", %{monitor: monitor} do
+      assert_enqueued(
+        worker: Holter.Monitoring.Workers.LogsPruner,
+        args: %{
+          "monitor_id" => monitor.id
+        }
+      )
+    end
   end
 
   describe "when dispatching jobs for all monitors" do
@@ -52,13 +61,13 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregatorTest do
       :ok
     end
 
-    test "enqueues aggregation jobs for each monitor for yesterday", %{monitor: monitor} do
+    test "enqueues aggregation jobs for each monitor for yesterday" do
       yesterday = Date.utc_today() |> Date.add(-1) |> Date.to_iso8601()
 
       assert_enqueued(
         worker: DailyMetricsAggregator,
         args: %{
-          "monitor_id" => monitor.id,
+          "all_monitors" => true,
           "date" => yesterday
         }
       )
