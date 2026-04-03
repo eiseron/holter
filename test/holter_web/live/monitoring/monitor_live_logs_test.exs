@@ -66,7 +66,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
         })
 
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
-      view |> element("button.btn-evidence") |> render_click()
+      view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
       %{view: view}
     end
 
