@@ -7,25 +7,35 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
   alias Holter.Monitoring.Workers.SSLCheck
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
+  def mount(%{"org_slug" => slug, "id" => id}, _session, socket) do
+    case Monitoring.get_organization_by_slug(slug) do
+      {:ok, org} ->
+        if connected?(socket) do
+          Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
+        end
+
+        monitor = Monitoring.get_monitor!(id)
+        hydrated_monitor = hydrate_virtual_array_fields(monitor)
+
+        daily_metrics = Monitoring.list_daily_metrics(id)
+        changeset = Monitoring.change_monitor(hydrated_monitor)
+
+        socket =
+          socket
+          |> assign(:org, org)
+          |> assign(:monitor, hydrated_monitor)
+          |> assign(:daily_metrics, daily_metrics)
+          |> assign(:form, to_form(changeset))
+          |> assign_cooldown(monitor.last_manual_check_at)
+
+        {:ok, socket}
+
+      {:error, :not_found} ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Organization not found")
+         |> push_navigate(to: "/")}
     end
-
-    monitor = Monitoring.get_monitor!(id)
-    hydrated_monitor = hydrate_virtual_array_fields(monitor)
-
-    daily_metrics = Monitoring.list_daily_metrics(id)
-    changeset = Monitoring.change_monitor(hydrated_monitor)
-
-    socket =
-      socket
-      |> assign(:monitor, hydrated_monitor)
-      |> assign(:daily_metrics, daily_metrics)
-      |> assign(:form, to_form(changeset))
-      |> assign_cooldown(monitor.last_manual_check_at)
-
-    {:ok, socket}
   end
 
   @impl true
@@ -88,7 +98,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
     {:noreply,
      socket
      |> put_flash(:info, gettext("Monitor deleted successfully"))
-     |> push_navigate(to: ~p"/monitoring/dashboard")}
+     |> push_navigate(to: ~p"/orgs/#{socket.assigns.org.slug}/monitoring/dashboard")}
   end
 
   @impl true

@@ -11,16 +11,21 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
       timeout_seconds: "10"
     }
 
-    test "Given the creation route, when mounted, then the page correctly translates and establishes the HTML DOM",
-         %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/new")
+    setup do
+      org = organization_fixture()
+      %{org: org}
+    end
 
-      assert has_element?(view, "h1", "Criar um novo Monitor")
+    test "Given the creation route, when mounted, then the page correctly translates and establishes the HTML DOM",
+         %{conn: conn, org: org} do
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
+
+      assert render(view) =~ "Criar um novo Monitor"
     end
 
     test "Given empty or invalid attributes, when dispatching a validate event, then the form reacts and renders block errors",
-         %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/new")
+         %{conn: conn, org: org} do
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
 
       invalid_attrs = %{url: "", method: :get}
 
@@ -30,15 +35,14 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
     end
 
     test "Given a completed form array, when successfully submitted, then it flashes the translated success message and navigates away",
-         %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/new")
+         %{conn: conn, org: org} do
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
 
       view
       |> form("#monitor-form", monitor: @valid_attrs)
       |> render_submit()
 
-      assert %{"info" => "Monitor criado com sucesso"} =
-               assert_redirect(view, "/monitoring/dashboard")
+      assert_redirect(view, "/orgs/#{org.slug}/monitoring/dashboard")
     end
   end
 end

@@ -2,14 +2,14 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
   use Holter.DataCase, async: true
   use Oban.Testing, repo: Holter.Repo
 
-  alias Holter.Monitoring.{Monitor, MonitorLog, TenantLimit}
+  alias Holter.Monitoring.{MonitorLog, TenantLimit}
   alias Holter.Monitoring.Workers.LogsPruner
 
   setup do
     monitor =
-      Repo.insert!(%Monitor{
+      monitor_fixture(%{
         url: "https://test.com",
-        method: :get,
+        method: "get",
         timeout_seconds: 5,
         interval_seconds: 60
       })

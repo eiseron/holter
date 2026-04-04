@@ -12,6 +12,7 @@ defmodule HolterWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.ApiSpec
   end
 
   scope "/", HolterWeb do
@@ -20,7 +21,13 @@ defmodule HolterWeb.Router do
     get "/", PageController, :home
   end
 
-  scope "/monitoring", HolterWeb.Monitoring do
+  scope "/api/orgs/:org_slug/monitoring", HolterWeb do
+    pipe_through :api
+
+    resources "/monitors", MonitorController, except: [:new, :edit]
+  end
+
+  scope "/orgs/:org_slug/monitoring", HolterWeb.Monitoring do
     pipe_through :browser
 
     live "/dashboard", MonitorLive.Index, :index
@@ -37,6 +44,12 @@ defmodule HolterWeb.Router do
 
       live_dashboard "/dashboard", metrics: HolterWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+
+    scope "/" do
+      pipe_through :browser
+      get "/api/openapi", OpenApiSpex.Plug.RenderSpec, []
+      get "/api/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     end
   end
 end

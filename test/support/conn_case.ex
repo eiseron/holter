@@ -26,6 +26,7 @@ defmodule HolterWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import HolterWeb.ConnCase
+      import Holter.MonitoringFixtures
     end
   end
 

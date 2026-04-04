@@ -44,6 +44,7 @@ defmodule Holter.Monitoring.Monitor do
     field :last_manual_check_at, :utc_datetime
     field :ssl_expires_at, :utc_datetime
 
+    belongs_to :organization, Holter.Monitoring.Organization
     has_many :daily_metrics, Holter.Monitoring.DailyMetric
 
     timestamps(type: :utc_datetime)
@@ -69,9 +70,10 @@ defmodule Holter.Monitoring.Monitor do
       :last_checked_at,
       :last_success_at,
       :last_manual_check_at,
-      :ssl_expires_at
+      :ssl_expires_at,
+      :organization_id
     ])
-    |> validate_required([:url, :method, :interval_seconds, :timeout_seconds])
+    |> validate_required([:url, :method, :interval_seconds, :timeout_seconds, :organization_id])
     |> validate_number(:interval_seconds,
       greater_than_or_equal_to: 1,
       less_than_or_equal_to: 86_400

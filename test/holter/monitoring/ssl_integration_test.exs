@@ -9,10 +9,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
   setup :verify_on_exit!
 
   setup do
-    {:ok, monitor} =
-      Monitoring.create_monitor(%{
+    monitor =
+      monitor_fixture(%{
         url: "https://secure-service.local",
-        method: :get,
+        method: "get",
         interval_seconds: 60,
         logical_state: :active
       })

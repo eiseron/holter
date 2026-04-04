@@ -16,31 +16,35 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     }
 
     setup do
-      {:ok, monitor} = Monitoring.create_monitor(@valid_attrs)
-      %{monitor: monitor}
+      monitor = monitor_fixture(@valid_attrs)
+      org = Monitoring.get_organization!(monitor.organization_id)
+      %{monitor: monitor, org: org}
     end
 
     test "Given a monitor, when page loads, then it renders the title", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, _view, html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
       assert html =~ "Configurações do Monitor"
     end
 
     test "Given a monitor, when page loads, then it displays the monitor URL", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, _view, html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
       assert html =~ monitor.url
     end
 
     test "Given a user updating URL, when form submitted, then URL persists in database", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{url: "https://updated.local"})
@@ -52,9 +56,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     test "Given a user updating interval, when form submitted, then interval persists in database",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{interval_seconds: 60})
@@ -66,9 +71,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     test "Given malformed inputs, when the form validates, then it renders the validation output",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       assert view
              |> form("#monitor-form", monitor: %{url: "not-a-url"})
@@ -77,9 +83,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
 
     test "Given a user updating ssl_ignore, when submitted, then boolean persists", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{ssl_ignore: true})
@@ -90,9 +97,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
 
     test "Given a user updating positive keywords, when submitted, then it tracks as an array", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -109,9 +117,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     test "Given a user updating negative keywords, when submitted, then it strips and tracks as an array",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -124,9 +133,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
 
     test "Given a user updating raw headers, when submitted, then it decodes as JSON map", %{
       conn: conn,
-      monitor: monitor
+      monitor: monitor,
+      org: org
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -140,20 +150,22 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     test "Given a user clicking the modal deletion confirmation, when processed, then the UX redirects",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
-      assert_redirected(view, "/monitoring/dashboard")
+      assert_redirected(view, "/orgs/#{org.slug}/monitoring/dashboard")
     end
 
     test "Given a user clicking the modal deletion confirmation, when processed, then the database destroys the record",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
       assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
@@ -162,9 +174,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     test "Given a monitor, when user clicks Run Now, then it enqueues jobs and starts cooldown",
          %{
            conn: conn,
-           monitor: monitor
+           monitor: monitor,
+           org: org
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
       assert render(view) =~ "Aguarde 30s"
@@ -172,12 +185,12 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
     end
 
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
-         %{conn: conn, monitor: monitor} do
+         %{conn: conn, monitor: monitor, org: org} do
       import Mox
       alias Holter.Monitoring.Workers.HTTPCheck
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :down})
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}")
       assert render(view) =~ "status-down"
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()

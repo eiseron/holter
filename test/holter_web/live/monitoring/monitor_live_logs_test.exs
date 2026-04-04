@@ -11,13 +11,14 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
   }
 
   setup do
-    {:ok, monitor} = Monitoring.create_monitor(@monitor_attrs)
-    %{monitor: monitor}
+    monitor = monitor_fixture(@monitor_attrs)
+    org = Monitoring.get_organization!(monitor.organization_id)
+    %{monitor: monitor, org: org}
   end
 
   describe "when rendering technical logs page" do
-    setup %{conn: conn, monitor: monitor} do
-      {:ok, view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
+    setup %{conn: conn, monitor: monitor, org: org} do
+      {:ok, view, html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}/logs")
       %{view: view, html: html}
     end
 
@@ -31,7 +32,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "when logs exist in the system" do
-    setup %{conn: conn, monitor: monitor} do
+    setup %{conn: conn, monitor: monitor, org: org} do
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
         status: :success,
@@ -39,7 +40,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
         checked_at: DateTime.utc_now()
       })
 
-      {:ok, view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
+      {:ok, view, html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}/logs")
       %{view: view, html: html}
     end
 
@@ -53,7 +54,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "when clicking view evidence" do
-    setup %{conn: conn, monitor: monitor} do
+    setup %{conn: conn, monitor: monitor, org: org} do
       {:ok, _log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
@@ -65,7 +66,7 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
           checked_at: DateTime.utc_now()
         })
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
+      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/#{monitor.id}/logs")
       view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
       %{view: view}
     end

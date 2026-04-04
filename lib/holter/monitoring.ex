@@ -3,16 +3,19 @@ defmodule Holter.Monitoring do
   The Monitoring context.
   """
 
-  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, TenantLimits}
+  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Organizations, TenantLimits}
 
   defdelegate list_monitors, to: Monitors
   defdelegate get_monitor!(id), to: Monitors
+  defdelegate get_monitor(id), to: Monitors
   defdelegate create_monitor(attrs), to: Monitors
   defdelegate update_monitor(monitor, attrs), to: Monitors
   defdelegate delete_monitor(monitor), to: Monitors
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
   defdelegate recalculate_health_status(monitor), to: Monitors
   defdelegate list_monitors_for_dispatch, to: Monitors
+  defdelegate list_monitors_by_organization(organization_id), to: Monitors
+  defdelegate list_monitors_filtered(params), to: Monitors
 
   defdelegate list_monitor_logs(monitor_id), to: Logs
   defdelegate get_monitor_log!(id), to: Logs
@@ -31,4 +34,10 @@ defmodule Holter.Monitoring do
   defdelegate upsert_daily_metric(attrs), to: Metrics
 
   defdelegate get_retention_days(user_id), to: TenantLimits
+
+  defdelegate create_organization(attrs), to: Organizations
+  defdelegate update_organization(organization, attrs), to: Organizations
+  defdelegate get_organization!(id), to: Organizations
+  defdelegate get_organization_by_slug(slug), to: Organizations
+  defdelegate get_organization_by_slug!(slug), to: Organizations
 end

@@ -14,8 +14,10 @@ defmodule Holter.Monitoring.EngineTest do
   }
 
   setup do
-    {:ok, monitor} = Monitoring.create_monitor(@monitor_attrs)
-    %{monitor: monitor}
+    org = organization_fixture()
+    attrs = Map.put(@monitor_attrs, :organization_id, org.id)
+    {:ok, monitor} = Monitoring.create_monitor(attrs)
+    %{monitor: monitor, org: org}
   end
 
   describe "when response is 200 OK and matching keywords" do

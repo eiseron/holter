@@ -1,7 +1,7 @@
 <div class="monitor-dashboard">
   <header class="dashboard-header">
     <h1>{gettext("Monitoring Dashboard")}</h1>
-    <.link navigate={~p"/monitoring/monitor/new"} class="btn-primary">
+    <.link navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/new"} class="btn-primary">
       {gettext("Create New Monitor")}
     </.link>
   </header>
@@ -11,7 +11,10 @@
       <div class="empty-state">{gettext("No monitors found. Create one to get started!")}</div>
     <% else %>
       <%= for monitor <- @monitors do %>
-        <.link navigate={~p"/monitoring/monitor/#{monitor.id}"} class="monitor-card">
+        <.link
+          navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/#{monitor.id}"}
+          class="monitor-card"
+        >
           <div class="card-title">{monitor.url}</div>
           <div class="card-details">
             <.health_badge status={monitor.health_status} />

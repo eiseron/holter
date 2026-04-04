@@ -9,6 +9,8 @@ defmodule Holter.Monitoring.TenantLimit do
     field :max_monitors, :integer, default: 3
     field :min_interval_seconds, :integer, default: 600
 
+    belongs_to :organization, Holter.Monitoring.Organization
+
     timestamps(type: :utc_datetime)
   end
 

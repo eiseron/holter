@@ -1,7 +1,10 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row">
-      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}"} class="h-btn-back">
+      <.link
+        navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/#{@monitor.id}"}
+        class="h-btn-back"
+      >
         &larr;
       </.link>
       {gettext("Technical Logs")}

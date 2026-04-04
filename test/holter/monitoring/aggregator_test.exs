@@ -6,15 +6,18 @@ defmodule Holter.Monitoring.AggregatorTest do
 
   describe "aggregate_monitor_date/2" do
     setup do
+      org = organization_fixture()
+
       {:ok, monitor} =
         Monitoring.create_monitor(%{
           url: "https://example.com",
           method: :get,
           interval_seconds: 60,
-          timeout_seconds: 30
+          timeout_seconds: 30,
+          organization_id: org.id
         })
 
-      %{monitor: monitor}
+      %{monitor: monitor, org: org}
     end
 
     test "aggregates metrics for a day with success and failure", %{monitor: monitor} do

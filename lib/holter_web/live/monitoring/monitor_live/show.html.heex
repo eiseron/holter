@@ -1,7 +1,7 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row">
-      <.link navigate={~p"/monitoring/dashboard"} class="h-btn-back">
+      <.link navigate={~p"/orgs/#{@org.slug}/monitoring/dashboard"} class="h-btn-back">
         &larr;
       </.link>
       {gettext("Monitor Settings")}
@@ -29,7 +29,10 @@
     <.header>
       {gettext("Daily Uptime History")}
       <:actions>
-        <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+        <.link
+          navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/#{@monitor.id}/logs"}
+          class="h-btn h-btn-soft"
+        >
           {gettext("View Technical Logs")}
         </.link>
       </:actions>

@@ -4,19 +4,29 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
   alias Holter.Monitoring
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
+  def mount(%{"org_slug" => slug, "id" => id}, _session, socket) do
+    case Monitoring.get_organization_by_slug(slug) do
+      {:ok, org} ->
+        if connected?(socket) do
+          Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
+        end
+
+        monitor = Monitoring.get_monitor!(id)
+        logs = Monitoring.list_monitor_logs(id)
+
+        {:ok,
+         socket
+         |> assign(:org, org)
+         |> assign(:monitor, monitor)
+         |> assign(:logs, logs)
+         |> assign(:selected_log, nil)}
+
+      {:error, :not_found} ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Organization not found")
+         |> push_navigate(to: "/")}
     end
-
-    monitor = Monitoring.get_monitor!(id)
-    logs = Monitoring.list_monitor_logs(id)
-
-    {:ok,
-     socket
-     |> assign(:monitor, monitor)
-     |> assign(:logs, logs)
-     |> assign(:selected_log, nil)}
   end
 
   @impl true

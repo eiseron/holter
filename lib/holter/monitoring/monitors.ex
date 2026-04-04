@@ -10,7 +10,60 @@ defmodule Holter.Monitoring.Monitors do
     Repo.all(Monitor)
   end
 
+  def list_monitors_by_organization(organization_id) do
+    Monitor
+    |> where([m], m.organization_id == ^organization_id)
+    |> order_by([m], desc: m.inserted_at)
+    |> Repo.all()
+  end
+
   def get_monitor!(id), do: Repo.get!(Monitor, id)
+
+  def get_monitor(id) do
+    case Repo.get(Monitor, id) do
+      nil -> {:error, :not_found}
+      monitor -> {:ok, monitor}
+    end
+  end
+
+  @max_page_size 100
+  @default_page_size 25
+
+  def list_monitors_filtered(params) do
+    organization_id = Map.fetch!(params, :organization_id)
+    page = Map.get(params, :page, 1) |> max(1)
+    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+
+    base_query =
+      Monitor
+      |> where([m], m.organization_id == ^organization_id)
+
+    filtered_query =
+      base_query
+      |> maybe_filter_by(:logical_state, params)
+      |> maybe_filter_by(:health_status, params)
+
+    total = Repo.aggregate(filtered_query, :count, :id)
+
+    monitors =
+      filtered_query
+      |> order_by([m], desc: m.inserted_at)
+      |> limit(^page_size)
+      |> offset(^((page - 1) * page_size))
+      |> Repo.all()
+
+    %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
+  end
+
+  defp maybe_filter_by(query, :logical_state, %{logical_state: state}) when not is_nil(state) do
+    where(query, [m], m.logical_state == ^state)
+  end
+
+  defp maybe_filter_by(query, :health_status, %{health_status: status}) when not is_nil(status) do
+    where(query, [m], m.health_status == ^status)
+  end
+
+  defp maybe_filter_by(query, _, _), do: query
 
   def create_monitor(attrs \\ %{}) do
     case %Monitor{}
