@@ -5,20 +5,20 @@ defmodule HolterWeb.Monitoring.MonitorLive.New do
   alias Holter.Monitoring.Monitor
 
   @impl true
-  def mount(%{"org_slug" => slug}, _session, socket) do
-    case Monitoring.get_organization_by_slug(slug) do
-      {:ok, org} ->
-        changeset = Monitoring.change_monitor(%Monitor{organization_id: org.id})
+  def mount(%{"workspace_slug" => slug}, _session, socket) do
+    case Monitoring.get_workspace_by_slug(slug) do
+      {:ok, workspace} ->
+        changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
 
         {:ok,
          socket
-         |> assign(:org, org)
+         |> assign(:workspace, workspace)
          |> assign(:form, to_form(changeset))}
 
       {:error, :not_found} ->
         {:ok,
          socket
-         |> put_flash(:error, "Organization not found")
+         |> put_flash(:error, "Workspace not found")
          |> push_navigate(to: "/")}
     end
   end
@@ -35,14 +35,14 @@ defmodule HolterWeb.Monitoring.MonitorLive.New do
 
   @impl true
   def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    params = Map.put(monitor_params, "organization_id", socket.assigns.org.id)
+    params = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
 
     case Monitoring.create_monitor(params) do
       {:ok, _monitor} ->
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor created successfully"))
-         |> push_navigate(to: ~p"/orgs/#{socket.assigns.org.slug}/monitoring/dashboard")}
+         |> push_navigate(to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}

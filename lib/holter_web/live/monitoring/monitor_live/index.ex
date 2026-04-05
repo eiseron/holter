@@ -4,22 +4,22 @@ defmodule HolterWeb.Monitoring.MonitorLive.Index do
   alias Holter.Monitoring
 
   @impl true
-  def mount(%{"org_slug" => slug}, _session, socket) do
-    case Monitoring.get_organization_by_slug(slug) do
-      {:ok, org} ->
+  def mount(%{"workspace_slug" => slug}, _session, socket) do
+    case Monitoring.get_workspace_by_slug(slug) do
+      {:ok, workspace} ->
         if connected?(socket) do
           Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitors")
         end
 
         {:ok,
          socket
-         |> assign(:org, org)
-         |> assign(:monitors, Monitoring.list_monitors_by_organization(org.id))}
+         |> assign(:workspace, workspace)
+         |> assign(:monitors, Monitoring.list_monitors_by_workspace(workspace.id))}
 
       {:error, :not_found} ->
         {:ok,
          socket
-         |> put_flash(:error, "Organization not found")
+         |> put_flash(:error, "Workspace not found")
          |> push_navigate(to: "/")}
     end
   end
@@ -27,6 +27,6 @@ defmodule HolterWeb.Monitoring.MonitorLive.Index do
   @impl true
   def handle_info({_event, _data}, socket) do
     {:noreply,
-     assign(socket, monitors: Monitoring.list_monitors_by_organization(socket.assigns.org.id))}
+     assign(socket, monitors: Monitoring.list_monitors_by_workspace(socket.assigns.workspace.id))}
   end
 end

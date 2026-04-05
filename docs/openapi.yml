@@ -277,16 +277,16 @@ info:
   version: 1.0.0
 openapi: 3.0.0
 paths:
-  /api/orgs/{org_slug}/monitoring/monitors:
+  /api/v1/workspaces/{workspace_slug}/monitors:
     get:
       callbacks: {}
-      description: List all monitors for an organization with pagination and filtering.
+      description: List all monitors for a workspace with pagination and filtering.
       operationId: HolterWeb.MonitorController.index
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           example: eiseron
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string
@@ -462,18 +462,18 @@ paths:
                 type: object
                 x-struct:
                 x-validate:
-          description: Organization not found
+          description: Workspace not found
       summary: List monitors
       tags:
         - Monitors
     post:
       callbacks: {}
-      description: Create a new monitor for the specified organization.
+      description: Create a new monitor for the specified workspace.
       operationId: HolterWeb.MonitorController.create
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string
@@ -656,15 +656,15 @@ paths:
       summary: Create monitor
       tags:
         - Monitors
-  /api/orgs/{org_slug}/monitoring/monitors/{id}:
+  /api/v1/workspaces/{workspace_slug}/monitors/{id}:
     delete:
       callbacks: {}
       description: Permanently delete a monitor and all its associated data.
       operationId: HolterWeb.MonitorController.delete
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string
@@ -715,9 +715,9 @@ paths:
       description: Fetch a single monitor by its UUID.
       operationId: HolterWeb.MonitorController.show
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string
@@ -849,9 +849,9 @@ paths:
       description: Update an existing monitor's configuration.
       operationId: HolterWeb.MonitorController.update (2)
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string
@@ -1071,9 +1071,9 @@ paths:
       description: Update an existing monitor's configuration.
       operationId: HolterWeb.MonitorController.update
       parameters:
-        - description: Organization slug
+        - description: Workspace slug
           in: path
-          name: org_slug
+          name: workspace_slug
           required: true
           schema:
             type: string

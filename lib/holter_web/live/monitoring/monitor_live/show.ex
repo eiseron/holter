@@ -7,9 +7,9 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
   alias Holter.Monitoring.Workers.SSLCheck
 
   @impl true
-  def mount(%{"org_slug" => slug, "id" => id}, _session, socket) do
-    case Monitoring.get_organization_by_slug(slug) do
-      {:ok, org} ->
+  def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
+    case Monitoring.get_workspace_by_slug(slug) do
+      {:ok, workspace} ->
         if connected?(socket) do
           Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
         end
@@ -22,7 +22,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
 
         socket =
           socket
-          |> assign(:org, org)
+          |> assign(:workspace, workspace)
           |> assign(:monitor, hydrated_monitor)
           |> assign(:daily_metrics, daily_metrics)
           |> assign(:form, to_form(changeset))
@@ -33,7 +33,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
       {:error, :not_found} ->
         {:ok,
          socket
-         |> put_flash(:error, "Organization not found")
+         |> put_flash(:error, "Workspace not found")
          |> push_navigate(to: "/")}
     end
   end
@@ -98,7 +98,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Show do
     {:noreply,
      socket
      |> put_flash(:info, gettext("Monitor deleted successfully"))
-     |> push_navigate(to: ~p"/orgs/#{socket.assigns.org.slug}/monitoring/dashboard")}
+     |> push_navigate(to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard")}
   end
 
   @impl true

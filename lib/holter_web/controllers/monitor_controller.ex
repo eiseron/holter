@@ -16,9 +16,9 @@ defmodule HolterWeb.MonitorController do
 
   operation(:index,
     summary: "List monitors",
-    description: "List all monitors for an organization with pagination and filtering.",
+    description: "List all monitors for a workspace with pagination and filtering.",
     parameters: [
-      org_slug: [in: :path, description: "Organization slug", type: :string, example: "eiseron"],
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string, example: "eiseron"],
       page: [
         in: :query,
         description: "Page number",
@@ -34,15 +34,15 @@ defmodule HolterWeb.MonitorController do
     ],
     responses: [
       ok: {"Monitor list", "application/json", MonitorSchemas.monitor_list()},
-      not_found: {"Organization not found", "application/json", MonitorSchemas.error()}
+      not_found: {"Workspace not found", "application/json", MonitorSchemas.error()}
     ]
   )
 
-  def index(conn, %{"org_slug" => org_slug} = params) do
-    with {:ok, org} <- Monitoring.get_organization_by_slug(org_slug) do
+  def index(conn, %{"workspace_slug" => workspace_slug} = params) do
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
       params =
         params
-        |> Map.put(:organization_id, org.id)
+        |> Map.put(:workspace_id, workspace.id)
         |> sanitize_params()
 
       monitors = Monitoring.list_monitors_filtered(params)
@@ -54,7 +54,7 @@ defmodule HolterWeb.MonitorController do
     summary: "Get monitor",
     description: "Fetch a single monitor by its UUID.",
     parameters: [
-      org_slug: [in: :path, description: "Organization slug", type: :string],
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -67,19 +67,19 @@ defmodule HolterWeb.MonitorController do
     ]
   )
 
-  def show(conn, %{"org_slug" => org_slug, "id" => id}) do
-    with {:ok, org} <- Monitoring.get_organization_by_slug(org_slug),
+  def show(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.organization_id == org.id || {:error, :not_found} do
+         true <- monitor.workspace_id == workspace.id || {:error, :not_found} do
       render(conn, :show, monitor: monitor)
     end
   end
 
   operation(:create,
     summary: "Create monitor",
-    description: "Create a new monitor for the specified organization.",
+    description: "Create a new monitor for the specified workspace.",
     parameters: [
-      org_slug: [in: :path, description: "Organization slug", type: :string]
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string]
     ],
     request_body: {"Monitor parameters", "application/json", MonitorSchemas.monitor_request()},
     responses: [
@@ -88,9 +88,9 @@ defmodule HolterWeb.MonitorController do
     ]
   )
 
-  def create(conn, %{"org_slug" => org_slug, "monitor" => monitor_params}) do
-    with {:ok, org} <- Monitoring.get_organization_by_slug(org_slug) do
-      monitor_params = Map.put(monitor_params, "organization_id", org.id)
+  def create(conn, %{"workspace_slug" => workspace_slug, "monitor" => monitor_params}) do
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
+      monitor_params = Map.put(monitor_params, "workspace_id", workspace.id)
 
       with {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
         conn
@@ -104,7 +104,7 @@ defmodule HolterWeb.MonitorController do
     summary: "Update monitor",
     description: "Update an existing monitor's configuration.",
     parameters: [
-      org_slug: [in: :path, description: "Organization slug", type: :string],
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -119,10 +119,10 @@ defmodule HolterWeb.MonitorController do
     ]
   )
 
-  def update(conn, %{"org_slug" => org_slug, "id" => id, "monitor" => monitor_params}) do
-    with {:ok, org} <- Monitoring.get_organization_by_slug(org_slug),
+  def update(conn, %{"workspace_slug" => workspace_slug, "id" => id, "monitor" => monitor_params}) do
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.organization_id == org.id || {:error, :not_found},
+         true <- monitor.workspace_id == workspace.id || {:error, :not_found},
          {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(monitor, monitor_params) do
       render(conn, :show, monitor: monitor)
     end
@@ -132,7 +132,7 @@ defmodule HolterWeb.MonitorController do
     summary: "Delete monitor",
     description: "Permanently delete a monitor and all its associated data.",
     parameters: [
-      org_slug: [in: :path, description: "Organization slug", type: :string],
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -145,10 +145,10 @@ defmodule HolterWeb.MonitorController do
     ]
   )
 
-  def delete(conn, %{"org_slug" => org_slug, "id" => id}) do
-    with {:ok, org} <- Monitoring.get_organization_by_slug(org_slug),
+  def delete(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.organization_id == org.id || {:error, :not_found},
+         true <- monitor.workspace_id == workspace.id || {:error, :not_found},
          {:ok, %Monitor{}} <- Monitoring.delete_monitor(monitor) do
       send_resp(conn, :no_content, "")
     end

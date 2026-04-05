@@ -21,13 +21,13 @@ defmodule HolterWeb.Router do
     get "/", PageController, :home
   end
 
-  scope "/api/orgs/:org_slug/monitoring", HolterWeb do
+  scope "/api/v1/workspaces/:workspace_slug", HolterWeb do
     pipe_through :api
 
     resources "/monitors", MonitorController, except: [:new, :edit]
   end
 
-  scope "/orgs/:org_slug/monitoring", HolterWeb.Monitoring do
+  scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Monitoring do
     pipe_through :browser
 
     live "/dashboard", MonitorLive.Index, :index

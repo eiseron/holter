@@ -1,7 +1,7 @@
 <div class="monitor-dashboard">
   <header class="dashboard-header">
     <h1>{gettext("Monitoring Dashboard")}</h1>
-    <.link navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/new"} class="btn-primary">
+    <.link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"} class="btn-primary">
       {gettext("Create New Monitor")}
     </.link>
   </header>
@@ -12,7 +12,7 @@
     <% else %>
       <%= for monitor <- @monitors do %>
         <.link
-          navigate={~p"/orgs/#{@org.slug}/monitoring/monitor/#{monitor.id}"}
+          navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{monitor.id}"}
           class="monitor-card"
         >
           <div class="card-title">{monitor.url}</div>

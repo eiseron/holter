@@ -4,9 +4,9 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
   alias Holter.Monitoring
 
   @impl true
-  def mount(%{"org_slug" => slug, "id" => id}, _session, socket) do
-    case Monitoring.get_organization_by_slug(slug) do
-      {:ok, org} ->
+  def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
+    case Monitoring.get_workspace_by_slug(slug) do
+      {:ok, workspace} ->
         if connected?(socket) do
           Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
         end
@@ -16,7 +16,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
 
         {:ok,
          socket
-         |> assign(:org, org)
+         |> assign(:workspace, workspace)
          |> assign(:monitor, monitor)
          |> assign(:logs, logs)
          |> assign(:selected_log, nil)}
@@ -24,7 +24,7 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
       {:error, :not_found} ->
         {:ok,
          socket
-         |> put_flash(:error, "Organization not found")
+         |> put_flash(:error, "Workspace not found")
          |> push_navigate(to: "/")}
     end
   end
