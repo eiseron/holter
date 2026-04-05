@@ -31,17 +31,13 @@
         {log.latency_ms}ms
       </:col>
       <:col :let={log} label={gettext("Evidence")}>
-        <%= if log.response_headers || log.response_snippet || log.error_message do %>
-          <button
-            phx-click="view_evidence"
-            phx-value-id={log.id}
-            class="h-btn h-btn-soft h-text-sm"
-          >
-            {gettext("View Evidence")}
-          </button>
-        <% else %>
-          <span class="h-text-muted">-</span>
-        <% end %>
+        <button
+          phx-click="view_evidence"
+          phx-value-id={log.id}
+          class="h-btn h-btn-soft h-text-sm"
+        >
+          {gettext("View Evidence")}
+        </button>
       </:col>
     </.table>
   </div>
@@ -55,6 +51,14 @@
       show={true}
       class="h-modal-content h-modal-large"
     >
+      <%= if @evidence_inherited do %>
+        <div class="h-evidence-inherited-notice">
+          <p>
+            ⚠️ {gettext("This check did not capture new evidence. Showing the most recent evidence from %{time}.",
+              time: Calendar.strftime(@evidence_source_time, "%Y-%m-%d %H:%M:%S"))}
+          </p>
+        </div>
+      <% end %>
       <div class="h-evidence-grid">
         <div class="h-evidence-meta">
           <div class="h-meta-item">

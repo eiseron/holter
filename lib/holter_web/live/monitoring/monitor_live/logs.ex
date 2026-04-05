@@ -19,7 +19,9 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
          |> assign(:workspace, workspace)
          |> assign(:monitor, monitor)
          |> assign(:logs, logs)
-         |> assign(:selected_log, nil)}
+         |> assign(:selected_log, nil)
+         |> assign(:evidence_inherited, false)
+         |> assign(:evidence_source_time, nil)}
 
       {:error, :not_found} ->
         {:ok,
@@ -44,11 +46,46 @@ defmodule HolterWeb.Monitoring.MonitorLive.Logs do
   @impl true
   def handle_event("view_evidence", %{"id" => log_id}, socket) do
     log = Monitoring.get_monitor_log!(log_id)
-    {:noreply, assign(socket, :selected_log, log)}
+
+    {evidence_log, inherited?} =
+      if has_evidence?(log) do
+        {log, false}
+      else
+        case find_nearest_evidence(socket.assigns.logs, log) do
+          nil -> {log, false}
+          fallback -> {fallback, true}
+        end
+      end
+
+    {:noreply,
+     socket
+     |> assign(:selected_log, evidence_log)
+     |> assign(:evidence_inherited, inherited?)
+     |> assign(:evidence_source_time, if(inherited?, do: evidence_log.checked_at))}
   end
 
   @impl true
   def handle_event("close_modal", _, socket) do
-    {:noreply, assign(socket, :selected_log, nil)}
+    {:noreply,
+     socket
+     |> assign(:selected_log, nil)
+     |> assign(:evidence_inherited, false)
+     |> assign(:evidence_source_time, nil)}
+  end
+
+  defp has_evidence?(log) do
+    not is_nil(log.response_headers) or
+      not is_nil(log.response_snippet) or
+      not is_nil(log.error_message)
+  end
+
+  defp find_nearest_evidence(logs, current_log) do
+    logs
+    |> Enum.filter(fn l ->
+      DateTime.compare(l.checked_at, current_log.checked_at) != :gt and
+        l.id != current_log.id and
+        has_evidence?(l)
+    end)
+    |> List.first()
   end
 end
