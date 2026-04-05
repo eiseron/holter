@@ -10,9 +10,9 @@ defmodule Holter.Monitoring.Monitors do
     Repo.all(Monitor)
   end
 
-  def list_monitors_by_organization(organization_id) do
+  def list_monitors_by_workspace(workspace_id) do
     Monitor
-    |> where([m], m.organization_id == ^organization_id)
+    |> where([m], m.workspace_id == ^workspace_id)
     |> order_by([m], desc: m.inserted_at)
     |> Repo.all()
   end
@@ -30,13 +30,13 @@ defmodule Holter.Monitoring.Monitors do
   @default_page_size 25
 
   def list_monitors_filtered(params) do
-    organization_id = Map.fetch!(params, :organization_id)
+    workspace_id = Map.fetch!(params, :workspace_id)
     page = Map.get(params, :page, 1) |> max(1)
     page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
 
     base_query =
       Monitor
-      |> where([m], m.organization_id == ^organization_id)
+      |> where([m], m.workspace_id == ^workspace_id)
 
     filtered_query =
       base_query
@@ -145,11 +145,11 @@ defmodule Holter.Monitoring.Monitors do
 
   defp incident_to_health(_), do: :unknown
 
-  defp status_severity(:down), do: 4
-  defp status_severity(:compromised), do: 3
-  defp status_severity(:degraded), do: 2
-  defp status_severity(:up), do: 1
-  defp status_severity(_), do: 0
+  def status_severity(:down), do: 4
+  def status_severity(:compromised), do: 3
+  def status_severity(:degraded), do: 2
+  def status_severity(:up), do: 1
+  def status_severity(_), do: 0
 
   def list_monitors_for_dispatch do
     now = DateTime.utc_now()

@@ -3,7 +3,7 @@ defmodule Holter.Monitoring do
   The Monitoring context.
   """
 
-  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Organizations, TenantLimits}
+  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Workspaces}
 
   defdelegate list_monitors, to: Monitors
   defdelegate get_monitor!(id), to: Monitors
@@ -14,7 +14,7 @@ defmodule Holter.Monitoring do
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
   defdelegate recalculate_health_status(monitor), to: Monitors
   defdelegate list_monitors_for_dispatch, to: Monitors
-  defdelegate list_monitors_by_organization(organization_id), to: Monitors
+  defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
   defdelegate list_monitors_filtered(params), to: Monitors
 
   defdelegate list_monitor_logs(monitor_id), to: Logs
@@ -33,11 +33,10 @@ defmodule Holter.Monitoring do
   defdelegate get_daily_metric(monitor_id, date), to: Metrics
   defdelegate upsert_daily_metric(attrs), to: Metrics
 
-  defdelegate get_retention_days(user_id), to: TenantLimits
 
-  defdelegate create_organization(attrs), to: Organizations
-  defdelegate update_organization(organization, attrs), to: Organizations
-  defdelegate get_organization!(id), to: Organizations
-  defdelegate get_organization_by_slug(slug), to: Organizations
-  defdelegate get_organization_by_slug!(slug), to: Organizations
+  defdelegate create_workspace(attrs), to: Workspaces
+  defdelegate update_workspace(workspace, attrs), to: Workspaces
+  defdelegate get_workspace!(id), to: Workspaces
+  defdelegate get_workspace_by_slug(slug), to: Workspaces
+  defdelegate get_workspace_by_slug!(slug), to: Workspaces
 end
