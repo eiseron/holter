@@ -1,7 +1,10 @@
 <div class="monitor-dashboard">
   <header class="dashboard-header">
     <h1>{gettext("Monitoring Dashboard")}</h1>
-    <.link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"} class="btn-primary">
+    <.link
+      navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"}
+      class="btn-primary"
+    >
       {gettext("Create New Monitor")}
     </.link>
   </header>

@@ -6,7 +6,7 @@ defmodule Holter.Repo.Migrations.CreateWorkspaces do
       add :id, :binary_id, primary_key: true
       add :name, :string, null: false
       add :slug, :string, null: false
-      
+
       add :retention_days, :integer, default: 3, null: false
       add :max_monitors, :integer, default: 3, null: false
       add :min_interval_seconds, :integer, default: 600, null: false

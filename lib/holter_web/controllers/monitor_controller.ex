@@ -18,7 +18,12 @@ defmodule HolterWeb.MonitorController do
     summary: "List monitors",
     description: "List all monitors for a workspace with pagination and filtering.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string, example: "eiseron"],
+      workspace_slug: [
+        in: :path,
+        description: "Workspace slug",
+        type: :string,
+        example: "eiseron"
+      ],
       page: [
         in: :query,
         description: "Page number",

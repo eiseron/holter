@@ -18,7 +18,9 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
 
   describe "when rendering technical logs page" do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
-      {:ok, view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+      {:ok, view, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
       %{view: view, html: html}
     end
 
@@ -40,7 +42,9 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
         checked_at: DateTime.utc_now()
       })
 
-      {:ok, view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+      {:ok, view, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
       %{view: view, html: html}
     end
 
@@ -66,7 +70,9 @@ defmodule HolterWeb.Monitoring.MonitorLiveLogsTest do
           checked_at: DateTime.utc_now()
         })
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
       view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
       %{view: view}
     end

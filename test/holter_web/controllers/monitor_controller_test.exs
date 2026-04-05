@@ -59,7 +59,10 @@ defmodule HolterWeb.MonitorControllerTest do
       assert json_response(conn, 200)["data"]["id"] == monitor.id
     end
 
-    test "Returns 404 if monitor belongs to another workspace", %{conn: conn, workspace: workspace} do
+    test "Returns 404 if monitor belongs to another workspace", %{
+      conn: conn,
+      workspace: workspace
+    } do
       other_workspace = workspace_fixture()
       monitor = monitor_fixture(%{workspace_id: other_workspace.id})
 

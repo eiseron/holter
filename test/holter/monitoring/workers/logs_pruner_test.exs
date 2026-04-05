@@ -7,6 +7,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
   setup do
     workspace = workspace_fixture(%{retention_days: 3})
+
     monitor =
       monitor_fixture(%{
         url: "https://test.com",
@@ -22,10 +23,24 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
   describe "when pruning based on workspace retention days" do
     setup %{monitor: monitor} do
       old_date = DateTime.utc_now() |> DateTime.add(-4, :day) |> DateTime.truncate(:second)
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date, inserted_at: old_date, updated_at: old_date})
+
+      Repo.insert!(%MonitorLog{
+        monitor_id: monitor.id,
+        status: :success,
+        checked_at: old_date,
+        inserted_at: old_date,
+        updated_at: old_date
+      })
 
       new_date = DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:second)
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: new_date, inserted_at: new_date, updated_at: new_date})
+
+      Repo.insert!(%MonitorLog{
+        monitor_id: monitor.id,
+        status: :success,
+        checked_at: new_date,
+        inserted_at: new_date,
+        updated_at: new_date
+      })
 
       perform_job(LogsPruner, %{"monitor_id" => monitor.id})
 
@@ -48,8 +63,21 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
       old_date = DateTime.utc_now() |> DateTime.add(-11, :day) |> DateTime.truncate(:second)
       mid_date = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:second)
 
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date, inserted_at: old_date, updated_at: old_date})
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: mid_date, inserted_at: mid_date, updated_at: mid_date})
+      Repo.insert!(%MonitorLog{
+        monitor_id: monitor.id,
+        status: :success,
+        checked_at: old_date,
+        inserted_at: old_date,
+        updated_at: old_date
+      })
+
+      Repo.insert!(%MonitorLog{
+        monitor_id: monitor.id,
+        status: :success,
+        checked_at: mid_date,
+        inserted_at: mid_date,
+        updated_at: mid_date
+      })
 
       perform_job(LogsPruner, %{"monitor_id" => monitor.id})
 

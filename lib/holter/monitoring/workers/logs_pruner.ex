@@ -4,7 +4,6 @@ defmodule Holter.Monitoring.Workers.LogsPruner do
   """
   use Oban.Worker, queue: :metrics, max_attempts: 20
 
-  alias Holter.Monitoring
   alias Holter.Monitoring.Logs
   alias Holter.Monitoring.Monitor
   alias Holter.Repo

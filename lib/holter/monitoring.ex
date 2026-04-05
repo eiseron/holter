@@ -33,7 +33,6 @@ defmodule Holter.Monitoring do
   defdelegate get_daily_metric(monitor_id, date), to: Metrics
   defdelegate upsert_daily_metric(attrs), to: Metrics
 
-
   defdelegate create_workspace(attrs), to: Workspaces
   defdelegate update_workspace(workspace, attrs), to: Workspaces
   defdelegate get_workspace!(id), to: Workspaces

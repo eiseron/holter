@@ -26,7 +26,9 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
       assert html =~ "Configurações do Monitor"
     end
 
@@ -35,7 +37,9 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
       assert html =~ monitor.url
     end
 
@@ -44,7 +48,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{url: "https://updated.local"})
@@ -59,7 +64,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{interval_seconds: 60})
@@ -74,7 +80,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       assert view
              |> form("#monitor-form", monitor: %{url: "not-a-url"})
@@ -86,7 +93,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form", monitor: %{ssl_ignore: true})
@@ -100,7 +108,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -120,7 +129,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -136,7 +146,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       monitor: monitor,
       workspace: workspace
     } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view
       |> form("#monitor-form",
@@ -153,7 +164,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
       assert_redirected(view, "/monitoring/workspaces/#{workspace.slug}/dashboard")
@@ -165,7 +177,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
       assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
@@ -177,7 +190,8 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
            monitor: monitor,
            workspace: workspace
          } do
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
       assert render(view) =~ "Aguarde 30s"
@@ -190,7 +204,10 @@ defmodule HolterWeb.Monitoring.MonitorLiveShowTest do
       alias Holter.Monitoring.Workers.HTTPCheck
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :down})
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
       assert render(view) =~ "status-down"
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
