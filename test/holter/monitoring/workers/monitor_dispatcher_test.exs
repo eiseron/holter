@@ -53,7 +53,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   end
 
   defp create_active_monitor do
-    org = organization_fixture()
+    workspace = workspace_fixture()
 
     {:ok, monitor} =
       Monitoring.create_monitor(%{
@@ -61,7 +61,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
         method: :get,
         interval_seconds: 60,
         logical_state: :active,
-        organization_id: org.id
+        workspace_id: workspace.id
       })
 
     monitor

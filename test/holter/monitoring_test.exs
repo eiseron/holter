@@ -2,6 +2,7 @@ defmodule Holter.MonitoringTest do
   use Holter.DataCase
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Workspace
 
   @valid_attrs %{
     url: "https://example.com",
@@ -17,9 +18,9 @@ defmodule Holter.MonitoringTest do
     alias Holter.Monitoring.Monitor
 
     setup do
-      org = organization_fixture()
-      valid_attrs = Map.put(@valid_attrs, :organization_id, org.id)
-      %{org: org, valid_attrs: valid_attrs}
+      workspace = workspace_fixture()
+      valid_attrs = Map.put(@valid_attrs, :workspace_id, workspace.id)
+      %{workspace: workspace, valid_attrs: valid_attrs}
     end
 
     test "Given an existing monitor, when listing monitors, then it returns the monitor within a list",
@@ -93,25 +94,49 @@ defmodule Holter.MonitoringTest do
     end
   end
 
-  describe "Organization Context Operations" do
-    test "create_organization/1 with valid data creates an organization" do
-      assert {:ok, %{name: "Eiseron Corp", slug: "eiseron-corp"}} =
-               Monitoring.create_organization(%{name: "Eiseron Corp"})
+  describe "Workspace Context Operations" do
+    test "create_workspace/1 with valid data creates a workspace" do
+      assert {:ok, %Workspace{name: "Eiseron Corp", slug: "eiseron-corp"}} =
+               Monitoring.create_workspace(%{
+                 name: "Eiseron Corp",
+                 retention_days: 3,
+                 max_monitors: 5,
+                 min_interval_seconds: 60
+               })
     end
 
-    test "create_organization/1 with unique constraint on slug" do
-      {:ok, _org} = Monitoring.create_organization(%{name: "Eiseron Corp", slug: "eiseron"})
+    test "create_workspace/1 with unique constraint on slug" do
+      {:ok, _workspace} =
+        Monitoring.create_workspace(%{
+          name: "Eiseron Corp",
+          slug: "eiseron",
+          retention_days: 3,
+          max_monitors: 5,
+          min_interval_seconds: 60
+        })
 
       {:error, changeset} =
-        Monitoring.create_organization(%{name: "Other Corp", slug: "eiseron"})
+        Monitoring.create_workspace(%{
+          name: "Other Corp",
+          slug: "eiseron",
+          retention_days: 3,
+          max_monitors: 5,
+          min_interval_seconds: 60
+        })
 
       assert "has already been taken" in errors_on(changeset).slug
     end
 
-    test "organization slug is immutable after creation" do
-      {:ok, org} = Monitoring.create_organization(%{name: "Initial Name"})
+    test "workspace slug is immutable after creation" do
+      {:ok, workspace} =
+        Monitoring.create_workspace(%{
+          name: "Initial Name",
+          retention_days: 3,
+          max_monitors: 5,
+          min_interval_seconds: 60
+        })
 
-      {:error, changeset} = Monitoring.update_organization(org, %{slug: "new-slug"})
+      {:error, changeset} = Monitoring.update_workspace(workspace, %{slug: "new-slug"})
 
       assert "cannot be changed after creation" in errors_on(changeset).slug
     end

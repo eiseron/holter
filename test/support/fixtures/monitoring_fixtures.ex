@@ -4,27 +4,30 @@ defmodule Holter.MonitoringFixtures do
   entities via the `Holter.Monitoring` context.
   """
 
-  def organization_fixture(attrs \\ %{}) do
-    {:ok, organization} =
-      attrs
-      |> Enum.into(%{
-        name: "Test Organization",
-        slug: "test-organization-#{System.unique_integer([:positive])}"
+  def workspace_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        name: "Test Workspace",
+        slug: "test-workspace-#{System.unique_integer([:positive])}",
+        retention_days: 3,
+        max_monitors: 3,
+        min_interval_seconds: 60
       })
-      |> Holter.Monitoring.create_organization()
 
-    organization
+    {:ok, workspace} = Holter.Monitoring.create_workspace(attrs)
+
+    workspace
   end
 
   def monitor_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
 
-    org_id =
+    workspace_id =
       cond do
-        id = attrs[:organization_id] -> id
-        id = attrs["organization_id"] -> id
-        org = attrs[:organization] -> org.id
-        true -> organization_fixture().id
+        id = attrs[:workspace_id] -> id
+        id = attrs["workspace_id"] -> id
+        workspace = attrs[:workspace] -> workspace.id
+        true -> workspace_fixture().id
       end
 
     attrs =
@@ -33,7 +36,7 @@ defmodule Holter.MonitoringFixtures do
         method: "get",
         interval_seconds: 60,
         timeout_seconds: 30,
-        organization_id: org_id
+        workspace_id: workspace_id
       }
       |> Map.merge(attrs)
 

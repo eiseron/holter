@@ -12,20 +12,20 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
     }
 
     setup do
-      org = organization_fixture()
-      %{org: org}
+      workspace = workspace_fixture()
+      %{workspace: workspace}
     end
 
     test "Given the creation route, when mounted, then the page correctly translates and establishes the HTML DOM",
-         %{conn: conn, org: org} do
-      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
 
       assert render(view) =~ "Criar um novo Monitor"
     end
 
     test "Given empty or invalid attributes, when dispatching a validate event, then the form reacts and renders block errors",
-         %{conn: conn, org: org} do
-      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
 
       invalid_attrs = %{url: "", method: :get}
 
@@ -35,14 +35,14 @@ defmodule HolterWeb.Monitoring.MonitorLiveNewTest do
     end
 
     test "Given a completed form array, when successfully submitted, then it flashes the translated success message and navigates away",
-         %{conn: conn, org: org} do
-      {:ok, view, _html} = live(conn, ~p"/orgs/#{org.slug}/monitoring/monitor/new")
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
 
       view
       |> form("#monitor-form", monitor: @valid_attrs)
       |> render_submit()
 
-      assert_redirect(view, "/orgs/#{org.slug}/monitoring/dashboard")
+      assert_redirect(view, "/monitoring/workspaces/#{workspace.slug}/dashboard")
     end
   end
 end

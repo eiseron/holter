@@ -2,28 +2,30 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
   use Holter.DataCase, async: true
   use Oban.Testing, repo: Holter.Repo
 
-  alias Holter.Monitoring.{MonitorLog, TenantLimit}
+  alias Holter.Monitoring.MonitorLog
   alias Holter.Monitoring.Workers.LogsPruner
 
   setup do
+    workspace = workspace_fixture(%{retention_days: 3})
     monitor =
       monitor_fixture(%{
         url: "https://test.com",
         method: "get",
         timeout_seconds: 5,
-        interval_seconds: 60
+        interval_seconds: 60,
+        workspace_id: workspace.id
       })
 
-    %{monitor: monitor}
+    %{monitor: monitor, workspace: workspace}
   end
 
-  describe "when pruning based on fallback retention days (3)" do
+  describe "when pruning based on workspace retention days" do
     setup %{monitor: monitor} do
       old_date = DateTime.utc_now() |> DateTime.add(-4, :day) |> DateTime.truncate(:second)
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date})
+      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date, inserted_at: old_date, updated_at: old_date})
 
       new_date = DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:second)
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: new_date})
+      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: new_date, inserted_at: new_date, updated_at: new_date})
 
       perform_job(LogsPruner, %{"monitor_id" => monitor.id})
 
@@ -39,17 +41,15 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
     end
   end
 
-  describe "when pruning based on TenantLimit if owner exists" do
-    setup %{monitor: monitor} do
-      user_id = Ecto.UUID.generate()
-      monitor = monitor |> Ecto.Changeset.change(%{user_id: user_id}) |> Repo.update!()
-      Repo.insert!(%TenantLimit{user_id: user_id, retention_days: 10})
+  describe "when pruning based on custom workspace retention" do
+    setup %{monitor: monitor, workspace: workspace} do
+      {:ok, _} = Holter.Monitoring.update_workspace(workspace, %{retention_days: 10})
 
       old_date = DateTime.utc_now() |> DateTime.add(-11, :day) |> DateTime.truncate(:second)
       mid_date = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:second)
 
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date})
-      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: mid_date})
+      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: old_date, inserted_at: old_date, updated_at: old_date})
+      Repo.insert!(%MonitorLog{monitor_id: monitor.id, status: :success, checked_at: mid_date, inserted_at: mid_date, updated_at: mid_date})
 
       perform_job(LogsPruner, %{"monitor_id" => monitor.id})
 
