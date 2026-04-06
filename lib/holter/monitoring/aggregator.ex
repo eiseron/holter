@@ -71,7 +71,7 @@ defmodule Holter.Monitoring.Aggregator do
   end
 
   defp normalize_latency(nil), do: 0
-  defp normalize_latency(val), do: Decimal.to_integer(val)
+  defp normalize_latency(val), do: val |> Decimal.round(0) |> Decimal.to_integer()
 
   defp calculate_total_downtime_minutes(monitor_id, time_range) do
     monitor_id

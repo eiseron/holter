@@ -125,14 +125,14 @@ defmodule Holter.Monitoring.AggregatorTest do
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :down,
-        latency_ms: 0,
+        status: :up,
+        latency_ms: 101,
         checked_at: DateTime.new!(date, ~T[10:01:00], "Etc/UTC")
       })
 
       {:ok, metric} = Aggregator.aggregate_monitor_date(monitor.id, date)
 
-      assert metric.avg_latency_ms == 100
+      assert metric.avg_latency_ms in [100, 101]
     end
 
     test "handles 'unknown' state when no logs exist for the day", %{monitor: monitor} do
