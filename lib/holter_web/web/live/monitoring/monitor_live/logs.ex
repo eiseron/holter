@@ -86,10 +86,17 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   end
 
   defp has_evidence?(log) do
-    not is_nil(log.response_headers) or
-      not is_nil(log.response_snippet) or
-      not is_nil(log.error_message)
+    has_headers?(log.response_headers) or
+      has_content?(log.response_snippet) or
+      has_content?(log.error_message)
   end
+
+  defp has_headers?(nil), do: false
+  defp has_headers?(headers), do: map_size(headers) > 0
+
+  defp has_content?(nil), do: false
+  defp has_content?(""), do: false
+  defp has_content?(_), do: true
 
   defp find_nearest_evidence(logs, current_log) do
     logs
