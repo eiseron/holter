@@ -32,7 +32,11 @@
             <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
           </header>
 
-          <HolterWeb.MonitoringComponents.sparkline monitor_id={monitor.id} logs={monitor.logs} />
+          <HolterWeb.MonitoringComponents.sparkline
+            monitor_id={monitor.id}
+            logs={monitor.logs}
+            health_status={monitor.health_status}
+          />
 
           <footer class="h-flex h-justify-between h-items-center h-mt-4">
             <span class="h-text-xs h-font-mono h-opacity-40">
