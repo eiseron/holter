@@ -84,17 +84,17 @@
           </div>
         <% end %>
 
-        <%= if @selected_log.response_headers do %>
+        <%= if @formatted_headers do %>
           <div class="h-evidence-block">
             <label>{gettext("Response Headers")}</label>
-            <pre>{Jason.encode!(@selected_log.response_headers, pretty: true)}</pre>
+            <pre>{@formatted_headers}</pre>
           </div>
         <% end %>
 
-        <%= if @selected_log.response_snippet do %>
+        <%= if @formatted_snippet do %>
           <div class="h-evidence-block">
-            <label>{gettext("Content Snippet (Sanitized)")}</label>
-            <div class="h-snippet-content">{@selected_log.response_snippet}</div>
+            <label>{gettext("Content Snippet")}</label>
+            <pre class="h-snippet-content">{@formatted_snippet}</pre>
           </div>
         <% end %>
       </div>
