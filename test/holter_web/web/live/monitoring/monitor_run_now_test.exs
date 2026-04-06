@@ -1,0 +1,88 @@
+defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
+  use HolterWeb.ConnCase
+  import Phoenix.LiveViewTest
+  use Oban.Testing, repo: Holter.Repo
+
+  alias Holter.Monitoring
+  alias Holter.Monitoring.Monitor
+
+  use Gettext, backend: HolterWeb.Gettext
+
+  setup do
+    monitor =
+      monitor_fixture(%{
+        url: "https://example.com",
+        last_manual_check_at: nil
+      })
+
+    workspace = Monitoring.get_workspace!(monitor.workspace_id)
+    %{monitor: monitor, workspace: workspace}
+  end
+
+  describe "Run Now Button" do
+    test "triggers a manual check and starts the cooldown immediately", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
+      view |> element("button", gettext("Run Now")) |> render_click()
+
+      updated_monitor = Monitoring.get_monitor!(monitor.id)
+      assert updated_monitor.last_manual_check_at != nil
+
+      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => monitor.id})
+      assert_enqueued(worker: Holter.Monitoring.Workers.SSLCheck, args: %{"id" => monitor.id})
+
+      html = render(view)
+      assert html =~ "disabled"
+      assert html =~ gettext("Wait %{seconds}s", seconds: 60)
+    end
+
+    test "respects the cooldown period and prevents duplicate clicks", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{
+          last_manual_check_at: DateTime.add(DateTime.utc_now(), -30, :second)
+        })
+
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
+      html = render(view)
+      assert html =~ "disabled"
+      assert html =~ gettext("Wait %{seconds}s", seconds: 30)
+
+      render_click(view, "run_now", %{})
+
+      refute_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck)
+    end
+
+    test "re-enables the button after the cooldown expires", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      last_check =
+        DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() - 1), :second)
+
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{last_manual_check_at: last_check})
+
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+
+      assert render(view) =~ gettext("Wait %{seconds}s", seconds: 1)
+
+      send(view.pid, :tick)
+
+      html = render(view)
+      refute html =~ "disabled"
+      assert html =~ gettext("Run Now")
+    end
+  end
+end

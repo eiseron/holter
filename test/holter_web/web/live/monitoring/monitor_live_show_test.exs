@@ -194,7 +194,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
-      assert render(view) =~ "Aguarde 30s"
+      assert render(view) =~ "Aguarde 60s"
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
 

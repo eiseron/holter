@@ -43,24 +43,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     if socket.assigns.cooldown_remaining > 0 do
       {:noreply, socket}
     else
-      monitor = socket.assigns.monitor
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      {:ok, _} = Monitoring.update_monitor(monitor, %{last_manual_check_at: now})
-
-      HTTPCheck.new(%{"id" => monitor.id})
-      |> Oban.insert()
-
-      if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
-        SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
-      end
-
-      if connected?(socket), do: Process.send_after(self(), :tick, 1000)
-
-      {:noreply,
-       socket
-       |> put_flash(:info, gettext("Manual check enqueued"))
-       |> assign(:cooldown_remaining, 30)}
+      trigger_manual_check(socket)
     end
   end
 
@@ -136,7 +119,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     now = DateTime.utc_now()
     diff = DateTime.diff(now, last_check)
 
-    remaining = max(0, 30 - diff)
+    remaining = max(0, Monitor.manual_check_cooldown() - diff)
 
     if remaining > 0 and connected?(socket) do
       Process.send_after(self(), :tick, 1000)
@@ -151,5 +134,28 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       | raw_keyword_positive: Enum.join(monitor.keyword_positive || [], ", "),
         raw_keyword_negative: Enum.join(monitor.keyword_negative || [], ", ")
     }
+  end
+
+  defp trigger_manual_check(socket) do
+    case Monitoring.mark_manual_check_triggered(socket.assigns.monitor) do
+      {:ok, updated_monitor} ->
+        enqueue_manual_checks(updated_monitor)
+
+        {:noreply,
+         socket
+         |> assign(:monitor, hydrate_virtual_array_fields(updated_monitor))
+         |> assign_cooldown(updated_monitor.last_manual_check_at)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Failed to trigger check"))}
+    end
+  end
+
+  defp enqueue_manual_checks(monitor) do
+    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+
+    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
+      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+    end
   end
 end
