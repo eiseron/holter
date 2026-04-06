@@ -48,6 +48,7 @@ defmodule Holter.Monitoring.Monitor do
 
     belongs_to :workspace, Holter.Monitoring.Workspace
     has_many :daily_metrics, Holter.Monitoring.DailyMetric
+    has_many :logs, Holter.Monitoring.MonitorLog
 
     timestamps(type: :utc_datetime)
   end

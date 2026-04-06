@@ -5,7 +5,7 @@
         &larr;
       </.link>
       {gettext("Monitor Settings")}
-      <.health_badge status={@monitor.health_status} />
+      <HolterWeb.MonitoringComponents.health_badge status={@monitor.health_status} />
     </div>
     <:subtitle>
       UUID: {@monitor.id}

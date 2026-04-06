@@ -14,7 +14,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
         {:ok,
          socket
          |> assign(:workspace, workspace)
-         |> assign(:monitors, Monitoring.list_monitors_by_workspace(workspace.id))}
+         |> assign(:log_offset, 0)
+         |> fetch_monitors()}
 
       {:error, :not_found} ->
         {:ok,
@@ -25,8 +26,29 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
   end
 
   @impl true
+  def handle_event("prev_history", _params, socket) do
+    new_offset = socket.assigns.log_offset + 30
+    {:noreply, socket |> assign(:log_offset, new_offset) |> fetch_monitors()}
+  end
+
+  @impl true
+  def handle_event("next_history", _params, socket) do
+    new_offset = max(0, socket.assigns.log_offset - 30)
+    {:noreply, socket |> assign(:log_offset, new_offset) |> fetch_monitors()}
+  end
+
+  @impl true
   def handle_info({_event, _data}, socket) do
-    {:noreply,
-     assign(socket, monitors: Monitoring.list_monitors_by_workspace(socket.assigns.workspace.id))}
+    {:noreply, fetch_monitors(socket)}
+  end
+
+  defp fetch_monitors(socket) do
+    monitors =
+      Monitoring.list_monitors_with_sparklines(
+        socket.assigns.workspace.id,
+        socket.assigns.log_offset
+      )
+
+    assign(socket, :monitors, monitors)
   end
 end
