@@ -20,6 +20,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
          |> assign(:monitor, monitor)
          |> assign(:logs, logs)
          |> assign(:selected_log, nil)
+         |> assign(:formatted_snippet, nil)
+         |> assign(:formatted_headers, nil)
          |> assign(:evidence_inherited, false)
          |> assign(:evidence_source_time, nil)}
 
@@ -60,6 +62,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     {:noreply,
      socket
      |> assign(:selected_log, evidence_log)
+     |> assign(:formatted_snippet, format_evidence_snippet(evidence_log.response_snippet))
+     |> assign(:formatted_headers, format_response_headers(evidence_log.response_headers))
      |> assign(:evidence_inherited, inherited?)
      |> assign(:evidence_source_time, if(inherited?, do: evidence_log.checked_at))}
   end
@@ -69,8 +73,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     {:noreply,
      socket
      |> assign(:selected_log, nil)
+     |> assign(:formatted_snippet, nil)
+     |> assign(:formatted_headers, nil)
      |> assign(:evidence_inherited, false)
      |> assign(:evidence_source_time, nil)}
+  end
+
+  defp format_response_headers(nil), do: nil
+
+  defp format_response_headers(headers) when is_map(headers) do
+    Jason.encode!(headers, pretty: true)
   end
 
   defp has_evidence?(log) do
@@ -91,10 +103,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   defp format_evidence_snippet(nil), do: nil
 
+  @snippet_format_threshold 100_000
+
   defp format_evidence_snippet(snippet) do
-    case Jason.decode(snippet) do
-      {:ok, decoded} -> Jason.encode!(decoded, pretty: true)
-      {:error, _} -> snippet
+    if byte_size(snippet) > @snippet_format_threshold do
+      snippet
+    else
+      case Jason.decode(snippet) do
+        {:ok, decoded} -> Jason.encode!(decoded, pretty: true)
+        {:error, _} -> snippet
+      end
     end
   end
 end
