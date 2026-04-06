@@ -107,5 +107,47 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       assert html =~ "Valid Success Data"
       assert html =~ "This check did not capture new evidence"
     end
+
+    test "inherits across multiple sequential FAILURES back to the last valid capture", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :success,
+        response_headers: %{"x-trace" => "original-capture"},
+        checked_at: DateTime.add(now, -180, :second)
+      })
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :failure,
+        error_message: "First Failure (Timeout)",
+        checked_at: DateTime.add(now, -120, :second)
+      })
+
+      {:ok, clicked_failure} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :failure,
+          error_message: "Current Failure (Connection Refused)",
+          checked_at: now
+        })
+
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
+      view
+      |> render_click("view_evidence", %{"id" => clicked_failure.id})
+
+      html = render(view)
+
+      assert html =~ "Current Failure (Connection Refused)"
+      assert html =~ "original-capture"
+      assert html =~ "This check did not capture new evidence"
+    end
   end
 end
