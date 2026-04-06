@@ -10,28 +10,36 @@ defmodule Holter.Monitoring.Aggregator do
     monitor = Holter.Monitoring.get_monitor!(monitor_id)
     time_range = build_day_range(date, monitor)
 
-    logs_exist? = count_logs(monitor_id, time_range) > 0
-    incidents_exist? = incidents_exist?(monitor_id, time_range)
-
-    if logs_exist? or incidents_exist? do
-      %{
-        monitor_id: monitor_id,
-        date: date,
-        avg_latency_ms: fetch_avg_latency(monitor_id, time_range),
-        total_downtime_minutes: calculate_total_downtime_minutes(monitor_id, time_range),
-        uptime_percent: calculate_uptime_percent(monitor, time_range)
-      }
-      |> Holter.Monitoring.upsert_daily_metric()
+    if has_activity?(monitor_id, time_range) do
+      build_metrics(monitor, date, time_range)
     else
-      %{
-        monitor_id: monitor_id,
-        date: date,
-        avg_latency_ms: 0,
-        total_downtime_minutes: 0,
-        uptime_percent: Decimal.from_float(0.0)
-      }
-      |> Holter.Monitoring.upsert_daily_metric()
+      build_empty_metrics(monitor_id, date)
     end
+    |> Holter.Monitoring.upsert_daily_metric()
+  end
+
+  defp has_activity?(monitor_id, time_range) do
+    count_logs(monitor_id, time_range) > 0 or incidents_exist?(monitor_id, time_range)
+  end
+
+  defp build_metrics(monitor, date, time_range) do
+    %{
+      monitor_id: monitor.id,
+      date: date,
+      avg_latency_ms: fetch_avg_latency(monitor.id, time_range),
+      total_downtime_minutes: calculate_total_downtime_minutes(monitor.id, time_range),
+      uptime_percent: calculate_uptime_percent(monitor, time_range)
+    }
+  end
+
+  defp build_empty_metrics(monitor_id, date) do
+    %{
+      monitor_id: monitor_id,
+      date: date,
+      avg_latency_ms: 0,
+      total_downtime_minutes: 0,
+      uptime_percent: Decimal.from_float(0.0)
+    }
   end
 
   defp build_day_range(date, monitor) do
