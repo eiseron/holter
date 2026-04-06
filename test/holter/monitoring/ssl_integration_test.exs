@@ -17,6 +17,14 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
         logical_state: :active
       })
 
+    Monitoring.create_monitor_log(%{
+      monitor_id: monitor.id,
+      status: :up,
+      checked_at: DateTime.utc_now() |> DateTime.add(-1, :hour)
+    })
+
+    {:ok, monitor} = Monitoring.recalculate_health_status(monitor)
+
     %{monitor: monitor}
   end
 

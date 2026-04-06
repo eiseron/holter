@@ -26,7 +26,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         checked_at: old_date,
         inserted_at: old_date,
         updated_at: old_date
@@ -36,7 +36,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         checked_at: new_date,
         inserted_at: new_date,
         updated_at: new_date
@@ -65,7 +65,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         checked_at: old_date,
         inserted_at: old_date,
         updated_at: old_date
@@ -73,7 +73,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         checked_at: mid_date,
         inserted_at: mid_date,
         updated_at: mid_date
@@ -102,7 +102,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
           %{
             id: Ecto.UUID.generate(),
             monitor_id: monitor.id,
-            status: :success,
+            status: :up,
             checked_at: now,
             inserted_at: now,
             updated_at: now

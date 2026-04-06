@@ -61,8 +61,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
-    test "records :success status in log", %{monitor: monitor} do
-      assert [%{status: :success}] = Monitoring.list_monitor_logs(monitor.id)
+    test "records :up status in log", %{monitor: monitor} do
+      assert [%{status: :up}] = Monitoring.list_monitor_logs(monitor.id)
     end
 
     test "records HTTP status code in log", %{monitor: monitor} do

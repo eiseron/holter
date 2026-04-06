@@ -37,7 +37,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         latency_ms: 123,
         checked_at: DateTime.utc_now()
       })
@@ -53,7 +53,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     end
 
     test "it displays the capitalized status", %{html: html} do
-      assert html =~ "SUCCESS"
+      assert html =~ "UP"
     end
   end
 
@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, _log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
-          status: :failure,
+          status: :down,
           status_code: 500,
           latency_ms: 456,
           response_headers: %{"server" => "nginx"},
