@@ -47,25 +47,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   @impl true
   def handle_event("view_evidence", %{"id" => log_id}, socket) do
-    log = Monitoring.get_monitor_log!(log_id)
+    clicked_log = Monitoring.get_monitor_log!(log_id)
 
-    {evidence_log, inherited?} =
-      if has_evidence?(log) do
-        {log, false}
+    {payload_log, inherited?} =
+      if has_technical_payload?(clicked_log) do
+        {clicked_log, false}
       else
-        case find_nearest_evidence(socket.assigns.logs, log) do
-          nil -> {log, false}
+        case find_nearest_technical_payload(socket.assigns.logs, clicked_log) do
+          nil -> {clicked_log, false}
           fallback -> {fallback, true}
         end
       end
 
     {:noreply,
      socket
-     |> assign(:selected_log, evidence_log)
-     |> assign(:formatted_snippet, format_evidence_snippet(evidence_log.response_snippet))
-     |> assign(:formatted_headers, format_response_headers(evidence_log.response_headers))
+     |> assign(:selected_log, clicked_log)
+     |> assign(:formatted_snippet, format_evidence_snippet(payload_log.response_snippet))
+     |> assign(:formatted_headers, format_response_headers(payload_log.response_headers))
      |> assign(:evidence_inherited, inherited?)
-     |> assign(:evidence_source_time, if(inherited?, do: evidence_log.checked_at))}
+     |> assign(:evidence_source_time, if(inherited?, do: payload_log.checked_at))}
   end
 
   @impl true
@@ -85,10 +85,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     Jason.encode!(headers, pretty: true)
   end
 
-  defp has_evidence?(log) do
+  defp has_technical_payload?(log) do
     has_headers?(log.response_headers) or
-      has_content?(log.response_snippet) or
-      has_content?(log.error_message)
+      has_content?(log.response_snippet)
   end
 
   defp has_headers?(nil), do: false
@@ -98,12 +97,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   defp has_content?(""), do: false
   defp has_content?(_), do: true
 
-  defp find_nearest_evidence(logs, current_log) do
+  defp find_nearest_technical_payload(logs, current_log) do
     logs
     |> Enum.filter(fn l ->
       DateTime.compare(l.checked_at, current_log.checked_at) != :gt and
         l.id != current_log.id and
-        has_evidence?(l)
+        has_technical_payload?(l)
     end)
     |> List.first()
   end
