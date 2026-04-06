@@ -15,13 +15,21 @@ defmodule HolterWeb.MonitoringComponents do
       |> assign(:data_points, data_points)
       |> assign(:path, calculate_path(data_points))
       |> assign(:area_path, calculate_area_path(data_points))
-      |> assign(:anomaly_color, health_color(@health_status))
+      |> assign(:anomaly_color, health_color(assigns.health_status))
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
       <%= if @data_points == [] do %>
         <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
-          <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4 4" />
+          <line
+            x1="0"
+            y1="75"
+            x2="300"
+            y2="75"
+            stroke="rgba(255,255,255,0.08)"
+            stroke-width="1"
+            stroke-dasharray="4 4"
+          />
         </svg>
         <p class="sparkline-no-data">{gettext("No data yet")}</p>
       <% else %>
@@ -33,7 +41,11 @@ defmodule HolterWeb.MonitoringComponents do
             </linearGradient>
           </defs>
 
-          <path d={@area_path} fill={"url(#sparkline-gradient-#{@monitor_id})"} class="sparkline-area" />
+          <path
+            d={@area_path}
+            fill={"url(#sparkline-gradient-#{@monitor_id})"}
+            class="sparkline-area"
+          />
           <path d={@path} class="sparkline-line" />
 
           <%= for {point, index} <- Enum.with_index(@data_points) do %>
