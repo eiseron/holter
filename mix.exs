@@ -11,7 +11,8 @@ defmodule Holter.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_coverage: [summary: [threshold: 80]]
     ]
   end
 
@@ -92,7 +93,7 @@ defmodule Holter.MixProject do
         "format",
         "deps.audit",
         "credo --strict",
-        "test"
+        "test --cover"
       ]
     ]
   end
