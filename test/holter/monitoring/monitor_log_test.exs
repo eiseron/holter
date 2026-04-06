@@ -3,7 +3,7 @@ defmodule Holter.Monitoring.MonitorLogTest do
   alias Holter.Monitoring.MonitorLog
 
   @valid_attrs %{
-    status: :success,
+    status: :up,
     status_code: 200,
     latency_ms: 150,
     region: "br-sp-1",

@@ -26,14 +26,14 @@ defmodule Holter.Monitoring.AggregatorTest do
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         latency_ms: 100,
         checked_at: start_of_day
       })
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         latency_ms: 200,
         checked_at: DateTime.add(start_of_day, 3600)
       })

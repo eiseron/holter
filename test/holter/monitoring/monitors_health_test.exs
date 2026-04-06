@@ -15,84 +15,60 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
     %{monitor: monitor}
   end
 
-  describe "recalculate_health_status/1 hierarchy" do
-    test "returns :up when no incidents exist", %{monitor: monitor} do
+  describe "recalculate_health_status/1" do
+    test "returns :unknown when no logs exist", %{monitor: monitor} do
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
+      assert updated.health_status == :unknown
+    end
+
+    test "reflects status of latest log (:up)", %{monitor: monitor} do
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        checked_at: DateTime.utc_now() |> DateTime.add(-10, :second)
+      })
+
       {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :up
     end
 
-    test "prefers :down over other statuses", %{monitor: monitor} do
-      Monitoring.create_incident(%{
+    test "reflects status of latest log (:down)", %{monitor: monitor} do
+      Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        type: :downtime,
-        started_at: DateTime.utc_now()
+        status: :up,
+        checked_at: DateTime.utc_now() |> DateTime.add(-20, :second)
       })
 
-      Monitoring.create_incident(%{
+      Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        type: :ssl_expiry,
-        started_at: DateTime.utc_now(),
-        root_cause: "Critical"
+        status: :down,
+        checked_at: DateTime.utc_now() |> DateTime.add(-10, :second)
       })
 
       {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :down
     end
 
-    test "prefers :compromised over :degraded", %{monitor: monitor} do
-      Monitoring.create_incident(%{
+    test "reflects status of latest log (:compromised)", %{monitor: monitor} do
+      Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        type: :ssl_expiry,
-        started_at: DateTime.utc_now(),
-        root_cause: "Warning"
-      })
-
-      Monitoring.create_incident(%{
-        monitor_id: monitor.id,
-        type: :defacement,
-        started_at: DateTime.utc_now()
+        status: :compromised,
+        checked_at: DateTime.utc_now()
       })
 
       {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :compromised
     end
 
-    test "sets :degraded for SSL warning", %{monitor: monitor} do
-      Monitoring.create_incident(%{
+    test "reflects status of latest log (:degraded)", %{monitor: monitor} do
+      Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        type: :ssl_expiry,
-        started_at: DateTime.utc_now(),
-        root_cause: "Warning"
+        status: :degraded,
+        checked_at: DateTime.utc_now()
       })
 
       {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :degraded
-    end
-
-    test "sets :compromised for SSL critical warning", %{monitor: monitor} do
-      Monitoring.create_incident(%{
-        monitor_id: monitor.id,
-        type: :ssl_expiry,
-        started_at: DateTime.utc_now(),
-        root_cause: "Critical"
-      })
-
-      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
-      assert updated.health_status == :compromised
-    end
-
-    test "restores :up when all incidents are resolved", %{monitor: monitor} do
-      {:ok, incident} =
-        Monitoring.create_incident(%{
-          monitor_id: monitor.id,
-          type: :downtime,
-          started_at: DateTime.utc_now() |> DateTime.add(-1, :hour)
-        })
-
-      Monitoring.resolve_incident(incident, DateTime.utc_now())
-
-      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
-      assert updated.health_status == :up
     end
   end
 end

@@ -13,6 +13,14 @@ defmodule Holter.Monitoring.SecurityScannerTest do
         timeout_seconds: 30
       })
 
+    Holter.Monitoring.create_monitor_log(%{
+      monitor_id: monitor.id,
+      status: :up,
+      checked_at: DateTime.utc_now() |> DateTime.add(-1, :hour)
+    })
+
+    {:ok, monitor} = Holter.Monitoring.recalculate_health_status(monitor)
+
     %{monitor: monitor}
   end
 
@@ -117,6 +125,8 @@ defmodule Holter.Monitoring.SecurityScannerTest do
 
       expiry_good = DateTime.utc_now() |> DateTime.add(20, :day)
       SecurityScanner.process_ssl(monitor, expiry_good)
+
+      {:ok, _} = Holter.Monitoring.recalculate_health_status(monitor)
       :ok
     end
 

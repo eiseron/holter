@@ -34,19 +34,6 @@ defmodule HolterWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   @doc """
-  Renders a health status badge for monitors.
-  """
-  attr :status, :atom, required: true, values: [:up, :down, :degraded, :compromised, :unknown]
-
-  def health_badge(assigns) do
-    ~H"""
-    <span class={["badge", "health-badge", "status-#{@status}"]}>
-      {String.upcase(to_string(@status))}
-    </span>
-    """
-  end
-
-  @doc """
   Renders flash notices.
 
   ## Examples

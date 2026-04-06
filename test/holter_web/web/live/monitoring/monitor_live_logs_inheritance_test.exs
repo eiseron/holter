@@ -27,7 +27,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       {:ok, log_with_ev} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
-          status: :success,
+          status: :up,
           response_headers: %{"server" => "nginx/deep-heritage"},
           response_snippet: "Real Payload",
           checked_at: DateTime.add(now, -180, :second)
@@ -35,14 +35,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         response_headers: %{},
         checked_at: DateTime.add(now, -120, :second)
       })
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         response_snippet: "",
         checked_at: DateTime.add(now, -60, :second)
       })
@@ -50,7 +50,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       {:ok, newest_log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
-          status: :success,
+          status: :up,
           checked_at: now
         })
 
@@ -79,7 +79,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         response_headers: %{"via" => "success-context"},
         response_snippet: "Valid Success Data",
         checked_at: DateTime.add(now, -60, :second)
@@ -88,7 +88,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       {:ok, failure_log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
-          status: :failure,
+          status: :down,
           error_message: "Connection Timeout",
           checked_at: now
         })
@@ -117,14 +117,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :success,
+        status: :up,
         response_headers: %{"x-trace" => "original-capture"},
         checked_at: DateTime.add(now, -180, :second)
       })
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
-        status: :failure,
+        status: :down,
         error_message: "First Failure (Timeout)",
         checked_at: DateTime.add(now, -120, :second)
       })
@@ -132,7 +132,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       {:ok, clicked_failure} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
-          status: :failure,
+          status: :down,
           error_message: "Current Failure (Connection Refused)",
           checked_at: now
         })

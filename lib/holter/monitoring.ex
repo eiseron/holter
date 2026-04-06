@@ -16,7 +16,7 @@ defmodule Holter.Monitoring do
   defdelegate list_monitors_for_dispatch, to: Monitors
   defdelegate mark_manual_check_triggered(monitor), to: Monitors
   defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
-  defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
+  defdelegate list_monitors_with_sparklines(workspace_id, limit \\ 30), to: Monitors
   defdelegate list_monitors_filtered(params), to: Monitors
 
   defdelegate list_monitor_logs(monitor_id), to: Logs

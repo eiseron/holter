@@ -155,7 +155,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "records failure status", %{log: log} do
-      assert log.status == :failure
+      assert log.status == :down
     end
 
     test "captures response headers", %{log: log} do

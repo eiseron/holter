@@ -106,13 +106,11 @@
   display: inline-block;
 }
 
-.h-status-success,
 .h-status-up {
   background: #E8F5E9;
   color: #2E7D32;
 }
 
-.h-status-failure,
 .h-status-down {
   background: #FFEBEE;
   color: #D32F2F;
@@ -121,6 +119,16 @@
 .h-status-degraded {
   background: #FFF8E1;
   color: #F57F17;
+}
+
+.h-status-compromised {
+  background: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.h-status-unknown {
+  background: #F5F5F5;
+  color: #616161;
 }
 
 .h-text-success {

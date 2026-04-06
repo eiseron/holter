@@ -14,7 +14,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
         {:ok,
          socket
          |> assign(:workspace, workspace)
-         |> assign(:monitors, Monitoring.list_monitors_by_workspace(workspace.id))}
+         |> fetch_monitors()}
 
       {:error, :not_found} ->
         {:ok,
@@ -26,7 +26,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
 
   @impl true
   def handle_info({_event, _data}, socket) do
-    {:noreply,
-     assign(socket, monitors: Monitoring.list_monitors_by_workspace(socket.assigns.workspace.id))}
+    {:noreply, fetch_monitors(socket)}
+  end
+
+  defp fetch_monitors(socket) do
+    assign(
+      socket,
+      :monitors,
+      Monitoring.list_monitors_with_sparklines(socket.assigns.workspace.id)
+    )
   end
 end
