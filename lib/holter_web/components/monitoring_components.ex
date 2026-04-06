@@ -40,7 +40,7 @@ defmodule HolterWeb.MonitoringComponents do
                 cx={index * 10}
                 cy={normalize_y(point.latency_ms)}
                 r="3"
-                fill="var(--h-pulse-rose)"
+                fill={marker_color(point.status)}
                 class="sparkline-error-marker"
               />
             <% end %>
@@ -85,4 +85,9 @@ defmodule HolterWeb.MonitoringComponents do
     clamped = min(latency, 1000)
     70 - clamped / 1000 * 60
   end
+
+  defp marker_color(:failure), do: "var(--h-pulse-rose)"
+  defp marker_color(:suspicious), do: "#8b5cf6"
+  defp marker_color(:unknown), do: "#64748b"
+  defp marker_color(_), do: "var(--h-pulse-rose)"
 end
