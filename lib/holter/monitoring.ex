@@ -14,6 +14,8 @@ defmodule Holter.Monitoring do
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
   defdelegate recalculate_health_status(monitor), to: Monitors
   defdelegate list_monitors_for_dispatch, to: Monitors
+  defdelegate mark_manual_check_triggered(monitor), to: Monitors
+  defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
   defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
   defdelegate list_monitors_filtered(params), to: Monitors
 

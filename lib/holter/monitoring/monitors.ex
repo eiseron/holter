@@ -108,6 +108,11 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
+  def mark_manual_check_triggered(%Monitor{} = monitor) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    update_monitor(monitor, %{last_manual_check_at: now})
+  end
+
   defp broadcast({:ok, monitor}, event) do
     Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitor:#{monitor.id}", {event, monitor})
     Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, monitor})

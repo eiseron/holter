@@ -1,6 +1,8 @@
 defmodule Holter.Monitoring.Monitor do
   use Ecto.Schema
   import Ecto.Changeset
+  @manual_check_cooldown 60
+  def manual_check_cooldown, do: @manual_check_cooldown
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
