@@ -5,7 +5,7 @@ defmodule Holter.Monitoring.MonitorLog do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "monitor_logs" do
-    field :status, Ecto.Enum, values: [:success, :failure, :suspicious, :unknown]
+    field :status, Ecto.Enum, values: [:up, :down, :degraded, :compromised, :unknown]
     field :status_code, :integer
     field :latency_ms, :integer
     field :region, :string

@@ -47,7 +47,7 @@ defmodule HolterWeb.MonitoringComponents do
           <path d={@path} class="sparkline-line" />
 
           <%= for {point, index} <- Enum.with_index(@data_points) do %>
-            <%= if point.status != :success do %>
+            <%= if point.status != :up do %>
               <circle
                 cx={index * 10}
                 cy={normalize_y(point.latency_ms)}
@@ -98,7 +98,9 @@ defmodule HolterWeb.MonitoringComponents do
     70 - clamped / 1000 * 60
   end
 
-  defp log_status_color(:suspicious), do: "#8b5cf6"
+  defp log_status_color(:down), do: "var(--h-pulse-rose)"
+  defp log_status_color(:compromised), do: "#8b5cf6"
+  defp log_status_color(:degraded), do: "#f59e0b"
   defp log_status_color(:unknown), do: "#64748b"
   defp log_status_color(_), do: "var(--h-pulse-rose)"
 end

@@ -2,8 +2,7 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.Incidents
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.{Incidents, Monitor}
   alias Holter.Repo
 
   def list_monitors do
@@ -151,13 +150,15 @@ defmodule Holter.Monitoring.Monitors do
     Monitor.changeset(monitor, attrs)
   end
 
-  @doc """
-  Recalculates overall health status based on all open incidents.
-  Returns {:ok, updated_monitor}.
-  """
-  def recalculate_health_status(%Monitor{} = monitor) do
+  def recalculate_health_status(%Monitor{id: id}) do
+    monitor = get_monitor!(id)
+    log_status = status_from_latest_log(monitor.id)
     open_incidents = Incidents.list_open_incidents(monitor.id)
-    new_status = determine_overall_status(open_incidents)
+    incident_status = determine_incident_status(open_incidents)
+
+    new_status =
+      [log_status, incident_status]
+      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
 
     if monitor.health_status != new_status do
       update_monitor(monitor, %{health_status: new_status})
@@ -166,9 +167,9 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp determine_overall_status([]), do: :up
+  defp determine_incident_status([]), do: :unknown
 
-  defp determine_overall_status(incidents) do
+  defp determine_incident_status(incidents) do
     incidents
     |> Enum.map(&incident_to_health/1)
     |> Enum.max_by(&status_severity/1, fn -> :up end)
@@ -188,6 +189,17 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   defp incident_to_health(_), do: :unknown
+
+  defp status_from_latest_log(monitor_id) do
+    log =
+      Holter.Monitoring.MonitorLog
+      |> where([l], l.monitor_id == ^monitor_id)
+      |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
+      |> limit(1)
+      |> Repo.one()
+
+    if log, do: log.status, else: :unknown
+  end
 
   def status_severity(:down), do: 4
   def status_severity(:compromised), do: 3

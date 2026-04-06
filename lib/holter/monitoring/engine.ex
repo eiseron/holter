@@ -14,7 +14,7 @@ defmodule Holter.Monitoring.Engine do
     if restricted_ip?(ip) do
       finalize_check(monitor, %{
         check_status: :down,
-        log_status: :failure,
+        log_status: :down,
         status_code: response.status,
         duration_ms: duration_ms,
         error_msg: "Access to restricted internal address blocked",
@@ -27,7 +27,6 @@ defmodule Holter.Monitoring.Engine do
       {positive_ok, negative_ok} = validate_keywords(body, monitor)
 
       check_status = determine_check_status(response.status, positive_ok, negative_ok)
-      log_status = determine_log_status(check_status)
 
       error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
@@ -44,7 +43,7 @@ defmodule Holter.Monitoring.Engine do
 
       finalize_check(monitor, %{
         check_status: check_status,
-        log_status: log_status,
+        log_status: check_status,
         status_code: response.status,
         duration_ms: duration_ms,
         error_msg: error_msg,
@@ -58,7 +57,7 @@ defmodule Holter.Monitoring.Engine do
   def handle_failure(monitor, error, duration_ms) do
     finalize_check(monitor, %{
       check_status: :down,
-      log_status: :failure,
+      log_status: :down,
       status_code: nil,
       duration_ms: duration_ms,
       error_msg: Exception.message(error),
@@ -86,10 +85,6 @@ defmodule Holter.Monitoring.Engine do
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_log_status(:up), do: :success
-  defp determine_log_status(:compromised), do: :suspicious
-  defp determine_log_status(_), do: :failure
-
   defp determine_error_message(status, _, _) when status < 200 or status >= 400,
     do: "HTTP Error: #{status}"
 
@@ -98,11 +93,8 @@ defmodule Holter.Monitoring.Engine do
   defp determine_error_message(_, _, _), do: nil
 
   defp finalize_check(monitor, params) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
-
-    handle_incident_logic(monitor, params.check_status, params.error_msg, snapshot, now)
-    updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     record_monitor_log(%{
       monitor_id: monitor.id,
@@ -117,6 +109,9 @@ defmodule Holter.Monitoring.Engine do
       checked_at: now,
       monitor_snapshot: snapshot
     })
+
+    handle_incident_logic(monitor, params.check_status, params.error_msg, snapshot, now)
+    updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     {:ok, updated_monitor}
   end
@@ -161,12 +156,12 @@ defmodule Holter.Monitoring.Engine do
   defp update_monitor_state(monitor, check_status, now) do
     {:ok, updated_monitor} =
       Monitoring.update_monitor(monitor, %{
+        health_status: check_status,
         last_checked_at: now,
         last_success_at: if(check_status == :up, do: now, else: monitor.last_success_at)
       })
 
-    {:ok, fully_updated} = Monitoring.recalculate_health_status(updated_monitor)
-    fully_updated
+    updated_monitor
   end
 
   defp record_monitor_log(attrs), do: Monitoring.create_monitor_log(attrs)
