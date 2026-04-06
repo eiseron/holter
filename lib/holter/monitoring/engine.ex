@@ -87,6 +87,7 @@ defmodule Holter.Monitoring.Engine do
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
   defp determine_log_status(:up), do: :success
+  defp determine_log_status(:compromised), do: :suspicious
   defp determine_log_status(_), do: :failure
 
   defp determine_error_message(status, _, _) when status < 200 or status >= 400,
