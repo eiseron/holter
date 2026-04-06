@@ -18,16 +18,25 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def list_monitors_with_sparklines(workspace_id, log_limit \\ 30) do
-    log_query =
-      Holter.Monitoring.MonitorLog
-      |> order_by([l], desc: l.checked_at)
-      |> limit(^log_limit)
+    monitors =
+      Monitor
+      |> where([m], m.workspace_id == ^workspace_id)
+      |> tactical_ranking()
+      |> Repo.all()
 
-    Monitor
-    |> where([m], m.workspace_id == ^workspace_id)
-    |> tactical_ranking()
-    |> preload(logs: ^log_query)
-    |> Repo.all()
+    monitor_ids = Enum.map(monitors, & &1.id)
+
+    logs_by_monitor =
+      Holter.Monitoring.MonitorLog
+      |> where([l], l.monitor_id in ^monitor_ids)
+      |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
+      |> Repo.all()
+      |> Enum.group_by(& &1.monitor_id)
+      |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
+
+    Enum.map(monitors, fn monitor ->
+      %{monitor | logs: Map.get(logs_by_monitor, monitor.id, [])}
+    end)
   end
 
   def get_monitor!(id), do: Repo.get!(Monitor, id)
