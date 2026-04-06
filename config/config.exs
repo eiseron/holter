@@ -20,7 +20,7 @@ config :holter, HolterWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: HolterWeb.ErrorHTML, json: HolterWeb.ErrorJSON],
+    formats: [html: HolterWeb.Web.ErrorHTML, json: HolterWeb.Api.ErrorJSON],
     layout: false
   ],
   pubsub_server: Holter.PubSub,

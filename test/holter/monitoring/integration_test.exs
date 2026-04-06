@@ -28,10 +28,10 @@ defmodule Holter.Monitoring.IntegrationTest do
     DummyService.reset()
     port = Application.get_env(:holter, :dummy_port)
 
-    {:ok, monitor} =
-      Monitoring.create_monitor(%{
+    monitor =
+      monitor_fixture(%{
         url: "http://localhost:#{port}/probe/#{@call_id}",
-        method: :get,
+        method: "get",
         interval_seconds: 60,
         logical_state: :active,
         health_status: :up,

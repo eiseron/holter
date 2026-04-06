@@ -4,10 +4,10 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
   alias Holter.Monitoring
 
   setup do
-    {:ok, monitor} =
-      Monitoring.create_monitor(%{
+    monitor =
+      monitor_fixture(%{
         url: "https://example.com",
-        method: :get,
+        method: "get",
         interval_seconds: 60,
         timeout_seconds: 30
       })

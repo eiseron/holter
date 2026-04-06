@@ -11,7 +11,8 @@ defmodule Holter.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_coverage: [summary: [threshold: 80]]
     ]
   end
 
@@ -62,7 +63,9 @@ defmodule Holter.MixProject do
       {:floki, "~> 0.38.1"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
-      {:mox, "~> 1.2", only: :test}
+      {:mox, "~> 1.2", only: :test},
+      {:open_api_spex, "~> 3.22"},
+      {:ymlr, "~> 5.1"}
     ]
   end
 
@@ -90,7 +93,7 @@ defmodule Holter.MixProject do
         "format",
         "deps.audit",
         "credo --strict",
-        "test"
+        "test --cover"
       ]
     ]
   end

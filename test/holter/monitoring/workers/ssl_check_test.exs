@@ -9,10 +9,10 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
   setup :verify_on_exit!
 
   setup do
-    {:ok, monitor} =
-      Monitoring.create_monitor(%{
+    monitor =
+      monitor_fixture(%{
         url: "https://secure.example.com",
-        method: :get,
+        method: "get",
         interval_seconds: 60,
         timeout_seconds: 30
       })
@@ -59,10 +59,10 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
 
   describe "when monitor URL is not https" do
     setup do
-      {:ok, plain_monitor} =
-        Monitoring.create_monitor(%{
+      plain_monitor =
+        monitor_fixture(%{
           url: "http://plain.example.com",
-          method: :get,
+          method: "get",
           interval_seconds: 60,
           timeout_seconds: 30
         })
