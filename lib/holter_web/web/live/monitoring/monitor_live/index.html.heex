@@ -2,11 +2,7 @@
   <header class="dashboard-header-premium">
     <div>
       <h1>{gettext("Monitoring Pulse")}</h1>
-      <p class="h-mt-1 h-opacity-60">
-        {if @log_offset == 0,
-          do: gettext("Real-time Overview"),
-          else: gettext("Historical Analysis: -%{offset} Logs", offset: @log_offset)}
-      </p>
+      <p class="h-mt-1 h-opacity-60">{gettext("Real-time Overview")}</p>
     </div>
     <div class="h-flex h-gap-3">
       <.link
@@ -36,10 +32,7 @@
             <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
           </header>
 
-          <HolterWeb.MonitoringComponents.sparkline_navigator
-            monitor_id={monitor.id}
-            logs={monitor.logs}
-          />
+          <HolterWeb.MonitoringComponents.sparkline monitor_id={monitor.id} logs={monitor.logs} />
 
           <footer class="h-flex h-justify-between h-items-center h-mt-4">
             <span class="h-text-xs h-font-mono h-opacity-40">

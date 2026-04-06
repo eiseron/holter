@@ -3,14 +3,11 @@ defmodule HolterWeb.MonitoringComponents do
   use Phoenix.Component
   use Gettext, backend: HolterWeb.Gettext
 
-  @spec sparkline_navigator(map) :: Phoenix.LiveView.Rendered.t()
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
 
-  def sparkline_navigator(assigns) do
-    data_points =
-      assigns.logs
-      |> Enum.reverse()
+  def sparkline(assigns) do
+    data_points = Enum.reverse(assigns.logs)
 
     assigns =
       assigns
@@ -20,25 +17,6 @@ defmodule HolterWeb.MonitoringComponents do
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
-      <div class="history-controls">
-        <button
-          class="history-btn"
-          phx-click="prev_history"
-          phx-value-monitor-id={@monitor_id}
-          aria-label={gettext("Previous history")}
-        >
-          <span class="hero-chevron-left h-icon-size-4"></span>
-        </button>
-        <button
-          class="history-btn"
-          phx-click="next_history"
-          phx-value-monitor-id={@monitor_id}
-          aria-label={gettext("Next history")}
-        >
-          <span class="hero-chevron-right h-icon-size-4"></span>
-        </button>
-      </div>
-
       <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
         <defs>
           <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">

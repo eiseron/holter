@@ -17,12 +17,11 @@ defmodule Holter.Monitoring.Monitors do
     |> Repo.all()
   end
 
-  def list_monitors_with_sparklines(workspace_id, log_offset \\ 0, log_limit \\ 30) do
+  def list_monitors_with_sparklines(workspace_id, log_limit \\ 30) do
     log_query =
       Holter.Monitoring.MonitorLog
       |> order_by([l], desc: l.checked_at)
       |> limit(^log_limit)
-      |> offset(^log_offset)
 
     Monitor
     |> where([m], m.workspace_id == ^workspace_id)
