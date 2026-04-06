@@ -5,7 +5,6 @@ defmodule HolterWeb.MonitoringComponents do
 
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
-  attr :health_status, :atom, default: :unknown
 
   def sparkline(assigns) do
     data_points = Enum.reverse(assigns.logs)
@@ -15,7 +14,6 @@ defmodule HolterWeb.MonitoringComponents do
       |> assign(:data_points, data_points)
       |> assign(:path, calculate_path(data_points))
       |> assign(:area_path, calculate_area_path(data_points))
-      |> assign(:anomaly_color, health_color(assigns.health_status))
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
@@ -54,7 +52,7 @@ defmodule HolterWeb.MonitoringComponents do
                 cx={index * 10}
                 cy={normalize_y(point.latency_ms)}
                 r="3"
-                fill={@anomaly_color}
+                fill={log_status_color(point.status)}
                 class="sparkline-error-marker"
               />
             <% end %>
@@ -100,9 +98,7 @@ defmodule HolterWeb.MonitoringComponents do
     70 - clamped / 1000 * 60
   end
 
-  defp health_color(:down), do: "var(--h-pulse-rose)"
-  defp health_color(:compromised), do: "#8b5cf6"
-  defp health_color(:degraded), do: "#f59e0b"
-  defp health_color(:unknown), do: "#64748b"
-  defp health_color(_), do: "var(--h-pulse-rose)"
+  defp log_status_color(:suspicious), do: "#8b5cf6"
+  defp log_status_color(:unknown), do: "#64748b"
+  defp log_status_color(_), do: "var(--h-pulse-rose)"
 end
