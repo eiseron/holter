@@ -17,29 +17,36 @@ defmodule HolterWeb.MonitoringComponents do
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
-      <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="var(--h-pulse-cyan)" stop-opacity="0.3" />
-            <stop offset="100%" stop-color="var(--h-pulse-cyan)" stop-opacity="0" />
-          </linearGradient>
-        </defs>
+      <%= if @data_points == [] do %>
+        <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
+          <line x1="0" y1="75" x2="300" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4 4" />
+        </svg>
+        <p class="sparkline-no-data">{gettext("No data yet")}</p>
+      <% else %>
+        <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="var(--h-pulse-cyan)" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="var(--h-pulse-cyan)" stop-opacity="0" />
+            </linearGradient>
+          </defs>
 
-        <path d={@area_path} fill={"url(#sparkline-gradient-#{@monitor_id})"} class="sparkline-area" />
-        <path d={@path} class="sparkline-line" />
+          <path d={@area_path} fill={"url(#sparkline-gradient-#{@monitor_id})"} class="sparkline-area" />
+          <path d={@path} class="sparkline-line" />
 
-        <%= for {point, index} <- Enum.with_index(@data_points) do %>
-          <%= if point.status != :success do %>
-            <circle
-              cx={index * 10}
-              cy={normalize_y(point.latency_ms)}
-              r="3"
-              fill="var(--h-pulse-rose)"
-              class="sparkline-error-marker"
-            />
+          <%= for {point, index} <- Enum.with_index(@data_points) do %>
+            <%= if point.status != :success do %>
+              <circle
+                cx={index * 10}
+                cy={normalize_y(point.latency_ms)}
+                r="3"
+                fill="var(--h-pulse-rose)"
+                class="sparkline-error-marker"
+              />
+            <% end %>
           <% end %>
-        <% end %>
-      </svg>
+        </svg>
+      <% end %>
     </div>
     """
   end
