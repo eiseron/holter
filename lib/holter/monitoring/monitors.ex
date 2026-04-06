@@ -69,9 +69,15 @@ defmodule Holter.Monitoring.Monitors do
     query
     |> order_by([m],
       desc:
-        fragment(
-          "CASE WHEN health_status = 'down' THEN 4 WHEN health_status = 'compromised' THEN 3 WHEN health_status = 'degraded' THEN 2 WHEN health_status = 'up' THEN 1 ELSE 0 END"
-        ),
+        fragment("""
+        CASE
+          WHEN health_status = 'down' THEN 4
+          WHEN health_status = 'compromised' THEN 3
+          WHEN health_status = 'degraded' THEN 2
+          WHEN health_status = 'up' THEN 1
+          ELSE 0
+        END
+        """),
       desc: m.inserted_at
     )
   end
