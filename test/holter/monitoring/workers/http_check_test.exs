@@ -18,7 +18,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
   }
 
   setup do
-    {:ok, monitor} = Monitoring.create_monitor(@monitor_attrs)
+    monitor = monitor_fixture(@monitor_attrs)
     %{monitor: monitor}
   end
 

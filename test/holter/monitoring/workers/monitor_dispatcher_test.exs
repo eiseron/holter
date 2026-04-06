@@ -53,12 +53,15 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   end
 
   defp create_active_monitor do
+    workspace = workspace_fixture()
+
     {:ok, monitor} =
       Monitoring.create_monitor(%{
         url: "https://active.local",
         method: :get,
         interval_seconds: 60,
-        logical_state: :active
+        logical_state: :active,
+        workspace_id: workspace.id
       })
 
     monitor

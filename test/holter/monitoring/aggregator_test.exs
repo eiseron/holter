@@ -6,15 +6,18 @@ defmodule Holter.Monitoring.AggregatorTest do
 
   describe "aggregate_monitor_date/2" do
     setup do
+      workspace = workspace_fixture()
+
       {:ok, monitor} =
         Monitoring.create_monitor(%{
           url: "https://example.com",
           method: :get,
           interval_seconds: 60,
-          timeout_seconds: 30
+          timeout_seconds: 30,
+          workspace_id: workspace.id
         })
 
-      %{monitor: monitor}
+      %{monitor: monitor, workspace: workspace}
     end
 
     test "aggregates metrics for a day with success and failure", %{monitor: monitor} do

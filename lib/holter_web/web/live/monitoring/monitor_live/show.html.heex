@@ -1,0 +1,251 @@
+<div class="h-monitor-container">
+  <.header>
+    <div class="h-title-row">
+      <.link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} class="h-btn-back">
+        &larr;
+      </.link>
+      {gettext("Monitor Settings")}
+      <.health_badge status={@monitor.health_status} />
+    </div>
+    <:subtitle>
+      UUID: {@monitor.id}
+    </:subtitle>
+    <:actions>
+      <.button
+        type="button"
+        phx-click="run_now"
+        disabled={@cooldown_remaining > 0}
+      >
+        <%= if @cooldown_remaining > 0 do %>
+          {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
+        <% else %>
+          {gettext("Run Now")}
+        <% end %>
+      </.button>
+    </:actions>
+  </.header>
+
+  <section class="h-section">
+    <.header>
+      {gettext("Daily Uptime History")}
+      <:actions>
+        <.link
+          navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}/logs"}
+          class="h-btn h-btn-soft"
+        >
+          {gettext("View Technical Logs")}
+        </.link>
+      </:actions>
+    </.header>
+
+    <%= if Enum.empty?(@daily_metrics) do %>
+      <div class="h-empty-state">
+        <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
+      </div>
+    <% else %>
+      <.table id="metrics-table" rows={@daily_metrics}>
+        <:col :let={metric} label={gettext("Date")}>
+          {Calendar.strftime(metric.date, "%Y-%m-%d")}
+        </:col>
+        <:col :let={metric} label={gettext("Uptime (%)")}>
+          <span class={
+            if Decimal.to_float(metric.uptime_percent) < 99.0,
+              do: "h-text-error",
+              else: "h-text-success"
+          }>
+            {metric.uptime_percent}%
+          </span>
+        </:col>
+        <:col :let={metric} label={gettext("Avg Latency")}>{metric.avg_latency_ms}ms</:col>
+        <:col :let={metric} label={gettext("Downtime")}>
+          {metric.total_downtime_minutes} {gettext("min")}
+        </:col>
+      </.table>
+    <% end %>
+  </section>
+
+  <.form
+    for={@form}
+    id="monitor-form"
+    phx-change="validate"
+    phx-submit="save"
+    class="h-form-sections"
+  >
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Technical Configuration")}</h3>
+      <div class="h-form-grid h-grid-cols-2">
+        <div>
+          <.input
+            field={@form[:url]}
+            type="url"
+            label={gettext("URL")}
+            placeholder="https://example.com"
+            required
+          />
+          <p class="h-help-text">
+            {gettext("The precise target endpoint or website you want to monitor.")}
+          </p>
+        </div>
+
+        <div>
+          <.input
+            field={@form[:method]}
+            type="select"
+            label={gettext("Method")}
+            options={[
+              GET: "get",
+              POST: "post",
+              HEAD: "head",
+              PUT: "put",
+              PATCH: "patch",
+              DELETE: "delete",
+              OPTIONS: "options"
+            ]}
+            required
+          />
+          <p class="h-help-text">{gettext("The HTTP method to use for the request.")}</p>
+        </div>
+
+        <div class="h-col-span-2">
+          <.input
+            field={@form[:raw_headers]}
+            type="textarea"
+            label={gettext("Custom Headers (JSON)")}
+            placeholder={~s|{"Authorization": "Bearer token"}|}
+          />
+          <p class="h-help-text">
+            {gettext("Additional HTTP headers formatted as a valid JSON object.")}
+          </p>
+        </div>
+
+        <div class="h-col-span-2">
+          <.input field={@form[:body]} type="textarea" label={gettext("Request Body")} />
+          <p class="h-help-text">
+            {gettext("Payload to send with POST/PUT requests (JSON, text, XML).")}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Security & Validation Rules")}</h3>
+      <div class="h-form-grid h-grid-cols-2">
+        <div>
+          <.input
+            field={@form[:raw_keyword_positive]}
+            type="text"
+            label={gettext("Must Contain (Keywords)")}
+            placeholder={gettext("Brand Name, Title, Success")}
+          />
+          <p class="h-help-text">
+            {gettext(
+              "The endpoint response MUST contain these words, otherwise it is considered DOWN. Separate multiple words by comma."
+            )}
+          </p>
+        </div>
+
+        <div>
+          <.input
+            field={@form[:raw_keyword_negative]}
+            type="text"
+            label={gettext("Must Not Contain (Defacement)")}
+            placeholder={gettext("hacked, database error")}
+          />
+          <p class="h-help-text">
+            {gettext(
+              "The endpoint response MUST NOT contain these words. Useful to detect hacks/defacements. Separate by comma."
+            )}
+          </p>
+        </div>
+
+        <div class="h-col-span-2">
+          <.input
+            field={@form[:ssl_ignore]}
+            type="checkbox"
+            label={gettext("Ignore SSL Validation Errors")}
+          />
+          <p class="h-help-text">
+            {gettext("Check this if your endpoint uses self-signed certificates or expired SSL.")}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Interval Defaults")}</h3>
+      <div class="h-form-grid h-grid-cols-3">
+        <div>
+          <.input
+            field={@form[:interval_seconds]}
+            type="select"
+            label={gettext("Check Interval")}
+            options={[
+              {gettext("1 Minute"), 60},
+              {gettext("5 Minutes"), 300},
+              {gettext("10 Minutes"), 600}
+            ]}
+            required
+          />
+        </div>
+
+        <div>
+          <.input
+            field={@form[:timeout_seconds]}
+            type="number"
+            label={gettext("Timeout Threshold (Seconds)")}
+            required
+          />
+        </div>
+
+        <div>
+          <.input
+            field={@form[:logical_state]}
+            type="select"
+            label={gettext("Monitor State")}
+            options={[{gettext("Active"), "active"}, {gettext("Paused"), "paused"}]}
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="h-actions-row">
+      <button
+        type="button"
+        class="h-btn h-btn-danger"
+        phx-click={JS.remove_attribute("hidden", to: "#delete-modal")}
+      >
+        {gettext("Delete Monitor")}
+      </button>
+
+      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
+        {gettext("Save Changes")}
+      </.button>
+    </div>
+  </.form>
+</div>
+
+<.modal id="delete-modal" title={gettext("Delete Monitor")}>
+  <p>
+    {gettext(
+      "Are you absolutely sure you want to delete this monitor? This action cannot be undone and you will lose all tracking history."
+    )}
+  </p>
+  <:footer>
+    <button
+      type="button"
+      class="h-btn h-btn-soft"
+      phx-click={JS.set_attribute({"hidden", ""}, to: "#delete-modal")}
+    >
+      {gettext("Cancel")}
+    </button>
+    <button
+      type="button"
+      class="h-btn h-btn-danger"
+      phx-click="delete"
+      phx-disable-with={gettext("Deleting...")}
+    >
+      {gettext("Yes, Delete Completely")}
+    </button>
+  </:footer>
+</.modal>
