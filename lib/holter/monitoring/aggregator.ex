@@ -7,28 +7,64 @@ defmodule Holter.Monitoring.Aggregator do
   alias Holter.Repo
 
   def aggregate_monitor_date(monitor_id, date) do
-    time_range = build_day_range(date)
+    monitor = Holter.Monitoring.get_monitor!(monitor_id)
+    time_range = build_day_range(date, monitor)
 
-    %{
-      monitor_id: monitor_id,
-      date: date,
-      avg_latency_ms: fetch_avg_latency(monitor_id, time_range),
-      total_downtime_minutes: calculate_total_downtime_minutes(monitor_id, time_range),
-      uptime_percent: calculate_uptime_percent(monitor_id, time_range)
-    }
-    |> Holter.Monitoring.upsert_daily_metric()
+    logs_exist? = count_logs(monitor_id, time_range) > 0
+    incidents_exist? = incidents_exist?(monitor_id, time_range)
+
+    if logs_exist? or incidents_exist? do
+      %{
+        monitor_id: monitor_id,
+        date: date,
+        avg_latency_ms: fetch_avg_latency(monitor_id, time_range),
+        total_downtime_minutes: calculate_total_downtime_minutes(monitor_id, time_range),
+        uptime_percent: calculate_uptime_percent(monitor, time_range)
+      }
+      |> Holter.Monitoring.upsert_daily_metric()
+    else
+      %{
+        monitor_id: monitor_id,
+        date: date,
+        avg_latency_ms: 0,
+        total_downtime_minutes: 0,
+        uptime_percent: Decimal.from_float(0.0)
+      }
+      |> Holter.Monitoring.upsert_daily_metric()
+    end
   end
 
-  defp build_day_range(date) do
-    start_at = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
-    end_at = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+  defp build_day_range(date, monitor) do
+    day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+    day_end = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
+    now = DateTime.utc_now()
+
+    start_at = max_datetime(day_start, monitor.inserted_at)
+    end_at = min_datetime(day_end, now)
+
     {start_at, end_at}
+  end
+
+  defp count_logs(monitor_id, {start_at, end_at}) do
+    MonitorLog
+    |> where([l], l.monitor_id == ^monitor_id)
+    |> where([l], l.checked_at >= ^start_at and l.checked_at < ^end_at)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  defp incidents_exist?(monitor_id, {start_at, end_at}) do
+    Incident
+    |> where([i], i.monitor_id == ^monitor_id)
+    |> where([i], i.started_at < ^end_at)
+    |> where([i], is_nil(i.resolved_at) or i.resolved_at > ^start_at)
+    |> Repo.exists?()
   end
 
   defp fetch_avg_latency(monitor_id, {start_at, end_at}) do
     MonitorLog
     |> where([l], l.monitor_id == ^monitor_id)
     |> where([l], l.checked_at >= ^start_at and l.checked_at < ^end_at)
+    |> where([l], l.status == :up)
     |> select([l], avg(l.latency_ms))
     |> Repo.one()
     |> normalize_latency()
@@ -45,9 +81,9 @@ defmodule Holter.Monitoring.Aggregator do
 
   defp seconds_to_minutes(seconds), do: round(seconds / 60)
 
-  defp calculate_uptime_percent(monitor_id, time_range) do
-    downtime_seconds = calculate_downtime_seconds(monitor_id, time_range)
-    total_seconds = 24 * 60 * 60
+  defp calculate_uptime_percent(monitor, {start_at, end_at} = time_range) do
+    downtime_seconds = calculate_downtime_seconds(monitor.id, time_range)
+    total_seconds = DateTime.diff(end_at, start_at)
 
     downtime_seconds
     |> compute_uptime_ratio(total_seconds)
