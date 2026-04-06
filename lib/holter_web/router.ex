@@ -12,22 +12,22 @@ defmodule HolterWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.ApiSpec
+    plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
   end
 
-  scope "/", HolterWeb do
+  scope "/", HolterWeb.Web do
     pipe_through :browser
 
     get "/", PageController, :home
   end
 
-  scope "/api/v1/workspaces/:workspace_slug", HolterWeb do
+  scope "/api/v1/workspaces/:workspace_slug", HolterWeb.Api do
     pipe_through :api
 
     resources "/monitors", MonitorController, except: [:new, :edit]
   end
 
-  scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Monitoring do
+  scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
     live "/dashboard", MonitorLive.Index, :index
