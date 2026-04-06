@@ -93,8 +93,8 @@
 
         <%= if @selected_log.response_snippet do %>
           <div class="h-evidence-block">
-            <label>{gettext("Content Snippet (Sanitized)")}</label>
-            <div class="h-snippet-content">{@selected_log.response_snippet}</div>
+            <label>{gettext("Content Snippet")}</label>
+            <pre class="h-snippet-content">{format_evidence_snippet(@selected_log.response_snippet)}</pre>
           </div>
         <% end %>
       </div>

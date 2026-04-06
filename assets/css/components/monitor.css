@@ -176,25 +176,34 @@
 
 .h-evidence-block pre,
 .h-snippet-content {
-  background: #272822;
-  color: #f8f8f2;
-  padding: 1rem;
-  border-radius: 6px;
+  background: #0f172a; /* Slate 900 */
+  color: #f1f5f9; /* Slate 100 */
+  padding: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
   overflow-x: auto;
   font-size: 0.85rem;
-  font-family: monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height: 1.6;
   white-space: pre-wrap;
   margin: 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.h-snippet-content {
-  background: #fdfdfd;
-  color: #333;
-  border: 1px solid #ddd;
+.h-evidence-block pre::-webkit-scrollbar,
+.h-snippet-content::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.h-evidence-block pre::-webkit-scrollbar-thumb,
+.h-snippet-content::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
 }
 
 .h-evidence-error pre {
-  background: #fee;
-  color: #c00;
-  border: 1px solid #fcc;
+  background: #450a0a; /* Dark Red */
+  color: #fca5a5;
+  border: 1px solid #7f1d1d;
 }

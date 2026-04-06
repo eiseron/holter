@@ -88,4 +88,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     end)
     |> List.first()
   end
+
+  defp format_evidence_snippet(nil), do: nil
+
+  defp format_evidence_snippet(snippet) do
+    case Jason.decode(snippet) do
+      {:ok, decoded} -> Jason.encode!(decoded, pretty: true)
+      {:error, _} -> snippet
+    end
+  end
 end
