@@ -13,7 +13,7 @@ defmodule Holter.Monitoring.Monitors do
   def list_monitors_by_workspace(workspace_id) do
     Monitor
     |> where([m], m.workspace_id == ^workspace_id)
-    |> order_by([m], desc: m.inserted_at)
+    |> tactical_ranking()
     |> Repo.all()
   end
 
@@ -47,7 +47,7 @@ defmodule Holter.Monitoring.Monitors do
 
     monitors =
       filtered_query
-      |> order_by([m], desc: m.inserted_at)
+      |> tactical_ranking()
       |> limit(^page_size)
       |> offset(^((page - 1) * page_size))
       |> Repo.all()
@@ -64,6 +64,23 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   defp maybe_filter_by(query, _, _), do: query
+
+  defp tactical_ranking(query) do
+    query
+    |> order_by([m],
+      desc:
+        fragment("""
+        CASE
+          WHEN health_status = 'down' THEN 4
+          WHEN health_status = 'compromised' THEN 3
+          WHEN health_status = 'degraded' THEN 2
+          WHEN health_status = 'up' THEN 1
+          ELSE 0
+        END
+        """),
+      desc: m.inserted_at
+    )
+  end
 
   def create_monitor(attrs \\ %{}) do
     case %Monitor{}
