@@ -2,6 +2,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   use HolterWeb, :live_view
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.MonitorLog
 
   @impl true
   def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
@@ -12,7 +13,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
         end
 
         monitor = Monitoring.get_monitor!(id)
-        logs = Monitoring.list_monitor_logs(id)
+        filters = %{status: nil, start_date: nil, end_date: nil}
+        logs = Monitoring.list_monitor_logs(monitor, filters)
 
         {:ok,
          socket
@@ -23,7 +25,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
          |> assign(:formatted_snippet, nil)
          |> assign(:formatted_headers, nil)
          |> assign(:evidence_inherited, false)
-         |> assign(:evidence_source_time, nil)}
+         |> assign(:evidence_source_time, nil)
+         |> assign(:filters, filters)
+         |> assign(:status_options, MonitorLog.status_options())
+         |> assign(:form, to_form(%{}, as: "filters"))}
 
       {:error, :not_found} ->
         {:ok,
@@ -42,7 +47,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
              :incident_resolved,
              :incident_updated
            ] do
-    {:noreply, assign(socket, logs: Monitoring.list_monitor_logs(socket.assigns.monitor.id))}
+    {:noreply,
+     assign(socket,
+       logs: Monitoring.list_monitor_logs(socket.assigns.monitor, socket.assigns.filters)
+     )}
+  end
+
+  @impl true
+  def handle_event("filter_updated", %{"filters" => params}, socket) do
+    filters =
+      socket.assigns.filters
+      |> Map.merge(params)
+      |> Map.new(fn {k, v} -> {k, empty_to_nil(v)} end)
+
+    logs = Monitoring.list_monitor_logs(socket.assigns.monitor, filters)
+
+    {:noreply,
+     socket
+     |> assign(:logs, logs)
+     |> assign(:filters, filters)}
   end
 
   @impl true
@@ -121,4 +144,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
       end
     end
   end
+
+  defp empty_to_nil(""), do: nil
+  defp empty_to_nil(value), do: value
 end

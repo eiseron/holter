@@ -5,12 +5,33 @@ defmodule Holter.Monitoring.Logs do
   alias Holter.Monitoring.MonitorLog
   alias Holter.Repo
 
-  def list_monitor_logs(monitor_id) do
-    MonitorLog
-    |> where([l], l.monitor_id == ^monitor_id)
+  def list_monitor_logs(monitor, filters) do
+    from(l in MonitorLog)
+    |> where(monitor_id: ^monitor.id)
+    |> apply_status_filter(filters["status"])
+    |> apply_date_range_filter(filters["start_date"], filters["end_date"])
     |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
     |> limit(100)
     |> Repo.all()
+  end
+
+  defp apply_status_filter(query, nil), do: query
+
+  defp apply_status_filter(query, status),
+    do: where(query, [l], l.status == ^String.to_atom(status))
+
+  defp apply_date_range_filter(query, nil, nil), do: query
+
+  defp apply_date_range_filter(query, start_date, nil) do
+    where(query, [l], l.checked_at >= ^start_date)
+  end
+
+  defp apply_date_range_filter(query, nil, end_date) do
+    where(query, [l], l.checked_at <= ^end_date)
+  end
+
+  defp apply_date_range_filter(query, start_date, end_date) do
+    where(query, [l], l.checked_at >= ^start_date and l.checked_at <= ^end_date)
   end
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)

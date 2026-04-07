@@ -138,7 +138,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "records the exception message in the log", %{monitor: monitor} do
-      assert [%{error_message: "connection refused"}] = Monitoring.list_monitor_logs(monitor.id)
+      assert [%{error_message: "connection refused"}] = Monitoring.list_monitor_logs(monitor, %{})
     end
   end
 
@@ -151,7 +151,7 @@ defmodule Holter.Monitoring.EngineTest do
           100
         )
 
-      %{log: List.first(Monitoring.list_monitor_logs(monitor.id))}
+      %{log: List.first(Monitoring.list_monitor_logs(monitor, %{}))}
     end
 
     test "records failure status", %{log: log} do
@@ -172,7 +172,7 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
       {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
 
-      logs = Monitoring.list_monitor_logs(monitor.id) |> Enum.sort_by(& &1.checked_at)
+      logs = Monitoring.list_monitor_logs(monitor, %{}) |> Enum.sort_by(& &1.checked_at)
       %{logs: logs}
     end
 

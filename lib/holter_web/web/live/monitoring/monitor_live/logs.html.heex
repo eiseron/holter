@@ -14,6 +14,33 @@
     </:subtitle>
   </.header>
 
+  <div class="h-filters-bar">
+    <.form for={@form} phx-change="filter_updated" class="h-filters-form">
+      <div class="h-filter-group">
+        <.input
+          field={@form[:status]}
+          type="select"
+          prompt="All Statuses"
+          options={@status_options}
+          class="h-filter-select"
+        />
+      </div>
+      <div class="h-filter-group h-filter-group-dates">
+        <.input
+          field={@form[:start_date]}
+          type="date"
+          class="h-filter-date"
+        />
+        <span class="h-date-separator">-</span>
+        <.input
+          field={@form[:end_date]}
+          type="date"
+          class="h-filter-date"
+        />
+      </div>
+    </.form>
+  </div>
+
   <div class="h-mt-8">
     <.table id="logs-table" rows={@logs}>
       <:col :let={log} label={gettext("Time")}>
