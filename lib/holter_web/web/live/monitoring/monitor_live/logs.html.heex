@@ -62,7 +62,11 @@
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
       <:col :let={log} label={gettext("Status")}>
-        <span class={"h-status-pill h-status-#{log.status}"}>
+        <span
+          class={"h-status-pill h-status-#{log.status}"}
+          data-role="log-status"
+          data-status={log.status}
+        >
           {log.status |> to_string() |> String.upcase()}
           <%= if log.status_code do %>
             ({log.status_code})
@@ -84,7 +88,7 @@
     </.table>
 
     <div class="h-pagination-bar h-mt-8 h-flex h-items-center h-justify-between">
-      <div class="h-text-muted h-text-sm">
+      <div class="h-text-muted h-text-sm" data-role="page-info">
         {gettext("Page %{page_number} of %{total_pages}",
           page_number: @page_number,
           total_pages: @total_pages

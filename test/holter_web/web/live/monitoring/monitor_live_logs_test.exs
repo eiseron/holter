@@ -28,7 +28,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "it displays the monitor URL and technical context", %{html: html} do
       assert html =~ "https://example.local"
-      assert html =~ "UP"
+      assert html =~ "data-role=\"log-status\""
+      assert html =~ "data-status=\"up\""
       assert html =~ "123ms"
     end
   end
@@ -57,10 +58,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       {:ok, _view, html} = live(conn, url)
 
-      assert html =~ "DOWN"
+      assert html =~ "data-status=\"down\""
       assert html =~ "2026-04-08"
 
-      refute html =~ "UP"
+      refute html =~ "data-status=\"up\""
       refute html =~ "2026-04-07"
     end
 
@@ -74,8 +75,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       {:ok, _view, html} = live(conn, url)
 
-      assert html =~ "Página 1 de 1"
-      refute html =~ "h-status-pill"
+      assert html =~ "data-role=\"page-info\""
+      refute html =~ "data-role=\"log-status\""
     end
   end
 
@@ -120,7 +121,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       {:ok, view, _html} = live(conn, url)
 
-      assert render(view) =~ "Página 3 de 3"
+      page_info = view |> element("[data-role='page-info']") |> render()
+      assert page_info =~ "3"
     end
 
     test "updating filter resets to page 1", %{conn: conn, monitor: monitor, workspace: workspace} do
@@ -161,12 +163,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "it opens and closes the technical evidence modal", %{view: view} do
       view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
-      assert has_element?(view, "h2", "Evidência Técnica")
+      assert has_element?(view, "#evidence-modal")
       assert render(view) =~ "nginx"
       assert render(view) =~ "Server Error"
 
       view |> element("button", "Fechar") |> render_click()
-      refute has_element?(view, "h2", "Evidência Técnica")
+      refute has_element?(view, "#evidence-modal")
     end
   end
 end
