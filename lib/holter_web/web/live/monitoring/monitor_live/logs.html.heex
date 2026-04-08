@@ -15,7 +15,7 @@
     </:subtitle>
   </.header>
 
-  <div class="h-filters-bar h-mb-8 h-p-4 h-bg-slate-800/40 h-rounded-xl h-border h-border-slate-700/50">
+  <div class="h-logs-filters">
     <.form
       for={@form}
       phx-change="filter_updated"
@@ -23,7 +23,7 @@
     >
       <input type="hidden" name="filters[page_size]" value={@filters.page_size} />
 
-      <div class="h-form-item" style="max-width: 200px;">
+      <div class="h-form-item">
         <.input
           field={@form[:status]}
           type="select"
@@ -39,7 +39,7 @@
         />
       </div>
 
-      <div class="h-form-item" style="max-width: 180px;">
+      <div class="h-form-item">
         <.input
           field={@form[:start_date]}
           type="date"
@@ -47,7 +47,7 @@
         />
       </div>
 
-      <div class="h-form-item" style="max-width: 180px;">
+      <div class="h-form-item">
         <.input
           field={@form[:end_date]}
           type="date"
@@ -88,14 +88,14 @@
       </:col>
     </.table>
 
-    <div class="h-pagination-bar h-mt-8 h-flex h-items-center h-justify-between">
+    <div class="h-logs-pagination">
       <div class="h-text-muted h-text-sm" data-role="page-info">
         {gettext("Page %{page_number} of %{total_pages}",
           page_number: @page_number,
           total_pages: @total_pages
         )}
       </div>
-      <nav class="h-flex h-gap-1">
+      <nav class="h-pagination-nav">
         <.link
           :if={@page_number > 1}
           patch={
@@ -108,7 +108,7 @@
                 |> Enum.into(%{})
               )
           }
-          class="h-btn h-btn-soft h-px-3 h-py-1"
+          class="h-btn h-btn-soft h-pagination-btn"
         >
           &larr;
         </.link>
@@ -126,7 +126,7 @@
                 )
             }
             class={
-              "h-btn h-px-3 h-py-1 #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"
+              "h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"
             }
           >
             {p}
@@ -145,7 +145,7 @@
                 |> Enum.into(%{})
               )
           }
-          class="h-btn h-btn-soft h-px-3 h-py-1"
+          class="h-btn h-btn-soft h-pagination-btn"
         >
           &rarr;
         </.link>
