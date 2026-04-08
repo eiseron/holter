@@ -62,11 +62,11 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
 
     test "records :up status in log", %{monitor: monitor} do
-      assert [%{status: :up}] = Monitoring.list_monitor_logs(monitor, %{})
+      assert [%{status: :up}] = Monitoring.list_monitor_logs(monitor, %{}).logs
     end
 
     test "records HTTP status code in log", %{monitor: monitor} do
-      assert [%{status_code: 200}] = Monitoring.list_monitor_logs(monitor, %{})
+      assert [%{status_code: 200}] = Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end
 
@@ -78,7 +78,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "records keyword validation error message", %{monitor: monitor} do
       assert [%{error_message: "Missing required keywords"}] =
-               Monitoring.list_monitor_logs(monitor, %{})
+               Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end
 
@@ -90,7 +90,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "records forbidden keyword error message", %{monitor: monitor} do
       assert [%{error_message: "Found forbidden keywords"}] =
-               Monitoring.list_monitor_logs(monitor, %{})
+               Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end
 
@@ -104,7 +104,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
 
     test "records the exception message in log", %{monitor: monitor} do
-      assert [%{error_message: "timeout"}] = Monitoring.list_monitor_logs(monitor, %{})
+      assert [%{error_message: "timeout"}] = Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end
 
@@ -118,7 +118,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
 
     test "records a response snippet", %{monitor: monitor} do
-      assert [%{response_snippet: snippet}] = Monitoring.list_monitor_logs(monitor, %{})
+      assert [%{response_snippet: snippet}] = Monitoring.list_monitor_logs(monitor, %{}).logs
       assert snippet =~ "failure"
     end
   end

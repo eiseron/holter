@@ -2,7 +2,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   use HolterWeb, :live_view
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.MonitorLog
 
   @impl true
   def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
@@ -13,21 +12,20 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
         end
 
         monitor = Monitoring.get_monitor!(id)
-        filters = %{status: nil, start_date: nil, end_date: nil}
-        logs = Monitoring.list_monitor_logs(monitor, filters)
 
         {:ok,
          socket
          |> assign(:workspace, workspace)
          |> assign(:monitor, monitor)
-         |> assign(:logs, logs)
+         |> assign(:logs, [])
          |> assign(:selected_log, nil)
          |> assign(:formatted_snippet, nil)
          |> assign(:formatted_headers, nil)
          |> assign(:evidence_inherited, false)
          |> assign(:evidence_source_time, nil)
-         |> assign(:filters, filters)
-         |> assign(:status_options, MonitorLog.status_options())
+         |> assign(:filters, %{})
+         |> assign(:page_number, 1)
+         |> assign(:total_pages, 1)
          |> assign(:form, to_form(%{}, as: "filters"))}
 
       {:error, :not_found} ->
@@ -39,33 +37,32 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   end
 
   @impl true
-  def handle_info({event, _data}, socket)
-      when event in [
-             :log_created,
-             :monitor_updated,
-             :incident_created,
-             :incident_resolved,
-             :incident_updated
-           ] do
+  def handle_params(params, _uri, socket) do
+    filters = parse_filters(params)
+    pagination = Monitoring.list_monitor_logs(socket.assigns.monitor, filters)
+    form = to_form(Map.new(filters, fn {k, v} -> {Atom.to_string(k), v} end), as: "filters")
+
+    path =
+      ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/monitor/#{socket.assigns.monitor.id}/logs"
+
     {:noreply,
-     assign(socket,
-       logs: Monitoring.list_monitor_logs(socket.assigns.monitor, socket.assigns.filters)
-     )}
+     socket
+     |> assign(pagination)
+     |> assign(:filters, filters)
+     |> assign(:form, form)
+     |> assign(:patch_path, path)}
   end
 
   @impl true
   def handle_event("filter_updated", %{"filters" => params}, socket) do
-    filters =
-      socket.assigns.filters
-      |> Map.merge(params)
+    query =
+      params
       |> Map.new(fn {k, v} -> {k, empty_to_nil(v)} end)
-
-    logs = Monitoring.list_monitor_logs(socket.assigns.monitor, filters)
+      |> Enum.reject(fn {k, v} -> is_nil(v) or k in ["id", "workspace_slug"] or v == "" end)
+      |> Enum.into(%{})
 
     {:noreply,
-     socket
-     |> assign(:logs, logs)
-     |> assign(:filters, filters)}
+     push_patch(socket, to: socket.assigns.patch_path <> "?" <> URI.encode_query(query))}
   end
 
   @impl true
@@ -100,6 +97,18 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
      |> assign(:formatted_headers, nil)
      |> assign(:evidence_inherited, false)
      |> assign(:evidence_source_time, nil)}
+  end
+
+  @impl true
+  def handle_info({event, _data}, socket)
+      when event in [
+             :log_created,
+             :monitor_updated,
+             :incident_created,
+             :incident_resolved,
+             :incident_updated
+           ] do
+    {:noreply, push_patch(socket, to: socket.assigns.patch_path)}
   end
 
   defp format_response_headers(nil), do: nil
@@ -147,4 +156,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   defp empty_to_nil(""), do: nil
   defp empty_to_nil(value), do: value
+
+  defp parse_filters(params) do
+    defaults = %{status: nil, start_date: nil, end_date: nil, page: 1, page_size: 50}
+    filters = for {k, v} <- params, into: %{}, do: {String.to_atom(k), v}
+
+    filters =
+      case filters[:page] do
+        page when is_binary(page) -> Map.put(filters, :page, String.to_integer(page))
+        nil -> Map.put(filters, :page, 1)
+        _ -> filters
+      end
+
+    filters =
+      case filters[:page_size] do
+        size when is_binary(size) -> Map.put(filters, :page_size, String.to_integer(size))
+        nil -> Map.put(filters, :page_size, 50)
+        _ -> filters
+      end
+
+    Map.merge(defaults, filters)
+  end
 end

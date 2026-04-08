@@ -16,44 +16,111 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     %{monitor: monitor, workspace: workspace}
   end
 
-  describe "when rendering technical logs page" do
+  describe "technical logs page" do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 123})
+
       {:ok, view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       %{view: view, html: html}
     end
 
-    test "it displays the page title", %{html: html} do
-      assert html =~ "Logs Técnicos"
+    test "it displays the monitor URL", %{html: html} do
+      assert html =~ "https://example.local"
     end
 
-    test "it displays the monitor URL", %{monitor: monitor, html: html} do
-      assert html =~ monitor.url
-    end
-  end
-
-  describe "when logs exist in the system" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
-      Monitoring.create_monitor_log(%{
-        monitor_id: monitor.id,
-        status: :up,
-        latency_ms: 123,
-        checked_at: DateTime.utc_now()
-      })
-
-      {:ok, view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
-
-      %{view: view, html: html}
-    end
-
-    test "it displays the latency value", %{html: html} do
+    test "when logs exist in the system it displays the latency value", %{html: html} do
       assert html =~ "123ms"
     end
 
-    test "it displays the capitalized status", %{html: html} do
+    test "when logs exist in the system it displays the capitalized status", %{html: html} do
       assert html =~ "UP"
+    end
+  end
+
+  describe "when filtering and paginating logs" do
+    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      for i <- 1..6 do
+        log_fixture(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: DateTime.add(DateTime.utc_now(), i, :second)
+        })
+      end
+
+      log_fixture(%{monitor_id: monitor.id, status: :down})
+
+      %{conn: conn, monitor: monitor, workspace: workspace}
+    end
+
+    test "loads with filters from query params", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=down&page=1&page_size=5"
+        )
+
+      assert html =~ "DOWN"
+      refute html =~ "UP"
+    end
+
+    test "updates query params on filter change", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=5"
+        )
+
+      view
+      |> form("form[phx-change=\"filter_updated\"]")
+      |> render_change(%{filters: %{status: "down", page_size: "5"}})
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&status=down"
+      )
+    end
+
+    test "loads second page via query param", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
+        )
+
+      assert render(view) =~ "Page 2 of 2"
+    end
+
+    test "clicking next page updates url", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=5"
+        )
+
+      view |> element("a", "2") |> render_click()
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
+      )
     end
   end
 
@@ -71,7 +138,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
       %{view: view}

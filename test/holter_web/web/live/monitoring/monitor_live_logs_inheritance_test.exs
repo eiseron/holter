@@ -55,7 +55,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       view
       |> render_click("view_evidence", %{"id" => newest_log.id})
@@ -94,7 +94,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       view
       |> render_click("view_evidence", %{"id" => failure_log.id})
@@ -138,7 +138,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       view
       |> render_click("view_evidence", %{"id" => clicked_failure.id})
