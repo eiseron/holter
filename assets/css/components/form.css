@@ -70,3 +70,19 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error), transparent 85%);
   }
 }
+
+.h-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.h-form-item {
+  flex: 1;
+  min-width: 150px;
+}
+
+.h-form-item-fixed {
+  flex: 0 0 auto;
+}

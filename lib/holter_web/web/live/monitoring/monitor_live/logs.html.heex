@@ -9,7 +9,7 @@
       </.link>
       {gettext("Technical Logs")}
     </div>
-    
+
     <:subtitle>
       <span class="h-text-muted h-font-mono">{@monitor.url}</span>
     </:subtitle>
@@ -19,11 +19,11 @@
     <.form
       for={@form}
       phx-change="filter_updated"
-      class="h-flex h-flex-wrap h-items-start h-gap-6"
+      class="h-form-row"
     >
       <input type="hidden" name="filters[page_size]" value={@filters.page_size} />
 
-      <div class="h-flex-1 h-min-w-[200px]">
+      <div class="h-form-item" style="max-width: 200px;">
         <.input
           field={@form[:status]}
           type="select"
@@ -39,7 +39,7 @@
         />
       </div>
 
-      <div class="h-flex-1 h-min-w-[150px]">
+      <div class="h-form-item" style="max-width: 180px;">
         <.input
           field={@form[:start_date]}
           type="date"
@@ -47,7 +47,7 @@
         />
       </div>
 
-      <div class="h-flex-1 h-min-w-[150px]">
+      <div class="h-form-item" style="max-width: 180px;">
         <.input
           field={@form[:end_date]}
           type="date"
