@@ -7,32 +7,46 @@ defmodule Holter.Monitoring.Logs do
 
   def list_monitor_logs(monitor, filters) do
     page_size = filters[:page_size] || 50
+    base_query = build_base_query(monitor.id, filters)
 
-    base_query =
-      from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      |> apply_status_filter(filters[:status])
-      |> apply_date_range_filter(filters[:start_date], filters[:end_date])
+    {total_pages, current_page} = calculate_pagination(base_query, page_size, filters[:page])
 
-    total_count = Repo.one(from(l in base_query, select: count(l.id)))
-    total_pages = ceil(total_count / page_size) |> max(1)
-
-    page = filters[:page] || 1
-    page = if page > total_pages, do: total_pages, else: page
-    offset = (page - 1) * page_size
-
-    logs =
-      base_query
-      |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
-      |> limit(^page_size)
-      |> offset(^offset)
-      |> Repo.all()
+    logs = fetch_paginated_logs(base_query, current_page, page_size)
 
     %{
       logs: logs,
-      page_number: page,
+      page_number: current_page,
       total_pages: total_pages,
       page_size: page_size
     }
+  end
+
+  defp build_base_query(monitor_id, filters) do
+    from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
+    |> apply_status_filter(filters[:status])
+    |> apply_date_range_filter(filters[:start_date], filters[:end_date])
+  end
+
+  defp calculate_pagination(query, page_size, requested_page) do
+    total_count = Repo.one(from(l in query, select: count(l.id)))
+    total_pages = ceil(total_count / page_size) |> max(1)
+
+    current_page =
+      (requested_page || 1)
+      |> min(total_pages)
+      |> max(1)
+
+    {total_pages, current_page}
+  end
+
+  defp fetch_paginated_logs(query, page, page_size) do
+    offset = (page - 1) * page_size
+
+    query
+    |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
+    |> limit(^page_size)
+    |> offset(^offset)
+    |> Repo.all()
   end
 
   defp apply_status_filter(query, nil), do: query

@@ -1,6 +1,6 @@
 <div class="h-monitor-container">
   <.header>
-    <div class="h-title-row">
+    <div class="h-title-row" data-role="page-title">
       <.link
         navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"}
         class="h-btn-back"
@@ -9,6 +9,7 @@
       </.link>
       {gettext("Technical Logs")}
     </div>
+    
     <:subtitle>
       <span class="h-text-muted h-font-mono">{@monitor.url}</span>
     </:subtitle>

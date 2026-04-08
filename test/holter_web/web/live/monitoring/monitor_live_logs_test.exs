@@ -27,6 +27,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     end
 
     test "it displays the monitor URL and technical context", %{html: html} do
+      assert html =~ "data-role=\"page-title\""
       assert html =~ "https://example.local"
       assert html =~ "data-role=\"log-status\""
       assert html =~ "data-status=\"up\""

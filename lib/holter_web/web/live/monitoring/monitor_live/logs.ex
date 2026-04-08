@@ -158,23 +158,24 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   defp empty_to_nil(value), do: value
 
   defp parse_filters(params) do
-    defaults = %{status: nil, start_date: nil, end_date: nil, page: 1, page_size: 50}
-    filters = for {k, v} <- params, into: %{}, do: {String.to_atom(k), v}
+    %{status: nil, start_date: nil, end_date: nil, page: 1, page_size: 50}
+    |> Map.merge(normalize_params(params))
+    |> cast_integer_param(:page, 1)
+    |> cast_integer_param(:page_size, 50)
+  end
 
-    filters =
-      case filters[:page] do
-        page when is_binary(page) -> Map.put(filters, :page, String.to_integer(page))
-        nil -> Map.put(filters, :page, 1)
-        _ -> filters
+  defp normalize_params(params) do
+    for {k, v} <- params, into: %{}, do: {String.to_atom(k), v}
+  end
+
+  defp cast_integer_param(filters, key, default) do
+    value =
+      case Map.get(filters, key) do
+        v when is_binary(v) -> String.to_integer(v)
+        v when is_integer(v) -> v
+        _ -> default
       end
 
-    filters =
-      case filters[:page_size] do
-        size when is_binary(size) -> Map.put(filters, :page_size, String.to_integer(size))
-        nil -> Map.put(filters, :page_size, 50)
-        _ -> filters
-      end
-
-    Map.merge(defaults, filters)
+    Map.put(filters, key, value)
   end
 end

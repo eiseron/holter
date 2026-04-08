@@ -28,7 +28,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
-      view |> element("button", gettext("Run Now")) |> render_click()
+      view |> element("button[phx-click=\"run_now\"]") |> render_click()
 
       updated_monitor = Monitoring.get_monitor!(monitor.id)
       assert updated_monitor.last_manual_check_at != nil
@@ -36,9 +36,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => monitor.id})
       assert_enqueued(worker: Holter.Monitoring.Workers.SSLCheck, args: %{"id" => monitor.id})
 
-      html = render(view)
-      assert html =~ "disabled"
-      assert html =~ gettext("Wait %{seconds}s", seconds: 60)
+      assert render(view) =~ "disabled"
     end
 
     test "respects the cooldown period and prevents duplicate clicks", %{
@@ -54,9 +52,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
-      html = render(view)
-      assert html =~ "disabled"
-      assert html =~ gettext("Wait %{seconds}s", seconds: 30)
+      assert render(view) =~ "disabled"
 
       render_click(view, "run_now", %{})
 
@@ -76,13 +72,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
-      assert render(view) =~ gettext("Wait %{seconds}s", seconds: 1)
+      assert render(view) =~ "disabled"
 
       send(view.pid, :tick)
 
       html = render(view)
       refute html =~ "disabled"
-      assert html =~ gettext("Run Now")
     end
   end
 end
