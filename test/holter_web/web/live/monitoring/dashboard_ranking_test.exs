@@ -9,6 +9,16 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
       %{workspace: workspace}
     end
 
+    defp extract_monitor_urls(view_or_html) do
+      html = if is_binary(view_or_html), do: view_or_html, else: render(view_or_html)
+
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("[data-role='monitor-url']")
+      |> Enum.map(&Floki.text/1)
+      |> Enum.map(&String.trim/1)
+    end
+
     test "Given multiple monitors, when displayed in dashboard, then DOWN monitors appear before UP monitors",
          %{conn: conn, workspace: workspace} do
       monitor_up =
@@ -21,12 +31,12 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :down
         )
 
-      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
 
-      matches = Regex.scan(~r/https:\/\/[a-z0-9.-]+/, html) |> List.flatten()
+      urls = extract_monitor_urls(view)
 
-      assert Enum.find_index(matches, &(&1 == monitor_down.url)) <
-               Enum.find_index(matches, &(&1 == monitor_up.url))
+      assert Enum.find_index(urls, &(&1 == monitor_down.url)) <
+               Enum.find_index(urls, &(&1 == monitor_up.url))
     end
 
     test "Given an UP monitor, when it transitions to DOWN, then it automatically moves to the top of the list",
@@ -47,17 +57,15 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :up
         )
 
-      {:ok, view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
 
-      matches_initial = Regex.scan(~r/https:\/\/[a-z0-9.-]+/, html) |> List.flatten()
-      assert List.first(matches_initial) == monitor_2.url
+      urls_initial = extract_monitor_urls(view)
+      assert List.first(urls_initial) == monitor_2.url
 
       {:ok, _} = Monitoring.update_monitor(monitor_1, %{health_status: :down})
 
-      html_updated = render(view)
-      matches_after = Regex.scan(~r/https:\/\/[a-z0-9.-]+/, html_updated) |> List.flatten()
-
-      assert List.first(matches_after) == monitor_1.url
+      urls_updated = extract_monitor_urls(view)
+      assert List.first(urls_updated) == monitor_1.url
     end
 
     test "Given multiple failing monitors, when displayed, then they are ordered by severity (DOWN > DEGRADED)",
@@ -79,12 +87,12 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :down
         )
 
-      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
 
-      matches = Regex.scan(~r/https:\/\/[a-z\.]+/, html) |> List.flatten()
+      urls = extract_monitor_urls(view)
 
-      down_idx = Enum.find_index(matches, &(&1 == monitor_down.url))
-      degraded_idx = Enum.find_index(matches, &(&1 == monitor_degraded.url))
+      down_idx = Enum.find_index(urls, &(&1 == monitor_down.url))
+      degraded_idx = Enum.find_index(urls, &(&1 == monitor_degraded.url))
 
       assert down_idx < degraded_idx
     end

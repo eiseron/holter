@@ -12,6 +12,7 @@
 }
 
 .h-header-title {
+  font-family: 'Roboto Mono', monospace;
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 2rem;
