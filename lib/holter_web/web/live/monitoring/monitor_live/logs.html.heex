@@ -1,6 +1,6 @@
 <div class="h-monitor-container">
   <.header>
-    <div class="h-title-row">
+    <div class="h-title-row" data-role="page-title">
       <.link
         navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"}
         class="h-btn-back"
@@ -9,19 +9,66 @@
       </.link>
       {gettext("Technical Logs")}
     </div>
+
     <:subtitle>
       <span class="h-text-muted h-font-mono">{@monitor.url}</span>
     </:subtitle>
   </.header>
 
-  <div class="h-mt-8">
+  <div class="h-logs-filters">
+    <.form
+      for={@form}
+      phx-change="filter_updated"
+      class="h-form-row"
+    >
+      <input type="hidden" name="filters[page_size]" value={@filters.page_size} />
+
+      <div class="h-form-item">
+        <.input
+          field={@form[:status]}
+          type="select"
+          label={gettext("Status")}
+          prompt={gettext("All Statuses")}
+          options={[
+            {gettext("Up"), "up"},
+            {gettext("Down"), "down"},
+            {gettext("Degraded"), "degraded"},
+            {gettext("Compromised"), "compromised"},
+            {gettext("Unknown"), "unknown"}
+          ]}
+        />
+      </div>
+
+      <div class="h-form-item">
+        <.input
+          field={@form[:start_date]}
+          type="date"
+          label={gettext("From")}
+        />
+      </div>
+
+      <div class="h-form-item">
+        <.input
+          field={@form[:end_date]}
+          type="date"
+          label={gettext("To")}
+        />
+      </div>
+    </.form>
+  </div>
+
+  <div class="h-mt-6">
     <.table id="logs-table" rows={@logs}>
       <:col :let={log} label={gettext("Time")}>
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
       <:col :let={log} label={gettext("Status")}>
-        <span class={"h-status-pill h-status-#{log.status}"}>
-          {String.upcase(to_string(log.status))}
+        <span
+          class={"h-status-pill h-status-#{log.status}"}
+          data-role="log-status"
+          data-status={log.status}
+        >
+          {log.status |> to_string() |> String.upcase()}
           <%= if log.status_code do %>
             ({log.status_code})
           <% end %>
@@ -40,6 +87,70 @@
         </button>
       </:col>
     </.table>
+
+    <div class="h-logs-pagination">
+      <div class="h-text-muted h-text-sm" data-role="page-info">
+        {gettext("Page %{page_number} of %{total_pages}",
+          page_number: @page_number,
+          total_pages: @total_pages
+        )}
+      </div>
+      <nav class="h-pagination-nav">
+        <.link
+          :if={@page_number > 1}
+          patch={
+            @patch_path <>
+              "?" <>
+              URI.encode_query(
+                @filters
+                |> Map.put(:page, @page_number - 1)
+                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
+                |> Enum.into(%{})
+              )
+          }
+          class="h-btn h-btn-soft h-pagination-btn"
+        >
+          &larr;
+        </.link>
+
+        <%= for p <- max(1, @page_number - 2)..min(@total_pages, @page_number + 2) do %>
+          <.link
+            patch={
+              @patch_path <>
+                "?" <>
+                URI.encode_query(
+                  @filters
+                  |> Map.put(:page, p)
+                  |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
+                  |> Enum.into(%{})
+                )
+            }
+            class={
+              "h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"
+            }
+          >
+            {p}
+          </.link>
+        <% end %>
+
+        <.link
+          :if={@page_number < @total_pages}
+          patch={
+            @patch_path <>
+              "?" <>
+              URI.encode_query(
+                @filters
+                |> Map.put(:page, @page_number + 1)
+                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
+                |> Enum.into(%{})
+              )
+          }
+          class="h-btn h-btn-soft h-pagination-btn"
+        >
+          &rarr;
+        </.link>
+      </nav>
+    </div>
   </div>
 </div>
 

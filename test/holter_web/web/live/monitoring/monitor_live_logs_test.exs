@@ -16,50 +16,136 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     %{monitor: monitor, workspace: workspace}
   end
 
-  describe "when rendering technical logs page" do
+  describe "technical logs page basics" do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 123})
+
       {:ok, view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
       %{view: view, html: html}
     end
 
-    test "it displays the page title", %{html: html} do
-      assert html =~ "Logs Técnicos"
-    end
-
-    test "it displays the monitor URL", %{monitor: monitor, html: html} do
-      assert html =~ monitor.url
-    end
-  end
-
-  describe "when logs exist in the system" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
-      Monitoring.create_monitor_log(%{
-        monitor_id: monitor.id,
-        status: :up,
-        latency_ms: 123,
-        checked_at: DateTime.utc_now()
-      })
-
-      {:ok, view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
-
-      %{view: view, html: html}
-    end
-
-    test "it displays the latency value", %{html: html} do
+    test "it displays the monitor URL and technical context", %{html: html} do
+      assert html =~ "data-role=\"page-title\""
+      assert html =~ "https://example.local"
+      assert html =~ "data-role=\"log-status\""
+      assert html =~ "data-status=\"up\""
       assert html =~ "123ms"
     end
+  end
 
-    test "it displays the capitalized status", %{html: html} do
-      assert html =~ "UP"
+  describe "filtering and combined states" do
+    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      today = ~U[2026-04-08 10:00:00Z]
+      yesterday = ~U[2026-04-07 10:00:00Z]
+
+      log_fixture(%{monitor_id: monitor.id, status: :up, checked_at: today})
+      log_fixture(%{monitor_id: monitor.id, status: :up, checked_at: yesterday})
+
+      log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: today})
+      log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: yesterday})
+
+      %{conn: conn, monitor: monitor, workspace: workspace}
+    end
+
+    test "filters by combined status and date range", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=down&start_date=2026-04-08&page=1"
+
+      {:ok, _view, html} = live(conn, url)
+
+      assert html =~ "data-status=\"down\""
+      assert html =~ "2026-04-08"
+
+      refute html =~ "data-status=\"up\""
+      refute html =~ "2026-04-07"
+    end
+
+    test "renders empty state when no logs match filters", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=compromised&page=1"
+
+      {:ok, _view, html} = live(conn, url)
+
+      assert html =~ "data-role=\"page-info\""
+      refute html =~ "data-role=\"log-status\""
     end
   end
 
-  describe "when clicking view evidence" do
+  describe "advanced pagination logic" do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
-      {:ok, _log} =
+      for i <- 1..12 do
+        log_fixture(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: DateTime.add(~U[2026-04-08 00:00:00Z], i, :minute)
+        })
+      end
+
+      %{conn: conn, monitor: monitor, workspace: workspace}
+    end
+
+    test "clicking page number preserves existing filters", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&page_size=5&page=1"
+
+      {:ok, view, _html} = live(conn, url)
+
+      view |> element("a", "2") |> render_click()
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&page=2&page_size=5"
+      )
+    end
+
+    test "handles out of bounds page numbers by resetting to last valid page", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=10&page_size=5"
+
+      {:ok, view, _html} = live(conn, url)
+
+      page_info = view |> element("[data-role='page-info']") |> render()
+      assert page_info =~ "3"
+    end
+
+    test "updating filter resets to page 1", %{conn: conn, monitor: monitor, workspace: workspace} do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
+
+      {:ok, view, _html} = live(conn, url)
+
+      view
+      |> form("form[phx-change=\"filter_updated\"]")
+      |> render_change(%{filters: %{status: "down", page_size: "5"}})
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&status=down"
+      )
+    end
+  end
+
+  describe "technical evidence modal logic" do
+    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      {:ok, log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
           status: :down,
@@ -71,22 +157,19 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
 
+      %{view: view, log: log}
+    end
+
+    test "it opens and closes the technical evidence modal", %{view: view} do
       view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
-      %{view: view}
-    end
-
-    test "it opens the technical evidence modal", %{view: view} do
-      assert has_element?(view, "h2", "Evidência Técnica")
-    end
-
-    test "it displays recorded headers in the modal", %{view: view} do
+      assert has_element?(view, "#evidence-modal")
       assert render(view) =~ "nginx"
-    end
-
-    test "it displays the response snippet in the modal", %{view: view} do
       assert render(view) =~ "Server Error"
+
+      view |> element("button", "Fechar") |> render_click()
+      refute has_element?(view, "#evidence-modal")
     end
   end
 end

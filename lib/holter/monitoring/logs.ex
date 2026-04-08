@@ -5,12 +5,95 @@ defmodule Holter.Monitoring.Logs do
   alias Holter.Monitoring.MonitorLog
   alias Holter.Repo
 
-  def list_monitor_logs(monitor_id) do
-    MonitorLog
-    |> where([l], l.monitor_id == ^monitor_id)
+  def list_monitor_logs(monitor, filters) do
+    page_size = filters[:page_size] || 50
+    base_query = build_base_query(monitor.id, filters)
+
+    {total_pages, current_page} = calculate_pagination(base_query, page_size, filters[:page])
+
+    logs = fetch_paginated_logs(base_query, current_page, page_size)
+
+    %{
+      logs: logs,
+      page_number: current_page,
+      total_pages: total_pages,
+      page_size: page_size
+    }
+  end
+
+  defp build_base_query(monitor_id, filters) do
+    from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
+    |> apply_status_filter(filters[:status])
+    |> apply_date_range_filter(filters[:start_date], filters[:end_date])
+  end
+
+  defp calculate_pagination(query, page_size, requested_page) do
+    total_count = Repo.one(from(l in query, select: count(l.id)))
+    total_pages = ceil(total_count / page_size) |> max(1)
+
+    current_page =
+      (requested_page || 1)
+      |> min(total_pages)
+      |> max(1)
+
+    {total_pages, current_page}
+  end
+
+  defp fetch_paginated_logs(query, page, page_size) do
+    offset = (page - 1) * page_size
+
+    query
     |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
-    |> limit(100)
+    |> limit(^page_size)
+    |> offset(^offset)
     |> Repo.all()
+  end
+
+  defp apply_status_filter(query, nil), do: query
+  defp apply_status_filter(query, ""), do: query
+
+  defp apply_status_filter(query, status),
+    do: where(query, [l], l.status == ^String.to_atom(status))
+
+  defp apply_date_range_filter(query, nil, nil), do: query
+
+  defp apply_date_range_filter(query, start_date, nil) do
+    case parse_date_to_datetime(start_date, :start) do
+      {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
+      _ -> query
+    end
+  end
+
+  defp apply_date_range_filter(query, nil, end_date) do
+    case parse_date_to_datetime(end_date, :end) do
+      {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
+      _ -> query
+    end
+  end
+
+  defp apply_date_range_filter(query, start_date, end_date) do
+    case {parse_date_to_datetime(start_date, :start), parse_date_to_datetime(end_date, :end)} do
+      {{:ok, start_dt}, {:ok, end_dt}} ->
+        where(query, [l], l.checked_at >= ^start_dt and l.checked_at <= ^end_dt)
+
+      {{:ok, start_dt}, _} ->
+        where(query, [l], l.checked_at >= ^start_dt)
+
+      {_, {:ok, end_dt}} ->
+        where(query, [l], l.checked_at <= ^end_dt)
+
+      _ ->
+        query
+    end
+  end
+
+  defp parse_date_to_datetime(date_str, type) do
+    with {:ok, date} <- Date.from_iso8601(date_str) do
+      case type do
+        :start -> DateTime.new(date, ~T[00:00:00], "Etc/UTC")
+        :end -> DateTime.new(date, ~T[23:59:59], "Etc/UTC")
+      end
+    end
   end
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)

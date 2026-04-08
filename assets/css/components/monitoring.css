@@ -184,3 +184,32 @@
 .h-status-degraded { color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
 .h-status-compromised { color: #a78bfa; border-color: rgba(139, 92, 246, 0.2); }
 .h-status-unknown { color: #94a3b8; border-color: rgba(100, 116, 139, 0.2); }
+
+/* Logs Filtering & Pagination Components */
+.h-logs-filters {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--h-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--h-glass-border);
+  border-radius: 0.75rem;
+}
+
+.h-logs-pagination {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.h-pagination-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.h-pagination-btn {
+  padding: 0.25rem 0.75rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
