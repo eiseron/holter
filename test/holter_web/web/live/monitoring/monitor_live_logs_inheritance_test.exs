@@ -64,7 +64,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       assert html =~ "nginx/deep-heritage"
       assert html =~ "Real Payload"
-      assert html =~ "This check did not capture new evidence"
+      assert html =~ "Esta verificação não capturou novas evidências"
 
       source_time = Calendar.strftime(log_with_ev.checked_at, "%Y-%m-%d %H:%M:%S")
       assert html =~ source_time
@@ -105,7 +105,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       assert html =~ "success-context"
       assert html =~ "Valid Success Data"
-      assert html =~ "This check did not capture new evidence"
+      assert html =~ "Esta verificação não capturou novas evidências"
     end
 
     test "inherits across multiple sequential FAILURES back to the last valid capture", %{
@@ -147,7 +147,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       assert html =~ "Current Failure (Connection Refused)"
       assert html =~ "original-capture"
-      assert html =~ "This check did not capture new evidence"
+      assert html =~ "Esta verificação não capturou novas evidências"
     end
   end
 end

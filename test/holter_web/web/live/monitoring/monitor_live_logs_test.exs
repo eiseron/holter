@@ -101,7 +101,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
           ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
         )
 
-      assert render(view) =~ "Page 2 of 2"
+      assert render(view) =~ "Página 2 de 2"
     end
 
     test "clicking next page updates url", %{
@@ -119,7 +119,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&page=2"
       )
     end
   end

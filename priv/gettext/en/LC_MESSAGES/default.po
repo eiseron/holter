@@ -273,7 +273,7 @@ msgstr ""
 msgid "Avg Latency"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:152
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:209
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Close"
 msgstr ""
@@ -293,18 +293,18 @@ msgstr ""
 msgid "Downtime"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:131
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:188
 #, elixir-autogen, elixir-format
 msgid "Error Message"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:61
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:75
 #, elixir-autogen, elixir-format
 msgid "Evidence"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:58
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:120
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:72
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:177
 #, elixir-autogen, elixir-format
 msgid "Latency"
 msgstr ""
@@ -324,12 +324,12 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:124
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:181
 #, elixir-autogen, elixir-format
 msgid "Region"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:138
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:195
 #, elixir-autogen, elixir-format
 msgid "Response Headers"
 msgstr ""
@@ -339,14 +339,14 @@ msgstr ""
 msgid "Run Now"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:20
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:50
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:116
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:29
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:64
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:173
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:99
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:156
 #, elixir-autogen, elixir-format
 msgid "Technical Evidence"
 msgstr ""
@@ -356,7 +356,7 @@ msgstr ""
 msgid "Technical Logs"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:47
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:61
 #, elixir-autogen, elixir-format
 msgid "Time"
 msgstr ""
@@ -366,7 +366,7 @@ msgstr ""
 msgid "Uptime (%)"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:67
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:81
 #, elixir-autogen, elixir-format
 msgid "View Evidence"
 msgstr ""
@@ -386,12 +386,12 @@ msgstr ""
 msgid "min"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:22
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:30
 #, elixir-autogen, elixir-format, fuzzy
 msgid "All Statuses"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:145
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:202
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Content Snippet"
 msgstr ""
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Failed to trigger check"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:32
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:45
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr ""
@@ -421,11 +421,6 @@ msgstr ""
 msgid "New Monitor"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:88
-#, elixir-autogen, elixir-format
-msgid "Next"
-msgstr ""
-
 #: lib/holter_web/components/monitoring_components.ex:32
 #, elixir-autogen, elixir-format
 msgid "No data yet"
@@ -436,14 +431,9 @@ msgstr ""
 msgid "No monitors heartbeat found in this workspace."
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:74
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Page %{page_number} of %{total_pages}"
-msgstr ""
-
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:81
-#, elixir-autogen, elixir-format
-msgid "Previous"
 msgstr ""
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:5
@@ -451,12 +441,37 @@ msgstr ""
 msgid "Real-time Overview"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:106
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:163
 #, elixir-autogen, elixir-format
 msgid "This check did not capture new evidence. Showing the most recent evidence from %{time}."
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:39
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "To"
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "Compromised"
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "Degraded"
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:33
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Down"
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "Unknown"
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "Up"
 msgstr ""
