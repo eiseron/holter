@@ -1,5 +1,5 @@
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--color-base-content);
   background-color: var(--color-base-100);
   line-height: 1.5;
