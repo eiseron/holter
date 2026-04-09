@@ -9,7 +9,19 @@
         navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"}
         class="h-btn h-btn-primary"
       >
-        <span class="hero-plus h-icon-size-4"></span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
         {gettext("New Monitor")}
       </.link>
     </div>
@@ -18,7 +30,6 @@
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>
       <div class="h-empty-state-dark">
-        <span class="hero-magnifying-glass h-icon-size-12 h-opacity-20"></span>
         <p>{gettext("No monitors heartbeat found in this workspace.")}</p>
       </div>
     <% else %>
@@ -29,7 +40,9 @@
               {monitor.url}
             </h3>
             <div class="h-flex h-justify-between h-items-center h-mt-2">
-              <p class="h-text-xs h-opacity-50">{monitor.method |> to_string() |> String.upcase()} • {monitor.interval_seconds}s</p>
+              <p class="h-text-xs h-opacity-50">
+                {monitor.method |> to_string() |> String.upcase()} • {monitor.interval_seconds}s
+              </p>
               <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
             </div>
           </header>
