@@ -60,16 +60,10 @@
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
       <:col :let={log} label={gettext("Status")}>
-        <span
-          class={"h-status-pill h-status-#{log.status}"}
-          data-role="log-status"
-          data-status={log.status}
-        >
-          {log.status |> to_string() |> String.upcase()}
-          <%= if log.status_code do %>
-            ({log.status_code})
-          <% end %>
-        </span>
+        <HolterWeb.MonitoringComponents.status_pill
+          status={log.status}
+          status_code={log.status_code}
+        />
       </:col>
       <:col :let={log} label={gettext("Latency")}>
         {log.latency_ms}ms
@@ -85,64 +79,13 @@
       </:col>
     </.table>
 
-    <div class="h-logs-pagination">
-      <div class="h-text-muted h-text-sm" data-role="page-info">
-        {gettext("Page %{page_number} of %{total_pages}",
-          page_number: @page_number,
-          total_pages: @total_pages
-        )}
-      </div>
-      <nav class="h-pagination-nav">
-        <.link
-          :if={@prev_page_url}
-          patch={@prev_page_url}
-          class="h-btn h-btn-soft h-pagination-btn"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </.link>
-
-        <%= for {p, url} <- @page_links do %>
-          <.link
-            patch={url}
-            class={"h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"}
-          >
-            {p}
-          </.link>
-        <% end %>
-
-        <.link
-          :if={@next_page_url}
-          patch={@next_page_url}
-          class="h-btn h-btn-soft h-pagination-btn"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </.link>
-      </nav>
-    </div>
+    <HolterWeb.MonitoringComponents.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
   </div>
 </div>
 

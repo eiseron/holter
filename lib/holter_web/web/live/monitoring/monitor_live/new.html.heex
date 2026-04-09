@@ -1,7 +1,9 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row">
-      <HolterWeb.MonitoringComponents.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
+      <HolterWeb.MonitoringComponents.back_link navigate={
+        ~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"
+      } />
       {gettext("Create a new Monitor")}
     </div>
     <:actions>
@@ -18,144 +20,9 @@
     phx-submit="save"
     class="h-form-sections"
   >
-    <div class="h-fieldset-card">
-      <h3 class="h-fieldset-legend">{gettext("Technical Configuration")}</h3>
-      <div class="h-form-grid h-grid-cols-2">
-        <div>
-          <.input
-            field={@form[:url]}
-            type="url"
-            label={gettext("URL")}
-            placeholder="https://example.com"
-            required
-          />
-          <p class="h-help-text">
-            {gettext("The precise target endpoint or website you want to monitor.")}
-          </p>
-        </div>
-
-        <div>
-          <.input
-            field={@form[:method]}
-            type="select"
-            label={gettext("Method")}
-            options={[
-              GET: "get",
-              POST: "post",
-              HEAD: "head",
-              PUT: "put",
-              PATCH: "patch",
-              DELETE: "delete",
-              OPTIONS: "options"
-            ]}
-            required
-          />
-          <p class="h-help-text">{gettext("The HTTP method to use for the request.")}</p>
-        </div>
-
-        <div class="h-col-span-2">
-          <.input
-            field={@form[:raw_headers]}
-            type="textarea"
-            label={gettext("Custom Headers (JSON)")}
-            placeholder={~s|{"Authorization": "Bearer token"}|}
-          />
-          <p class="h-help-text">
-            {gettext("Additional HTTP headers formatted as a valid JSON object.")}
-          </p>
-        </div>
-
-        <div class="h-col-span-2">
-          <.input
-            field={@form[:body]}
-            type="textarea"
-            label={gettext("Request Body")}
-            placeholder={~s|{"my_key": "my_value"}|}
-          />
-          <p class="h-help-text">
-            {gettext("Payload to send with POST/PUT requests (JSON, text, XML).")}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="h-fieldset-card">
-      <h3 class="h-fieldset-legend">{gettext("Security & Validation Rules")}</h3>
-      <div class="h-form-grid h-grid-cols-2">
-        <div>
-          <.input
-            field={@form[:raw_keyword_positive]}
-            type="text"
-            label={gettext("Must Contain (Keywords)")}
-            placeholder={gettext("Brand Name, Title, Success")}
-          />
-          <p class="h-help-text">
-            {gettext(
-              "The endpoint response MUST contain these words, otherwise it is considered DOWN. Separate multiple words by comma."
-            )}
-          </p>
-        </div>
-
-        <div>
-          <.input
-            field={@form[:raw_keyword_negative]}
-            type="text"
-            label={gettext("Must Not Contain (Defacement)")}
-            placeholder={gettext("hacked, database error")}
-          />
-          <p class="h-help-text">
-            {gettext(
-              "The endpoint response MUST NOT contain these words. Useful to detect hacks/defacements. Separate by comma."
-            )}
-          </p>
-        </div>
-
-        <div class="h-col-span-2">
-          <.input
-            field={@form[:ssl_ignore]}
-            type="checkbox"
-            label={gettext("Ignore SSL Validation Errors")}
-          />
-          <p class="h-help-text">
-            {gettext("Check this if your endpoint uses self-signed certificates or expired SSL.")}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="h-fieldset-card">
-      <h3 class="h-fieldset-legend">{gettext("Interval Defaults")}</h3>
-      <div class="h-form-grid h-grid-cols-2">
-        <div>
-          <.input
-            field={@form[:interval_seconds]}
-            type="select"
-            label={gettext("Check Interval")}
-            options={[
-              {gettext("1 Minute"), 60},
-              {gettext("5 Minutes"), 300},
-              {gettext("10 Minutes"), 600}
-            ]}
-            required
-          />
-          <p class="h-help-text">
-            {gettext("How frequently our worker nodes will ping your URL.")}
-          </p>
-        </div>
-
-        <div>
-          <.input
-            field={@form[:timeout_seconds]}
-            type="number"
-            label={gettext("Timeout Threshold (Seconds)")}
-            required
-          />
-          <p class="h-help-text">
-            {gettext("Maximum time to wait for a response before declaring the endpoint DOWN.")}
-          </p>
-        </div>
-      </div>
-    </div>
+    <HolterWeb.MonitoringComponents.monitor_form_technical form={@form} />
+    <HolterWeb.MonitoringComponents.monitor_form_security form={@form} />
+    <HolterWeb.MonitoringComponents.monitor_form_interval form={@form} />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
