@@ -35,6 +35,37 @@
   }
 }
 
+.h-alert-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition-base), background var(--transition-base);
+  align-self: flex-start;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@keyframes h-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.h-spin-icon {
+  animation: h-spin 1s linear infinite;
+}
+
 /* Phoenix connection error handling */
 #client-error, #server-error {
   display: none;

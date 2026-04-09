@@ -66,19 +66,55 @@ defmodule HolterWeb.CoreComponents do
         @kind == :info && "h-alert-info",
         @kind == :error && "h-alert-error"
       ]}>
-        <.icon :if={@kind == :info} name="hero-information-circle" class="h-icon-size-5" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle" class="h-icon-size-5" />
+        <svg
+          :if={@kind == :info}
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="flex-shrink:0"
+        >
+          <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+        </svg>
+        <svg
+          :if={@kind == :error}
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="flex-shrink:0"
+        >
+          <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
+        </svg>
         <div>
           <p :if={@title} class="h-font-semibold">{@title}</p>
           <p>{msg}</p>
         </div>
         <div class="h-flex-1" />
-        <button
-          type="button"
-          class="h-group h-self-start h-cursor-pointer"
-          aria-label={gettext("close")}
-        >
-          <.icon name="hero-x-mark" class="h-icon-size-5 h-opacity-40 h-group-hover-opacity-70" />
+        <button type="button" class="h-alert-close-btn" aria-label={gettext("close")}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
         </button>
       </div>
     </div>
