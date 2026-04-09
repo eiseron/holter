@@ -1,12 +1,7 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row" data-role="page-title">
-      <.link
-        navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"}
-        class="h-btn-back"
-      >
-        <span class="hero-arrow-left h-icon-size-4"></span>
-      </.link>
+      <HolterWeb.MonitoringComponents.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"} />
       {gettext("Technical Logs")}
     </div>
 

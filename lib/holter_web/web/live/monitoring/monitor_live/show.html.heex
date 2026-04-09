@@ -1,9 +1,7 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row">
-      <.link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} class="h-btn-back">
-        <span class="hero-arrow-left h-icon-size-4"></span>
-      </.link>
+      <HolterWeb.MonitoringComponents.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
       {gettext("Monitor Settings")}
       <HolterWeb.MonitoringComponents.health_badge status={@monitor.health_status} />
     </div>
