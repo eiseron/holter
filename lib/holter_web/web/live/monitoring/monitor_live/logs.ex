@@ -50,19 +50,20 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
      |> assign(pagination)
      |> assign(:filters, filters)
      |> assign(:form, form)
-     |> assign(:patch_path, path)}
+     |> assign(:patch_path, path)
+     |> assign_page_links(path, filters)}
   end
 
   @impl true
   def handle_event("filter_updated", %{"filters" => params}, socket) do
-    query =
+    filters =
       params
       |> Map.new(fn {k, v} -> {k, empty_to_nil(v)} end)
-      |> Enum.reject(fn {k, v} -> is_nil(v) or k in ["id", "workspace_slug"] or v == "" end)
-      |> Enum.into(%{})
+      |> Enum.reject(fn {_, v} -> is_nil(v) end)
+      |> Map.new()
 
     {:noreply,
-     push_patch(socket, to: socket.assigns.patch_path <> "?" <> URI.encode_query(query))}
+     push_patch(socket, to: socket.assigns.patch_path <> "?" <> encode_filters(filters))}
   end
 
   @impl true
@@ -154,8 +155,33 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     end
   end
 
+  defp assign_page_links(socket, path, filters) do
+    %{page_number: page, total_pages: total} = socket.assigns
+
+    page_url = fn p -> path <> "?" <> encode_filters(Map.put(filters, :page, p)) end
+
+    socket
+    |> assign(:prev_page_url, if(page > 1, do: page_url.(page - 1)))
+    |> assign(:next_page_url, if(page < total, do: page_url.(page + 1)))
+    |> assign(
+      :page_links,
+      for(p <- max(1, page - 2)..min(total, page + 2), do: {p, page_url.(p)})
+    )
+  end
+
+  defp encode_filters(filters) do
+    filters
+    |> Enum.reject(fn {k, v} ->
+      is_nil(v) or v == "" or k in [:id, :workspace_slug, "id", "workspace_slug"]
+    end)
+    |> Enum.sort_by(fn {k, _} -> to_string(k) end)
+    |> URI.encode_query()
+  end
+
   defp empty_to_nil(""), do: nil
   defp empty_to_nil(value), do: value
+
+  @valid_filter_keys ~w(status start_date end_date page page_size)
 
   defp parse_filters(params) do
     %{status: nil, start_date: nil, end_date: nil, page: 1, page_size: 50}
@@ -165,7 +191,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   end
 
   defp normalize_params(params) do
-    for {k, v} <- params, into: %{}, do: {String.to_atom(k), v}
+    for {k, v} <- params, k in @valid_filter_keys, into: %{} do
+      {String.to_existing_atom(k), v}
+    end
   end
 
   defp cast_integer_param(filters, key, default) do

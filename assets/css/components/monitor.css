@@ -176,3 +176,13 @@
   color: var(--color-evidence-error-text);
   border: 1px solid var(--color-evidence-error-border);
 }
+
+.h-evidence-inherited-notice {
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--color-status-degraded) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-status-degraded) 30%, transparent);
+  border-radius: var(--radius-field);
+  color: var(--color-status-degraded-text);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+}

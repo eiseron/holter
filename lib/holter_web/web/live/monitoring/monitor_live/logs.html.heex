@@ -1,7 +1,9 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row" data-role="page-title">
-      <HolterWeb.MonitoringComponents.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"} />
+      <HolterWeb.MonitoringComponents.back_link navigate={
+        ~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"
+      } />
       {gettext("Technical Logs")}
     </div>
 
@@ -92,57 +94,52 @@
       </div>
       <nav class="h-pagination-nav">
         <.link
-          :if={@page_number > 1}
-          patch={
-            @patch_path <>
-              "?" <>
-              URI.encode_query(
-                @filters
-                |> Map.put(:page, @page_number - 1)
-                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                |> Enum.into(%{})
-              )
-          }
+          :if={@prev_page_url}
+          patch={@prev_page_url}
           class="h-btn h-btn-soft h-pagination-btn"
         >
-          &larr;
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </.link>
 
-        <%= for p <- max(1, @page_number - 2)..min(@total_pages, @page_number + 2) do %>
+        <%= for {p, url} <- @page_links do %>
           <.link
-            patch={
-              @patch_path <>
-                "?" <>
-                URI.encode_query(
-                  @filters
-                  |> Map.put(:page, p)
-                  |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                  |> Enum.into(%{})
-                )
-            }
-            class={
-              "h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"
-            }
+            patch={url}
+            class={"h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"}
           >
             {p}
           </.link>
         <% end %>
 
         <.link
-          :if={@page_number < @total_pages}
-          patch={
-            @patch_path <>
-              "?" <>
-              URI.encode_query(
-                @filters
-                |> Map.put(:page, @page_number + 1)
-                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                |> Enum.into(%{})
-              )
-          }
+          :if={@next_page_url}
+          patch={@next_page_url}
           class="h-btn h-btn-soft h-pagination-btn"
         >
-          &rarr;
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </.link>
       </nav>
     </div>
