@@ -18,7 +18,7 @@
   font-family: var(--font-mono);
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(to right, var(--prim-slate-100), var(--prim-slate-400));
+  background: linear-gradient(to right, var(--color-monitor-heading-from), var(--color-monitor-heading-to));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
