@@ -15,6 +15,12 @@ defmodule Holter.Monitoring.DailyMetric do
     timestamps(type: :utc_datetime)
   end
 
+  @healthy_uptime_threshold Decimal.new("99.0")
+
+  def uptime_healthy?(%__MODULE__{uptime_percent: pct}) do
+    Decimal.compare(pct, @healthy_uptime_threshold) != :lt
+  end
+
   @doc false
   def changeset(daily_metric, attrs) do
     daily_metric

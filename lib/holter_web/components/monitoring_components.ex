@@ -271,9 +271,9 @@ defmodule HolterWeb.MonitoringComponents do
         </:col>
         <:col :let={metric} label={gettext("Uptime (%)")}>
           <span class={
-            if Decimal.to_float(metric.uptime_percent) < 99.0,
-              do: "h-text-error",
-              else: "h-text-success"
+            if Holter.Monitoring.DailyMetric.uptime_healthy?(metric),
+              do: "h-text-success",
+              else: "h-text-error"
           }>
             {metric.uptime_percent}%
           </span>
@@ -312,15 +312,10 @@ defmodule HolterWeb.MonitoringComponents do
             field={@form[:method]}
             type="select"
             label={gettext("Method")}
-            options={[
-              GET: "get",
-              POST: "post",
-              HEAD: "head",
-              PUT: "put",
-              PATCH: "patch",
-              DELETE: "delete",
-              OPTIONS: "options"
-            ]}
+            options={
+              Holter.Monitoring.Monitor.http_methods()
+              |> Enum.map(fn m -> {String.upcase(to_string(m)), to_string(m)} end)
+            }
             required
           />
           <p class="h-help-text">{gettext("The HTTP method to use for the request.")}</p>
@@ -417,11 +412,10 @@ defmodule HolterWeb.MonitoringComponents do
             field={@form[:interval_seconds]}
             type="select"
             label={gettext("Check Interval")}
-            options={[
-              {gettext("1 Minute"), 60},
-              {gettext("5 Minutes"), 300},
-              {gettext("10 Minutes"), 600}
-            ]}
+            options={
+              Holter.Monitoring.Monitor.check_interval_seconds()
+              |> Enum.map(fn s -> {interval_label(s), s} end)
+            }
             required
           />
           <p class="h-help-text">
@@ -454,6 +448,11 @@ defmodule HolterWeb.MonitoringComponents do
     </div>
     """
   end
+
+  defp interval_label(60), do: gettext("1 Minute")
+  defp interval_label(300), do: gettext("5 Minutes")
+  defp interval_label(600), do: gettext("10 Minutes")
+  defp interval_label(n), do: "#{n}s"
 
   defp calculate_path([]), do: ""
 

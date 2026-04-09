@@ -4,6 +4,12 @@ defmodule Holter.Monitoring.Monitor do
   @manual_check_cooldown 60
   def manual_check_cooldown, do: @manual_check_cooldown
 
+  @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
+  def http_methods, do: @http_methods
+
+  @check_interval_seconds [60, 300, 600]
+  def check_interval_seconds, do: @check_interval_seconds
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "monitors" do
