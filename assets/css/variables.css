@@ -93,6 +93,9 @@
   --prim-monitor-glass-border: rgba(255, 255, 255, 0.1);
 
 
+  /* Informa ao browser para renderizar controles nativos no tema claro */
+  color-scheme: light;
+
   /* ── 2. SEMÂNTICOS — LIGHT THEME (padrão) ─────────
      Aliases por propósito. Use estes nos componentes.
      Altere os valores aqui para reestilizar temas.
@@ -241,6 +244,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Informa ao browser para renderizar controles nativos no tema escuro */
+    color-scheme: dark;
+
     /* Backgrounds */
     --color-bg:           var(--prim-graphite);      /* #121212 */
     --color-bg-subtle:    var(--prim-dark-surface);  /* #1a1a1a */
