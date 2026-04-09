@@ -29,7 +29,7 @@
               {monitor.url}
             </h3>
             <div class="h-flex h-justify-between h-items-center h-mt-2">
-              <p class="h-text-xs h-opacity-50">{monitor.method} • {monitor.interval_seconds}s</p>
+              <p class="h-text-xs h-opacity-50">{String.upcase(monitor.method)} • {monitor.interval_seconds}s</p>
               <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
             </div>
           </header>
