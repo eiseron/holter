@@ -34,8 +34,8 @@ defmodule HolterWeb.MonitoringComponents do
         <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
           <defs>
             <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="var(--h-pulse-cyan)" stop-opacity="0.3" />
-              <stop offset="100%" stop-color="var(--h-pulse-cyan)" stop-opacity="0" />
+              <stop offset="0%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0" />
             </linearGradient>
           </defs>
 
@@ -98,9 +98,9 @@ defmodule HolterWeb.MonitoringComponents do
     70 - clamped / 1000 * 60
   end
 
-  defp log_status_color(:down), do: "var(--h-pulse-rose)"
-  defp log_status_color(:compromised), do: "#8b5cf6"
-  defp log_status_color(:degraded), do: "#f59e0b"
-  defp log_status_color(:unknown), do: "#64748b"
-  defp log_status_color(_), do: "var(--h-pulse-rose)"
+  defp log_status_color(:down), do: "var(--color-status-down)"
+  defp log_status_color(:compromised), do: "var(--color-status-compromised)"
+  defp log_status_color(:degraded), do: "var(--color-status-degraded)"
+  defp log_status_color(:unknown), do: "var(--color-status-unknown)"
+  defp log_status_color(_), do: "var(--color-status-down)"
 end
