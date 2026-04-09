@@ -86,7 +86,6 @@
   background: var(--color-bg-muted);
   color: var(--color-text);
   text-decoration: none;
-  font-size: var(--font-size-xl);
   transition: background var(--transition-base);
 }
 
