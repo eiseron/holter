@@ -449,7 +449,7 @@ msgstr "Esta verificação não capturou novas evidências. Mostrando a evidênc
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "To"
-msgstr "Para"
+msgstr "Até"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #, elixir-autogen, elixir-format
