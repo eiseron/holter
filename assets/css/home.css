@@ -24,18 +24,18 @@
 }
 
 .h-container {
-  padding: 2.5rem 1rem;
+  padding: var(--space-10) var(--space-4);
 
   @media (min-width: 640px) {
-    padding: 7rem 1.5rem;
+    padding: 7rem var(--space-6);
   }
 
   @media (min-width: 1024px) {
-    padding-inline: 2rem;
+    padding-inline: var(--space-8);
   }
 
   @media (min-width: 1280px) {
-    padding: 8rem 7rem;
+    padding: var(--space-12) 7rem;
   }
 }
 
@@ -49,7 +49,7 @@
 }
 
 .h-home-header {
-  margin-top: 2.5rem;
+  margin-top: var(--space-10);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -57,7 +57,7 @@
   h1 {
     display: flex;
     align-items: center;
-    font-size: 0.875rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
     line-height: 1.5rem;
   }
@@ -65,20 +65,20 @@
 
 .h-badge {
   display: inline-flex;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
-  border-radius: 9999px;
-  margin-left: 0.75rem;
-  
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-badge);
+  margin-left: var(--space-3);
+
   &.h-badge-warning {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: var(--color-badge-warning-bg);
+    color: var(--color-badge-warning-text);
   }
 }
 
 .h-hero-title {
   font-size: 2rem;
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   font-weight: 600;
   line-height: 2.5rem;
   letter-spacing: -0.05em;
@@ -86,47 +86,47 @@
 }
 
 .h-hero-description {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   line-height: 1.75rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .h-grid-links {
-  margin-top: 2.5rem;
+  margin-top: var(--space-10);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: var(--space-4);
 
   @media (min-width: 640px) {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: var(--space-6);
   }
 }
 
 .h-card-link {
   position: relative;
   border-radius: var(--radius-box);
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-base);
   font-weight: 600;
   line-height: 1.5rem;
   text-decoration: none;
   display: block;
 
   @media (min-width: 640px) {
-    padding: 1.5rem;
+    padding: var(--space-6);
   }
 
   .h-card-bg {
     position: absolute;
     inset: 0;
     border-radius: var(--radius-box);
-    background-color: var(--color-base-200);
-    transition: all 0.2s;
+    background-color: var(--color-bg-subtle);
+    transition: all var(--transition-base);
   }
 
   &:hover .h-card-bg {
-    background-color: #e2e8f0;
+    background-color: var(--color-border);
 
     @media (min-width: 640px) {
       transform: scale(1.05);
@@ -137,7 +137,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
 
     @media (min-width: 640px) {
       flex-direction: column;
@@ -151,11 +151,11 @@
 }
 
 .h-community-links {
-  margin-top: 2.5rem;
+  margin-top: var(--space-10);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  font-size: 0.875rem;
+  gap: var(--space-4);
+  font-size: var(--font-size-base);
   line-height: 1.5rem;
 
   @media (min-width: 640px) {
@@ -166,25 +166,25 @@
 .h-community-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.125rem 0.5rem;
-  margin-inline: -0.5rem;
-  border-radius: 0.5rem;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  margin-inline: calc(-1 * var(--space-2));
+  border-radius: var(--radius-field);
   text-decoration: none;
-  color: #475569;
+  color: var(--color-text-muted);
 
   &:hover {
-    background-color: var(--color-base-200);
-    color: var(--color-base-content);
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text);
   }
 
   svg {
     width: 1rem;
     height: 1rem;
-    fill: #94a3b8;
+    fill: var(--color-text-subtle);
   }
 
   &:hover svg {
-    fill: #475569;
+    fill: var(--color-text-muted);
   }
 }

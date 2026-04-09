@@ -7,19 +7,19 @@
 .h-tooltip-text {
   visibility: hidden;
   width: 260px;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--color-monitor-bg);
+  color: var(--color-text-inverse);
   text-align: center;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-field);
+  padding: var(--space-2) var(--space-3);
   position: absolute;
   z-index: 10;
   bottom: 150%;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
-  transition: opacity 0.3s;
-  font-size: 0.85rem;
+  transition: opacity var(--transition-slow);
+  font-size: var(--font-size-sm);
   font-weight: normal;
   line-height: 1.4;
 }
@@ -32,7 +32,7 @@
   transform: translateX(-50%);
   border-width: 5px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent;
+  border-color: var(--color-monitor-bg) transparent transparent transparent;
 }
 
 .h-tooltip-wrapper:hover .h-tooltip-text {

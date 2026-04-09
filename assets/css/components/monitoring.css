@@ -1,33 +1,24 @@
 /* Premium Monitoring UI - Slate 900 Theme */
 
-:root {
-  --h-pulse-sky: #0ea5e9;
-  --h-pulse-cyan: #22d3ee;
-  --h-pulse-rose: #f43f5e;
-  --h-glass-bg: rgba(15, 23, 42, 0.8);
-  --h-glass-border: rgba(255, 255, 255, 0.1);
-  --h-card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
 .monitor-dashboard-premium {
-  background-color: #0f172a; /* Slate 900 */
+  background-color: var(--color-monitor-bg);
   min-height: 100vh;
-  padding: 2rem;
-  color: #f1f5f9;
+  padding: var(--space-8);
+  color: var(--color-monitor-text);
 }
 
 .dashboard-header-premium {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-12);
 }
 
 .dashboard-header-premium h1 {
-  font-family: 'Roboto Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(to right, #f1f5f9, #94a3b8);
+  background: linear-gradient(to right, var(--prim-slate-100), var(--prim-slate-400));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -36,17 +27,17 @@
 .pulse-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .monitor-card-premium {
-  background: var(--h-glass-bg);
+  background: var(--color-monitor-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--h-glass-border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--color-monitor-border);
+  border-radius: var(--radius-box);
+  padding: var(--space-6);
+  transition: all var(--transition-cubic);
   position: relative;
   overflow: hidden;
   text-decoration: none;
@@ -55,21 +46,21 @@
 
 .monitor-card-premium:hover {
   transform: translateY(-4px) scale(1.02);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: var(--h-card-shadow);
+  border-color: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
+  box-shadow: var(--shadow-glass);
 }
 
 .sparkline-container {
   height: 80px;
   width: 100%;
-  margin: 1.5rem 0;
+  margin: var(--space-6) 0;
   position: relative;
 }
 
 .sparkline-svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.3));
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-monitor-pulse-primary) 30%, transparent));
 }
 
 .sparkline-area {
@@ -83,15 +74,15 @@
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.2);
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
   letter-spacing: 0.05em;
   pointer-events: none;
 }
 
 .sparkline-line {
   fill: none;
-  stroke: var(--h-pulse-sky);
+  stroke: var(--color-monitor-pulse-primary);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -101,20 +92,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: #94a3b8;
+  margin-top: var(--space-4);
+  font-size: var(--font-size-base);
+  color: var(--color-monitor-text-muted);
 }
 
 /* Pagination Controls */
 .history-controls {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: var(--space-4);
+  right: var(--space-4);
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-base);
 }
 
 .monitor-card-premium:hover .history-controls {
@@ -122,35 +113,35 @@
 }
 
 .history-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--color-monitor-text) 10%, transparent);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-field);
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: white;
-  transition: background 0.2s;
+  color: var(--color-monitor-text);
+  transition: background var(--transition-base);
 }
 
 .history-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
 }
 
 /* Pulse Badge */
 .h-health-pulse-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-badge);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   letter-spacing: 0.05em;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--color-monitor-text) 5%, transparent);
+  border: 1px solid var(--color-monitor-border);
 }
 
 .pulse-dot {
@@ -173,31 +164,62 @@
   100% { transform: scale(2.5); opacity: 0; }
 }
 
-.h-status-up .pulse-dot, .h-status-up .pulse-dot::after { background: #10b981; }
-.h-status-down .pulse-dot, .h-status-down .pulse-dot::after { background: #f43f5e; }
-.h-status-degraded .pulse-dot, .h-status-degraded .pulse-dot::after { background: #f59e0b; }
-.h-status-compromised .pulse-dot, .h-status-compromised .pulse-dot::after { background: #8b5cf6; }
-.h-status-unknown .pulse-dot, .h-status-unknown .pulse-dot::after { background: #64748b; }
+/* Status overrides scoped to the dark dashboard context */
+.monitor-dashboard-premium {
+  .h-status-up .pulse-dot,
+  .h-status-up .pulse-dot::after { background: var(--color-status-up); }
 
-.h-status-up { color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
-.h-status-down { color: #fb7185; border-color: rgba(244, 63, 94, 0.2); }
-.h-status-degraded { color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
-.h-status-compromised { color: #a78bfa; border-color: rgba(139, 92, 246, 0.2); }
-.h-status-unknown { color: #94a3b8; border-color: rgba(100, 116, 139, 0.2); }
+  .h-status-down .pulse-dot,
+  .h-status-down .pulse-dot::after { background: var(--color-status-down); }
+
+  .h-status-degraded .pulse-dot,
+  .h-status-degraded .pulse-dot::after { background: var(--color-status-degraded); }
+
+  .h-status-compromised .pulse-dot,
+  .h-status-compromised .pulse-dot::after { background: var(--color-status-compromised); }
+
+  .h-status-unknown .pulse-dot,
+  .h-status-unknown .pulse-dot::after { background: var(--color-status-unknown); }
+
+  .h-status-up {
+    color: var(--color-status-up-light);
+    border-color: color-mix(in srgb, var(--color-status-up) 20%, transparent);
+  }
+
+  .h-status-down {
+    color: var(--color-status-down-light);
+    border-color: color-mix(in srgb, var(--color-status-down) 20%, transparent);
+  }
+
+  .h-status-degraded {
+    color: var(--color-status-degraded-light);
+    border-color: color-mix(in srgb, var(--color-status-degraded) 20%, transparent);
+  }
+
+  .h-status-compromised {
+    color: var(--color-status-compromised-light);
+    border-color: color-mix(in srgb, var(--color-status-compromised) 20%, transparent);
+  }
+
+  .h-status-unknown {
+    color: var(--color-status-unknown-light);
+    border-color: color-mix(in srgb, var(--color-status-unknown) 20%, transparent);
+  }
+}
 
 /* Logs Filtering & Pagination Components */
 .h-logs-filters {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--h-glass-bg);
+  margin-bottom: var(--space-8);
+  padding: var(--space-4);
+  background: var(--color-monitor-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--h-glass-border);
-  border-radius: 0.75rem;
+  border: 1px solid var(--color-monitor-border);
+  border-radius: var(--radius-box);
 }
 
 .h-logs-pagination {
-  margin-top: 2rem;
+  margin-top: var(--space-8);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -205,11 +227,11 @@
 
 .h-pagination-nav {
   display: flex;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .h-pagination-btn {
-  padding: 0.25rem 0.75rem;
+  padding: var(--space-1) var(--space-3);
   min-width: 2.5rem;
   text-align: center;
 }

@@ -1,16 +1,214 @@
+/* ===================================================
+   HOLTER DESIGN SYSTEM — CSS TOKENS
+   ===================================================
+   Estrutura em 3 camadas:
+   1. Primitivos  — valores brutos da paleta (hex/rgba)
+   2. Semânticos  — aliases por propósito/contexto
+   3. Escala      — tipografia, espaçamento, radius, sombras, transições
+
+   Para mudar o tema globalmente: edite apenas as camadas
+   Primitivos e Semânticos. Nenhum componente precisa ser tocado.
+   =================================================== */
+
 :root {
-  --color-primary: #29d;
-  --color-primary-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f8fafc;
-  --color-base-content: #1e293b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
-  
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-4: 1rem;
+
+  /* ── 1. PRIMITIVOS ────────────────────────────────
+     Valores brutos. Não use diretamente nos componentes.
+     Altere aqui para mudar a paleta base.
+     ──────────────────────────────────────────────── */
+
+  /* Neutros — escala Slate */
+  --prim-white:      #ffffff;
+  --prim-slate-50:   #f8fafc;
+  --prim-slate-100:  #f1f5f9;
+  --prim-slate-200:  #e2e8f0;
+  --prim-slate-400:  #94a3b8;
+  --prim-slate-500:  #64748b;
+  --prim-slate-600:  #475569;
+  --prim-slate-700:  #334155;
+  --prim-slate-800:  #1e293b;
+  --prim-slate-900:  #0f172a;
+
+  /* Acento / Marca */
+  --prim-sky-400:    #38bdf8;
+  --prim-sky-500:    #0ea5e9;
+  --prim-cyan-400:   #22d3ee;
+  --prim-blue-500:   #3b82f6;
+
+  /* Status — Verde (up) */
+  --prim-green-400:  #34d399;
+  --prim-green-500:  #10b981;
+  --prim-green-tint: #e8f5e9;
+  --prim-green-dark: #2e7d32;
+
+  /* Status — Rosa/Vermelho (down / erro) */
+  --prim-rose-400:   #fb7185;
+  --prim-rose-500:   #f43f5e;
+  --prim-red-500:    #ef4444;
+  --prim-red-tint:   #ffebee;
+  --prim-red-dark:   #d32f2f;
+  --prim-red-900:    #450a0a;
+  --prim-red-light:  #fca5a5;
+  --prim-red-border: #7f1d1d;
+
+  /* Status — Âmbar (degraded) */
+  --prim-amber-100:  #fef3c7;
+  --prim-amber-400:  #fbbf24;
+  --prim-amber-500:  #f59e0b;
+  --prim-amber-800:  #92400e;
+  --prim-amber-tint: #fff8e1;
+  --prim-amber-dark: #f57f17;
+
+  /* Status — Roxo (compromised) */
+  --prim-purple-400: #a78bfa;
+  --prim-purple-500: #8b5cf6;
+  --prim-purple-tint:#f3e5f5;
+  --prim-purple-dark:#7b1fa2;
+
+  /* Status — Cinza (unknown) */
+  --prim-gray-tint:  #f5f5f5;
+  --prim-gray-dark:  #616161;
+
+  /* Surface escura — painel de monitoring */
+  --prim-monitor-bg:           #0f172a;
+  --prim-monitor-glass:        rgba(15, 23, 42, 0.8);
+  --prim-monitor-glass-border: rgba(255, 255, 255, 0.1);
+
+
+  /* ── 2. SEMÂNTICOS ────────────────────────────────
+     Aliases por propósito. Use estes nos componentes.
+     Altere os valores aqui para reestilizar temas.
+     ──────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --color-bg:           var(--prim-white);
+  --color-bg-subtle:    var(--prim-slate-50);
+  --color-bg-muted:     var(--prim-slate-100);
+
+  /* Surfaces — cards, painéis, modais */
+  --color-surface:        var(--prim-white);
+  --color-surface-raised: var(--prim-slate-50);
+  --color-overlay:        rgba(0, 0, 0, 0.6);
+
+  /* Texto */
+  --color-text:         var(--prim-slate-800);
+  --color-text-muted:   var(--prim-slate-500);
+  --color-text-subtle:  var(--prim-slate-400);
+  --color-text-inverse: var(--prim-white);
+
+  /* Bordas */
+  --color-border:        var(--prim-slate-200);
+  --color-border-subtle: var(--prim-slate-100);
+
+  /* Acento / Marca */
+  --color-accent:         var(--prim-sky-500);
+  --color-accent-hover:   var(--prim-sky-400);
+  --color-accent-content: var(--prim-white);
+
+  /* Feedback */
+  --color-info:          var(--prim-blue-500);
+  --color-error:         var(--prim-red-500);
+  --color-error-content: var(--prim-white);
+
+  /* Badge de aviso */
+  --color-badge-warning-bg:   var(--prim-amber-100);
+  --color-badge-warning-text: var(--prim-amber-800);
+
+  /* Status de monitor — variantes para contexto claro (light pills) */
+  --color-status-up:             var(--prim-green-500);
+  --color-status-up-light:       var(--prim-green-400);
+  --color-status-up-bg:          var(--prim-green-tint);
+  --color-status-up-text:        var(--prim-green-dark);
+
+  --color-status-down:           var(--prim-rose-500);
+  --color-status-down-light:     var(--prim-rose-400);
+  --color-status-down-bg:        var(--prim-red-tint);
+  --color-status-down-text:      var(--prim-red-dark);
+
+  --color-status-degraded:       var(--prim-amber-500);
+  --color-status-degraded-light: var(--prim-amber-400);
+  --color-status-degraded-bg:    var(--prim-amber-tint);
+  --color-status-degraded-text:  var(--prim-amber-dark);
+
+  --color-status-compromised:        var(--prim-purple-500);
+  --color-status-compromised-light:  var(--prim-purple-400);
+  --color-status-compromised-bg:     var(--prim-purple-tint);
+  --color-status-compromised-text:   var(--prim-purple-dark);
+
+  --color-status-unknown:        var(--prim-slate-500);
+  --color-status-unknown-light:  var(--prim-slate-400);
+  --color-status-unknown-bg:     var(--prim-gray-tint);
+  --color-status-unknown-text:   var(--prim-gray-dark);
+
+  /* Painel de monitoring — surface escura */
+  --color-monitor-bg:              var(--prim-monitor-bg);
+  --color-monitor-surface:         var(--prim-monitor-glass);
+  --color-monitor-border:          var(--prim-monitor-glass-border);
+  --color-monitor-text:            var(--prim-white);
+  --color-monitor-text-muted:      var(--prim-slate-400);
+  --color-monitor-pulse-primary:   var(--prim-sky-500);
+  --color-monitor-pulse-secondary: var(--prim-cyan-400);
+  --color-monitor-pulse-alert:     var(--prim-rose-500);
+
+  /* Blocos de evidência — código/pre em fundo escuro */
+  --color-evidence-bg:           var(--prim-slate-900);
+  --color-evidence-text:         var(--prim-slate-100);
+  --color-evidence-border:       var(--prim-slate-800);
+  --color-evidence-scroll:       var(--prim-slate-700);
+  --color-evidence-error-bg:     var(--prim-red-900);
+  --color-evidence-error-text:   var(--prim-red-light);
+  --color-evidence-error-border: var(--prim-red-border);
+
+
+  /* ── 3. ESCALA ────────────────────────────────────
+     Tokens de layout e tipografia.
+     ──────────────────────────────────────────────── */
+
+  /* Tipografia — famílias */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Roboto Mono', monospace;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+
+  /* Tipografia — tamanhos */
+  --font-size-xs:      0.6875rem; /* 11px — timestamps, metadata */
+  --font-size-sm:      0.75rem;   /* 12px */
+  --font-size-base:    0.875rem;  /* 14px — corpo, labels */
+  --font-size-md:      1rem;      /* 16px */
+  --font-size-lg:      1.1rem;    /* ~18px */
+  --font-size-xl:      1.25rem;   /* 20px */
+  --font-size-2xl:     1.5rem;    /* 24px */
+  --font-size-display: 3.5rem;    /* 56px */
+
+  /* Espaçamento */
+  --space-1:  0.25rem;  /*  4px */
+  --space-2:  0.5rem;   /*  8px */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+
+  /* Border Radius */
+  --radius-none:  0;
+  --radius-sm:    0.25rem;
+  --radius-field: 0.5rem;    /* inputs, botões */
+  --radius-box:   0.75rem;   /* cards, painéis */
+  --radius-badge: 9999px;    /* pills, badges */
+
+  /* Sombras */
+  --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.2);
+  --shadow-card:  0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  /* Transições */
+  --transition-fast:  150ms linear;
+  --transition-base:  200ms ease;
+  --transition-slow:  300ms ease;
+  --transition-cubic: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
