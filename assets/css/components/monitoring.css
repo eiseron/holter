@@ -50,6 +50,12 @@
   box-shadow: var(--shadow-glass);
 }
 
+/* O div do título precisa de min-width: 0 para o truncate funcionar em flex */
+.monitor-card-premium header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
 .sparkline-container {
   height: 80px;
   width: 100%;
