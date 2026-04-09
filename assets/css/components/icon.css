@@ -1,11 +1,5 @@
-.h-icon-size-4 {
-  width: 1rem;
-  height: 1rem;
-  display: inline-block;
-}
-
-.h-icon-size-5 {
-  width: 1.25rem;
-  height: 1.25rem;
-  display: inline-block;
-}
+.h-icon-size-4  { width: 1rem;    height: 1rem;    display: inline-block; }
+.h-icon-size-5  { width: 1.25rem; height: 1.25rem; display: inline-block; }
+.h-icon-size-6  { width: 1.5rem;  height: 1.5rem;  display: inline-block; }
+.h-icon-size-8  { width: 2rem;    height: 2rem;    display: inline-block; }
+.h-icon-size-12 { width: 3rem;    height: 3rem;    display: inline-block; }

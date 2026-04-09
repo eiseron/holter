@@ -1,0 +1,68 @@
+/* ===================================================
+   HOLTER UTILITIES — Classes de propósito único
+   ===================================================
+   Atomic, single-responsibility classes.
+   Não coloque lógica de componente aqui.
+   =================================================== */
+
+/* ── Layout ──────────────────────────────────────── */
+.h-flex             { display: flex; }
+.h-flex-1           { flex: 1; }
+.h-self-start       { align-self: flex-start; }
+.h-items-center     { align-items: center; }
+.h-items-start      { align-items: flex-start; }
+.h-justify-between  { justify-content: space-between; }
+.h-justify-end      { justify-content: flex-end; }
+.h-gap-3            { gap: var(--space-3); }
+.h-gap-4            { gap: var(--space-4); }
+.h-flex-gap-4       { display: flex; gap: var(--space-4); }
+
+/* ── Espaçamento ─────────────────────────────────── */
+.h-mt-1 { margin-top: var(--space-1); }
+.h-mt-4 { margin-top: var(--space-4); }
+.h-mt-8 { margin-top: var(--space-8); }
+
+/* ── Tipografia ──────────────────────────────────── */
+.h-font-bold     { font-weight: 700; }
+.h-font-semibold { font-weight: 600; }
+.h-font-mono     { font-family: var(--font-mono); }
+.h-text-xs       { font-size: var(--font-size-xs); }
+.h-text-sm       { font-size: var(--font-size-sm); }
+.h-text-lg       { font-size: var(--font-size-lg); }
+
+/* ── Truncamento & Dimensionamento ───────────────── */
+.h-truncate  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-max-w-xs  { max-width: 20rem; }
+
+/* ── Cores de texto ──────────────────────────────── */
+.h-text-accent  { color: var(--color-accent); }
+.h-text-sky-400 { color: var(--color-accent); } /* alias semântico de h-text-accent */
+.h-text-muted   { color: var(--color-text-muted); }
+.h-text-success { color: var(--color-status-up); font-weight: bold; }
+.h-text-error   { color: var(--color-error); font-weight: bold; }
+
+/* ── Opacidade ───────────────────────────────────── */
+.h-opacity-20 { opacity: 0.2; }
+.h-opacity-40 { opacity: 0.4; }
+.h-opacity-50 { opacity: 0.5; }
+.h-opacity-60 { opacity: 0.6; }
+
+/* ── Interação ───────────────────────────────────── */
+.h-cursor-pointer          { cursor: pointer; }
+.h-hover-underline:hover   { text-decoration: underline; }
+
+/* ── Grupo (hover em filho) ──────────────────────── */
+.h-group:hover .h-group-hover-opacity-70 { opacity: 0.7; }
+
+/* ── Acessibilidade ──────────────────────────────── */
+.h-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

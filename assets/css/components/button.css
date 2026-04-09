@@ -22,14 +22,20 @@
   &.h-btn-primary {
     background-color: var(--color-accent);
     color: var(--color-accent-content);
+  }
 
-    &.h-btn-soft {
-      background-color: color-mix(in srgb, var(--color-accent), transparent 85%);
-      color: var(--color-accent);
+  &.h-btn-soft {
+    background-color: color-mix(in srgb, var(--color-accent), transparent 85%);
+    color: var(--color-accent);
 
-      &:hover {
-        background-color: color-mix(in srgb, var(--color-accent), transparent 75%);
-      }
+    &:hover {
+      background-color: color-mix(in srgb, var(--color-accent), transparent 75%);
+      opacity: 1;
     }
+  }
+
+  &.h-btn-danger {
+    background-color: var(--color-error);
+    color: var(--color-error-content);
   }
 }

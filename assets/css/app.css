@@ -1,6 +1,7 @@
 /* Main application CSS */
 @import "./variables.css";
 @import "./base.css";
+@import "./utilities.css";
 @import "./components/button.css";
 @import "./components/form.css";
 @import "./components/table.css";

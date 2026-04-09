@@ -70,10 +70,6 @@
   padding-top: var(--space-6);
 }
 
-.h-justify-end {
-  justify-content: flex-end;
-}
-
 .h-title-row {
   display: flex;
   align-items: center;
@@ -113,26 +109,10 @@
   &.h-status-unknown    { background: var(--color-status-unknown-bg);     color: var(--color-status-unknown-text); }
 }
 
-.h-text-success {
-  color: var(--color-status-up);
-  font-weight: bold;
-}
-
-.h-text-error {
-  color: var(--color-error);
-  font-weight: bold;
-}
-
-.h-text-muted {
+.h-empty-state {
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
   color: var(--color-text-muted);
-}
-
-.h-font-mono {
-  font-family: var(--font-mono);
-}
-
-.h-mt-8 {
-  margin-top: var(--space-8);
 }
 
 .h-evidence-grid {
