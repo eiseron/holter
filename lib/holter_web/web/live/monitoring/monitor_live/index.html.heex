@@ -24,14 +24,14 @@
     <% else %>
       <%= for monitor <- @monitors do %>
         <div class="monitor-card-premium">
-          <header class="h-flex h-justify-between h-items-start">
-            <div>
-              <h3 class="h-font-bold h-text-lg h-truncate h-max-w-xs" data-role="monitor-url">
-                {monitor.url}
-              </h3>
+          <header>
+            <h3 class="h-font-bold h-text-lg h-truncate" data-role="monitor-url">
+              {monitor.url}
+            </h3>
+            <div class="h-flex h-justify-between h-items-center h-mt-2">
               <p class="h-text-xs h-opacity-50">{monitor.method} • {monitor.interval_seconds}s</p>
+              <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
             </div>
-            <HolterWeb.MonitoringComponents.health_badge status={monitor.health_status} />
           </header>
 
           <HolterWeb.MonitoringComponents.sparkline monitor_id={monitor.id} logs={monitor.logs} />
