@@ -413,7 +413,7 @@ msgstr ""
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:4
 #, elixir-autogen, elixir-format
-msgid "Monitoring Pulse"
+msgid "Dashboard"
 msgstr ""
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:13
