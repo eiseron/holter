@@ -98,37 +98,19 @@
   background: var(--color-border);
 }
 
+/* Status — estilos scoped ao componente .h-status-pill */
 .h-status-pill {
   padding: 0.2rem var(--space-2);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
   font-weight: bold;
   display: inline-block;
-}
 
-.h-status-up {
-  background: var(--color-status-up-bg);
-  color: var(--color-status-up-text);
-}
-
-.h-status-down {
-  background: var(--color-status-down-bg);
-  color: var(--color-status-down-text);
-}
-
-.h-status-degraded {
-  background: var(--color-status-degraded-bg);
-  color: var(--color-status-degraded-text);
-}
-
-.h-status-compromised {
-  background: var(--color-status-compromised-bg);
-  color: var(--color-status-compromised-text);
-}
-
-.h-status-unknown {
-  background: var(--color-status-unknown-bg);
-  color: var(--color-status-unknown-text);
+  &.h-status-up         { background: var(--color-status-up-bg);          color: var(--color-status-up-text); }
+  &.h-status-down       { background: var(--color-status-down-bg);        color: var(--color-status-down-text); }
+  &.h-status-degraded   { background: var(--color-status-degraded-bg);    color: var(--color-status-degraded-text); }
+  &.h-status-compromised{ background: var(--color-status-compromised-bg); color: var(--color-status-compromised-text); }
+  &.h-status-unknown    { background: var(--color-status-unknown-bg);     color: var(--color-status-unknown-text); }
 }
 
 .h-text-success {
