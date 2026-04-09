@@ -7,8 +7,10 @@ defmodule Holter.Monitoring.Monitor do
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
   def http_methods, do: @http_methods
 
-  @check_interval_seconds [60, 300, 600]
-  def check_interval_seconds, do: @check_interval_seconds
+  @interval_min_seconds 60
+  @interval_max_seconds 3600
+  def interval_min_seconds, do: @interval_min_seconds
+  def interval_max_seconds, do: @interval_max_seconds
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

@@ -2,6 +2,9 @@ defmodule HolterWeb.MonitoringComponents do
   @moduledoc false
   use HolterWeb, :html
 
+  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Monitor
+
   attr :navigate, :string, required: true
 
   def back_link(assigns) do
@@ -271,7 +274,7 @@ defmodule HolterWeb.MonitoringComponents do
         </:col>
         <:col :let={metric} label={gettext("Uptime (%)")}>
           <span class={
-            if Holter.Monitoring.DailyMetric.uptime_healthy?(metric),
+            if DailyMetric.uptime_healthy?(metric),
               do: "h-text-success",
               else: "h-text-error"
           }>
@@ -313,7 +316,7 @@ defmodule HolterWeb.MonitoringComponents do
             type="select"
             label={gettext("Method")}
             options={
-              Holter.Monitoring.Monitor.http_methods()
+              Monitor.http_methods()
               |> Enum.map(fn m -> {String.upcase(to_string(m)), to_string(m)} end)
             }
             required
@@ -408,16 +411,24 @@ defmodule HolterWeb.MonitoringComponents do
       <h3 class="h-fieldset-legend">{gettext("Interval Defaults")}</h3>
       <div class={"h-form-grid #{if @show_logical_state, do: "h-grid-cols-3", else: "h-grid-cols-2"}"}>
         <div>
-          <.input
-            field={@form[:interval_seconds]}
-            type="select"
-            label={gettext("Check Interval")}
-            options={
-              Holter.Monitoring.Monitor.check_interval_seconds()
-              |> Enum.map(fn s -> {interval_label(s), s} end)
-            }
-            required
-          />
+          <label class="h-label-text">{gettext("Check Interval")}</label>
+          <div class="h-range-field">
+            <input
+              type="range"
+              id={@form[:interval_seconds].id}
+              name={@form[:interval_seconds].name}
+              min={Monitor.interval_min_seconds()}
+              max={Monitor.interval_max_seconds()}
+              step="60"
+              value={field_integer(@form[:interval_seconds])}
+              class="h-range-input"
+              phx-debounce="300"
+              oninput="this.nextElementSibling.textContent = (this.value / 60) + ' min'"
+            />
+            <span class="h-range-value">
+              {div(field_integer(@form[:interval_seconds]), 60)} min
+            </span>
+          </div>
           <p class="h-help-text">
             {gettext("How frequently our worker nodes will ping your URL.")}
           </p>
@@ -449,10 +460,13 @@ defmodule HolterWeb.MonitoringComponents do
     """
   end
 
-  defp interval_label(60), do: gettext("1 Minute")
-  defp interval_label(300), do: gettext("5 Minutes")
-  defp interval_label(600), do: gettext("10 Minutes")
-  defp interval_label(n), do: "#{n}s"
+  defp field_integer(field) do
+    case field.value do
+      v when is_integer(v) -> v
+      v when is_binary(v) -> String.to_integer(v)
+      _ -> Monitor.interval_min_seconds()
+    end
+  end
 
   defp calculate_path([]), do: ""
 

@@ -88,3 +88,53 @@
 .h-form-item-fixed {
   flex: 0 0 auto;
 }
+
+.h-range-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.h-range-input {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  border-radius: var(--radius-badge);
+  background: var(--color-border);
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+    transition: background var(--transition-base), transform var(--transition-base);
+  }
+
+  &::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+  }
+
+  &:focus::-webkit-slider-thumb {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent), transparent 75%);
+  }
+}
+
+.h-range-value {
+  min-width: 4rem;
+  text-align: right;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+}
