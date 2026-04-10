@@ -27,8 +27,6 @@
 @import "./components/monitoring/daily_metrics_section.css";
 @import "./components/monitoring/logs.css";
 
-/* Pages */
-@import "./pages/home.css";
 
 /* Global overrides for structural components */
 .hidden { display: none !important; }

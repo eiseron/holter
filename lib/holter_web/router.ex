@@ -15,12 +15,6 @@ defmodule HolterWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
   end
 
-  scope "/", HolterWeb.Web do
-    pipe_through :browser
-
-    get "/", PageController, :home
-  end
-
   scope "/api/v1/workspaces/:workspace_slug", HolterWeb.Api do
     pipe_through :api
 
