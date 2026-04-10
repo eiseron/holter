@@ -1,12 +1,12 @@
 .h-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--color-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  transition: opacity 0.3s;
+  transition: opacity var(--transition-slow);
 }
 
 .h-modal-overlay[hidden] {
@@ -14,11 +14,11 @@
 }
 
 .h-modal-content {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-box);
   overflow: hidden;
-  animation: modalSlideIn 0.3s ease-out forwards;
+  animation: modalFadeIn var(--transition-slow) linear forwards;
   max-width: 500px;
   width: 90%;
 }
@@ -33,12 +33,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .h-modal-header h2 {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   font-weight: 600;
   margin: 0;
 }
@@ -47,23 +47,23 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .h-modal-body {
-  padding: 1.5rem;
+  padding: var(--space-6);
 }
 
 .h-modal-footer {
-  padding: 1.5rem;
-  background: #fafafa;
-  border-top: 1px solid #f0f0f0;
+  padding: var(--space-6);
+  background: var(--color-surface-raised);
+  border-top: 1px solid var(--color-border-subtle);
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
-@keyframes modalSlideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

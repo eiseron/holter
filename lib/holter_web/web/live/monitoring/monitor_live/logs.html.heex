@@ -1,12 +1,7 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row" data-role="page-title">
-      <.link
-        navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"}
-        class="h-btn-back"
-      >
-        &larr;
-      </.link>
+      <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"} />
       {gettext("Technical Logs")}
     </div>
 
@@ -63,16 +58,7 @@
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
       <:col :let={log} label={gettext("Status")}>
-        <span
-          class={"h-status-pill h-status-#{log.status}"}
-          data-role="log-status"
-          data-status={log.status}
-        >
-          {log.status |> to_string() |> String.upcase()}
-          <%= if log.status_code do %>
-            ({log.status_code})
-          <% end %>
-        </span>
+        <.status_pill status={log.status} status_code={log.status_code} />
       </:col>
       <:col :let={log} label={gettext("Latency")}>
         {log.latency_ms}ms
@@ -88,69 +74,13 @@
       </:col>
     </.table>
 
-    <div class="h-logs-pagination">
-      <div class="h-text-muted h-text-sm" data-role="page-info">
-        {gettext("Page %{page_number} of %{total_pages}",
-          page_number: @page_number,
-          total_pages: @total_pages
-        )}
-      </div>
-      <nav class="h-pagination-nav">
-        <.link
-          :if={@page_number > 1}
-          patch={
-            @patch_path <>
-              "?" <>
-              URI.encode_query(
-                @filters
-                |> Map.put(:page, @page_number - 1)
-                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                |> Enum.into(%{})
-              )
-          }
-          class="h-btn h-btn-soft h-pagination-btn"
-        >
-          &larr;
-        </.link>
-
-        <%= for p <- max(1, @page_number - 2)..min(@total_pages, @page_number + 2) do %>
-          <.link
-            patch={
-              @patch_path <>
-                "?" <>
-                URI.encode_query(
-                  @filters
-                  |> Map.put(:page, p)
-                  |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                  |> Enum.into(%{})
-                )
-            }
-            class={
-              "h-btn h-pagination-btn #{if p == @page_number, do: "h-btn-primary", else: "h-btn-soft"}"
-            }
-          >
-            {p}
-          </.link>
-        <% end %>
-
-        <.link
-          :if={@page_number < @total_pages}
-          patch={
-            @patch_path <>
-              "?" <>
-              URI.encode_query(
-                @filters
-                |> Map.put(:page, @page_number + 1)
-                |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" or k in [:id, :workspace_slug] end)
-                |> Enum.into(%{})
-              )
-          }
-          class="h-btn h-btn-soft h-pagination-btn"
-        >
-          &rarr;
-        </.link>
-      </nav>
-    </div>
+    <.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
   </div>
 </div>
 

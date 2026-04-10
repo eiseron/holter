@@ -108,7 +108,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&page=2&page_size=5"
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5&status=up"
       )
     end
 

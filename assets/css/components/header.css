@@ -1,27 +1,28 @@
 .h-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
-  
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-6);
+
   &.h-header-with-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
+    gap: var(--space-6);
   }
 }
 
 .h-header-title {
-  font-size: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xl);
   font-weight: 600;
   line-height: 2rem;
   margin: 0;
 }
 
 .h-header-subtitle {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
 }
 
 .h-header-actions {

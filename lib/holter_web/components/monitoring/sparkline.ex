@@ -1,8 +1,10 @@
-defmodule HolterWeb.MonitoringComponents do
+defmodule HolterWeb.Components.Monitoring.Sparkline do
   @moduledoc false
-  use Phoenix.Component
-  use Gettext, backend: HolterWeb.Gettext
+  use HolterWeb, :component
 
+  @doc """
+  Renders a latency sparkline SVG chart for a monitor's recent check logs.
+  """
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
 
@@ -13,7 +15,6 @@ defmodule HolterWeb.MonitoringComponents do
       assigns
       |> assign(:data_points, data_points)
       |> assign(:path, calculate_path(data_points))
-      |> assign(:area_path, calculate_area_path(data_points))
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
@@ -32,18 +33,6 @@ defmodule HolterWeb.MonitoringComponents do
         <p class="sparkline-no-data">{gettext("No data yet")}</p>
       <% else %>
         <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="var(--h-pulse-cyan)" stop-opacity="0.3" />
-              <stop offset="100%" stop-color="var(--h-pulse-cyan)" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-
-          <path
-            d={@area_path}
-            fill={"url(#sparkline-gradient-#{@monitor_id})"}
-            class="sparkline-area"
-          />
           <path d={@path} class="sparkline-line" />
 
           <%= for {point, index} <- Enum.with_index(@data_points) do %>
@@ -52,24 +41,13 @@ defmodule HolterWeb.MonitoringComponents do
                 cx={index * 10}
                 cy={normalize_y(point.latency_ms)}
                 r="3"
-                fill={log_status_color(point.status)}
+                fill={status_color(point.status)}
                 class="sparkline-error-marker"
               />
             <% end %>
           <% end %>
         </svg>
       <% end %>
-    </div>
-    """
-  end
-
-  attr :status, :atom, required: true
-
-  def health_badge(assigns) do
-    ~H"""
-    <div class={["h-health-pulse-badge", "h-status-#{@status}"]}>
-      <span class="pulse-dot"></span>
-      <span class="status-label">{String.upcase(to_string(@status))}</span>
     </div>
     """
   end
@@ -83,14 +61,6 @@ defmodule HolterWeb.MonitoringComponents do
       end)
   end
 
-  defp calculate_area_path([]), do: ""
-
-  defp calculate_area_path(logs) do
-    path = calculate_path(logs)
-    last_x = (length(logs) - 1) * 10
-    path <> " L #{last_x},80 L 0,80 Z"
-  end
-
   defp normalize_y(nil), do: 75
 
   defp normalize_y(latency) do
@@ -98,9 +68,9 @@ defmodule HolterWeb.MonitoringComponents do
     70 - clamped / 1000 * 60
   end
 
-  defp log_status_color(:down), do: "var(--h-pulse-rose)"
-  defp log_status_color(:compromised), do: "#8b5cf6"
-  defp log_status_color(:degraded), do: "#f59e0b"
-  defp log_status_color(:unknown), do: "#64748b"
-  defp log_status_color(_), do: "var(--h-pulse-rose)"
+  defp status_color(:down), do: "var(--color-status-down)"
+  defp status_color(:compromised), do: "var(--color-status-compromised)"
+  defp status_color(:degraded), do: "var(--color-status-degraded)"
+  defp status_color(:unknown), do: "var(--color-status-unknown)"
+  defp status_color(_), do: "var(--color-status-down)"
 end

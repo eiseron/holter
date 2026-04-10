@@ -413,8 +413,8 @@ msgstr "De"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:4
 #, elixir-autogen, elixir-format
-msgid "Monitoring Pulse"
-msgstr "Pulso de Monitoramento"
+msgid "Dashboard"
+msgstr "Dashboard"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:13
 #, elixir-autogen, elixir-format
@@ -428,8 +428,8 @@ msgstr "Sem dados ainda"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:22
 #, elixir-autogen, elixir-format
-msgid "No monitors heartbeat found in this workspace."
-msgstr "Nenhum batimento cardíaco de monitores encontrado neste workspace."
+msgid "No assets monitored. Add a domain to start the audit."
+msgstr "Nenhum ativo monitorado. Adicione um domínio para iniciar a auditoria."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:88
 #, elixir-autogen, elixir-format
@@ -449,7 +449,7 @@ msgstr "Esta verificação não capturou novas evidências. Mostrando a evidênc
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "To"
-msgstr "Para"
+msgstr "Até"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #, elixir-autogen, elixir-format

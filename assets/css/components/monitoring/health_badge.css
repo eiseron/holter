@@ -1,0 +1,70 @@
+.h-health-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-badge);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  animation: h-badge-pulse 2s infinite;
+}
+
+@keyframes h-badge-pulse {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.h-health-pulse-badge {
+  &.h-status-up {
+    background: var(--color-status-up);
+    color: var(--color-status-up-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-up-on-solid); }
+  }
+
+  &.h-status-down {
+    background: var(--color-status-down);
+    color: var(--color-status-down-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-down-on-solid); }
+  }
+
+  &.h-status-degraded {
+    background: var(--color-status-degraded);
+    color: var(--color-status-degraded-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-degraded-on-solid); }
+  }
+
+  &.h-status-compromised {
+    background: var(--color-status-compromised);
+    color: var(--color-status-compromised-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-compromised-on-solid); }
+  }
+
+  &.h-status-unknown {
+    background: var(--color-status-unknown);
+    color: var(--color-status-unknown-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-unknown-on-solid); }
+  }
+}

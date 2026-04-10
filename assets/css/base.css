@@ -1,9 +1,14 @@
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: var(--color-base-content);
-  background-color: var(--color-base-100);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
   line-height: 1.5;
   margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  margin-top: 0;
 }
 
 *, ::after, ::before {

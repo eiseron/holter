@@ -2,22 +2,136 @@ This is a web application written using the Phoenix web framework.
 
 ## Project guidelines
 
-- Use `mix precommit` alias when you are done with all changes and fix any pending issues
+- Use `docker compose exec holter mix precommit` when you are done with all changes and fix any pending issues. **Never** run mix commands outside the container.
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
 - **CSS Strategy**: All UI styling must be implemented strictly using pure, modern Vanilla CSS with native features (like CSS Grid, Flexbox, and CSS Variables). Write dedicated, semantic CSS classes and attach them to the HTML elements.
 
-### Phoenix v1.8 guidelines
+<!-- holter:ui-start -->
+## Holter UI & Component Architecture
 
-- **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
-- The `MyAppWeb.Layouts` module is aliased in the `my_app_web.ex` file, so you can use it without needing to alias it again
-- Anytime you run into errors with no `current_scope` assign:
-  - You failed to follow the Authenticated Routes guidelines, or you failed to pass `current_scope` to `<Layouts.app>`
-  - **Always** fix the `current_scope` error by moving your routes to the proper `live_session` and ensure you pass `current_scope` as needed
-- Phoenix v1.8 moved the `<.flash_group>` component to the `Layouts` module. You are **forbidden** from calling `<.flash_group>` outside of the `layouts.ex` module
-- Out of the box, `core_components.ex` imports an `<.icon name="hero-x-mark" class="w-5 h-5"/>` component for for hero icons. **Always** use the `<.icon>` component for icons, **never** use `Heroicons` modules or similar
-- **Always** use the imported `<.input>` component for form inputs from `core_components.ex` when available. `<.input>` is imported and using it will save steps and prevent errors
-- If you override the default input classes (`<.input class="myclass px-2 py-1 rounded-lg">)`) class with your own values, no default classes are inherited, so your
-custom classes must fully style the input
+### CSS Design System
+
+All CSS tokens live in `assets/css/variables.css` in three layers:
+1. **Primitivos** (`--prim-*`) — raw palette values. Never use directly in components.
+2. **Semânticos** (`--color-*`) — purpose aliases. Always use these in components.
+3. **Escala** (`--font-*`, `--space-*`, `--radius-*`, `--shadow-*`, `--transition-*`) — layout scale.
+
+To restyle the entire app, edit only layers 1 and 2 in `variables.css`. No component CSS file needs to change.
+
+All custom CSS classes use the `h-` prefix (e.g. `h-btn`, `h-input`, `h-table`). **Never** use Tailwind — it is not installed.
+
+**Sharp corners**: all `--radius-*` tokens are `0`. Do not add rounded corners to new components unless explicitly requested.
+
+### CSS File Structure
+
+Every CSS file must have a single component owner. The structure mirrors the Elixir component tree:
+
+```
+assets/css/components/          ←→  lib/holter_web/components/
+  back_link.css                       back_link.ex
+  button.css                          button.ex
+  empty_state.css                     empty_state.ex
+  flash.css                           flash.ex
+  header.css                          header.ex
+  icon.css                            icon.ex
+  input.css                           input.ex
+  list.css                            list.ex
+  modal.css                           modal.ex
+  pagination.css                      pagination.ex
+  table.css                           table.ex
+  tooltip.css                         tooltip.ex
+  monitoring/                         monitoring/
+    dashboard_header.css                dashboard_header.ex
+    health_badge.css                    health_badge.ex
+    logs.css                            (logs live view)
+    monitor_card.css                    monitor_card.ex
+    monitor_form_fields.css             monitor_form_fields.ex
+    daily_metrics_section.css           daily_metrics_section.ex
+    sparkline.css                       sparkline.ex
+    status_pill.css                     status_pill.ex
+```
+
+When creating a new component, always create its corresponding CSS file. When adding styles, always put them in the CSS file of the owning component.
+
+### Component Structure
+
+Components are split into individual files — there is **no monolithic `core_components.ex`**. Each component is its own module:
+
+- **Global components** (`lib/holter_web/components/*.ex`) — usable anywhere. Automatically imported via `use HolterWeb, :html`.
+- **Monitoring components** (`lib/holter_web/components/monitoring/*.ex`) — carry monitoring domain logic. Imported via `use HolterWeb, :monitoring_live_view`.
+
+**Rules:**
+- Each component lives in its own file. One file = one public component (private helpers are allowed in the same file).
+- **Templates are thin**: `.html.heex` files only mount components and inject assigns. No visual logic, no inline styles, no conditionals about presentation.
+- **Business logic lives in the domain**: thresholds, constants, and rules belong to the domain module (e.g. `Monitor.interval_min_seconds/0`, `DailyMetric.uptime_healthy?/1`), not in components.
+- **Visual logic lives in components**: status colors, CSS class decisions, layout — these belong in the component, not the live view.
+
+### Component Macros
+
+Use the correct macro for each module type:
+
+```elixir
+# Individual component files
+use HolterWeb, :component
+
+# Monitoring live views (index, show, new, logs)
+use HolterWeb, :monitoring_live_view
+
+# Generic live views and non-monitoring HTML modules
+use HolterWeb, :live_view
+use HolterWeb, :html
+```
+
+### Icons
+
+**Heroicons are NOT bundled.** The project does not include the `heroicons` dependency. `hero-*` CSS classes render as empty spans.
+
+**Always use inline SVGs for icons.** Never reference `hero-*` class names. Never use `<.icon name="hero-*">`.
+
+Example of the correct pattern:
+```heex
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="2"
+     stroke-linecap="round" stroke-linejoin="round">
+  <path d="M19 12H5M12 5l-7 7 7 7" />
+</svg>
+```
+
+### JS Transitions (show/hide)
+
+Phoenix LiveView's `show/2` and `hide/2` helpers in `HolterWeb.Components.Icon` use custom `h-js-*` CSS classes (defined in `utilities.css`) — **not Tailwind classes**. Always use these helpers as-is. Do not add Tailwind class names to transition tuples.
+
+### Form Inputs
+
+Always use `<.input>` from `HolterWeb.Components.Input`. It is automatically imported via `html_helpers`. Never build raw `<input>` tags directly in templates for user-facing fields.
+
+### i18n
+
+`gettext/1` is a compile-time macro that requires string literals. **Never** pass a variable to `gettext/1`. Labels must stay as string literals inside component files. Domain modules must never call `gettext`.
+
+### URL Encoding
+
+When building query strings from maps, always sort before encoding to guarantee deterministic output:
+
+```elixir
+filters
+|> Enum.sort_by(fn {k, _} -> to_string(k) end)
+|> URI.encode_query()
+```
+
+### Atom Safety
+
+Never use `String.to_atom/1` on external input (params, user data). Always use `String.to_existing_atom/1` with an explicit whitelist:
+
+```elixir
+@valid_keys ~w(status page page_size start_date end_date)
+defp normalize_params(params) do
+  for {k, v} <- params, k in @valid_keys, into: %{} do
+    {String.to_existing_atom(k), v}
+  end
+end
+```
+<!-- holter:ui-end -->
 
 
 <!-- usage-rules-start -->

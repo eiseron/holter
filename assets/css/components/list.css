@@ -7,9 +7,9 @@
 }
 
 .h-list-row {
-  padding: 1rem;
-  border-bottom: 1px solid #f1f5f9;
-  
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+
   &:last-child {
     border-bottom: none;
   }
@@ -18,15 +18,15 @@
 .h-list-col-grow {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .h-list-title {
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 .h-list-content {
-  font-size: 0.875rem;
-  color: #475569;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
 }

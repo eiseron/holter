@@ -1,18 +1,32 @@
 /* Main application CSS */
 @import "./variables.css";
 @import "./base.css";
+@import "./utilities.css";
+
+/* Global components */
+@import "./components/back_link.css";
 @import "./components/button.css";
-@import "./components/form.css";
-@import "./components/table.css";
+@import "./components/empty_state.css";
 @import "./components/flash.css";
 @import "./components/header.css";
-@import "./components/list.css";
 @import "./components/icon.css";
+@import "./components/input.css";
+@import "./components/list.css";
 @import "./components/modal.css";
+@import "./components/pagination.css";
+@import "./components/table.css";
 @import "./components/tooltip.css";
-@import "./components/monitor.css";
-@import "./components/monitoring.css";
-@import "./home.css";
+
+/* Monitoring components */
+@import "./components/monitoring/dashboard_header.css";
+@import "./components/monitoring/monitor_card.css";
+@import "./components/monitoring/sparkline.css";
+@import "./components/monitoring/health_badge.css";
+@import "./components/monitoring/status_pill.css";
+@import "./components/monitoring/monitor_form_fields.css";
+@import "./components/monitoring/daily_metrics_section.css";
+@import "./components/monitoring/logs.css";
+
 
 /* Global overrides for structural components */
 .hidden { display: none !important; }
