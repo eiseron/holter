@@ -181,6 +181,10 @@ defmodule Holter.Monitoring.Monitors do
     Monitor.changeset(monitor, attrs)
   end
 
+  def change_monitor(%Monitor{} = monitor, attrs, workspace) do
+    Monitor.changeset(monitor, attrs, workspace)
+  end
+
   def recalculate_health_status(%Monitor{id: id}) do
     monitor = get_monitor!(id)
     log_status = status_from_latest_log(monitor.id)

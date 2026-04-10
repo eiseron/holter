@@ -27,7 +27,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   def handle_event("validate", %{"monitor" => monitor_params}, socket) do
     changeset =
       %Monitor{}
-      |> Monitoring.change_monitor(monitor_params)
+      |> Monitoring.change_monitor(monitor_params, socket.assigns.workspace)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, form: to_form(changeset))}
