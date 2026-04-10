@@ -55,10 +55,6 @@
   --prim-blue-500:   #3b82f6;
 
   /* Status — Verde (up) */
-  --prim-green-400:  #34d399;
-  --prim-green-500:  #10b981;
-  --prim-green-tint: #e8f5e9;
-  --prim-green-dark: #2e7d32;
 
   /* Status — Rosa/Vermelho (down / erro) */
   --prim-rose-400:   #fb7185;
@@ -134,10 +130,10 @@
   --color-badge-warning-text: var(--prim-amber-800);
 
   /* Status — contexto claro (pills com tint de fundo) */
-  --color-status-up:             var(--prim-green-500);
-  --color-status-up-light:       var(--prim-green-400);
-  --color-status-up-bg:          var(--prim-green-tint);
-  --color-status-up-text:        var(--prim-green-dark);
+  --color-status-up:             var(--prim-cyber-blue);
+  --color-status-up-light:       color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
+  --color-status-up-bg:          rgba(55, 185, 255, 0.12);
+  --color-status-up-text:        var(--prim-cyber-blue);
 
   --color-status-down:           var(--prim-rose-500);
   --color-status-down-light:     var(--prim-rose-400);
