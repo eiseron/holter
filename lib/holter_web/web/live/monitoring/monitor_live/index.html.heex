@@ -1,14 +1,14 @@
 <div class="monitor-dashboard-premium">
-  <HolterWeb.MonitoringComponents.dashboard_header new_monitor_url={
-    ~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"
-  } />
+  <.dashboard_header new_monitor_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"} />
 
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>
-      <HolterWeb.MonitoringComponents.empty_state_dark />
+      <.empty_state class="h-empty-state-dark">
+        <p>{gettext("No monitors heartbeat found in this workspace.")}</p>
+      </.empty_state>
     <% else %>
       <%= for monitor <- @monitors do %>
-        <HolterWeb.MonitoringComponents.monitor_card
+        <.monitor_card
           monitor={monitor}
           detail_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{monitor.id}"}
         />

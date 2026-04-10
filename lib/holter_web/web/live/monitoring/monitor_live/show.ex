@@ -1,5 +1,5 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
-  use HolterWeb, :live_view
+  use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor

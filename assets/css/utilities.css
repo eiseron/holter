@@ -56,6 +56,19 @@
 /* ── Grupo (hover em filho) ──────────────────────── */
 .h-group:hover .h-group-hover-opacity-70 { opacity: 0.7; }
 
+/* ── JS Transitions (Phoenix LiveView show/hide) ─── */
+.h-js-transition     { transition-property: all; }
+.h-js-ease-out       { transition-timing-function: ease-out; }
+.h-js-ease-in        { transition-timing-function: ease-in; }
+.h-js-duration-300   { transition-duration: 300ms; }
+.h-js-duration-200   { transition-duration: 200ms; }
+.h-js-opacity-0      { opacity: 0; }
+.h-js-opacity-100    { opacity: 1; }
+.h-js-translate-y-0  { transform: translateY(0) scaleX(1) scaleY(1); }
+.h-js-translate-y-4  { transform: translateY(1rem) scaleX(0.95) scaleY(0.95); }
+.h-js-scale-95       { transform: scale(0.95); }
+.h-js-scale-100      { transform: scale(1); }
+
 /* ── Acessibilidade ──────────────────────────────── */
 .h-sr-only {
   position: absolute;

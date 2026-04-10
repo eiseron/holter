@@ -1,11 +1,9 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row">
-      <HolterWeb.MonitoringComponents.back_link navigate={
-        ~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"
-      } />
+      <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
       {gettext("Monitor Settings")}
-      <HolterWeb.MonitoringComponents.health_badge status={@monitor.health_status} />
+      <.health_badge status={@monitor.health_status} />
     </div>
     <:subtitle>
       UUID: {@monitor.id}
@@ -25,7 +23,7 @@
     </:actions>
   </.header>
 
-  <HolterWeb.MonitoringComponents.daily_metrics_section
+  <.daily_metrics_section
     metrics={@daily_metrics}
     logs_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}/logs"}
   />
@@ -37,9 +35,9 @@
     phx-submit="save"
     class="h-form-sections"
   >
-    <HolterWeb.MonitoringComponents.monitor_form_technical form={@form} />
-    <HolterWeb.MonitoringComponents.monitor_form_security form={@form} />
-    <HolterWeb.MonitoringComponents.monitor_form_interval form={@form} show_logical_state={true} />
+    <.monitor_form_technical form={@form} />
+    <.monitor_form_security form={@form} />
+    <.monitor_form_interval form={@form} show_logical_state={true} />
 
     <div class="h-actions-row">
       <button

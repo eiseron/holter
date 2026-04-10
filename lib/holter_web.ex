@@ -76,13 +76,53 @@ defmodule HolterWeb do
     end
   end
 
+  def component do
+    quote do
+      use Phoenix.Component
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+      use Gettext, backend: HolterWeb.Gettext
+      alias Phoenix.LiveView.JS
+      unquote(verified_routes())
+    end
+  end
+
+  def monitoring_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :app}
+
+      unquote(html_helpers())
+
+      import HolterWeb.Components.Monitoring.DashboardHeader
+      import HolterWeb.Components.Monitoring.MonitorCard
+      import HolterWeb.Components.Monitoring.HealthBadge
+      import HolterWeb.Components.Monitoring.StatusPill
+      import HolterWeb.Components.Monitoring.Sparkline
+      import HolterWeb.Components.Monitoring.DailyMetricsSection
+      import HolterWeb.Components.Monitoring.MonitorFormFields
+    end
+  end
+
   defp html_helpers do
     quote do
       import Phoenix.HTML
       import Phoenix.HTML.Form
       import Phoenix.Component
 
-      import HolterWeb.CoreComponents
+      import HolterWeb.Components.Flash
+      import HolterWeb.Components.Button
+      import HolterWeb.Components.Input
+      import HolterWeb.Components.Header
+      import HolterWeb.Components.Table
+      import HolterWeb.Components.List
+      import HolterWeb.Components.Modal
+      import HolterWeb.Components.Tooltip
+      import HolterWeb.Components.Icon
+      import HolterWeb.Components.BackLink
+      import HolterWeb.Components.Pagination
+      import HolterWeb.Components.EmptyState
+
       use Gettext, backend: HolterWeb.Gettext
 
       alias Phoenix.LiveView.JS

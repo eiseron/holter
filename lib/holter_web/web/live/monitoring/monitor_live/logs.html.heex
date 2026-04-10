@@ -1,9 +1,7 @@
 <div class="h-monitor-container">
   <.header>
     <div class="h-title-row" data-role="page-title">
-      <HolterWeb.MonitoringComponents.back_link navigate={
-        ~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"
-      } />
+      <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/#{@monitor.id}"} />
       {gettext("Technical Logs")}
     </div>
 
@@ -60,10 +58,7 @@
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
       <:col :let={log} label={gettext("Status")}>
-        <HolterWeb.MonitoringComponents.status_pill
-          status={log.status}
-          status_code={log.status_code}
-        />
+        <.status_pill status={log.status} status_code={log.status_code} />
       </:col>
       <:col :let={log} label={gettext("Latency")}>
         {log.latency_ms}ms
@@ -79,7 +74,7 @@
       </:col>
     </.table>
 
-    <HolterWeb.MonitoringComponents.pagination_nav
+    <.pagination_nav
       prev_page_url={@prev_page_url}
       next_page_url={@next_page_url}
       page_links={@page_links}
