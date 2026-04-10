@@ -28,7 +28,7 @@
 @import "./components/monitoring/logs.css";
 
 /* Pages */
-@import "./home.css";
+@import "./pages/home.css";
 
 /* Global overrides for structural components */
 .hidden { display: none !important; }
