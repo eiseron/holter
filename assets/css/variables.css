@@ -7,8 +7,8 @@
    3. Escala      — tipografia, espaçamento, radius, sombras, transições
 
    Temas:
-   - :root          → Light (padrão)
-   - @media dark    → Dark (preferência do SO)
+   - :root          → Dark (interface nativa Eiseron)
+   - @media light   → Light (preferência do SO)
 
    Para mudar o tema globalmente: edite apenas as camadas
    Primitivos e Semânticos. Nenhum componente precisa ser tocado.
@@ -21,7 +21,7 @@
      Altere aqui para mudar a paleta base.
      ──────────────────────────────────────────────── */
 
-  /* Neutros — escala Slate (tema claro) */
+  /* Neutros — escala Slate (usados no light theme) */
   --prim-white:      #ffffff;
   --prim-slate-50:   #f8fafc;
   --prim-slate-100:  #f1f5f9;
@@ -33,7 +33,7 @@
   --prim-slate-800:  #1e293b;
   --prim-slate-900:  #0f172a;
 
-  /* Identidade Eiseron — tema escuro oficial */
+  /* Identidade Eiseron — paleta dark oficial */
   --prim-graphite:         #121212; /* Graphite Absoluto — fundo dark */
   --prim-digital-white:    #fafafa; /* Branco Digital — texto dark */
   --prim-gray-40:          #5a5a5a; /* Camada 1 — dados passados (30% white) */
@@ -41,18 +41,16 @@
   --prim-cyber-blue:       #37b9ff; /* Eiseron Cyber Blue — único acento luminoso */
   --prim-alert-red:        #ff3366; /* Alert Red — quebra o frio p/ atenção crítica */
 
-  /* Surfaces escuras — dark theme */
+  /* Surfaces escuras */
   --prim-dark-surface:     #1a1a1a; /* card / painel */
   --prim-dark-raised:      #222222; /* surface elevada */
   --prim-dark-border:      #2a2a2a; /* borda padrão */
   --prim-dark-border-sub:  #1f1f1f; /* borda sutil */
   --prim-dark-deep:        #0a0a0a; /* fundos de código / pre */
 
-  /* Acento / Marca (light) */
+  /* Acento secundário (light) */
   --prim-cyan-400:   #22d3ee;
   --prim-blue-500:   #3b82f6;
-
-  /* Status — Verde (up) */
 
   /* Status — Rosa/Vermelho (down / erro) */
   --prim-rose-400:   #fb7185;
@@ -82,103 +80,102 @@
   --prim-gray-tint:  #f5f5f5;
   --prim-gray-dark:  #616161;
 
-  /* Surface escura — monitoring dashboard (glass) */
+  /* ── 2. SEMÂNTICOS — DARK THEME (padrão / interface nativa) ──
+     Paleta oficial Eiseron: Graphite + Branco Digital + Cyber Blue.
+     ──────────────────────────────────────────────────────────── */
 
-
-  /* Informa ao browser para renderizar controles nativos no tema claro */
-  color-scheme: light;
-
-  /* ── 2. SEMÂNTICOS — LIGHT THEME (padrão) ─────────
-     Aliases por propósito. Use estes nos componentes.
-     Altere os valores aqui para reestilizar temas.
-     ──────────────────────────────────────────────── */
+  color-scheme: dark;
 
   /* Backgrounds */
-  --color-bg:           var(--prim-white);
-  --color-bg-subtle:    var(--prim-slate-50);
-  --color-bg-muted:     var(--prim-slate-100);
+  --color-bg:           var(--prim-graphite);
+  --color-bg-subtle:    var(--prim-dark-surface);
+  --color-bg-muted:     var(--prim-dark-raised);
 
-  /* Surfaces — cards, painéis, modais */
-  --color-surface:        var(--prim-white);
-  --color-surface-raised: var(--prim-slate-50);
-  --color-overlay:        rgba(0, 0, 0, 0.6);
+  /* Surfaces */
+  --color-surface:        var(--prim-dark-surface);
+  --color-surface-raised: var(--prim-dark-raised);
+  --color-overlay:        rgba(0, 0, 0, 0.8);
 
   /* Texto */
-  --color-text:         var(--prim-graphite);
-  --color-text-muted:   var(--prim-slate-500);
-  --color-text-subtle:  var(--prim-slate-400);
-  --color-text-inverse: var(--prim-white);
+  --color-text:         var(--prim-digital-white);
+  --color-text-muted:   var(--prim-gray-60);
+  --color-text-subtle:  var(--prim-gray-40);
+  --color-text-inverse: var(--prim-graphite);
 
   /* Bordas */
-  --color-border:        var(--prim-slate-200);
-  --color-border-subtle: var(--prim-slate-100);
+  --color-border:        var(--prim-dark-border);
+  --color-border-subtle: var(--prim-dark-border-sub);
 
-  /* Acento / Marca */
+  /* Acento / Marca — Cyber Blue é o único elemento luminoso */
   --color-accent:         var(--prim-cyber-blue);
   --color-accent-hover:   color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
-  --color-accent-content: var(--prim-graphite); /* texto escuro sobre Cyber Blue */
+  --color-accent-content: var(--prim-graphite);
 
   /* Feedback */
-  --color-info:          var(--prim-blue-500);
-  --color-error:         var(--prim-red-500);
-  --color-error-content: var(--prim-white);
+  --color-info:          var(--prim-cyber-blue);
+  --color-error:         var(--prim-alert-red);
+  --color-error-content: var(--prim-digital-white);
 
   /* Badge de aviso */
-  --color-badge-warning-bg:   var(--prim-amber-100);
-  --color-badge-warning-text: var(--prim-amber-800);
+  --color-badge-warning-bg:   rgba(251, 191, 36, 0.15);
+  --color-badge-warning-text: var(--prim-amber-400);
 
-  /* Status — contexto claro (pills com tint de fundo) */
+  /* Status */
   --color-status-up:             var(--prim-cyber-blue);
   --color-status-up-light:       color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
   --color-status-up-bg:          rgba(55, 185, 255, 0.12);
   --color-status-up-text:        var(--prim-cyber-blue);
-  --color-status-up-on-solid:    var(--prim-graphite);    /* texto sobre badge sólido */
+  --color-status-up-on-solid:    var(--prim-graphite);
 
-  --color-status-down:           var(--prim-rose-500);
-  --color-status-down-light:     var(--prim-rose-400);
-  --color-status-down-bg:        var(--prim-red-tint);
-  --color-status-down-text:      var(--prim-red-dark);
+  --color-status-down:           var(--prim-alert-red);
+  --color-status-down-light:     color-mix(in srgb, var(--prim-alert-red) 80%, white);
+  --color-status-down-bg:        rgba(255, 51, 102, 0.12);
+  --color-status-down-text:      var(--prim-alert-red);
   --color-status-down-on-solid:  var(--prim-white);
 
   --color-status-degraded:       var(--prim-amber-500);
   --color-status-degraded-light: var(--prim-amber-400);
-  --color-status-degraded-bg:    var(--prim-amber-tint);
-  --color-status-degraded-text:  var(--prim-amber-dark);
+  --color-status-degraded-bg:    rgba(245, 158, 11, 0.12);
+  --color-status-degraded-text:  var(--prim-amber-400);
   --color-status-degraded-on-solid: var(--prim-graphite);
 
-  --color-status-compromised:        var(--prim-purple-500);
-  --color-status-compromised-light:  var(--prim-purple-400);
-  --color-status-compromised-bg:     var(--prim-purple-tint);
-  --color-status-compromised-text:   var(--prim-purple-dark);
+  --color-status-compromised:          var(--prim-purple-500);
+  --color-status-compromised-light:    var(--prim-purple-400);
+  --color-status-compromised-bg:       rgba(139, 92, 246, 0.12);
+  --color-status-compromised-text:     var(--prim-purple-400);
   --color-status-compromised-on-solid: var(--prim-white);
 
-  --color-status-unknown:        var(--prim-slate-500);
-  --color-status-unknown-light:  var(--prim-slate-400);
-  --color-status-unknown-bg:     var(--prim-gray-tint);
-  --color-status-unknown-text:   var(--prim-gray-dark);
+  --color-status-unknown:        var(--prim-gray-40);
+  --color-status-unknown-light:  var(--prim-gray-60);
+  --color-status-unknown-bg:     rgba(90, 90, 90, 0.15);
+  --color-status-unknown-text:   var(--prim-gray-60);
   --color-status-unknown-on-solid: var(--prim-white);
 
-  /* Painel de monitoring — segue o tema global */
-  --color-monitor-bg:               var(--color-bg);
-  --color-monitor-surface:          var(--color-surface-raised);
-  --color-monitor-surface-hover:    var(--color-bg-muted);
-  --color-monitor-border:           var(--color-border);
-  --color-monitor-border-hover:     var(--color-border-subtle);
-  --color-monitor-text:             var(--color-text);
-  --color-monitor-text-muted:       var(--color-text-muted);
-  --color-monitor-pulse-primary:    var(--prim-cyber-blue);
-  --color-monitor-pulse-secondary:  var(--prim-cyan-400);
-  --color-monitor-pulse-alert:      var(--prim-rose-500);
+  /* Painel de monitoring */
+  --color-monitor-bg:              var(--prim-graphite);
+  --color-monitor-surface:         var(--prim-dark-surface);
+  --color-monitor-surface-hover:   #5a5a5a;
+  --color-monitor-border:          rgba(255, 255, 255, 0.08);
+  --color-monitor-border-hover:    rgba(255, 255, 255, 0.16);
+  --color-monitor-text:            var(--prim-digital-white);
+  --color-monitor-text-muted:      var(--prim-gray-60);
+  --color-monitor-pulse-primary:   var(--prim-cyber-blue);
+  --color-monitor-pulse-secondary: color-mix(in srgb, var(--prim-cyber-blue) 70%, white);
+  --color-monitor-pulse-alert:     var(--prim-alert-red);
 
-  /* Blocos de evidência — código/pre (sempre escuro nos dois temas) */
-  --color-evidence-bg:           var(--prim-slate-900);
-  --color-evidence-text:         var(--prim-slate-100);
-  --color-evidence-border:       var(--prim-slate-800);
-  --color-evidence-scroll:       var(--prim-slate-700);
-  --color-evidence-error-bg:     var(--prim-red-900);
-  --color-evidence-error-text:   var(--prim-red-light);
-  --color-evidence-error-border: var(--prim-red-border);
+  /* Blocos de evidência */
+  --color-evidence-bg:           var(--prim-dark-deep);
+  --color-evidence-text:         var(--prim-digital-white);
+  --color-evidence-border:       var(--prim-dark-border-sub);
+  --color-evidence-scroll:       var(--prim-dark-border);
+  --color-evidence-error-bg:     #1a0008;
+  --color-evidence-error-text:   color-mix(in srgb, var(--prim-alert-red) 70%, white);
+  --color-evidence-error-border: #4a0015;
 
+  /* Sombras */
+  --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.6);
 
   /* ── 3. ESCALA ────────────────────────────────────
      Tokens de layout e tipografia. Invariantes entre temas.
@@ -214,14 +211,9 @@
   /* Border Radius */
   --radius-none:  0;
   --radius-sm:    0;
-  --radius-field: 0;         /* inputs, botões */
-  --radius-box:   0;         /* cards, painéis */
-  --radius-badge: 0;         /* pills, badges */
-
-  /* Sombras */
-  --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.2);
+  --radius-field: 0;
+  --radius-box:   0;
+  --radius-badge: 0;
 
   /* Transições */
   --transition-fast:  150ms linear;
@@ -229,106 +221,82 @@
   --transition-slow:  300ms linear;
 }
 
-
-/* ── DARK THEME ───────────────────────────────────────
-   Ativado pela preferência do sistema operacional.
-   Paleta oficial Eiseron: Graphite + Branco Digital + Cyber Blue.
+/* ── LIGHT THEME ───────────────────────────────────────
+   Override para usuários que preferem tema claro.
    ─────────────────────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    /* Informa ao browser para renderizar controles nativos no tema escuro */
-    color-scheme: dark;
+    color-scheme: light;
 
     /* Backgrounds */
-    --color-bg:           var(--prim-graphite);      /* #121212 */
-    --color-bg-subtle:    var(--prim-dark-surface);  /* #1a1a1a */
-    --color-bg-muted:     var(--prim-dark-raised);   /* #222222 */
+    --color-bg:           var(--prim-white);
+    --color-bg-subtle:    var(--prim-slate-50);
+    --color-bg-muted:     var(--prim-slate-100);
 
     /* Surfaces */
-    --color-surface:        var(--prim-dark-surface);
-    --color-surface-raised: var(--prim-dark-raised);
-    --color-overlay:        rgba(0, 0, 0, 0.8);
+    --color-surface:        var(--prim-white);
+    --color-surface-raised: var(--prim-slate-50);
+    --color-overlay:        rgba(0, 0, 0, 0.6);
 
     /* Texto */
-    --color-text:         var(--prim-digital-white); /* #fafafa */
-    --color-text-muted:   var(--prim-gray-60);       /* #a6a6a6 */
-    --color-text-subtle:  var(--prim-gray-40);       /* #5a5a5a */
-    --color-text-inverse: var(--prim-graphite);      /* #121212 */
+    --color-text:         var(--prim-graphite);
+    --color-text-muted:   var(--prim-slate-500);
+    --color-text-subtle:  var(--prim-slate-400);
+    --color-text-inverse: var(--prim-white);
 
     /* Bordas */
-    --color-border:        var(--prim-dark-border);
-    --color-border-subtle: var(--prim-dark-border-sub);
-
-    /* Acento / Marca — Cyber Blue é o único elemento luminoso */
-    --color-accent:         var(--prim-cyber-blue);
-    --color-accent-hover:   color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
-    --color-accent-content: var(--prim-graphite); /* texto escuro sobre Cyber Blue */
+    --color-border:        var(--prim-slate-200);
+    --color-border-subtle: var(--prim-slate-100);
 
     /* Feedback */
-    --color-info:          var(--prim-cyber-blue);
-    --color-error:         var(--prim-alert-red);    /* #ff3366 */
-    --color-error-content: var(--prim-digital-white);
+    --color-info:          var(--prim-blue-500);
+    --color-error:         var(--prim-red-500);
+    --color-error-content: var(--prim-white);
 
     /* Badge de aviso */
-    --color-badge-warning-bg:   rgba(251, 191, 36, 0.15);
-    --color-badge-warning-text: var(--prim-amber-400);
+    --color-badge-warning-bg:   var(--prim-amber-100);
+    --color-badge-warning-text: var(--prim-amber-800);
 
-    /* Status — contexto escuro (bg translúcido, texto colorido) */
-    /* up → Cyber Blue (ativo = o único elemento luminoso, per design spec) */
-    --color-status-up:             var(--prim-cyber-blue);
-    --color-status-up-light:       color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
-    --color-status-up-bg:          rgba(55, 185, 255, 0.12);
-    --color-status-up-text:        var(--prim-cyber-blue);
+    /* Status — ajustes para contexto claro */
+    --color-status-down:           var(--prim-rose-500);
+    --color-status-down-light:     var(--prim-rose-400);
+    --color-status-down-bg:        var(--prim-red-tint);
+    --color-status-down-text:      var(--prim-red-dark);
 
-    /* down → Alert Red */
-    --color-status-down:           var(--prim-alert-red);
-    --color-status-down-light:     color-mix(in srgb, var(--prim-alert-red) 80%, white);
-    --color-status-down-bg:        rgba(255, 51, 102, 0.12);
-    --color-status-down-text:      var(--prim-alert-red);
+    --color-status-degraded-bg:    var(--prim-amber-tint);
+    --color-status-degraded-text:  var(--prim-amber-dark);
 
-    /* degraded → Âmbar */
-    --color-status-degraded:       var(--prim-amber-500);
-    --color-status-degraded-light: var(--prim-amber-400);
-    --color-status-degraded-bg:    rgba(245, 158, 11, 0.12);
-    --color-status-degraded-text:  var(--prim-amber-400);
+    --color-status-compromised-bg:   var(--prim-purple-tint);
+    --color-status-compromised-text: var(--prim-purple-dark);
 
-    /* compromised → Roxo */
-    --color-status-compromised:        var(--prim-purple-500);
-    --color-status-compromised-light:  var(--prim-purple-400);
-    --color-status-compromised-bg:     rgba(139, 92, 246, 0.12);
-    --color-status-compromised-text:   var(--prim-purple-400);
+    --color-status-unknown:        var(--prim-slate-500);
+    --color-status-unknown-light:  var(--prim-slate-400);
+    --color-status-unknown-bg:     var(--prim-gray-tint);
+    --color-status-unknown-text:   var(--prim-gray-dark);
 
-    /* unknown → Cinza escuro */
-    --color-status-unknown:        var(--prim-gray-40);
-    --color-status-unknown-light:  var(--prim-gray-60);
-    --color-status-unknown-bg:     rgba(90, 90, 90, 0.15);
-    --color-status-unknown-text:   var(--prim-gray-60);
+    /* Painel de monitoring */
+    --color-monitor-bg:              var(--color-bg);
+    --color-monitor-surface:         var(--color-surface-raised);
+    --color-monitor-surface-hover:   var(--color-bg-muted);
+    --color-monitor-border:          var(--color-border);
+    --color-monitor-border-hover:    var(--color-border-subtle);
+    --color-monitor-text:            var(--color-text);
+    --color-monitor-text-muted:      var(--color-text-muted);
+    --color-monitor-pulse-alert:     var(--prim-rose-500);
 
-    /* Painel de monitoring — dark oficial */
-    --color-monitor-bg:               var(--prim-graphite);
-    --color-monitor-surface:          #1a1a1a;
-    --color-monitor-surface-hover:    #5a5a5a;
-    --color-monitor-border:           rgba(255, 255, 255, 0.08);
-    --color-monitor-border-hover:     rgba(255, 255, 255, 0.16);
-    --color-monitor-text:             var(--prim-digital-white);
-    --color-monitor-text-muted:       var(--prim-gray-60);
-    --color-monitor-pulse-primary:    var(--prim-cyber-blue);
-    --color-monitor-pulse-secondary:  color-mix(in srgb, var(--prim-cyber-blue) 70%, white);
-    --color-monitor-pulse-alert:      var(--prim-alert-red);
+    /* Blocos de evidência */
+    --color-evidence-bg:           var(--prim-slate-900);
+    --color-evidence-text:         var(--prim-slate-100);
+    --color-evidence-border:       var(--prim-slate-800);
+    --color-evidence-scroll:       var(--prim-slate-700);
+    --color-evidence-error-bg:     var(--prim-red-900);
+    --color-evidence-error-text:   var(--prim-red-light);
+    --color-evidence-error-border: var(--prim-red-border);
 
-    /* Blocos de evidência — ainda mais escuros no dark mode */
-    --color-evidence-bg:           var(--prim-dark-deep); /* #0a0a0a */
-    --color-evidence-text:         var(--prim-digital-white);
-    --color-evidence-border:       var(--prim-dark-border-sub);
-    --color-evidence-scroll:       var(--prim-dark-border);
-    --color-evidence-error-bg:     #1a0008;
-    --color-evidence-error-text:   color-mix(in srgb, var(--prim-alert-red) 70%, white);
-    --color-evidence-error-border: #4a0015;
-
-    /* Sombras — mais intensas no tema escuro */
-    --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.4);
-    --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.6);
+    /* Sombras */
+    --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.2);
   }
 }
