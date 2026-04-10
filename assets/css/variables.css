@@ -49,8 +49,6 @@
   --prim-dark-deep:        #0a0a0a; /* fundos de código / pre */
 
   /* Acento / Marca (light) */
-  --prim-sky-400:    #38bdf8;
-  --prim-sky-500:    #0ea5e9;
   --prim-cyan-400:   #22d3ee;
   --prim-blue-500:   #3b82f6;
 
@@ -116,9 +114,9 @@
   --color-border-subtle: var(--prim-slate-100);
 
   /* Acento / Marca */
-  --color-accent:         var(--prim-sky-500);
-  --color-accent-hover:   var(--prim-sky-400);
-  --color-accent-content: var(--prim-white);
+  --color-accent:         var(--prim-cyber-blue);
+  --color-accent-hover:   color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
+  --color-accent-content: var(--prim-graphite); /* texto escuro sobre Cyber Blue */
 
   /* Feedback */
   --color-info:          var(--prim-blue-500);
@@ -163,7 +161,7 @@
   --color-monitor-border-hover:     var(--color-border-subtle);
   --color-monitor-text:             var(--color-text);
   --color-monitor-text-muted:       var(--color-text-muted);
-  --color-monitor-pulse-primary:    var(--prim-sky-500);
+  --color-monitor-pulse-primary:    var(--prim-cyber-blue);
   --color-monitor-pulse-secondary:  var(--prim-cyan-400);
   --color-monitor-pulse-alert:      var(--prim-rose-500);
 
