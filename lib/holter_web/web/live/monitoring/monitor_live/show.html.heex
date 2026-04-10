@@ -37,7 +37,11 @@
   >
     <.monitor_form_technical form={@form} />
     <.monitor_form_security form={@form} />
-    <.monitor_form_interval form={@form} show_logical_state={true} />
+    <.monitor_form_interval
+      form={@form}
+      show_logical_state={true}
+      min_interval_seconds={@workspace.min_interval_seconds}
+    />
 
     <div class="h-actions-row">
       <button

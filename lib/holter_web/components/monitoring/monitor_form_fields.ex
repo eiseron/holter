@@ -129,8 +129,16 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
   """
   attr :form, :any, required: true
   attr :show_logical_state, :boolean, default: false
+  attr :min_interval_seconds, :integer, default: nil
 
   def monitor_form_interval(assigns) do
+    assigns =
+      assign(
+        assigns,
+        :effective_min,
+        assigns[:min_interval_seconds] || Monitor.interval_min_seconds()
+      )
+
     ~H"""
     <div class="h-fieldset-card">
       <h3 class="h-fieldset-legend">{gettext("Interval Defaults")}</h3>
@@ -142,16 +150,16 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
               type="range"
               id={@form[:interval_seconds].id}
               name={@form[:interval_seconds].name}
-              min={Monitor.interval_min_seconds()}
+              min={@effective_min}
               max={Monitor.interval_max_seconds()}
               step="60"
-              value={field_integer(@form[:interval_seconds])}
+              value={field_integer(@form[:interval_seconds], @effective_min)}
               class="h-range-input"
               phx-debounce="300"
               oninput="this.nextElementSibling.textContent = (this.value / 60) + ' min'"
             />
             <span class="h-range-value">
-              {div(field_integer(@form[:interval_seconds]), 60)} min
+              {div(field_integer(@form[:interval_seconds], @effective_min), 60)} min
             </span>
           </div>
           <p class="h-help-text">
@@ -185,11 +193,11 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
     """
   end
 
-  defp field_integer(field) do
+  defp field_integer(field, fallback) do
     case field.value do
       v when is_integer(v) -> v
       v when is_binary(v) -> String.to_integer(v)
-      _ -> Monitor.interval_min_seconds()
+      _ -> fallback
     end
   end
 end

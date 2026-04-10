@@ -20,7 +20,7 @@
   >
     <.monitor_form_technical form={@form} />
     <.monitor_form_security form={@form} />
-    <.monitor_form_interval form={@form} />
+    <.monitor_form_interval form={@form} min_interval_seconds={@workspace.min_interval_seconds} />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
