@@ -46,6 +46,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
            to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard"
          )}
 
+      {:error, :quota_exceeded} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Monitor limit reached for this workspace (max: %{max})",
+             max: socket.assigns.workspace.max_monitors
+           )
+         )}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
