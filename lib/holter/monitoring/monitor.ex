@@ -8,9 +8,11 @@ defmodule Holter.Monitoring.Monitor do
   def http_methods, do: @http_methods
 
   @interval_min_seconds 60
-  @interval_max_seconds 3600
+  @interval_max_seconds 7200
+  @interval_default_seconds 3600
   def interval_min_seconds, do: @interval_min_seconds
   def interval_max_seconds, do: @interval_max_seconds
+  def interval_default_seconds, do: @interval_default_seconds
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -36,7 +38,7 @@ defmodule Holter.Monitoring.Monitor do
       ],
       default: :get
 
-    field :interval_seconds, :integer, default: 60
+    field :interval_seconds, :integer, default: 3600
     field :timeout_seconds, :integer, default: 30
 
     field :headers, :map, default: %{}
