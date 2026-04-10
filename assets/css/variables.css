@@ -104,7 +104,7 @@
   --color-overlay:        rgba(0, 0, 0, 0.6);
 
   /* Texto */
-  --color-text:         var(--prim-slate-800);
+  --color-text:         var(--prim-graphite);
   --color-text-muted:   var(--prim-slate-500);
   --color-text-subtle:  var(--prim-slate-400);
   --color-text-inverse: var(--prim-white);
