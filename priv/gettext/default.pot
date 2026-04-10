@@ -428,7 +428,7 @@ msgstr ""
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:22
 #, elixir-autogen, elixir-format
-msgid "No monitors heartbeat found in this workspace."
+msgid "No assets monitored. Add a domain to start the audit."
 msgstr ""
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:88

@@ -428,8 +428,8 @@ msgstr "Sem dados ainda"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:22
 #, elixir-autogen, elixir-format
-msgid "No monitors heartbeat found in this workspace."
-msgstr "Nenhum batimento cardíaco de monitores encontrado neste workspace."
+msgid "No assets monitored. Add a domain to start the audit."
+msgstr "Nenhum ativo monitorado. Adicione um domínio para iniciar a auditoria."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:88
 #, elixir-autogen, elixir-format

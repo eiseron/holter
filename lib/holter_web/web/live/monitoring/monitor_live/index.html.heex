@@ -4,7 +4,7 @@
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>
       <.empty_state class="h-empty-state-dark">
-        <p>{gettext("No monitors heartbeat found in this workspace.")}</p>
+        <p>{gettext("No assets monitored. Add a domain to start the audit.")}</p>
       </.empty_state>
     <% else %>
       <%= for monitor <- @monitors do %>
