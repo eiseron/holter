@@ -162,7 +162,9 @@
   /* Painel de monitoring — segue o tema global */
   --color-monitor-bg:               var(--color-bg);
   --color-monitor-surface:          var(--color-surface-raised);
+  --color-monitor-surface-hover:    var(--color-bg-muted);
   --color-monitor-border:           var(--color-border);
+  --color-monitor-border-hover:     var(--color-border-subtle);
   --color-monitor-text:             var(--color-text);
   --color-monitor-text-muted:       var(--color-text-muted);
   --color-monitor-pulse-primary:    var(--prim-sky-500);
@@ -311,7 +313,9 @@
     /* Painel de monitoring — dark oficial */
     --color-monitor-bg:               var(--prim-graphite);
     --color-monitor-surface:          #1a1a1a;
+    --color-monitor-surface-hover:    #5a5a5a;
     --color-monitor-border:           rgba(255, 255, 255, 0.08);
+    --color-monitor-border-hover:     rgba(255, 255, 255, 0.16);
     --color-monitor-text:             var(--prim-digital-white);
     --color-monitor-text-muted:       var(--prim-gray-60);
     --color-monitor-pulse-primary:    var(--prim-cyber-blue);

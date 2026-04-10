@@ -3,7 +3,7 @@
   border: 1px solid var(--color-monitor-border);
   border-radius: var(--radius-box);
   padding: var(--space-6);
-  transition: all var(--transition-cubic);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
   position: relative;
   overflow: hidden;
   text-decoration: none;
@@ -11,9 +11,8 @@
 }
 
 .monitor-card-premium:hover {
-  transform: translateY(-4px) scale(1.02);
-  border-color: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
-  box-shadow: var(--shadow-glass);
+  background: var(--color-monitor-surface-hover);
+  border-color: var(--color-monitor-border-hover);
 }
 
 .monitor-meta-premium {
