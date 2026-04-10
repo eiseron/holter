@@ -40,10 +40,10 @@ defmodule HolterWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
 
-    scope "/" do
-      pipe_through :browser
-      get "/api/openapi", OpenApiSpex.Plug.RenderSpec, []
-      get "/api/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    scope "/api" do
+      pipe_through :api
+      get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+      get "/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     end
   end
 end
