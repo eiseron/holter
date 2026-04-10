@@ -93,15 +93,15 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def create(conn, %{"workspace_slug" => workspace_slug, "monitor" => monitor_params}) do
-    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
-      monitor_params = Map.put(monitor_params, "workspace_id", workspace.id)
+  def create(conn, %{"workspace_slug" => workspace_slug} = params) do
+    monitor_params = Map.drop(params, ["workspace_slug"])
 
-      with {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
-        conn
-        |> put_status(:created)
-        |> render(:show, monitor: monitor)
-      end
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
+         monitor_params = Map.put(monitor_params, "workspace_id", workspace.id),
+         {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
+      conn
+      |> put_status(:created)
+      |> render(:show, monitor: monitor)
     end
   end
 
@@ -124,7 +124,9 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def update(conn, %{"workspace_slug" => workspace_slug, "id" => id, "monitor" => monitor_params}) do
+  def update(conn, %{"workspace_slug" => workspace_slug, "id" => id} = params) do
+    monitor_params = Map.drop(params, ["workspace_slug", "id"])
+
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
          true <- monitor.workspace_id == workspace.id || {:error, :not_found},
