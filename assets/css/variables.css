@@ -223,9 +223,6 @@
   --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.2);
-  --shadow-card:  0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 
   /* Transições */
   --transition-fast:  150ms linear;
@@ -335,7 +332,5 @@
     --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.3);
     --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.4);
     --shadow-lg:    0 10px 40px rgba(0, 0, 0, 0.6);
-    --shadow-card:  0 4px 20px rgba(0, 0, 0, 0.3);
-    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
   }
 }
