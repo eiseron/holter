@@ -15,7 +15,6 @@ defmodule HolterWeb.Components.Monitoring.Sparkline do
       assigns
       |> assign(:data_points, data_points)
       |> assign(:path, calculate_path(data_points))
-      |> assign(:area_path, calculate_area_path(data_points))
 
     ~H"""
     <div class="sparkline-container" id={"sparkline-#{@monitor_id}"}>
@@ -34,18 +33,6 @@ defmodule HolterWeb.Components.Monitoring.Sparkline do
         <p class="sparkline-no-data">{gettext("No data yet")}</p>
       <% else %>
         <svg class="sparkline-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id={"sparkline-gradient-#{@monitor_id}"} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0.3" />
-              <stop offset="100%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-
-          <path
-            d={@area_path}
-            fill={"url(#sparkline-gradient-#{@monitor_id})"}
-            class="sparkline-area"
-          />
           <path d={@path} class="sparkline-line" />
 
           <%= for {point, index} <- Enum.with_index(@data_points) do %>
@@ -72,14 +59,6 @@ defmodule HolterWeb.Components.Monitoring.Sparkline do
       Enum.map_join(Enum.with_index(logs), " ", fn {log, i} ->
         "#{i * 10},#{normalize_y(log.latency_ms)}"
       end)
-  end
-
-  defp calculate_area_path([]), do: ""
-
-  defp calculate_area_path(logs) do
-    path = calculate_path(logs)
-    last_x = (length(logs) - 1) * 10
-    path <> " L #{last_x},80 L 0,80 Z"
   end
 
   defp normalize_y(nil), do: 75

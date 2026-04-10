@@ -168,8 +168,6 @@
   --color-monitor-pulse-primary:    var(--prim-sky-500);
   --color-monitor-pulse-secondary:  var(--prim-cyan-400);
   --color-monitor-pulse-alert:      var(--prim-rose-500);
-  --color-monitor-heading-from:     var(--prim-slate-800);
-  --color-monitor-heading-to:       var(--prim-slate-500);
 
   /* Blocos de evidência — código/pre (sempre escuro nos dois temas) */
   --color-evidence-bg:           var(--prim-slate-900);
@@ -319,8 +317,6 @@
     --color-monitor-pulse-primary:    var(--prim-cyber-blue);
     --color-monitor-pulse-secondary:  color-mix(in srgb, var(--prim-cyber-blue) 70%, white);
     --color-monitor-pulse-alert:      var(--prim-alert-red);
-    --color-monitor-heading-from:     var(--prim-digital-white);
-    --color-monitor-heading-to:       var(--prim-gray-60);
 
     /* Blocos de evidência — ainda mais escuros no dark mode */
     --color-evidence-bg:           var(--prim-dark-deep); /* #0a0a0a */
