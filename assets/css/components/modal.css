@@ -15,10 +15,10 @@
 
 .h-modal-content {
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-box);
-  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  animation: modalSlideIn var(--transition-slow) linear forwards;
+  animation: modalFadeIn var(--transition-slow) linear forwards;
   max-width: 500px;
   width: 90%;
 }
@@ -63,7 +63,7 @@
   gap: var(--space-4);
 }
 
-@keyframes modalSlideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

@@ -129,7 +129,7 @@
     background-color: var(--color-border);
 
     @media (min-width: 640px) {
-      transform: scale(1.05);
+      background-color: var(--color-accent);
     }
   }
 
