@@ -9,8 +9,6 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   line-height: 1;
-  background: color-mix(in srgb, var(--color-monitor-text) 5%, transparent);
-  border: 1px solid var(--color-monitor-border);
 }
 
 .pulse-dot {
@@ -18,6 +16,7 @@
   height: 8px;
   border-radius: 50%;
   position: relative;
+  flex-shrink: 0;
 }
 
 .pulse-dot::after {
@@ -34,43 +33,38 @@
 }
 
 .h-health-pulse-badge {
-  &.h-status-up .pulse-dot,
-  &.h-status-up .pulse-dot::after { background: var(--color-status-up); }
-
-  &.h-status-down .pulse-dot,
-  &.h-status-down .pulse-dot::after { background: var(--color-status-down); }
-
-  &.h-status-degraded .pulse-dot,
-  &.h-status-degraded .pulse-dot::after { background: var(--color-status-degraded); }
-
-  &.h-status-compromised .pulse-dot,
-  &.h-status-compromised .pulse-dot::after { background: var(--color-status-compromised); }
-
-  &.h-status-unknown .pulse-dot,
-  &.h-status-unknown .pulse-dot::after { background: var(--color-status-unknown); }
-
   &.h-status-up {
-    color: var(--color-status-up-light);
-    border-color: color-mix(in srgb, var(--color-status-up) 20%, transparent);
+    background: var(--color-status-up);
+    color: var(--color-status-up-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-up-on-solid); }
   }
 
   &.h-status-down {
-    color: var(--color-status-down-light);
-    border-color: color-mix(in srgb, var(--color-status-down) 20%, transparent);
+    background: var(--color-status-down);
+    color: var(--color-status-down-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-down-on-solid); }
   }
 
   &.h-status-degraded {
-    color: var(--color-status-degraded-light);
-    border-color: color-mix(in srgb, var(--color-status-degraded) 20%, transparent);
+    background: var(--color-status-degraded);
+    color: var(--color-status-degraded-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-degraded-on-solid); }
   }
 
   &.h-status-compromised {
-    color: var(--color-status-compromised-light);
-    border-color: color-mix(in srgb, var(--color-status-compromised) 20%, transparent);
+    background: var(--color-status-compromised);
+    color: var(--color-status-compromised-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-compromised-on-solid); }
   }
 
   &.h-status-unknown {
-    color: var(--color-status-unknown-light);
-    border-color: color-mix(in srgb, var(--color-status-unknown) 20%, transparent);
+    background: var(--color-status-unknown);
+    color: var(--color-status-unknown-on-solid);
+    .pulse-dot,
+    .pulse-dot::after { background: var(--color-status-unknown-on-solid); }
   }
 }

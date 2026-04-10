@@ -132,26 +132,31 @@
   --color-status-up-light:       color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
   --color-status-up-bg:          rgba(55, 185, 255, 0.12);
   --color-status-up-text:        var(--prim-cyber-blue);
+  --color-status-up-on-solid:    var(--prim-graphite);    /* texto sobre badge sólido */
 
   --color-status-down:           var(--prim-rose-500);
   --color-status-down-light:     var(--prim-rose-400);
   --color-status-down-bg:        var(--prim-red-tint);
   --color-status-down-text:      var(--prim-red-dark);
+  --color-status-down-on-solid:  var(--prim-white);
 
   --color-status-degraded:       var(--prim-amber-500);
   --color-status-degraded-light: var(--prim-amber-400);
   --color-status-degraded-bg:    var(--prim-amber-tint);
   --color-status-degraded-text:  var(--prim-amber-dark);
+  --color-status-degraded-on-solid: var(--prim-graphite);
 
   --color-status-compromised:        var(--prim-purple-500);
   --color-status-compromised-light:  var(--prim-purple-400);
   --color-status-compromised-bg:     var(--prim-purple-tint);
   --color-status-compromised-text:   var(--prim-purple-dark);
+  --color-status-compromised-on-solid: var(--prim-white);
 
   --color-status-unknown:        var(--prim-slate-500);
   --color-status-unknown-light:  var(--prim-slate-400);
   --color-status-unknown-bg:     var(--prim-gray-tint);
   --color-status-unknown-text:   var(--prim-gray-dark);
+  --color-status-unknown-on-solid: var(--prim-white);
 
   /* Painel de monitoring — segue o tema global */
   --color-monitor-bg:               var(--color-bg);
