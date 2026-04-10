@@ -26,10 +26,21 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/holter"
 import topbar from "../vendor/topbar"
 
+function getOrCreateSessionId() {
+  let sessionId = sessionStorage.getItem("session_id")
+  if (!sessionId) {
+    sessionId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : Math.random().toString(36).substring(2) + Date.now().toString(36)
+    sessionStorage.setItem("session_id", sessionId)
+  }
+  return sessionId
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
+  params: {_csrf_token: csrfToken, session_id: getOrCreateSessionId()},
   hooks: {...colocatedHooks},
 })
 

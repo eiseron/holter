@@ -45,10 +45,16 @@ config :esbuild,
     env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]
 
-# Configure Elixir's Logger
+# Configure Elixir's Logger and Sentry
+config :logger, backends: [:console, Sentry.LoggerBackend]
+
 config :logger, :default_formatter,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  format: {LoggerJSON.Formatters.Basic, :format},
+  metadata: [:request_id, :session_id]
+
+config :sentry,
+  enable_source_code_context: true,
+  root_source_code_paths: [File.cwd!()]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
