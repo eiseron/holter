@@ -18,7 +18,7 @@
   border-radius: var(--radius-box);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  animation: modalSlideIn var(--transition-slow) ease-out forwards;
+  animation: modalSlideIn var(--transition-slow) linear forwards;
   max-width: 500px;
   width: 90%;
 }

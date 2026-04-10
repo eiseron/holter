@@ -58,8 +58,8 @@
 
 /* ── JS Transitions (Phoenix LiveView show/hide) ─── */
 .h-js-transition     { transition-property: all; }
-.h-js-ease-out       { transition-timing-function: ease-out; }
-.h-js-ease-in        { transition-timing-function: ease-in; }
+.h-js-ease-out       { transition-timing-function: linear; }
+.h-js-ease-in        { transition-timing-function: linear; }
 .h-js-duration-300   { transition-duration: 300ms; }
 .h-js-duration-200   { transition-duration: 200ms; }
 .h-js-opacity-0      { opacity: 0; }
