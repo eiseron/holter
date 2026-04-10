@@ -9,7 +9,7 @@ defmodule Holter.Monitoring.Monitor do
 
   @interval_min_seconds 60
   @interval_max_seconds 7200
-  @interval_default_seconds 3600
+  @interval_default_seconds 5400
   def interval_min_seconds, do: @interval_min_seconds
   def interval_max_seconds, do: @interval_max_seconds
   def interval_default_seconds, do: @interval_default_seconds
@@ -38,7 +38,7 @@ defmodule Holter.Monitoring.Monitor do
       ],
       default: :get
 
-    field :interval_seconds, :integer, default: 3600
+    field :interval_seconds, :integer, default: 5400
     field :timeout_seconds, :integer, default: 30
 
     field :headers, :map, default: %{}
