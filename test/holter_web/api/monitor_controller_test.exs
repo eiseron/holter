@@ -1,20 +1,30 @@
 defmodule HolterWeb.Api.MonitorControllerTest do
   use HolterWeb.ConnCase
 
+  import OpenApiSpex.TestAssertions
+
   alias Holter.Monitoring
+  alias HolterWeb.Api.ApiSpec
 
   setup %{conn: conn} do
     workspace = workspace_fixture(%{name: "Test Workspace", slug: "test-workspace"})
-    {:ok, conn: put_req_header(conn, "accept", "application/json"), workspace: workspace}
+    api_spec = ApiSpec.spec()
+
+    {:ok,
+     conn: put_req_header(conn, "accept", "application/json"),
+     workspace: workspace,
+     api_spec: api_spec}
   end
 
   describe "GET /api/v1/workspaces/:workspace_slug/monitors" do
-    test "Lists monitors for the workspace", %{conn: conn, workspace: workspace} do
+    test "Lists monitors for the workspace", %{conn: conn, workspace: workspace, api_spec: spec} do
       monitor_fixture(%{workspace_id: workspace.id})
 
       conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors")
+      body = json_response(conn, 200)
 
-      assert %{"data" => [_]} = json_response(conn, 200)
+      assert %{"data" => [_]} = body
+      assert_schema(body, "MonitorList", spec)
     end
 
     test "Filters monitors by health_status", %{conn: conn, workspace: workspace} do
@@ -40,10 +50,17 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       interval_seconds: 60
     }
 
-    test "Creates a monitor and returns 201", %{conn: conn, workspace: workspace} do
+    test "Creates a monitor and returns 201", %{
+      conn: conn,
+      workspace: workspace,
+      api_spec: spec
+    } do
       conn = post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", monitor: @valid_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      body = json_response(conn, 201)
+
+      assert %{"id" => id} = body["data"]
       assert Monitoring.get_monitor!(id).workspace_id == workspace.id
+      assert_schema(body, "MonitorResponse", spec)
     end
 
     test "Returns 422 for invalid data", %{conn: conn, workspace: workspace} do
@@ -53,10 +70,13 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   end
 
   describe "GET /api/v1/workspaces/:workspace_slug/monitors/:id" do
-    test "Returns monitor details", %{conn: conn, workspace: workspace} do
+    test "Returns monitor details", %{conn: conn, workspace: workspace, api_spec: spec} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
       conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
-      assert json_response(conn, 200)["data"]["id"] == monitor.id
+      body = json_response(conn, 200)
+
+      assert body["data"]["id"] == monitor.id
+      assert_schema(body, "MonitorResponse", spec)
     end
 
     test "Returns 404 if monitor belongs to another workspace", %{
@@ -72,7 +92,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   end
 
   describe "PUT /api/v1/workspaces/:workspace_slug/monitors/:id" do
-    test "Updates monitor and returns 200", %{conn: conn, workspace: workspace} do
+    test "Updates monitor and returns 200", %{conn: conn, workspace: workspace, api_spec: spec} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       conn =
@@ -80,7 +100,9 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           monitor: %{url: "https://updated.local"}
         )
 
-      assert json_response(conn, 200)["data"]["url"] == "https://updated.local"
+      body = json_response(conn, 200)
+      assert body["data"]["url"] == "https://updated.local"
+      assert_schema(body, "MonitorResponse", spec)
     end
   end
 

@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
   def all do
     %{
       "Monitor" => monitor(),
+      "MonitorResponse" => monitor_response(),
       "MonitorRequest" => monitor_request(),
       "MonitorList" => monitor_list(),
       "Error" => error()
@@ -37,6 +38,18 @@ defmodule HolterWeb.Api.MonitorSchemas do
         updated_at: %Schema{type: :string, format: :"date-time"}
       },
       required: [:id, :url, :method, :interval_seconds, :timeout_seconds]
+    }
+  end
+
+  def monitor_response do
+    %Schema{
+      title: "MonitorResponse",
+      description: "A single monitor wrapped in a data envelope.",
+      type: :object,
+      properties: %{
+        data: monitor()
+      },
+      required: [:data]
     }
   end
 

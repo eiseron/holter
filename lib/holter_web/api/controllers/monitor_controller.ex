@@ -67,7 +67,7 @@ defmodule HolterWeb.Api.MonitorController do
       ]
     ],
     responses: [
-      ok: {"Monitor details", "application/json", MonitorSchemas.monitor()},
+      ok: {"Monitor details", "application/json", MonitorSchemas.monitor_response()},
       not_found: {"Monitor not found", "application/json", MonitorSchemas.error()}
     ]
   )
@@ -88,7 +88,7 @@ defmodule HolterWeb.Api.MonitorController do
     ],
     request_body: {"Monitor parameters", "application/json", MonitorSchemas.monitor_request()},
     responses: [
-      created: {"Created monitor", "application/json", MonitorSchemas.monitor()},
+      created: {"Created monitor", "application/json", MonitorSchemas.monitor_response()},
       unprocessable_entity: {"Validation error", "application/json", MonitorSchemas.error()}
     ]
   )
@@ -118,7 +118,7 @@ defmodule HolterWeb.Api.MonitorController do
     ],
     request_body: {"Update parameters", "application/json", MonitorSchemas.monitor_request()},
     responses: [
-      ok: {"Updated monitor", "application/json", MonitorSchemas.monitor()},
+      ok: {"Updated monitor", "application/json", MonitorSchemas.monitor_response()},
       not_found: {"Monitor not found", "application/json", MonitorSchemas.error()},
       unprocessable_entity: {"Validation error", "application/json", MonitorSchemas.error()}
     ]
