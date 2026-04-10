@@ -139,14 +139,18 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp check_monitor_quota(%{max_monitors: max, id: ws_id}) do
+  def at_quota?(%{max_monitors: max, id: ws_id}) do
     count =
       Monitor
       |> where([m], m.workspace_id == ^ws_id)
       |> where([m], m.logical_state != :archived)
       |> Repo.aggregate(:count, :id)
 
-    if count >= max, do: {:error, :quota_exceeded}, else: :ok
+    count >= max
+  end
+
+  defp check_monitor_quota(workspace) do
+    if at_quota?(workspace), do: {:error, :quota_exceeded}, else: :ok
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do

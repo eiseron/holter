@@ -8,12 +8,24 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
-        changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
+        if Monitoring.at_quota?(workspace) do
+          {:ok,
+           socket
+           |> put_flash(
+             :error,
+             gettext("Monitor limit reached for this workspace (max: %{max})",
+               max: workspace.max_monitors
+             )
+           )
+           |> push_navigate(to: ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")}
+        else
+          changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
 
-        {:ok,
-         socket
-         |> assign(:workspace, workspace)
-         |> assign(:form, to_form(changeset))}
+          {:ok,
+           socket
+           |> assign(:workspace, workspace)
+           |> assign(:form, to_form(changeset))}
+        end
 
       {:error, :not_found} ->
         {:ok,
