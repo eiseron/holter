@@ -89,8 +89,6 @@
   --prim-gray-dark:  #616161;
 
   /* Surface escura — monitoring dashboard (glass) */
-  --prim-monitor-glass:        rgba(15, 23, 42, 0.8);
-  --prim-monitor-glass-border: rgba(255, 255, 255, 0.1);
 
 
   /* Informa ao browser para renderizar controles nativos no tema claro */
@@ -314,7 +312,7 @@
 
     /* Painel de monitoring — dark oficial */
     --color-monitor-bg:               var(--prim-graphite);
-    --color-monitor-surface:          rgba(26, 26, 26, 0.85);
+    --color-monitor-surface:          #1a1a1a;
     --color-monitor-border:           rgba(255, 255, 255, 0.08);
     --color-monitor-text:             var(--prim-digital-white);
     --color-monitor-text-muted:       var(--prim-gray-60);
