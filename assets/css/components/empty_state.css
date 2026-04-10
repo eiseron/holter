@@ -1,0 +1,14 @@
+.h-empty-state {
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.h-empty-state-dark {
+  grid-column: 1 / -1;
+  padding: var(--space-12) var(--space-8);
+  background: color-mix(in srgb, var(--color-monitor-text) 3%, transparent);
+  border: 1px dashed var(--color-monitor-border);
+  text-align: center;
+  color: var(--color-monitor-text-muted);
+}

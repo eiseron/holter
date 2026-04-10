@@ -1,0 +1,60 @@
+.monitor-card-premium {
+  background: var(--color-monitor-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-monitor-border);
+  border-radius: var(--radius-box);
+  padding: var(--space-6);
+  transition: all var(--transition-cubic);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.monitor-card-premium:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
+  box-shadow: var(--shadow-glass);
+}
+
+.monitor-meta-premium {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-4);
+  font-size: var(--font-size-base);
+  color: var(--color-monitor-text-muted);
+}
+
+.history-controls {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.monitor-card-premium:hover .history-controls {
+  opacity: 1;
+}
+
+.history-btn {
+  background: color-mix(in srgb, var(--color-monitor-text) 10%, transparent);
+  border: none;
+  border-radius: var(--radius-field);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-monitor-text);
+  transition: background var(--transition-base);
+}
+
+.history-btn:hover {
+  background: color-mix(in srgb, var(--color-monitor-text) 20%, transparent);
+}

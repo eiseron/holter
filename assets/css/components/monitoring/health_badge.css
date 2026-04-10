@@ -1,0 +1,76 @@
+.h-health-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-badge);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  background: color-mix(in srgb, var(--color-monitor-text) 5%, transparent);
+  border: 1px solid var(--color-monitor-border);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  animation: h-badge-pulse 2s infinite;
+}
+
+@keyframes h-badge-pulse {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.h-health-pulse-badge {
+  &.h-status-up .pulse-dot,
+  &.h-status-up .pulse-dot::after { background: var(--color-status-up); }
+
+  &.h-status-down .pulse-dot,
+  &.h-status-down .pulse-dot::after { background: var(--color-status-down); }
+
+  &.h-status-degraded .pulse-dot,
+  &.h-status-degraded .pulse-dot::after { background: var(--color-status-degraded); }
+
+  &.h-status-compromised .pulse-dot,
+  &.h-status-compromised .pulse-dot::after { background: var(--color-status-compromised); }
+
+  &.h-status-unknown .pulse-dot,
+  &.h-status-unknown .pulse-dot::after { background: var(--color-status-unknown); }
+
+  &.h-status-up {
+    color: var(--color-status-up-light);
+    border-color: color-mix(in srgb, var(--color-status-up) 20%, transparent);
+  }
+
+  &.h-status-down {
+    color: var(--color-status-down-light);
+    border-color: color-mix(in srgb, var(--color-status-down) 20%, transparent);
+  }
+
+  &.h-status-degraded {
+    color: var(--color-status-degraded-light);
+    border-color: color-mix(in srgb, var(--color-status-degraded) 20%, transparent);
+  }
+
+  &.h-status-compromised {
+    color: var(--color-status-compromised-light);
+    border-color: color-mix(in srgb, var(--color-status-compromised) 20%, transparent);
+  }
+
+  &.h-status-unknown {
+    color: var(--color-status-unknown-light);
+    border-color: color-mix(in srgb, var(--color-status-unknown) 20%, transparent);
+  }
+}

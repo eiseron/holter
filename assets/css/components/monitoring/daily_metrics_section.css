@@ -1,0 +1,7 @@
+.h-section {
+  margin: var(--space-8) 0;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border-radius: var(--radius-box);
+  box-shadow: var(--shadow-card);
+}
