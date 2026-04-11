@@ -12,6 +12,8 @@ defmodule HolterWeb.Api.MonitorController do
 
   action_fallback HolterWeb.Api.FallbackController
 
+  plug OpenApiSpex.Plug.CastAndValidate, json_render_error_v2: true
+
   tags(["Monitors"])
 
   operation(:index,
@@ -43,12 +45,12 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def index(conn, %{"workspace_slug" => workspace_slug} = params) do
+  def index(conn, %{workspace_slug: workspace_slug} = params) do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
       params =
         params
         |> Map.put(:workspace_id, workspace.id)
-        |> sanitize_params()
+        |> atomize_enum_params()
 
       monitors = Monitoring.list_monitors_filtered(params)
       render(conn, :index, monitors: monitors)
@@ -72,7 +74,7 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def show(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
+  def show(conn, %{workspace_slug: workspace_slug, id: id}) do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
          true <- monitor.workspace_id == workspace.id || {:error, :not_found} do
@@ -86,18 +88,18 @@ defmodule HolterWeb.Api.MonitorController do
     parameters: [
       workspace_slug: [in: :path, description: "Workspace slug", type: :string]
     ],
-    request_body: {"Monitor parameters", "application/json", MonitorSchemas.monitor_request()},
+    request_body: {"Monitor parameters", "application/json", MonitorSchemas.monitor_create_request()},
     responses: [
       created: {"Created monitor", "application/json", MonitorSchemas.monitor_response()},
       unprocessable_entity: {"Validation error", "application/json", MonitorSchemas.error()}
     ]
   )
 
-  def create(conn, %{"workspace_slug" => workspace_slug} = params) do
-    monitor_params = Map.drop(params, ["workspace_slug"])
+  def create(conn, %{workspace_slug: workspace_slug}) do
+    monitor_params = conn.body_params
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
-         monitor_params = Map.put(monitor_params, "workspace_id", workspace.id),
+         monitor_params = Map.put(monitor_params, :workspace_id, workspace.id),
          {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
       conn
       |> put_status(:created)
@@ -116,7 +118,7 @@ defmodule HolterWeb.Api.MonitorController do
         schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
       ]
     ],
-    request_body: {"Update parameters", "application/json", MonitorSchemas.monitor_request()},
+    request_body: {"Update parameters", "application/json", MonitorSchemas.monitor_update_request()},
     responses: [
       ok: {"Updated monitor", "application/json", MonitorSchemas.monitor_response()},
       not_found: {"Monitor not found", "application/json", MonitorSchemas.error()},
@@ -124,8 +126,8 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def update(conn, %{"workspace_slug" => workspace_slug, "id" => id} = params) do
-    monitor_params = Map.drop(params, ["workspace_slug", "id"])
+  def update(conn, %{workspace_slug: workspace_slug, id: id}) do
+    monitor_params = conn.body_params
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
@@ -152,7 +154,7 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def delete(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
+  def delete(conn, %{workspace_slug: workspace_slug, id: id}) do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          {:ok, monitor} <- Monitoring.get_monitor(id),
          true <- monitor.workspace_id == workspace.id || {:error, :not_found},
@@ -161,29 +163,16 @@ defmodule HolterWeb.Api.MonitorController do
     end
   end
 
-  defp sanitize_params(params) do
+  defp atomize_enum_params(params) do
     params
-    |> maybe_convert_param("page", :integer)
-    |> maybe_convert_param("page_size", :integer)
-    |> maybe_convert_param("health_status", :atom)
-    |> maybe_convert_param("logical_state", :atom)
+    |> maybe_to_existing_atom(:health_status)
+    |> maybe_to_existing_atom(:logical_state)
   end
 
-  defp maybe_convert_param(params, key, :integer) do
+  defp maybe_to_existing_atom(params, key) do
     case Map.get(params, key) do
-      val when is_binary(val) -> Map.put(params, String.to_atom(key), String.to_integer(val))
-      val when is_integer(val) -> Map.put(params, String.to_atom(key), val)
+      val when is_binary(val) -> Map.put(params, key, String.to_existing_atom(val))
       _ -> params
-    end
-  end
-
-  defp maybe_convert_param(params, key, :atom) do
-    case Map.get(params, key) do
-      val when is_binary(val) ->
-        Map.put(params, String.to_atom(key), String.to_existing_atom(val))
-
-      _ ->
-        params
     end
   rescue
     ArgumentError -> params

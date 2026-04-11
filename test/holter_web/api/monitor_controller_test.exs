@@ -10,10 +10,20 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     workspace = workspace_fixture(%{name: "Test Workspace", slug: "test-workspace"})
     api_spec = ApiSpec.spec()
 
-    {:ok,
-     conn: put_req_header(conn, "accept", "application/json"),
-     workspace: workspace,
-     api_spec: api_spec}
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("content-type", "application/json")
+
+    {:ok, conn: conn, workspace: workspace, api_spec: api_spec}
+  end
+
+  defp json_post(conn, path, body) do
+    post(conn, path, Jason.encode!(body))
+  end
+
+  defp json_put(conn, path, body) do
+    put(conn, path, Jason.encode!(body))
   end
 
   describe "GET /api/v1/workspaces/:workspace_slug/monitors" do
@@ -44,18 +54,14 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   end
 
   describe "POST /api/v1/workspaces/:workspace_slug/monitors" do
-    @valid_attrs %{
-      url: "https://api-test.local",
-      method: "get",
-      interval_seconds: 60
-    }
+    @valid_attrs %{url: "https://api-test.local", method: "get", interval_seconds: 60}
 
     test "Creates a monitor and returns 201", %{
       conn: conn,
       workspace: workspace,
       api_spec: spec
     } do
-      conn = post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", @valid_attrs)
+      conn = json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", @valid_attrs)
       body = json_response(conn, 201)
 
       assert %{"id" => id} = body["data"]
@@ -64,7 +70,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     end
 
     test "Returns 422 for invalid data", %{conn: conn, workspace: workspace} do
-      conn = post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{url: nil})
+      conn = json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{url: nil})
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -96,7 +102,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       conn =
-        put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
+        json_put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
           url: "https://updated.local"
         })
 
@@ -112,7 +118,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       monitor_fixture(%{workspace_id: full_workspace.id})
 
       conn =
-        post(conn, ~p"/api/v1/workspaces/#{full_workspace.slug}/monitors", %{
+        json_post(conn, ~p"/api/v1/workspaces/#{full_workspace.slug}/monitors", %{
           url: "https://example.com",
           method: "get",
           interval_seconds: 60
@@ -126,7 +132,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       strict_workspace = workspace_fixture(%{min_interval_seconds: 300})
 
       conn =
-        post(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors", %{
+        json_post(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors", %{
           url: "https://example.com",
           method: "get",
           interval_seconds: 60
@@ -137,7 +143,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
     test "returns 422 when timeout >= interval_seconds", %{conn: conn, workspace: workspace} do
       conn =
-        post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
           url: "https://example.com",
           method: "get",
           interval_seconds: 60,
@@ -149,7 +155,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
     test "returns 422 when body is sent with GET method", %{conn: conn, workspace: workspace} do
       conn =
-        post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
           url: "https://example.com",
           method: "get",
           interval_seconds: 60,
@@ -161,7 +167,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
     test "returns 422 when body is invalid JSON", %{conn: conn, workspace: workspace} do
       conn =
-        post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
           url: "https://example.com",
           method: "post",
           interval_seconds: 60,
@@ -178,7 +184,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       monitor = monitor_fixture(%{workspace_id: strict_workspace.id, interval_seconds: 300})
 
       conn =
-        put(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors/#{monitor.id}", %{
+        json_put(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors/#{monitor.id}", %{
           interval_seconds: 60
         })
 
@@ -189,7 +195,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 120})
 
       conn =
-        put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
+        json_put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
           timeout_seconds: 120
         })
 
