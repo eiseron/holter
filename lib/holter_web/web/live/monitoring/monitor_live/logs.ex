@@ -51,19 +51,28 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
      |> assign(:filters, filters)
      |> assign(:form, form)
      |> assign(:patch_path, path)
-     |> assign_page_links(path, filters)}
+     |> assign_page_links(path, filters)
+     |> assign_sort_info(path, filters)}
   end
 
   @impl true
   def handle_event("filter_updated", %{"filters" => params}, socket) do
-    filters =
+    form_filters =
       params
       |> Map.new(fn {k, v} -> {k, empty_to_nil(v)} end)
-      |> Enum.reject(fn {_, v} -> is_nil(v) end)
+      |> Enum.reject(fn {k, v} -> is_nil(v) or k in ["sort_by", "sort_dir"] end)
       |> Map.new()
 
+    current_sort = %{
+      sort_by: socket.assigns.filters.sort_by,
+      sort_dir: socket.assigns.filters.sort_dir
+    }
+
     {:noreply,
-     push_patch(socket, to: socket.assigns.patch_path <> "?" <> encode_filters(filters))}
+     push_patch(socket,
+       to:
+         socket.assigns.patch_path <> "?" <> encode_filters(Map.merge(current_sort, form_filters))
+     )}
   end
 
   @impl true
@@ -155,6 +164,32 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     end
   end
 
+  @sortable_cols ~w(checked_at status latency_ms)
+
+  defp assign_sort_info(socket, path, filters) do
+    sort_info = Map.new(@sortable_cols, fn col -> {col, build_sort_col(path, filters, col)} end)
+    assign(socket, :sort_info, sort_info)
+  end
+
+  defp build_sort_col(path, filters, col_key) do
+    active = to_string(filters.sort_by) == col_key
+
+    next_dir =
+      cond do
+        active and filters.sort_dir == "asc" -> "desc"
+        active -> "asc"
+        true -> "desc"
+      end
+
+    new_filters = Map.merge(filters, %{sort_by: col_key, sort_dir: next_dir, page: 1})
+
+    %{
+      url: path <> "?" <> encode_filters(new_filters),
+      active: active,
+      dir: if(active, do: filters.sort_dir)
+    }
+  end
+
   defp assign_page_links(socket, path, filters) do
     %{page_number: page, total_pages: total} = socket.assigns
 
@@ -181,13 +216,32 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   defp empty_to_nil(""), do: nil
   defp empty_to_nil(value), do: value
 
-  @valid_filter_keys ~w(status start_date end_date page page_size)
+  @valid_filter_keys ~w(status start_date end_date page page_size sort_by sort_dir)
 
   defp parse_filters(params) do
-    %{status: nil, start_date: nil, end_date: nil, page: 1, page_size: 50}
+    %{
+      status: nil,
+      start_date: nil,
+      end_date: nil,
+      page: 1,
+      page_size: 50,
+      sort_by: "checked_at",
+      sort_dir: "desc"
+    }
     |> Map.merge(normalize_params(params))
     |> cast_integer_param(:page, 1)
     |> cast_integer_param(:page_size, 50)
+    |> validate_sort_params()
+  end
+
+  defp validate_sort_params(filters) do
+    sort_by =
+      if filters.sort_by in @sortable_cols, do: filters.sort_by, else: "checked_at"
+
+    sort_dir =
+      if filters.sort_dir in ~w(asc desc), do: filters.sort_dir, else: "desc"
+
+    %{filters | sort_by: sort_by, sort_dir: sort_dir}
   end
 
   defp normalize_params(params) do

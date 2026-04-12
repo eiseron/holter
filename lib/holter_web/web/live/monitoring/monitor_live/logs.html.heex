@@ -54,13 +54,31 @@
 
   <div class="h-mt-6">
     <.table id="logs-table" rows={@logs}>
-      <:col :let={log} label={gettext("Time")}>
+      <:col
+        :let={log}
+        label={gettext("Time")}
+        sort_url={@sort_info["checked_at"].url}
+        sort_active={@sort_info["checked_at"].active}
+        sort_dir={@sort_info["checked_at"].dir}
+      >
         {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
       </:col>
-      <:col :let={log} label={gettext("Status")}>
+      <:col
+        :let={log}
+        label={gettext("Status")}
+        sort_url={@sort_info["status"].url}
+        sort_active={@sort_info["status"].active}
+        sort_dir={@sort_info["status"].dir}
+      >
         <.status_pill status={log.status} status_code={log.status_code} />
       </:col>
-      <:col :let={log} label={gettext("Latency")}>
+      <:col
+        :let={log}
+        label={gettext("Latency")}
+        sort_url={@sort_info["latency_ms"].url}
+        sort_active={@sort_info["latency_ms"].active}
+        sort_dir={@sort_info["latency_ms"].dir}
+      >
         {log.latency_ms}ms
       </:col>
       <:col :let={log} label={gettext("Evidence")}>

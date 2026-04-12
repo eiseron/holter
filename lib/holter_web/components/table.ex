@@ -23,6 +23,9 @@ defmodule HolterWeb.Components.Table do
 
   slot :col, required: true do
     attr :label, :string
+    attr :sort_url, :string
+    attr :sort_active, :boolean
+    attr :sort_dir, :string
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
@@ -37,7 +40,18 @@ defmodule HolterWeb.Components.Table do
     <table class="h-table h-table-zebra">
       <thead>
         <tr>
-          <th :for={col <- @col}>{col[:label]}</th>
+          <th :for={col <- @col}>
+            <%= if col[:sort_url] do %>
+              <.link patch={col[:sort_url]} class="h-table-sort-header">
+                {col[:label]}
+                <span :if={col[:sort_active]} class="h-sort-indicator">
+                  {if col[:sort_dir] == "asc", do: "↑", else: "↓"}
+                </span>
+              </.link>
+            <% else %>
+              {col[:label]}
+            <% end %>
+          </th>
           <th :if={@action != []}>
             <span class="h-sr-only">{gettext("Actions")}</span>
           </th>
