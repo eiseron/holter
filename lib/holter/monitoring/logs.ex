@@ -5,13 +5,26 @@ defmodule Holter.Monitoring.Logs do
   alias Holter.Monitoring.MonitorLog
   alias Holter.Repo
 
+  @sortable_columns %{
+    "checked_at" => :checked_at,
+    "status" => :status,
+    "latency_ms" => :latency_ms
+  }
+
   def list_monitor_logs(monitor, filters) do
     page_size = filters[:page_size] || 50
     base_query = build_base_query(monitor.id, filters)
 
     {total_pages, current_page} = calculate_pagination(base_query, page_size, filters[:page])
 
-    logs = fetch_paginated_logs(base_query, current_page, page_size)
+    logs =
+      fetch_paginated_logs(
+        base_query,
+        current_page,
+        page_size,
+        filters[:sort_by],
+        filters[:sort_dir]
+      )
 
     %{
       logs: logs,
@@ -39,14 +52,20 @@ defmodule Holter.Monitoring.Logs do
     {total_pages, current_page}
   end
 
-  defp fetch_paginated_logs(query, page, page_size) do
+  defp fetch_paginated_logs(query, page, page_size, sort_by, sort_dir) do
     offset = (page - 1) * page_size
 
     query
-    |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
+    |> apply_sort_order(sort_by, sort_dir)
     |> limit(^page_size)
     |> offset(^offset)
     |> Repo.all()
+  end
+
+  defp apply_sort_order(query, sort_by, sort_dir) do
+    field = Map.get(@sortable_columns, to_string(sort_by), :checked_at)
+    dir = if sort_dir == "asc", do: :asc, else: :desc
+    order_by(query, [l], [{^dir, field(l, ^field)}, desc: l.inserted_at])
   end
 
   defp apply_status_filter(query, nil), do: query
