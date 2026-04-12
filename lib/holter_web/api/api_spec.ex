@@ -24,7 +24,7 @@ defmodule HolterWeb.Api.ApiSpec do
         description: "API for monitoring and security scanning."
       },
       servers: [
-        %Server{url: "/api"}
+        %Server{url: "/"}
       ],
       paths: Paths.from_router(Router),
       components: %OpenApiSpex.Components{
