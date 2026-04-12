@@ -18,8 +18,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp check_url(monitor, url, redirects, start_time) do
     case validate_destination(url) do
-      :ok ->
-        fetch_response(monitor, url, redirects, start_time)
+      {:ok, safe_ip} ->
+        fetch_response(monitor, url, safe_ip, redirects, start_time)
 
       {:error, reason} ->
         Engine.handle_failure(
@@ -30,9 +30,9 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     end
   end
 
-  defp fetch_response(monitor, url, redirects, start_time) do
+  defp fetch_response(monitor, url, safe_ip, redirects, start_time) do
     client = Application.get_env(:holter, :monitor_client, HTTP)
-    opts = build_opts(monitor, url)
+    opts = build_opts(monitor, url, safe_ip)
 
     case client.request(opts) do
       {:ok, response} -> handle_response(monitor, response, url, redirects, start_time)
@@ -76,11 +76,11 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         if Enum.any?(ips, &restricted_ip?(&1)) do
           {:error, "Access to restricted internal address blocked (DNS Validation)"}
         else
-          :ok
+          {:ok, List.first(ips)}
         end
 
       {:error, _} ->
-        :ok
+        {:ok, host}
     end
   end
 
@@ -117,27 +117,47 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_network_address?(_), do: false
 
-  defp build_opts(monitor, url) do
+  defp build_opts(monitor, url, safe_ip) do
+    uri = URI.parse(url)
+    original_host = uri.host
+
+    safe_url =
+      if original_host != safe_ip do
+        ip_host = if String.contains?(safe_ip, ":"), do: "[#{safe_ip}]", else: safe_ip
+        URI.to_string(%{uri | host: ip_host})
+      else
+        url
+      end
+
+    headers = Map.put(monitor.headers, "host", original_host)
+
     [
       method: normalize_method(monitor.method),
-      url: url,
-      headers: monitor.headers,
+      url: safe_url,
+      headers: headers,
       body: monitor.body,
       receive_timeout: monitor.timeout_seconds * 1000,
       redirect: false
     ]
-    |> apply_ssl_options(monitor.ssl_ignore)
+    |> apply_ssl_options(monitor.ssl_ignore, original_host)
   end
 
   defp normalize_method(method) do
     method |> to_string() |> String.downcase() |> String.to_existing_atom()
   end
 
-  defp apply_ssl_options(opts, true) do
-    Keyword.put(opts, :connect_options, transport_opts: [verify: :verify_none])
-  end
+  defp apply_ssl_options(opts, ignore_ssl, original_host) do
+    transport_opts = [server_name_indication: to_charlist(original_host)]
 
-  defp apply_ssl_options(opts, _), do: opts
+    transport_opts =
+      if ignore_ssl do
+        Keyword.put(transport_opts, :verify, :verify_none)
+      else
+        transport_opts
+      end
+
+    Keyword.put(opts, :connect_options, transport_opts: transport_opts)
+  end
 
   defp calculate_duration(start_time) do
     (System.monotonic_time() - start_time)
