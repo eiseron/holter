@@ -31,27 +31,35 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   end
 
   defp fetch_response(monitor, url, safe_ip, redirects, start_time) do
-    elapsed_ms = calculate_duration(start_time)
-    remaining_timeout = monitor.timeout_seconds * 1000 - elapsed_ms
+    remaining_timeout = calculate_remaining_timeout(monitor, start_time)
 
     if remaining_timeout <= 0 do
       Engine.handle_failure(
         monitor,
         %RuntimeError{message: "Global timeout exceeded"},
-        elapsed_ms
+        calculate_duration(start_time)
       )
     else
-      client = Application.get_env(:holter, :monitor_client, HTTP)
-      opts = build_opts(monitor, url, safe_ip, remaining_timeout)
+      execute_request(monitor, url, safe_ip, redirects, start_time, remaining_timeout)
+    end
+  end
 
-      case client.request(opts) do
-        {:ok, response} ->
-          current_duration = calculate_duration(start_time)
-          handle_response(monitor, response, url, redirects, start_time, current_duration)
+  defp calculate_remaining_timeout(monitor, start_time) do
+    elapsed_ms = calculate_duration(start_time)
+    monitor.timeout_seconds * 1000 - elapsed_ms
+  end
 
-        {:error, error} ->
-          Engine.handle_failure(monitor, error, calculate_duration(start_time))
-      end
+  defp execute_request(monitor, url, safe_ip, redirects, start_time, remaining_timeout) do
+    client = Application.get_env(:holter, :monitor_client, HTTP)
+    opts = build_opts(monitor, url, safe_ip, remaining_timeout)
+
+    case client.request(opts) do
+      {:ok, response} ->
+        current_duration = calculate_duration(start_time)
+        handle_response(monitor, response, url, redirects, start_time, current_duration)
+
+      {:error, error} ->
+        Engine.handle_failure(monitor, error, calculate_duration(start_time))
     end
   end
 
