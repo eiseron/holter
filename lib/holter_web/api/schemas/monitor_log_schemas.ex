@@ -1,0 +1,75 @@
+defmodule HolterWeb.Api.MonitorLogSchemas do
+  @moduledoc """
+  OpenAPI schemas for the MonitorLog resource.
+  """
+  alias OpenApiSpex.Schema
+
+  def all do
+    %{
+      "MonitorLog" => monitor_log(),
+      "MonitorLogList" => monitor_log_list()
+    }
+  end
+
+  def monitor_log do
+    %Schema{
+      title: "MonitorLog",
+      description: "A single check result for a monitor.",
+      type: :object,
+      properties: %{
+        id: %Schema{type: :string, format: :uuid},
+        status: %Schema{
+          type: :string,
+          enum: ["up", "down", "degraded", "compromised", "unknown"]
+        },
+        status_code: %Schema{type: :integer, nullable: true},
+        latency_ms: %Schema{type: :integer, nullable: true},
+        region: %Schema{type: :string, nullable: true},
+        response_snippet: %Schema{type: :string, nullable: true},
+        response_headers: %Schema{type: :object, nullable: true},
+        response_ip: %Schema{type: :string, nullable: true},
+        error_message: %Schema{type: :string, nullable: true},
+        redirect_count: %Schema{type: :integer, nullable: true},
+        last_redirect_url: %Schema{type: :string, nullable: true},
+        monitor_snapshot: %Schema{type: :object, nullable: true},
+        checked_at: %Schema{type: :string, format: :"date-time"},
+        inserted_at: %Schema{type: :string, format: :"date-time"},
+        updated_at: %Schema{type: :string, format: :"date-time"}
+      },
+      required: [:id, :status, :checked_at]
+    }
+  end
+
+  def monitor_log_list do
+    %Schema{
+      title: "MonitorLogList",
+      description: "A paginated list of monitor log entries.",
+      type: :object,
+      properties: %{
+        data: %Schema{type: :array, items: monitor_log()},
+        meta: %Schema{
+          type: :object,
+          properties: %{
+            page: %Schema{type: :integer},
+            page_size: %Schema{type: :integer},
+            total_pages: %Schema{type: :integer}
+          }
+        }
+      }
+    }
+  end
+
+  def error do
+    %Schema{
+      title: "Error",
+      description: "Standard error response.",
+      type: :object,
+      properties: %{
+        errors: %Schema{
+          type: :object,
+          additionalProperties: %Schema{type: :array, items: %Schema{type: :string}}
+        }
+      }
+    }
+  end
+end
