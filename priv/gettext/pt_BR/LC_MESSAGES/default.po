@@ -475,3 +475,27 @@ msgstr "Desconhecido"
 #, elixir-autogen, elixir-format
 msgid "Up"
 msgstr "Ativo"
+
+#, elixir-autogen, elixir-format
+msgid "Follow Redirects"
+msgstr "Seguir Redirecionamentos"
+
+#, elixir-autogen, elixir-format
+msgid "If the URL responds with a 3xx status, follow the Location header."
+msgstr "Se a URL responder com um status 3xx, seguir o cabeçalho Location."
+
+#, elixir-autogen, elixir-format
+msgid "Max Redirects"
+msgstr "Máx. de Redirecionamentos"
+
+#, elixir-autogen, elixir-format
+msgid "Maximum number of sequential redirects to follow (1-20)."
+msgstr "Número máximo de redirecionamentos sequenciais a seguir (1-20)."
+
+#, elixir-autogen, elixir-format
+msgid "Redirects"
+msgstr "Redirecionamentos"
+
+#, elixir-autogen, elixir-format
+msgid "%{count} hops"
+msgstr "%{count} saltos"
