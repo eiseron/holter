@@ -74,7 +74,7 @@ defmodule HolterWeb.Api.MonitorLogController do
       ]
     ],
     responses: [
-      ok: {"Log details", "application/json", MonitorLogSchemas.monitor_log()},
+      ok: {"Log details", "application/json", MonitorLogSchemas.monitor_log_response()},
       not_found: {"Log not found", "application/json", MonitorLogSchemas.error()}
     ]
   )

@@ -4,6 +4,8 @@ defmodule HolterWeb.Api.ApiSpecTest do
   alias HolterWeb.Api.ApiSpec
   alias OpenApiSpex.OpenApi
 
+  import OpenApiSpex.TestAssertions
+
   test "API spec is valid and has correct server URL" do
     spec = ApiSpec.spec()
     assert %OpenApi{info: %{title: "Holter API"}} = spec
@@ -23,6 +25,27 @@ defmodule HolterWeb.Api.ApiSpecTest do
     
     # Verifica se NÃO existe nenhum caminho com prefixo duplicado /api/api/v1
     refute Enum.any?(Map.keys(paths), fn path -> String.starts_with?(path, "/api/api/v1") end)
+  end
+
+  test "Workspace response matches schema", %{conn: conn} do
+    workspace = workspace_fixture(%{slug: "spec-test"})
+    json = 
+      conn
+      |> get(~p"/api/v1/workspaces/#{workspace.slug}")
+      |> json_response(200)
+    
+    assert_schema(json, "WorkspaceResponse", ApiSpec.spec())
+  end
+
+  test "Monitor response matches schema", %{conn: conn} do
+    monitor = monitor_fixture()
+    workspace = Holter.Monitoring.get_workspace!(monitor.workspace_id)
+    json = 
+      conn 
+      |> get(~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      |> json_response(200)
+    
+    assert_schema(json, "MonitorResponse", ApiSpec.spec())
   end
 
   test "Swagger UI is accessible and points to correct spec" do

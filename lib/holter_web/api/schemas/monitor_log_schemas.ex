@@ -7,7 +7,20 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
   def all do
     %{
       "MonitorLog" => monitor_log(),
+      "MonitorLogResponse" => monitor_log_response(),
       "MonitorLogList" => monitor_log_list()
+    }
+  end
+
+  def monitor_log_response do
+    %Schema{
+      title: "MonitorLogResponse",
+      description: "Response containing a single monitor log entry.",
+      type: :object,
+      properties: %{
+        data: monitor_log()
+      },
+      required: [:data]
     }
   end
 

@@ -4,9 +4,22 @@ defmodule HolterWeb.Api.MonitorSchemas do
   """
   alias OpenApiSpex.Schema
 
+  def monitor_response do
+    %Schema{
+      title: "MonitorResponse",
+      description: "Response containing a single monitor.",
+      type: :object,
+      properties: %{
+        data: monitor()
+      },
+      required: [:data]
+    }
+  end
+
   def all do
     %{
       "Monitor" => monitor(),
+      "MonitorResponse" => monitor_response(),
       "MonitorRequest" => monitor_request(),
       "MonitorList" => monitor_list(),
       "Error" => error()
@@ -23,7 +36,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
         url: %Schema{type: :string, format: :uri},
         method: %Schema{
           type: :string,
-          enum: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE", "OPTIONS"]
+          enum: ["get", "post", "head", "put", "patch", "delete", "options"]
         },
         interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
         timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 300},
