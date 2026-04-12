@@ -31,16 +31,31 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   end
 
   defp fetch_response(monitor, url, safe_ip, redirects, start_time) do
-    client = Application.get_env(:holter, :monitor_client, HTTP)
-    opts = build_opts(monitor, url, safe_ip)
+    elapsed_ms = calculate_duration(start_time)
+    remaining_timeout = monitor.timeout_seconds * 1000 - elapsed_ms
 
-    case client.request(opts) do
-      {:ok, response} -> handle_response(monitor, response, url, redirects, start_time)
-      {:error, error} -> Engine.handle_failure(monitor, error, calculate_duration(start_time))
+    if remaining_timeout <= 0 do
+      Engine.handle_failure(
+        monitor,
+        %RuntimeError{message: "Global timeout exceeded"},
+        elapsed_ms
+      )
+    else
+      client = Application.get_env(:holter, :monitor_client, HTTP)
+      opts = build_opts(monitor, url, safe_ip, remaining_timeout)
+
+      case client.request(opts) do
+        {:ok, response} ->
+          current_duration = calculate_duration(start_time)
+          handle_response(monitor, response, url, redirects, start_time, current_duration)
+
+        {:error, error} ->
+          Engine.handle_failure(monitor, error, calculate_duration(start_time))
+      end
     end
   end
 
-  defp handle_response(monitor, response, url, redirects, start_time) do
+  defp handle_response(monitor, response, url, redirects, start_time, current_duration) do
     should_follow =
       response.status in 301..308 and monitor.follow_redirects and
         redirects < monitor.max_redirects
@@ -48,14 +63,15 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     if should_follow do
       follow_redirect(monitor, response, url, redirects, start_time)
     else
-      Engine.process_response(monitor, response, calculate_duration(start_time), redirects, url)
+      Engine.process_response(monitor, response, current_duration, redirects, url)
     end
   end
 
   defp follow_redirect(monitor, response, url, redirects, start_time) do
     case get_header(response.headers, "location") do
       nil ->
-        Engine.process_response(monitor, response, calculate_duration(start_time), redirects, url)
+        current_duration = calculate_duration(start_time)
+        Engine.process_response(monitor, response, current_duration, redirects, url)
 
       location ->
         location = if is_list(location), do: List.first(location), else: location
@@ -117,7 +133,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_network_address?(_), do: false
 
-  defp build_opts(monitor, url, safe_ip) do
+  defp build_opts(monitor, url, safe_ip, remaining_timeout) do
     uri = URI.parse(url)
     original_host = uri.host
 
@@ -136,7 +152,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       url: safe_url,
       headers: headers,
       body: monitor.body,
-      receive_timeout: monitor.timeout_seconds * 1000,
+      receive_timeout: remaining_timeout,
       redirect: false
     ]
     |> apply_ssl_options(monitor.ssl_ignore, original_host)
