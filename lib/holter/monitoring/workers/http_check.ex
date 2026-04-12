@@ -12,14 +12,14 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
     start_time = System.monotonic_time()
-    client = Application.get_env(:holter, :monitor_client, HTTP)
+    check_url(monitor, monitor.url, 0, start_time)
+    :ok
+  end
 
-    case validate_destination(monitor.url) do
+  defp check_url(monitor, url, redirects, start_time) do
+    case validate_destination(url) do
       :ok ->
-        monitor
-        |> build_request_options()
-        |> perform_request(client)
-        |> process_result(monitor, start_time)
+        fetch_response(monitor, url, redirects, start_time)
 
       {:error, reason} ->
         Engine.handle_failure(
@@ -28,18 +28,44 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
           calculate_duration(start_time)
         )
     end
-
-    :ok
   end
 
-  defp perform_request(opts, client), do: client.request(opts)
+  defp fetch_response(monitor, url, redirects, start_time) do
+    client = Application.get_env(:holter, :monitor_client, HTTP)
+    opts = build_opts(monitor, url)
 
-  defp process_result({:ok, response}, monitor, start_time) do
-    Engine.process_response(monitor, response, calculate_duration(start_time))
+    case client.request(opts) do
+      {:ok, response} -> handle_response(monitor, response, url, redirects, start_time)
+      {:error, error} -> Engine.handle_failure(monitor, error, calculate_duration(start_time))
+    end
   end
 
-  defp process_result({:error, error}, monitor, start_time) do
-    Engine.handle_failure(monitor, error, calculate_duration(start_time))
+  defp handle_response(monitor, response, url, redirects, start_time) do
+    should_follow =
+      response.status in 301..308 and monitor.follow_redirects and
+        redirects < monitor.max_redirects
+
+    if should_follow do
+      follow_redirect(monitor, response, url, redirects, start_time)
+    else
+      Engine.process_response(monitor, response, calculate_duration(start_time), redirects, url)
+    end
+  end
+
+  defp follow_redirect(monitor, response, url, redirects, start_time) do
+    case get_header(response.headers, "location") do
+      nil ->
+        Engine.process_response(monitor, response, calculate_duration(start_time), redirects, url)
+
+      location ->
+        location = if is_list(location), do: List.first(location), else: location
+        next_url = URI.merge(url, location) |> to_string()
+        check_url(monitor, next_url, redirects + 1, start_time)
+    end
+  end
+
+  defp get_header(headers, key) do
+    headers |> Enum.find_value(fn {k, v} -> if String.downcase(k) == key, do: v end)
   end
 
   defp validate_destination(url) do
@@ -91,10 +117,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_network_address?(_), do: false
 
-  defp build_request_options(monitor) do
+  defp build_opts(monitor, url) do
     [
       method: normalize_method(monitor.method),
-      url: monitor.url,
+      url: url,
       headers: monitor.headers,
       body: monitor.body,
       receive_timeout: monitor.timeout_seconds * 1000,

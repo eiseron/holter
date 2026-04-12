@@ -46,6 +46,9 @@ defmodule Holter.Monitoring.Monitor do
     field :body, :string
 
     field :ssl_ignore, :boolean, default: false
+    field :follow_redirects, :boolean, default: true
+    field :max_redirects, :integer, default: 5
+
     field :raw_keyword_positive, :string, virtual: true
     field :raw_keyword_negative, :string, virtual: true
     field :keyword_positive, {:array, :string}, default: []
@@ -78,6 +81,8 @@ defmodule Holter.Monitoring.Monitor do
       :raw_headers,
       :body,
       :ssl_ignore,
+      :follow_redirects,
+      :max_redirects,
       :raw_keyword_positive,
       :raw_keyword_negative,
       :last_checked_at,
@@ -92,6 +97,7 @@ defmodule Holter.Monitoring.Monitor do
       less_than_or_equal_to: 86_400
     )
     |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 300)
+    |> validate_number(:max_redirects, greater_than_or_equal_to: 1, less_than_or_equal_to: 20)
     |> validate_length(:url, max: 2048)
     |> validate_length(:raw_headers, max: 4096)
     |> validate_length(:body, max: 8192)
@@ -241,7 +247,9 @@ defmodule Holter.Monitoring.Monitor do
       body: monitor.body,
       keyword_positive: monitor.keyword_positive,
       keyword_negative: monitor.keyword_negative,
-      ssl_ignore: monitor.ssl_ignore
+      ssl_ignore: monitor.ssl_ignore,
+      follow_redirects: monitor.follow_redirects,
+      max_redirects: monitor.max_redirects
     }
   end
 end

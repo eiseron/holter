@@ -8,20 +8,25 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
 
-  def process_response(monitor, response, duration_ms) do
+  def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil) do
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do
-      finalize_check(monitor, %{
-        check_status: :down,
-        log_status: :down,
-        status_code: response.status,
-        duration_ms: duration_ms,
-        error_msg: "Access to restricted internal address blocked",
-        snippet: nil,
-        headers: nil,
-        ip: ip
-      })
+      finalize_check(
+        monitor,
+        %{
+          check_status: :down,
+          log_status: :down,
+          status_code: response.status,
+          duration_ms: duration_ms,
+          error_msg: "Access to restricted internal address blocked",
+          snippet: nil,
+          headers: nil,
+          ip: ip,
+          redirect_count: redirects,
+          last_redirect_url: last_url
+        }
+      )
     else
       body = normalize_body(response.body)
       {positive_ok, negative_ok} = validate_keywords(body, monitor)
@@ -41,16 +46,21 @@ defmodule Holter.Monitoring.Engine do
           {nil, nil, ip}
         end
 
-      finalize_check(monitor, %{
-        check_status: check_status,
-        log_status: check_status,
-        status_code: response.status,
-        duration_ms: duration_ms,
-        error_msg: error_msg,
-        snippet: snippet,
-        headers: headers,
-        ip: ip
-      })
+      finalize_check(
+        monitor,
+        %{
+          check_status: check_status,
+          log_status: check_status,
+          status_code: response.status,
+          duration_ms: duration_ms,
+          error_msg: error_msg,
+          snippet: snippet,
+          headers: headers,
+          ip: ip,
+          redirect_count: redirects,
+          last_redirect_url: last_url
+        }
+      )
     end
   end
 
@@ -79,13 +89,13 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp determine_check_status(status, positive_ok, _negative_ok)
-       when status < 200 or status >= 400 or not positive_ok,
+       when status < 200 or status >= 300 or not positive_ok,
        do: :down
 
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_error_message(status, _, _) when status < 200 or status >= 400,
+  defp determine_error_message(status, _, _) when status < 200 or status >= 300,
     do: "HTTP Error: #{status}"
 
   defp determine_error_message(_, false, _), do: "Missing required keywords"
@@ -106,6 +116,8 @@ defmodule Holter.Monitoring.Engine do
       response_headers: params.headers,
       response_ip: params.ip,
       region: get_region(),
+      redirect_count: params[:redirect_count],
+      last_redirect_url: params[:last_redirect_url],
       checked_at: now,
       monitor_snapshot: snapshot
     })
