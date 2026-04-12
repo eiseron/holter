@@ -119,6 +119,30 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
             {gettext("Check this if your endpoint uses self-signed certificates or expired SSL.")}
           </p>
         </div>
+
+        <div>
+          <.input
+            field={@form[:follow_redirects]}
+            type="checkbox"
+            label={gettext("Follow Redirects")}
+          />
+          <p class="h-help-text">
+            {gettext("If the URL responds with a 3xx status, follow the Location header.")}
+          </p>
+        </div>
+
+        <div>
+          <.input
+            field={@form[:max_redirects]}
+            type="number"
+            label={gettext("Max Redirects")}
+            min="1"
+            max="20"
+          />
+          <p class="h-help-text">
+            {gettext("Maximum number of sequential redirects to follow (1-20).")}
+          </p>
+        </div>
       </div>
     </div>
     """

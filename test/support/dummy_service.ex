@@ -34,7 +34,11 @@ defmodule Holter.Test.DummyService do
         Agent.update(__MODULE__, &Map.put(&1, call_id, rest))
         status = Keyword.get(next, :status, 200)
         body = Keyword.get(next, :body, "OK")
-        send_resp(conn, status, body)
+        headers = Keyword.get(next, :headers, [])
+
+        conn
+        |> merge_resp_headers(headers)
+        |> send_resp(status, body)
 
       _ ->
         send_resp(conn, 404, "No responses queued for: #{call_id}")

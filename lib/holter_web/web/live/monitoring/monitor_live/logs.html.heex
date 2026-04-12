@@ -134,6 +134,15 @@
             <label>{gettext("Region")}</label>
             <span>{@selected_log.region}</span>
           </div>
+          <%= if (@selected_log.redirect_count || 0) > 0 do %>
+            <div class="h-evidence-block h-evidence-redirect">
+              <label>{gettext("Redirects")}</label>
+              <div class="h-redirect-data">
+                <span class="h-badge">{gettext("%{count} hops", count: @selected_log.redirect_count)}</span>
+                <span class="h-url-muted">{@selected_log.last_redirect_url}</span>
+              </div>
+            </div>
+          <% end %>
         </div>
 
         <%= if @selected_log.error_message do %>

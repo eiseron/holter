@@ -140,6 +140,93 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
   end
 
+  describe "perform/1 with follow_redirects enabled" do
+    test "follows a single redirect", %{monitor: monitor} do
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{follow_redirects: true})
+
+      expect(MonitorClientMock, :request, fn opts ->
+        assert opts[:url] == monitor.url
+
+        {:ok,
+         %Req.Response{
+           status: 301,
+           headers: [{"location", "https://redirected.local"}],
+           body: ""
+         }}
+      end)
+
+      expect(MonitorClientMock, :request, fn opts ->
+        assert opts[:url] == "https://redirected.local"
+        {:ok, %Req.Response{status: 200, body: "success"}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+      assert current_status(monitor) == :up
+
+      assert [%{redirect_count: 1, last_redirect_url: "https://redirected.local"}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+
+    test "follows multiple redirects up to max_redirects", %{monitor: monitor} do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 2})
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/1"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/2"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 200, body: "success"}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+      assert current_status(monitor) == :up
+
+      assert [%{redirect_count: 2, last_redirect_url: "https://test.local/2"}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+
+    test "stops at max_redirects", %{monitor: monitor} do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 1})
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/1"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/2"}], body: ""}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+
+      assert current_status(monitor) == :down
+
+      assert [%{redirect_count: 1, last_redirect_url: "https://test.local/1", status_code: 301}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+
+    test "handles circular redirects", %{monitor: monitor} do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 5})
+
+      expect(MonitorClientMock, :request, 6, fn opts ->
+        location = if String.ends_with?(opts[:url], "A"), do: "/B", else: "/A"
+        {:ok, %Req.Response{status: 302, headers: [{"location", location}], body: ""}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+      assert current_status(monitor) == :down
+
+      assert [%{redirect_count: 5, status_code: 302}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+  end
+
   defp stub_response(body, status) do
     expect(MonitorClientMock, :request, fn _opts ->
       {:ok, %Req.Response{status: status, body: body}}
