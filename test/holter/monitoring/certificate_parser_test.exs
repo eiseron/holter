@@ -42,5 +42,17 @@ defmodule Holter.Monitoring.CertificateParserTest do
       result = CertificateParser.extract_expiration_from_otp(otp_cert)
       assert result == ~U[2049-12-31 23:59:59Z]
     end
+
+    test "returns nil when Validity block is missing or unexpected" do
+      # Estrutura mal-formada que causaria FunctionClauseError antes do FIX
+      otp_cert = {:OTPCertificate, {:something_else}, nil, nil}
+      assert is_nil(CertificateParser.extract_expiration_from_otp(otp_cert))
+    end
+  end
+
+  describe "parse_expiry/1" do
+    test "gracefully handles invalid binary data without crashing" do
+      assert is_nil(CertificateParser.parse_expiry(<<0, 1, 2, 3>>))
+    end
   end
 end

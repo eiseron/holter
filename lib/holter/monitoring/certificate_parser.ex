@@ -21,12 +21,15 @@ defmodule Holter.Monitoring.CertificateParser do
         tbs_cert
         |> extract_validity_from_tbs()
         |> extract_not_after()
-        |> decode_asn1_time()
+        |> maybe_decode_time()
 
       _ ->
         nil
     end
   end
+
+  defp maybe_decode_time(nil), do: nil
+  defp maybe_decode_time(time), do: decode_asn1_time(time)
 
   defp decode_otp_cert(cert), do: :public_key.pkix_decode_cert(cert, :otp)
 
