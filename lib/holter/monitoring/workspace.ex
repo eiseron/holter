@@ -1,6 +1,7 @@
 defmodule Holter.Monitoring.Workspace do
   use Ecto.Schema
   import Ecto.Changeset
+  use Gettext, backend: HolterWeb.Gettext
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -57,7 +58,7 @@ defmodule Holter.Monitoring.Workspace do
 
   defp validate_slug_immutability(changeset) do
     if changeset.data.id && get_change(changeset, :slug) do
-      add_error(changeset, :slug, "cannot be changed after creation")
+      add_error(changeset, :slug, gettext("cannot be changed after creation"))
     else
       changeset
     end
