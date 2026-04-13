@@ -38,3 +38,6 @@ npm-debug.log
 .docker/home/*
 !.docker/home/.keep
 /.docker/home
+
+# Ignore application logs
+/logs/
