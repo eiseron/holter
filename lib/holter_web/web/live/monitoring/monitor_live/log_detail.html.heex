@@ -11,27 +11,11 @@
   </.header>
 
   <div class="h-log-detail-content">
-    <%= if @evidence_inherited do %>
-      <div class="h-evidence-inherited-notice">
-        <p>
-          ⚠️ {gettext(
-            "This check did not capture new evidence. Showing the most recent evidence from %{time}.",
-            time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
-          )}
-        </p>
-        <p class="h-mt-2">
-          <.link navigate={~p"/monitoring/logs/#{@payload_log.id}"} class="h-link">
-            {gettext("View original log")}
-          </.link>
-        </p>
-      </div>
-    <% end %>
-
     <div class="h-evidence-grid">
       <div class="h-evidence-meta">
         <div class="h-meta-item">
           <label>{gettext("Status")}</label>
-          <span>{@log.status_code}</span>
+          <.status_pill status={@log.status} status_code={@log.status_code} />
         </div>
         <div class="h-meta-item">
           <label>{gettext("Latency")}</label>
@@ -54,6 +38,22 @@
         <% end %>
       </div>
 
+      <%= if @evidence_inherited do %>
+        <div class="h-evidence-inherited-notice">
+          <p>
+            ⚠️ {gettext(
+              "This check did not capture new evidence. Showing the most recent evidence from %{time}.",
+              time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+            )}
+          </p>
+          <p class="h-mt-2">
+            <.link navigate={~p"/monitoring/logs/#{@payload_log.id}"} class="h-link">
+              {gettext("View original log")}
+            </.link>
+          </p>
+        </div>
+      <% end %>
+
       <%= if @log.error_message do %>
         <div class="h-evidence-block h-evidence-error">
           <label>{gettext("Error Message")}</label>
@@ -75,5 +75,9 @@
         </div>
       <% end %>
     </div>
+
+    <%= if @log.monitor_snapshot do %>
+      <.monitor_snapshot snapshot={@log.monitor_snapshot} />
+    <% end %>
   </div>
 </div>
