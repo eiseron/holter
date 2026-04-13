@@ -21,7 +21,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 123})
 
       {:ok, view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
 
       %{view: view, html: html}
     end
@@ -55,7 +55,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=down&start_date=2026-04-08&page=1"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?status=down&start_date=2026-04-08&page=1"
 
       {:ok, _view, html} = live(conn, url)
 
@@ -72,7 +72,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=compromised&page=1"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?status=compromised&page=1"
 
       {:ok, _view, html} = live(conn, url)
 
@@ -100,7 +100,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&page_size=5&page=1"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&page_size=5&page=1"
 
       {:ok, view, _html} = live(conn, url)
 
@@ -108,7 +108,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5&sort_by=checked_at&sort_dir=desc&status=up"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page=2&page_size=5&sort_by=checked_at&sort_dir=desc&status=up"
       )
     end
 
@@ -118,7 +118,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=10&page_size=5"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page=10&page_size=5"
 
       {:ok, view, _html} = live(conn, url)
 
@@ -128,7 +128,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "updating filter resets to page 1", %{conn: conn, monitor: monitor, workspace: workspace} do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page=2&page_size=5"
 
       {:ok, view, _html} = live(conn, url)
 
@@ -138,7 +138,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&sort_by=checked_at&sort_dir=desc&status=down"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page_size=5&sort_by=checked_at&sort_dir=desc&status=down"
       )
     end
   end
@@ -168,7 +168,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       {:ok, _view, html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
 
       assert html =~ "h-table-sort-header"
       assert html =~ "sort_by=checked_at"
@@ -183,7 +183,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, view, _html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
         )
 
       html = render(view)
@@ -202,7 +202,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, view, _html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=desc"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=desc"
         )
 
       html = render(view)
@@ -219,13 +219,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
 
       view |> element("thead a[href*='sort_by=checked_at']") |> render_click()
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=asc"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=asc"
       )
     end
 
@@ -237,14 +237,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, view, _html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
         )
 
       view |> element("thead a[href*='sort_by=checked_at']") |> render_click()
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=desc"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=desc"
       )
     end
 
@@ -256,7 +256,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, view, _html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc&page=2&page_size=1"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc&page=2&page_size=1"
         )
 
       view |> element("thead a[href*='sort_by=latency_ms']") |> render_click()
@@ -275,7 +275,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, _view, html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
         )
 
       assert html =~ "h-sort-indicator"
@@ -290,7 +290,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       {:ok, _view, html} =
         live(
           conn,
-          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
+          ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
         )
 
       refute html =~ "↓"
@@ -302,7 +302,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
 
       html = render(view)
       refute html =~ ~r/h-table-sort-header[^<]*Evidence/
@@ -314,7 +314,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       workspace: workspace
     } do
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&sort_by=latency_ms&sort_dir=desc"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&sort_by=latency_ms&sort_dir=desc"
 
       {:ok, _view, html} = live(conn, url)
 
@@ -332,7 +332,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       end
 
       url =
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc&page_size=3&page=1"
+        ~p"/monitoring/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc&page_size=3&page=1"
 
       {:ok, _view, html} = live(conn, url)
 
@@ -356,7 +356,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
 
       %{view: view, log: log}
     end

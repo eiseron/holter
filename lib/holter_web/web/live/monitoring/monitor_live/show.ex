@@ -7,35 +7,27 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   alias Holter.Monitoring.Workers.SSLCheck
 
   @impl true
-  def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
-    case Monitoring.get_workspace_by_slug(slug) do
-      {:ok, workspace} ->
-        if connected?(socket) do
-          Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
-        end
-
-        monitor = Monitoring.get_monitor!(id)
-        hydrated_monitor = hydrate_virtual_array_fields(monitor)
-
-        daily_metrics = Monitoring.list_daily_metrics(id)
-        changeset = Monitoring.change_monitor(hydrated_monitor)
-
-        socket =
-          socket
-          |> assign(:workspace, workspace)
-          |> assign(:monitor, hydrated_monitor)
-          |> assign(:daily_metrics, daily_metrics)
-          |> assign(:form, to_form(changeset))
-          |> assign_cooldown(monitor.last_manual_check_at)
-
-        {:ok, socket}
-
-      {:error, :not_found} ->
-        {:ok,
-         socket
-         |> put_flash(:error, gettext("Workspace not found"))
-         |> push_navigate(to: "/")}
+  def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
     end
+
+    monitor = Monitoring.get_monitor!(id)
+    workspace = Monitoring.get_workspace!(monitor.workspace_id)
+    hydrated_monitor = hydrate_virtual_array_fields(monitor)
+
+    daily_metrics = Monitoring.list_daily_metrics(id)
+    changeset = Monitoring.change_monitor(hydrated_monitor)
+
+    socket =
+      socket
+      |> assign(:workspace, workspace)
+      |> assign(:monitor, hydrated_monitor)
+      |> assign(:daily_metrics, daily_metrics)
+      |> assign(:form, to_form(changeset))
+      |> assign_cooldown(monitor.last_manual_check_at)
+
+    {:ok, socket}
   end
 
   @impl true

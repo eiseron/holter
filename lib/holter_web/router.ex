@@ -51,6 +51,11 @@ defmodule HolterWeb.Router do
 
     live "/dashboard", MonitorLive.Index, :index
     live "/monitor/new", MonitorLive.New, :new
+  end
+
+  scope "/monitoring", HolterWeb.Web.Monitoring do
+    pipe_through :browser
+
     live "/monitor/:id", MonitorLive.Show, :show
     live "/monitor/:id/logs", MonitorLive.Logs, :index
   end
