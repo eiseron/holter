@@ -97,28 +97,30 @@ defmodule Holter.Monitoring.Monitor do
     }
   end
 
+  @allowed_fields [
+    :logical_state,
+    :health_status,
+    :url,
+    :method,
+    :interval_seconds,
+    :timeout_seconds,
+    :headers,
+    :raw_headers,
+    :body,
+    :ssl_ignore,
+    :follow_redirects,
+    :max_redirects,
+    :raw_keyword_positive,
+    :raw_keyword_negative,
+    :last_checked_at,
+    :last_success_at,
+    :last_manual_check_at,
+    :ssl_expires_at
+  ]
+
   defp cast_fields(monitor, attrs) do
-    cast(monitor, attrs, [
-      :logical_state,
-      :health_status,
-      :url,
-      :method,
-      :interval_seconds,
-      :timeout_seconds,
-      :headers,
-      :raw_headers,
-      :body,
-      :ssl_ignore,
-      :follow_redirects,
-      :max_redirects,
-      :raw_keyword_positive,
-      :raw_keyword_negative,
-      :last_checked_at,
-      :last_success_at,
-      :last_manual_check_at,
-      :ssl_expires_at,
-      :workspace_id
-    ])
+    allowed = if is_nil(monitor.id), do: [:workspace_id | @allowed_fields], else: @allowed_fields
+    cast(monitor, attrs, allowed)
   end
 
   defp validate_core_fields(changeset) do
@@ -148,6 +150,26 @@ defmodule Holter.Monitoring.Monitor do
     |> validate_body_allowed_for_method()
     |> validate_body_json()
     |> validate_ssl_ignore_requires_https()
+    |> validate_quota_on_activation(workspace)
+  end
+
+  defp validate_quota_on_activation(changeset, nil), do: changeset
+
+  defp validate_quota_on_activation(changeset, workspace) do
+    state_changed? = field_changed?(changeset, :logical_state)
+    new_state = get_field(changeset, :logical_state)
+
+    if state_changed? and changeset.data.logical_state == :archived and new_state != :archived do
+      if Holter.Monitoring.at_quota?(workspace, changeset.data.id) do
+        add_error(changeset, :logical_state, "Monitor limit reached for this workspace",
+          code: :quota_reached
+        )
+      else
+        changeset
+      end
+    else
+      changeset
+    end
   end
 
   defp process_virtual_fields(changeset) do

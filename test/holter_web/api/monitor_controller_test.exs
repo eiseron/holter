@@ -198,6 +198,37 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     end
   end
 
+  describe "PUT /api/v1/monitors/:id — security & quota bypass" do
+    test "prevents bypassing quota by changing workspace_id", %{conn: conn, workspace: workspace} do
+      other_workspace = workspace_fixture()
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+      json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
+        "monitor" => %{"workspace_id" => other_workspace.id}
+      })
+
+      updated_monitor = Monitoring.get_monitor!(monitor.id)
+      assert updated_monitor.workspace_id == workspace.id
+    end
+
+    test "prevents bypassing quota by unarchiving a monitor", %{conn: conn} do
+      full_workspace = workspace_fixture(%{max_monitors: 1})
+      monitor_fixture(%{workspace_id: full_workspace.id})
+      
+      archived_monitor = monitor_fixture(%{workspace_id: full_workspace.id, logical_state: :archived})
+      assert Monitoring.at_quota?(full_workspace)
+
+      conn =
+        json_put(conn, ~p"/api/v1/monitors/#{archived_monitor.id}", %{
+          "monitor" => %{"logical_state" => "active"}
+        })
+
+      resp = json_response(conn, 422)
+      assert resp["error"]["code"] == "validation_failed"
+      assert resp["error"]["details"]["logical_state"] == ["Monitor limit reached for this workspace"]
+    end
+  end
+
   describe "DELETE /api/v1/monitors/:id" do
     test "Deletes monitor and returns 204", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})

@@ -114,9 +114,10 @@ defmodule Holter.Monitoring.Monitors do
 
   def create_monitor(attrs \\ %{}) do
     workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
+    logical_state = attrs[:logical_state] || attrs["logical_state"] || :active
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
-         :ok <- check_monitor_quota(workspace),
+         :ok <- check_monitor_quota(workspace, logical_state),
          changeset = %Monitor{} |> Monitor.changeset(attrs, workspace),
          {:ok, monitor} <- Repo.insert(changeset) do
       broadcast({:ok, monitor}, :monitor_created)
@@ -148,18 +149,29 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  def at_quota?(%{max_monitors: max, id: ws_id}) do
-    count =
+  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
+    query =
       Monitor
       |> where([m], m.workspace_id == ^ws_id)
       |> where([m], m.logical_state != :archived)
-      |> Repo.aggregate(:count, :id)
 
+    query =
+      if exclude_monitor_id do
+        where(query, [m], m.id != ^exclude_monitor_id)
+      else
+        query
+      end
+
+    count = Repo.aggregate(query, :count, :id)
     count >= max
   end
 
-  defp check_monitor_quota(workspace) do
-    if at_quota?(workspace), do: {:error, :quota_exceeded}, else: :ok
+  defp check_monitor_quota(workspace, logical_state) do
+    if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
+      {:error, :quota_reached}
+    else
+      :ok
+    end
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do

@@ -7,6 +7,7 @@ defmodule Holter.Monitoring do
 
   defdelegate list_monitors, to: Monitors
   defdelegate count_monitors(workspace_id), to: Monitors
+  defdelegate at_quota?(workspace, exclude_monitor_id \\ nil), to: Monitors
   defdelegate get_monitor!(id), to: Monitors
   defdelegate get_monitor(id), to: Monitors
   defdelegate create_monitor(attrs), to: Monitors
@@ -20,7 +21,6 @@ defmodule Holter.Monitoring do
   defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
   defdelegate list_monitors_with_sparklines(workspace_id, limit \\ 30), to: Monitors
   defdelegate list_monitors_filtered(params), to: Monitors
-  defdelegate at_quota?(workspace), to: Monitors
 
   defdelegate list_monitor_logs(monitor, filters), to: Logs
   defdelegate get_monitor_log!(id), to: Logs
