@@ -39,8 +39,8 @@ function getOrCreateSessionId() {
 
 const SESSION_ID = getOrCreateSessionId()
 
-const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-const REQUEST_ID = document.querySelector("meta[name='request-id']").getAttribute("content")
+const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']")?.getAttribute("content")
+const REQUEST_ID = document.querySelector("meta[name='request-id']")?.getAttribute("content")
 
 // --- Client-Side Telemetry ---
 function sendLogToBackend(level, message, stack = null) {
@@ -82,7 +82,6 @@ const originalConsole = {
 
 console.log = (...args) => {
   originalConsole.log(...args)
-  if (process.env.NODE_ENV === "production") sendLogToBackend("info", args.join(" "))
 }
 
 console.warn = (...args) => {

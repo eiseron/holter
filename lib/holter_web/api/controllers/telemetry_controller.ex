@@ -5,8 +5,10 @@ defmodule HolterWeb.Api.TelemetryController do
   use HolterWeb, :controller
   require Logger
 
-  def log(conn, %{"level" => level, "message" => message} = params) do
-    if same_origin?(conn) do
+  def log(conn, params) do
+    with {:ok, level} <- extract_string_param(params, "level"),
+         {:ok, message} <- extract_string_param(params, "message"),
+         true <- same_origin?(conn) do
       metadata = [
         client_side: true,
         stack: params["stack"],
@@ -21,7 +23,16 @@ defmodule HolterWeb.Api.TelemetryController do
 
       send_resp(conn, 204, "")
     else
-      send_resp(conn, 403, "")
+      false -> send_resp(conn, 403, "")
+      {:error, _} -> send_resp(conn, 400, "")
+    end
+  end
+
+  defp extract_string_param(params, key) do
+    case params[key] do
+      value when is_binary(value) -> {:ok, value}
+      nil -> {:error, "missing_#{key}"}
+      _ -> {:error, "invalid_#{key}"}
     end
   end
 
@@ -29,6 +40,12 @@ defmodule HolterWeb.Api.TelemetryController do
     origin = get_req_header(conn, "origin") |> List.first()
     host = HolterWeb.Endpoint.url()
 
-    is_nil(origin) or String.starts_with?(origin, host) or String.contains?(origin, "localhost")
+    cond do
+      is_nil(origin) -> true
+      String.starts_with?(origin, host) -> true
+      origin == "http://localhost" -> true
+      origin == "http://localhost:4000" -> true
+      true -> false
+    end
   end
 end
