@@ -40,6 +40,7 @@ function getOrCreateSessionId() {
 const SESSION_ID = getOrCreateSessionId()
 
 const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+const REQUEST_ID = document.querySelector("meta[name='request-id']").getAttribute("content")
 
 // --- Client-Side Telemetry ---
 function sendLogToBackend(level, message, stack = null) {
@@ -98,7 +99,7 @@ console.error = (...args) => {
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken, session_id: SESSION_ID},
+  params: {_csrf_token: csrfToken, session_id: SESSION_ID, request_id: REQUEST_ID},
   hooks: {...colocatedHooks},
 })
 

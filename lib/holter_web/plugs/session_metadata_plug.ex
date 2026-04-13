@@ -12,9 +12,13 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
     session_id = get_session_id(conn)
     workspace_id = extract_workspace_id(conn)
 
+    request_id = conn.assigns[:request_id] || Keyword.get(Logger.metadata(), :request_id)
+
+    conn = assign(conn, :request_id, request_id)
+
     metadata =
       %{
-        request_id: conn.assigns[:request_id] || Keyword.get(Logger.metadata(), :request_id),
+        request_id: request_id,
         session_id: session_id,
         workspace_id: workspace_id,
         request_path: conn.request_path,
