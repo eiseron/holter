@@ -12,64 +12,68 @@ defmodule Holter.Monitoring.Engine do
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do
-      finalize_check(
-        monitor,
-        %{
-          check_status: :down,
-          log_status: :down,
-          status_code: response.status,
-          duration_ms: duration_ms,
-          error_msg: "Access to restricted internal address blocked",
-          snippet: nil,
-          headers: nil,
-          ip: ip,
-          redirect_count: redirects,
-          last_redirect_url: last_url
-        }
-      )
+      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url)
     else
-      content_type = get_header(response.headers, "content-type")
-      body = normalize_body(response.body)
+      perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url)
+    end
+  end
 
-      search_body =
-        if html?(content_type) do
-          strip_html_tags(body)
-        else
-          body
-        end
+  defp handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url) do
+    finalize_check(
+      monitor,
+      %{
+        check_status: :down,
+        log_status: :down,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: "Access to restricted internal address blocked",
+        snippet: nil,
+        headers: nil,
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
 
-      {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+  defp perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url) do
+    content_type = get_header(response.headers, "content-type")
+    body = normalize_body(response.body)
+    search_body = prepare_search_body(body, content_type)
 
-      check_status = determine_check_status(response.status, positive_ok, negative_ok)
+    {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+    check_status = determine_check_status(response.status, positive_ok, negative_ok)
+    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-      error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+    {headers, snippet} =
+      maybe_collect_evidence(monitor, check_status, body, content_type, response.headers)
 
-      {headers, snippet, ip} =
-        if check_status != monitor.health_status do
-          {
-            filter_headers(response.headers),
-            clean_body_snippet(body, content_type),
-            ip
-          }
-        else
-          {nil, nil, ip}
-        end
+    finalize_check(
+      monitor,
+      %{
+        check_status: check_status,
+        log_status: check_status,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: error_msg,
+        snippet: snippet,
+        headers: headers,
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
 
-      finalize_check(
-        monitor,
-        %{
-          check_status: check_status,
-          log_status: check_status,
-          status_code: response.status,
-          duration_ms: duration_ms,
-          error_msg: error_msg,
-          snippet: snippet,
-          headers: headers,
-          ip: ip,
-          redirect_count: redirects,
-          last_redirect_url: last_url
-        }
-      )
+  defp prepare_search_body(body, content_type) do
+    if html?(content_type), do: strip_html_tags(body), else: body
+  end
+
+  defp maybe_collect_evidence(monitor, check_status, body, content_type, headers) do
+    if check_status != monitor.health_status do
+      {filter_headers(headers), clean_body_snippet(body, content_type)}
+    else
+      {nil, nil}
     end
   end
 
