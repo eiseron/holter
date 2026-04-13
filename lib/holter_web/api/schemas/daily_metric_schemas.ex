@@ -16,6 +16,7 @@ defmodule HolterWeb.Api.DailyMetricSchemas do
       title: "DailyMetric",
       description: "Aggregated daily uptime and performance metrics for a monitor.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
         date: %Schema{type: :string, format: :date},
@@ -34,6 +35,7 @@ defmodule HolterWeb.Api.DailyMetricSchemas do
       title: "DailyMetricList",
       description: "A list of daily metric entries ordered by date descending.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: %Schema{type: :array, items: daily_metric()}
       }
@@ -45,6 +47,7 @@ defmodule HolterWeb.Api.DailyMetricSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         errors: %Schema{
           type: :object,

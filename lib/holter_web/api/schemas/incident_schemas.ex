@@ -16,6 +16,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
       title: "Incident",
       description: "A detected downtime, defacement, or SSL expiry incident for a monitor.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
         type: %Schema{type: :string, enum: ["downtime", "defacement", "ssl_expiry"]},
@@ -23,7 +24,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
         resolved_at: %Schema{type: :string, format: :"date-time", nullable: true},
         duration_seconds: %Schema{type: :integer, nullable: true},
         root_cause: %Schema{type: :string, nullable: true},
-        monitor_snapshot: %Schema{type: :object, nullable: true},
+        monitor_snapshot: %Schema{type: :object, nullable: true, additionalProperties: true},
         inserted_at: %Schema{type: :string, format: :"date-time"},
         updated_at: %Schema{type: :string, format: :"date-time"}
       },
@@ -36,6 +37,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
       title: "IncidentList",
       description: "A list of incidents ordered by start time descending.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: %Schema{type: :array, items: incident()}
       }
@@ -47,6 +49,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         errors: %Schema{
           type: :object,

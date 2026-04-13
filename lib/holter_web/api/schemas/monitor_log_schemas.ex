@@ -17,6 +17,7 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
       title: "MonitorLogResponse",
       description: "Response containing a single monitor log entry.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: monitor_log()
       },
@@ -29,6 +30,7 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
       title: "MonitorLog",
       description: "A single check result for a monitor.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
         status: %Schema{
@@ -39,12 +41,12 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
         latency_ms: %Schema{type: :integer, nullable: true},
         region: %Schema{type: :string, nullable: true},
         response_snippet: %Schema{type: :string, nullable: true},
-        response_headers: %Schema{type: :object, nullable: true},
+        response_headers: %Schema{type: :object, nullable: true, additionalProperties: true},
         response_ip: %Schema{type: :string, nullable: true},
         error_message: %Schema{type: :string, nullable: true},
         redirect_count: %Schema{type: :integer, nullable: true},
         last_redirect_url: %Schema{type: :string, nullable: true},
-        monitor_snapshot: %Schema{type: :object, nullable: true},
+        monitor_snapshot: %Schema{type: :object, nullable: true, additionalProperties: true},
         checked_at: %Schema{type: :string, format: :"date-time"},
         inserted_at: %Schema{type: :string, format: :"date-time"},
         updated_at: %Schema{type: :string, format: :"date-time"}
@@ -58,10 +60,12 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
       title: "MonitorLogList",
       description: "A paginated list of monitor log entries.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: %Schema{type: :array, items: monitor_log()},
         meta: %Schema{
           type: :object,
+          additionalProperties: false,
           properties: %{
             page: %Schema{type: :integer},
             page_size: %Schema{type: :integer},
@@ -77,6 +81,7 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         errors: %Schema{
           type: :object,

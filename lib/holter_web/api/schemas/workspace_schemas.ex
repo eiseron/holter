@@ -16,11 +16,13 @@ defmodule HolterWeb.Api.WorkspaceSchemas do
       title: "WorkspaceResponse",
       description: "Response containing a single workspace.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: %Schema{
           title: "Workspace",
           description: "A workspace that groups monitors together.",
           type: :object,
+          additionalProperties: false,
           properties: %{
             id: %Schema{type: :string, format: :uuid},
             name: %Schema{type: :string},
@@ -43,6 +45,7 @@ defmodule HolterWeb.Api.WorkspaceSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         errors: %Schema{
           type: :object,

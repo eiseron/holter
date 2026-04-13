@@ -9,6 +9,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "MonitorResponse",
       description: "Response containing a single monitor.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: monitor()
       },
@@ -31,6 +32,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "Monitor",
       description: "A monitoring target for HTTP/HTTPS/SSL checks.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
         url: %Schema{type: :string, format: :uri},
@@ -48,7 +50,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
         ssl_ignore: %Schema{type: :boolean, default: false},
         follow_redirects: %Schema{type: :boolean, default: true},
         max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},
-        headers: %Schema{type: :object, nullable: true},
+        headers: %Schema{type: :object, nullable: true, additionalProperties: true},
         body: %Schema{type: :string, nullable: true},
         keyword_positive: %Schema{type: :array, items: %Schema{type: :string}},
         keyword_negative: %Schema{type: :array, items: %Schema{type: :string}},
@@ -67,6 +69,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "MonitorRequest",
       description: "Parameters for creating or updating a monitor.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         url: %Schema{type: :string, format: :uri},
         method: %Schema{
@@ -92,10 +95,12 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "MonitorList",
       description: "A list of monitors with metadata.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         data: %Schema{type: :array, items: monitor()},
         meta: %Schema{
           type: :object,
+          additionalProperties: false,
           properties: %{
             page: %Schema{type: :integer},
             page_size: %Schema{type: :integer},
@@ -111,6 +116,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
+      additionalProperties: false,
       properties: %{
         errors: %Schema{
           type: :object,
