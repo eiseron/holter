@@ -65,7 +65,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       workspace: workspace
     } do
       last_check =
-        DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() - 1), :second)
+        DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() - 10), :second)
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{last_manual_check_at: last_check})
 
@@ -74,7 +74,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
 
       assert render(view) =~ "disabled"
 
-      send(view.pid, :tick)
+      expired_check =
+        DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() + 1), :second)
+
+      Monitoring.update_monitor(monitor, %{last_manual_check_at: expired_check})
+
+      send(view.pid, {:monitor_updated, nil})
 
       html = render(view)
       refute html =~ "disabled"

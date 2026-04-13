@@ -214,8 +214,10 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     test "prevents bypassing quota by unarchiving a monitor", %{conn: conn} do
       full_workspace = workspace_fixture(%{max_monitors: 1})
       monitor_fixture(%{workspace_id: full_workspace.id})
-      
-      archived_monitor = monitor_fixture(%{workspace_id: full_workspace.id, logical_state: :archived})
+
+      archived_monitor =
+        monitor_fixture(%{workspace_id: full_workspace.id, logical_state: :archived})
+
       assert Monitoring.at_quota?(full_workspace)
 
       conn =
@@ -225,7 +227,10 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
       resp = json_response(conn, 422)
       assert resp["error"]["code"] == "validation_failed"
-      assert resp["error"]["details"]["logical_state"] == ["Monitor limit reached for this workspace"]
+
+      assert resp["error"]["details"]["logical_state"] == [
+               "Monitor limit reached for this workspace"
+             ]
     end
   end
 

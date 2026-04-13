@@ -9,6 +9,12 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring.Monitor
 
   def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil) do
+    Logger.metadata(
+      monitor_id: monitor.id,
+      workspace_id: monitor.workspace_id,
+      context: :monitoring_check
+    )
+
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do

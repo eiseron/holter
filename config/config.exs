@@ -45,12 +45,21 @@ config :esbuild,
     env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]
 
-# Configure Elixir's Logger and Sentry
-config :logger, backends: [:console, Sentry.LoggerBackend]
+# Configure Elixir's Logger
+config :logger, :default_handler,
+  formatter: {Holter.Observability.LoggerFormatter, metadata: :all}
 
-config :logger, :default_formatter,
-  format: {LoggerJSON.Formatters.Basic, :format},
-  metadata: [:request_id, :session_id]
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [
+    :request_id,
+    :session_id,
+    :workspace_id,
+    :monitor_id,
+    :context,
+    :holter_version,
+    :phoenix_version
+  ]
 
 config :sentry,
   enable_source_code_context: true,

@@ -1,13 +1,29 @@
 defmodule HolterWeb.ObservabilityHook do
+  @moduledoc """
+  Mount hook for LiveView to inject session and environment metadata.
+  """
   import Phoenix.LiveView
+  import Phoenix.Component
   require Logger
 
-  def on_mount(:default, _params, _session, socket) do
-    session_id = extract_session_id(socket)
+  def on_mount(:default, _params, session, socket) do
+    session_id = extract_session_id(socket) || Map.get(session, "session_id")
+    workspace_id = Map.get(session, "workspace_id")
 
-    if session_id do
-      Logger.metadata(session_id: session_id)
-      Sentry.Context.set_tags(%{session_id: session_id})
+    metadata =
+      %{
+        session_id: session_id,
+        workspace_id: workspace_id,
+        context: :live_view,
+        view: socket.view |> to_string()
+      }
+      |> Map.merge(Holter.Observability.system_versions())
+      |> Map.reject(fn {_, v} -> is_nil(v) end)
+
+    Logger.metadata(Map.to_list(metadata))
+
+    if Code.ensure_loaded?(Sentry.Context) do
+      Sentry.Context.set_tags_context(metadata)
     end
 
     {:cont, assign_new(socket, :session_id, fn -> session_id end)}

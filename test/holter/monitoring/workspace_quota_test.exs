@@ -9,7 +9,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       workspace = workspace_fixture(%{max_monitors: 1})
       monitor_fixture(%{workspace_id: workspace.id})
 
-      assert {:error, :quota_exceeded} =
+      assert {:error, :quota_reached} =
                Monitoring.create_monitor(%{
                  url: "https://example.com",
                  method: "get",
