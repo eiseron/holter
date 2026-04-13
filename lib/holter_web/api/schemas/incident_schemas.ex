@@ -56,7 +56,10 @@ defmodule HolterWeb.Api.IncidentSchemas do
           properties: %{
             code: %Schema{type: :string, description: "Machine-readable error code (slug)."},
             message: %Schema{type: :string, description: "Human-readable error message."},
-            details: %Schema{type: :object, description: "Optional additional error details (e.g. validation errors)."}
+            details: %Schema{
+              type: :object,
+              description: "Optional additional error details (e.g. validation errors)."
+            }
           },
           required: [:code, :message]
         }

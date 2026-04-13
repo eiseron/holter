@@ -17,5 +17,7 @@ defmodule HolterWeb.Api.ErrorJSON do
   defp template_to_code("401.json"), do: "unauthorized"
   defp template_to_code("422.json"), do: "validation_failed"
   defp template_to_code("500.json"), do: "internal_server_error"
-  defp template_to_code(template), do: template |> String.replace(".json", "") |> String.replace(~r/[^\w]/, "_")
+
+  defp template_to_code(template),
+    do: template |> String.replace(".json", "") |> String.replace(~r/[^\w]/, "_")
 end
