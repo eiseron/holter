@@ -52,31 +52,20 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     end
   end
 
-  describe "GET /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "GET /api/v1/monitors/:id" do
     test "Returns monitor details", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
-      conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}")
       assert json_response(conn, 200)["data"]["id"] == monitor.id
-    end
-
-    test "Returns 404 if monitor belongs to another workspace", %{
-      conn: conn,
-      workspace: workspace
-    } do
-      other_workspace = workspace_fixture()
-      monitor = monitor_fixture(%{workspace_id: other_workspace.id})
-
-      conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
-      assert json_response(conn, 404)
     end
   end
 
-  describe "PUT /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "PUT /api/v1/monitors/:id" do
     test "Updates monitor and returns 200", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       conn =
-        put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}",
+        put(conn, ~p"/api/v1/monitors/#{monitor.id}",
           monitor: %{url: "https://updated.local"}
         )
 
@@ -84,11 +73,11 @@ defmodule HolterWeb.Api.MonitorControllerTest do
     end
   end
 
-  describe "DELETE /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "DELETE /api/v1/monitors/:id" do
     test "Deletes monitor and returns 204", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      conn = delete(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      conn = delete(conn, ~p"/api/v1/monitors/#{monitor.id}")
       assert response(conn, 204)
       assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
     end

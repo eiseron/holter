@@ -39,10 +39,9 @@ defmodule HolterWeb.Api.ApiSpecTest do
 
   test "Monitor response matches schema", %{conn: conn} do
     monitor = monitor_fixture()
-    workspace = Holter.Monitoring.get_workspace!(monitor.workspace_id)
     json = 
       conn 
-      |> get(~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      |> get(~p"/api/v1/monitors/#{monitor.id}")
       |> json_response(200)
     
     assert_schema(json, "MonitorResponse", ApiSpec.spec())

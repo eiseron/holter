@@ -20,8 +20,10 @@ defmodule HolterWeb.Router do
 
     scope "/workspaces/:workspace_slug" do
       get "/", WorkspaceController, :show
-      resources "/monitors", MonitorController, except: [:new, :edit]
+      resources "/monitors", MonitorController, only: [:index, :create]
     end
+
+    resources "/monitors", MonitorController, except: [:index, :create, :new, :edit]
 
     scope "/monitors/:monitor_id" do
       resources "/logs", MonitorLogController, only: [:index, :show]
