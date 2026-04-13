@@ -362,7 +362,7 @@ msgstr "Snippet de Conteúdo"
 msgid "Details"
 msgstr "Detalhes"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:162
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:163
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr "Falha ao disparar a verificação"
@@ -441,13 +441,13 @@ msgstr "Ativo"
 #: lib/holter_web/components/monitoring/dashboard_header.ex:23
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached (%{max}/%{max})"
-msgstr ""
+msgstr "Limite de monitores atingido (%{max}/%{max})"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:16
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:66
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace (max: %{max})"
-msgstr ""
+msgstr "Limite de monitores atingido para este workspace (máximo: %{max})"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:142
 #, elixir-autogen, elixir-format
@@ -477,7 +477,7 @@ msgstr "Número máximo de redirecionamentos sequenciais a seguir (1-20)."
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:47
 #, elixir-autogen, elixir-format
 msgid "Please wait before triggering another manual check."
-msgstr ""
+msgstr "Por favor, aguarde antes de acionar outra verificação manual."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:139
 #, elixir-autogen, elixir-format
@@ -487,4 +487,102 @@ msgstr "Redirecionamentos"
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:54
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
-msgstr ""
+msgstr "Você tem alterações não salvas. Por favor, salve-as antes de verificar."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:22
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:34
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:33
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:36
+#, elixir-autogen, elixir-format
+msgid "Workspace not found"
+msgstr "Workspace não encontrado"
+
+#: lib/holter/monitoring/engine.ex:36
+#, elixir-autogen, elixir-format
+msgid "Access to restricted internal address blocked"
+msgstr "Acesso a endereço interno restrito bloqueado"
+
+#: lib/holter/monitoring/security_scanner.ex:29
+#, elixir-autogen, elixir-format
+msgid "Certificate expired"
+msgstr "Certificado expirado"
+
+#: lib/holter/monitoring/security_scanner.ex:37
+#, elixir-autogen, elixir-format
+msgid "Certificate expires in %{days} days (Critical)"
+msgstr "Certificado expira em %{days} dias (Crítico)"
+
+#: lib/holter/monitoring/security_scanner.ex:46
+#, elixir-autogen, elixir-format
+msgid "Certificate expires in %{days} days (Warning)"
+msgstr "Certificado expira em %{days} dias (Aviso)"
+
+#: lib/holter/monitoring/engine.ex:122
+#, elixir-autogen, elixir-format
+msgid "Found forbidden keywords"
+msgstr "Palavras-chave proibidas encontradas"
+
+#: lib/holter/monitoring/engine.ex:119
+#, elixir-autogen, elixir-format
+msgid "HTTP Error: %{status}"
+msgstr "Erro HTTP: %{status}"
+
+#: lib/holter/monitoring/engine.ex:121
+#, elixir-autogen, elixir-format
+msgid "Missing required keywords"
+msgstr "Palavras-chave obrigatórias ausentes"
+
+#: lib/holter/monitoring/monitor.ex:165
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Monitor limit reached for this workspace"
+msgstr "Limite de monitores atingido para este workspace"
+
+#: lib/holter/monitoring/security_scanner.ex:23
+#, elixir-autogen, elixir-format
+msgid "SSL Error: %{reason}"
+msgstr "Erro SSL: %{reason}"
+
+#: lib/holter/monitoring/workspace.ex:61
+#, elixir-autogen, elixir-format
+msgid "cannot be changed after creation"
+msgstr "não pode ser alterado após a criação"
+
+#: lib/holter/monitoring/monitor.ex:279
+#, elixir-autogen, elixir-format
+msgid "cannot have more than %{max_keywords} keywords (got %{count})"
+msgstr "não pode ter mais de %{max_keywords} palavras-chave (tem %{count})"
+
+#: lib/holter/monitoring/monitor.ex:356
+#, elixir-autogen, elixir-format
+msgid "is a restricted internal address"
+msgstr "é um endereço interno restrito"
+
+#: lib/holter/monitoring/monitor.ex:254
+#, elixir-autogen, elixir-format
+msgid "is only applicable to HTTPS URLs"
+msgstr "é aplicável apenas a URLs HTTPS"
+
+#: lib/holter/monitoring/monitor.ex:321
+#, elixir-autogen, elixir-format
+msgid "must be a valid JSON object"
+msgstr "deve ser um objeto JSON válido"
+
+#: lib/holter/monitoring/monitor.ex:242
+#, elixir-autogen, elixir-format
+msgid "must be a valid JSON string"
+msgstr "deve ser uma string JSON válida"
+
+#: lib/holter/monitoring/monitor.ex:412
+#, elixir-autogen, elixir-format
+msgid "must be a valid http or https URL"
+msgstr "deve ser uma URL http ou https válida"
+
+#: lib/holter/monitoring/monitor.ex:219
+#, elixir-autogen, elixir-format
+msgid "must be empty for %{method} requests"
+msgstr "deve estar vazio para requisições %{method}"
+
+#: lib/holter/monitoring/monitor.ex:202
+#, elixir-autogen, elixir-format
+msgid "must be less than the check interval (%{interval}s)"
+msgstr "deve ser menor que o intervalo de verificação (%{interval}s)"

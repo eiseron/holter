@@ -1,12 +1,13 @@
 defmodule Holter.Monitoring.Engine do
   @moduledoc """
   Core monitoring logic detached from Oban workers.
-  This service handles response processing, keyword validation, 
+  This service handles response processing, keyword validation,
   incident lifecycle, and monitor log creation.
   """
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
+  use Gettext, backend: HolterWeb.Gettext
 
   def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil) do
     Logger.metadata(
@@ -32,7 +33,7 @@ defmodule Holter.Monitoring.Engine do
         log_status: :down,
         status_code: response.status,
         duration_ms: duration_ms,
-        error_msg: "Access to restricted internal address blocked",
+        error_msg: gettext("Access to restricted internal address blocked"),
         snippet: nil,
         headers: nil,
         ip: ip,
@@ -115,10 +116,10 @@ defmodule Holter.Monitoring.Engine do
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
   defp determine_error_message(status, _, _) when status < 200 or status >= 300,
-    do: "HTTP Error: #{status}"
+    do: gettext("HTTP Error: %{status}", status: status)
 
-  defp determine_error_message(_, false, _), do: "Missing required keywords"
-  defp determine_error_message(_, _, false), do: "Found forbidden keywords"
+  defp determine_error_message(_, false, _), do: gettext("Missing required keywords")
+  defp determine_error_message(_, _, false), do: gettext("Found forbidden keywords")
   defp determine_error_message(_, _, _), do: nil
 
   defp finalize_check(monitor, params) do

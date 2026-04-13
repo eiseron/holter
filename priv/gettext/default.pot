@@ -362,7 +362,7 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:162
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:163
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr ""
@@ -487,4 +487,102 @@ msgstr ""
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:54
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:22
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:34
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:33
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:36
+#, elixir-autogen, elixir-format
+msgid "Workspace not found"
+msgstr ""
+
+#: lib/holter/monitoring/engine.ex:36
+#, elixir-autogen, elixir-format
+msgid "Access to restricted internal address blocked"
+msgstr ""
+
+#: lib/holter/monitoring/security_scanner.ex:29
+#, elixir-autogen, elixir-format
+msgid "Certificate expired"
+msgstr ""
+
+#: lib/holter/monitoring/security_scanner.ex:37
+#, elixir-autogen, elixir-format
+msgid "Certificate expires in %{days} days (Critical)"
+msgstr ""
+
+#: lib/holter/monitoring/security_scanner.ex:46
+#, elixir-autogen, elixir-format
+msgid "Certificate expires in %{days} days (Warning)"
+msgstr ""
+
+#: lib/holter/monitoring/engine.ex:122
+#, elixir-autogen, elixir-format
+msgid "Found forbidden keywords"
+msgstr ""
+
+#: lib/holter/monitoring/engine.ex:119
+#, elixir-autogen, elixir-format
+msgid "HTTP Error: %{status}"
+msgstr ""
+
+#: lib/holter/monitoring/engine.ex:121
+#, elixir-autogen, elixir-format
+msgid "Missing required keywords"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:165
+#, elixir-autogen, elixir-format
+msgid "Monitor limit reached for this workspace"
+msgstr ""
+
+#: lib/holter/monitoring/security_scanner.ex:23
+#, elixir-autogen, elixir-format
+msgid "SSL Error: %{reason}"
+msgstr ""
+
+#: lib/holter/monitoring/workspace.ex:61
+#, elixir-autogen, elixir-format
+msgid "cannot be changed after creation"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:279
+#, elixir-autogen, elixir-format
+msgid "cannot have more than %{max_keywords} keywords (got %{count})"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:356
+#, elixir-autogen, elixir-format
+msgid "is a restricted internal address"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:254
+#, elixir-autogen, elixir-format
+msgid "is only applicable to HTTPS URLs"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:321
+#, elixir-autogen, elixir-format
+msgid "must be a valid JSON object"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:242
+#, elixir-autogen, elixir-format
+msgid "must be a valid JSON string"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:412
+#, elixir-autogen, elixir-format
+msgid "must be a valid http or https URL"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:219
+#, elixir-autogen, elixir-format
+msgid "must be empty for %{method} requests"
+msgstr ""
+
+#: lib/holter/monitoring/monitor.ex:202
+#, elixir-autogen, elixir-format
+msgid "must be less than the check interval (%{interval}s)"
 msgstr ""

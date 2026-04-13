@@ -19,7 +19,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
       {:error, :not_found} ->
         {:ok,
          socket
-         |> put_flash(:error, "Workspace not found")
+         |> put_flash(:error, gettext("Workspace not found"))
          |> push_navigate(to: "/")}
     end
   end

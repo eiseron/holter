@@ -367,7 +367,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       assert render(view) =~ "nginx"
       assert render(view) =~ "Server Error"
 
-      view |> element("button", "Fechar") |> render_click()
+      view |> element("button", "close") |> render_click()
       refute has_element?(view, "#evidence-modal")
     end
   end

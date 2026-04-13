@@ -1,6 +1,7 @@
 defmodule Holter.Monitoring.Monitor do
   use Ecto.Schema
   import Ecto.Changeset
+  use Gettext, backend: HolterWeb.Gettext
 
   @manual_check_cooldown 60
   def manual_check_cooldown, do: @manual_check_cooldown
@@ -161,7 +162,7 @@ defmodule Holter.Monitoring.Monitor do
 
     if state_changed? and changeset.data.logical_state == :archived and new_state != :archived do
       if Holter.Monitoring.at_quota?(workspace, changeset.data.id) do
-        add_error(changeset, :logical_state, "Monitor limit reached for this workspace",
+        add_error(changeset, :logical_state, gettext("Monitor limit reached for this workspace"),
           code: :quota_reached
         )
       else
@@ -198,8 +199,7 @@ defmodule Holter.Monitoring.Monitor do
         add_error(
           changeset,
           :timeout_seconds,
-          "must be less than the check interval (%{interval}s)",
-          interval: interval
+          gettext("must be less than the check interval (%{interval}s)", interval: interval)
         )
       else
         changeset
@@ -215,8 +215,7 @@ defmodule Holter.Monitoring.Monitor do
       body = get_field(changeset, :body)
 
       if method in @bodyless_methods && body && body != "" do
-        add_error(changeset, :body, "must be empty for %{method} requests",
-          method: String.upcase(to_string(method))
+        add_error(changeset, :body, gettext("must be empty for %{method} requests", method: method)
         )
       else
         changeset
@@ -238,7 +237,7 @@ defmodule Holter.Monitoring.Monitor do
        when method in @body_methods and is_binary(body) and body != "" do
     case Jason.decode(body) do
       {:ok, _} -> changeset
-      {:error, _} -> add_error(changeset, :body, "must be a valid JSON string")
+      {:error, _} -> add_error(changeset, :body, gettext("must be a valid JSON string"))
     end
   end
 
@@ -250,7 +249,7 @@ defmodule Holter.Monitoring.Monitor do
       url = get_field(changeset, :url)
 
       if ssl_ignore && url && String.starts_with?(url, "http://") do
-        add_error(changeset, :ssl_ignore, "is only applicable to HTTPS URLs")
+        add_error(changeset, :ssl_ignore, gettext("is only applicable to HTTPS URLs"))
       else
         changeset
       end
@@ -275,8 +274,10 @@ defmodule Holter.Monitoring.Monitor do
         add_error(
           changeset,
           field,
-          "cannot have more than #{@max_keywords} keywords (got %{count})",
-          count: length(keywords)
+          gettext("cannot have more than %{max_keywords} keywords (got %{count})",
+            max_keywords: @max_keywords,
+            count: length(keywords)
+          )
         )
       else
         changeset
@@ -316,7 +317,7 @@ defmodule Holter.Monitoring.Monitor do
             put_change(changeset, :headers, sanitize_map(map))
 
           _ ->
-            add_error(changeset, :raw_headers, "must be a valid JSON object")
+            add_error(changeset, :raw_headers, gettext("must be a valid JSON object"))
         end
 
       :error ->
@@ -351,7 +352,7 @@ defmodule Holter.Monitoring.Monitor do
       host = URI.parse(url).host
 
       if restricted_host?(host) do
-        [url: "is a restricted internal address"]
+        [url: gettext("is a restricted internal address")]
       else
         []
       end
@@ -407,7 +408,7 @@ defmodule Holter.Monitoring.Monitor do
         {:ok, true}
 
       _ ->
-        {:error, "must be a valid http or https URL"}
+        {:error, gettext("must be a valid http or https URL")}
     end
   end
 end
