@@ -28,8 +28,17 @@ defmodule Holter.Monitoring.Engine do
         }
       )
     else
+      content_type = get_header(response.headers, "content-type")
       body = normalize_body(response.body)
-      {positive_ok, negative_ok} = validate_keywords(body, monitor)
+
+      search_body =
+        if is_html?(content_type) do
+          strip_html_tags(body)
+        else
+          body
+        end
+
+      {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
 
       check_status = determine_check_status(response.status, positive_ok, negative_ok)
 
@@ -39,7 +48,7 @@ defmodule Holter.Monitoring.Engine do
         if check_status != monitor.health_status do
           {
             filter_headers(response.headers),
-            clean_body_snippet(body, get_header(response.headers, "content-type")),
+            clean_body_snippet(body, content_type),
             ip
           }
         else
@@ -259,6 +268,17 @@ defmodule Holter.Monitoring.Engine do
 
   defp get_header(headers, key) do
     headers |> Enum.find_value(fn {k, v} -> if k == key, do: v end)
+  end
+
+  defp is_html?(content_type) do
+    type =
+      content_type
+      |> List.wrap()
+      |> List.first()
+      |> Kernel.||("")
+      |> String.downcase()
+
+    String.contains?(type, "html")
   end
 
   defp clean_body_snippet(body, content_type) do
