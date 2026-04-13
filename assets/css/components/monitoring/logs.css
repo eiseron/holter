@@ -79,6 +79,11 @@
   margin-bottom: var(--space-4);
 }
 
+.h-fieldset-card:has(+ .h-evidence-grid),
+.h-evidence-grid + .h-fieldset-card {
+  margin-top: var(--space-8);
+}
+
 .h-snapshot-label {
   display: block;
   font-size: var(--font-size-sm);
