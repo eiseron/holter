@@ -234,11 +234,6 @@ msgstr "Up"
 msgid "Avg Latency"
 msgstr "Avg Latency"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:173
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Close"
-msgstr "close"
-
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:20
 #, elixir-autogen, elixir-format
 msgid "Daily Uptime History"
@@ -307,11 +302,6 @@ msgstr "Executar Agora"
 msgid "Status"
 msgstr "Status"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:109
-#, elixir-autogen, elixir-format
-msgid "Technical Evidence"
-msgstr "Evidência Técnica"
-
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "Technical Logs"
@@ -326,11 +316,6 @@ msgstr "Hora"
 #, elixir-autogen, elixir-format
 msgid "Uptime (%)"
 msgstr "Uptime (%)"
-
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:90
-#, elixir-autogen, elixir-format
-msgid "View Evidence"
-msgstr "View Evidence"
 
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:23
 #, elixir-autogen, elixir-format
@@ -586,3 +571,18 @@ msgstr "must be empty for %{method} requests"
 #, elixir-autogen, elixir-format
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "must be less than the check interval (%{interval}s)"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "See Details"
+msgstr "See Details"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Log Details"
+msgstr "Log Details"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "View original log"
+msgstr "View original log"

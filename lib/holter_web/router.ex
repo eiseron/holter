@@ -58,6 +58,7 @@ defmodule HolterWeb.Router do
 
     live "/monitor/:id", MonitorLive.Show, :show
     live "/monitor/:id/logs", MonitorLive.Logs, :index
+    live "/logs/:log_id", MonitorLive.LogDetail, :show
   end
 
   if Application.compile_env(:holter, :dev_routes) do

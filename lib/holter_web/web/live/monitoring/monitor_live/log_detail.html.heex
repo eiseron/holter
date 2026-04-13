@@ -1,0 +1,79 @@
+<div class="h-monitor-container">
+  <.header>
+    <div class="h-title-row" data-role="page-title">
+      <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} />
+      {gettext("Log Details")}
+    </div>
+
+    <:subtitle>
+      <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+    </:subtitle>
+  </.header>
+
+  <div class="h-log-detail-content">
+    <%= if @evidence_inherited do %>
+      <div class="h-evidence-inherited-notice">
+        <p>
+          ⚠️ {gettext(
+            "This check did not capture new evidence. Showing the most recent evidence from %{time}.",
+            time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+          )}
+        </p>
+        <p class="h-mt-2">
+          <.link navigate={~p"/monitoring/logs/#{@payload_log.id}"} class="h-link">
+            {gettext("View original log")}
+          </.link>
+        </p>
+      </div>
+    <% end %>
+
+    <div class="h-evidence-grid">
+      <div class="h-evidence-meta">
+        <div class="h-meta-item">
+          <label>{gettext("Status")}</label>
+          <span>{@log.status_code}</span>
+        </div>
+        <div class="h-meta-item">
+          <label>{gettext("Latency")}</label>
+          <span>{@log.latency_ms}ms</span>
+        </div>
+        <div class="h-meta-item">
+          <label>{gettext("Region")}</label>
+          <span>{@log.region}</span>
+        </div>
+        <%= if (@log.redirect_count || 0) > 0 do %>
+          <div class="h-evidence-block h-evidence-redirect">
+            <label>{gettext("Redirects")}</label>
+            <div class="h-redirect-data">
+              <span class="h-badge">
+                {gettext("%{count} hops", count: @log.redirect_count)}
+              </span>
+              <span class="h-url-muted">{@log.last_redirect_url}</span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <%= if @log.error_message do %>
+        <div class="h-evidence-block h-evidence-error">
+          <label>{gettext("Error Message")}</label>
+          <pre>{@log.error_message}</pre>
+        </div>
+      <% end %>
+
+      <%= if @formatted_headers do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Response Headers")}</label>
+          <pre>{@formatted_headers}</pre>
+        </div>
+      <% end %>
+
+      <%= if @formatted_snippet do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Content Snippet")}</label>
+          <pre class="h-snippet-content">{@formatted_snippet}</pre>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

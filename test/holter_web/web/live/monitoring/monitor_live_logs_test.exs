@@ -342,7 +342,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     end
   end
 
-  describe "technical evidence modal logic" do
+  describe "technical evidence detail page" do
     setup %{conn: conn, monitor: monitor, workspace: workspace} do
       {:ok, log} =
         Monitoring.create_monitor_log(%{
@@ -355,20 +355,24 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
           checked_at: DateTime.utc_now()
         })
 
-      {:ok, view, _html} =
-        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
-
-      %{view: view, log: log}
+      %{conn: conn, log: log}
     end
 
-    test "it opens and closes the technical evidence modal", %{view: view} do
-      view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
-      assert has_element?(view, "#evidence-modal")
-      assert render(view) =~ "nginx"
-      assert render(view) =~ "Server Error"
+    test "navigates to log detail page with See Details link", %{conn: conn, log: log} do
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/monitor/#{log.monitor_id}/logs?page=1")
 
-      view |> element("button", "close") |> render_click()
-      refute has_element?(view, "#evidence-modal")
+      assert render(view) =~ "See Details"
+    end
+
+    test "displays evidence on log detail page", %{conn: conn, log: log} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ "nginx"
+      assert html =~ "Server Error"
+      assert html =~ "500"
+      assert html =~ "456ms"
     end
   end
 end

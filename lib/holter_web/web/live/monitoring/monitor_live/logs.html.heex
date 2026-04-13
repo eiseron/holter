@@ -82,13 +82,12 @@
         {log.latency_ms}ms
       </:col>
       <:col :let={log} label={gettext("Evidence")}>
-        <button
-          phx-click="view_evidence"
-          phx-value-id={log.id}
+        <.link
+          navigate={~p"/monitoring/logs/#{log.id}"}
           class="h-btn h-btn-soft h-text-sm"
         >
-          {gettext("View Evidence")}
-        </button>
+          {gettext("See Details")}
+        </.link>
       </:col>
     </.table>
 
@@ -102,76 +101,3 @@
   </div>
 </div>
 
-<%= if @selected_log do %>
-  <div phx-window-keydown="close_modal" phx-key="escape">
-    <.modal
-      id="evidence-modal"
-      title={gettext("Technical Evidence")}
-      show={true}
-      class="h-modal-content h-modal-large"
-    >
-      <%= if @evidence_inherited do %>
-        <div class="h-evidence-inherited-notice">
-          <p>
-            ⚠️ {gettext(
-              "This check did not capture new evidence. Showing the most recent evidence from %{time}.",
-              time: Calendar.strftime(@evidence_source_time, "%Y-%m-%d %H:%M:%S")
-            )}
-          </p>
-        </div>
-      <% end %>
-      <div class="h-evidence-grid">
-        <div class="h-evidence-meta">
-          <div class="h-meta-item">
-            <label>{gettext("Status")}</label>
-            <span>{@selected_log.status_code}</span>
-          </div>
-          <div class="h-meta-item">
-            <label>{gettext("Latency")}</label>
-            <span>{@selected_log.latency_ms}ms</span>
-          </div>
-          <div class="h-meta-item">
-            <label>{gettext("Region")}</label>
-            <span>{@selected_log.region}</span>
-          </div>
-          <%= if (@selected_log.redirect_count || 0) > 0 do %>
-            <div class="h-evidence-block h-evidence-redirect">
-              <label>{gettext("Redirects")}</label>
-              <div class="h-redirect-data">
-                <span class="h-badge">
-                  {gettext("%{count} hops", count: @selected_log.redirect_count)}
-                </span>
-                <span class="h-url-muted">{@selected_log.last_redirect_url}</span>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
-        <%= if @selected_log.error_message do %>
-          <div class="h-evidence-block h-evidence-error">
-            <label>{gettext("Error Message")}</label>
-            <pre>{@selected_log.error_message}</pre>
-          </div>
-        <% end %>
-
-        <%= if @formatted_headers do %>
-          <div class="h-evidence-block">
-            <label>{gettext("Response Headers")}</label>
-            <pre>{@formatted_headers}</pre>
-          </div>
-        <% end %>
-
-        <%= if @formatted_snippet do %>
-          <div class="h-evidence-block">
-            <label>{gettext("Content Snippet")}</label>
-            <pre class="h-snippet-content">{@formatted_snippet}</pre>
-          </div>
-        <% end %>
-      </div>
-
-      <:footer>
-        <button phx-click="close_modal" class="h-btn h-btn-soft">{gettext("Close")}</button>
-      </:footer>
-    </.modal>
-  </div>
-<% end %>
