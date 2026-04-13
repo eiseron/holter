@@ -37,10 +37,65 @@ function getOrCreateSessionId() {
   return sessionId
 }
 
+const SESSION_ID = getOrCreateSessionId()
+
+// --- Client-Side Telemetry ---
+function sendLogToBackend(level, message, stack = null) {
+  const body = JSON.stringify({
+    level,
+    message: typeof message === 'string' ? message : JSON.stringify(message),
+    stack,
+    url: window.location.href
+  })
+
+  // Use fetch with keepalive to ensure log is sent even if page is closing
+  fetch("/api/v1/telemetry/logs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-session-id": SESSION_ID
+    },
+    body,
+    keepalive: true
+  }).catch(() => {}) // Silently fail to avoid infinite recursion
+}
+
+// Intercept global errors
+window.onerror = (message, source, lineno, colno, error) => {
+  sendLogToBackend("error", message, error?.stack || `${source}:${lineno}:${colno}`)
+}
+
+window.onunhandledrejection = (event) => {
+  sendLogToBackend("error", `Unhandled Rejection: ${event.reason}`)
+}
+
+// Intercept console methods (keeping original functionality)
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error
+}
+
+console.log = (...args) => {
+  originalConsole.log(...args)
+  if (process.env.NODE_ENV === "production") sendLogToBackend("info", args.join(" "))
+}
+
+console.warn = (...args) => {
+  originalConsole.warn(...args)
+  sendLogToBackend("warn", args.join(" "))
+}
+
+console.error = (...args) => {
+  originalConsole.error(...args)
+  sendLogToBackend("error", args.join(" "))
+}
+// --- End Telemetry ---
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken, session_id: getOrCreateSessionId()},
+  params: {_csrf_token: csrfToken, session_id: SESSION_ID},
   hooks: {...colocatedHooks},
 })
 

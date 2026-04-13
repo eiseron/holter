@@ -20,6 +20,8 @@ defmodule HolterWeb.Router do
   scope "/api/v1", HolterWeb.Api do
     pipe_through :api
 
+    post "/telemetry/logs", TelemetryController, :log
+
     scope "/workspaces/:workspace_slug" do
       get "/", WorkspaceController, :show
       resources "/monitors", MonitorController, only: [:index, :create]
