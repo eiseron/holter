@@ -41,3 +41,26 @@ npm-debug.log
 
 # Ignore application logs
 /logs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment variables (note: .env.example is tracked for reference)
+.env
+.env.local
+.env.*.local
+
+# macOS specific
+.AppleDouble
+.LSOverride
+
+# Editor backups and temp files
+*.bak
+*.orig
