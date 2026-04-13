@@ -12,55 +12,68 @@ defmodule Holter.Monitoring.Engine do
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do
-      finalize_check(
-        monitor,
-        %{
-          check_status: :down,
-          log_status: :down,
-          status_code: response.status,
-          duration_ms: duration_ms,
-          error_msg: "Access to restricted internal address blocked",
-          snippet: nil,
-          headers: nil,
-          ip: ip,
-          redirect_count: redirects,
-          last_redirect_url: last_url
-        }
-      )
+      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url)
     else
-      body = normalize_body(response.body)
-      {positive_ok, negative_ok} = validate_keywords(body, monitor)
+      perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url)
+    end
+  end
 
-      check_status = determine_check_status(response.status, positive_ok, negative_ok)
+  defp handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url) do
+    finalize_check(
+      monitor,
+      %{
+        check_status: :down,
+        log_status: :down,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: "Access to restricted internal address blocked",
+        snippet: nil,
+        headers: nil,
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
 
-      error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+  defp perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url) do
+    content_type = get_header(response.headers, "content-type")
+    body = normalize_body(response.body)
+    search_body = prepare_search_body(body, content_type)
 
-      {headers, snippet, ip} =
-        if check_status != monitor.health_status do
-          {
-            filter_headers(response.headers),
-            clean_body_snippet(body, get_header(response.headers, "content-type")),
-            ip
-          }
-        else
-          {nil, nil, ip}
-        end
+    {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+    check_status = determine_check_status(response.status, positive_ok, negative_ok)
+    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-      finalize_check(
-        monitor,
-        %{
-          check_status: check_status,
-          log_status: check_status,
-          status_code: response.status,
-          duration_ms: duration_ms,
-          error_msg: error_msg,
-          snippet: snippet,
-          headers: headers,
-          ip: ip,
-          redirect_count: redirects,
-          last_redirect_url: last_url
-        }
-      )
+    {headers, snippet} =
+      maybe_collect_evidence(monitor, check_status, body, content_type, response.headers)
+
+    finalize_check(
+      monitor,
+      %{
+        check_status: check_status,
+        log_status: check_status,
+        status_code: response.status,
+        duration_ms: duration_ms,
+        error_msg: error_msg,
+        snippet: snippet,
+        headers: headers,
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
+
+  defp prepare_search_body(body, content_type) do
+    if html?(content_type), do: strip_html_tags(body), else: body
+  end
+
+  defp maybe_collect_evidence(monitor, check_status, body, content_type, headers) do
+    if check_status != monitor.health_status do
+      {filter_headers(headers), clean_body_snippet(body, content_type)}
+    else
+      {nil, nil}
     end
   end
 
@@ -261,6 +274,17 @@ defmodule Holter.Monitoring.Engine do
     headers |> Enum.find_value(fn {k, v} -> if k == key, do: v end)
   end
 
+  defp html?(content_type) do
+    type =
+      content_type
+      |> List.wrap()
+      |> List.first()
+      |> Kernel.||("")
+      |> String.downcase()
+
+    String.contains?(type, "html")
+  end
+
   defp clean_body_snippet(body, content_type) do
     type =
       content_type
@@ -274,9 +298,24 @@ defmodule Holter.Monitoring.Engine do
       |> normalize_whitespace()
       |> sanitize_for_db()
       |> mask_secrets()
+      |> ensure_utf8()
       |> String.slice(0, 512)
     else
       "Binary content (skipped)"
+    end
+  end
+
+  defp ensure_utf8(text) do
+    if String.valid?(text) do
+      text
+    else
+      text
+      |> :binary.bin_to_list()
+      |> Enum.map(fn
+        b when b < 128 -> b
+        _ -> ??
+      end)
+      |> List.to_string()
     end
   end
 

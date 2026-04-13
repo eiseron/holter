@@ -59,7 +59,6 @@ defmodule HolterWeb.Api.MonitorController do
     summary: "Get monitor",
     description: "Fetch a single monitor by its UUID.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -67,15 +66,13 @@ defmodule HolterWeb.Api.MonitorController do
       ]
     ],
     responses: [
-      ok: {"Monitor details", "application/json", MonitorSchemas.monitor()},
+      ok: {"Monitor details", "application/json", MonitorSchemas.monitor_response()},
       not_found: {"Monitor not found", "application/json", MonitorSchemas.error()}
     ]
   )
 
-  def show(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
-    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
-         {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.workspace_id == workspace.id || {:error, :not_found} do
+  def show(conn, %{"id" => id}) do
+    with {:ok, monitor} <- Monitoring.get_monitor(id) do
       render(conn, :show, monitor: monitor)
     end
   end
@@ -88,7 +85,7 @@ defmodule HolterWeb.Api.MonitorController do
     ],
     request_body: {"Monitor parameters", "application/json", MonitorSchemas.monitor_request()},
     responses: [
-      created: {"Created monitor", "application/json", MonitorSchemas.monitor()},
+      created: {"Created monitor", "application/json", MonitorSchemas.monitor_response()},
       unprocessable_entity: {"Validation error", "application/json", MonitorSchemas.error()}
     ]
   )
@@ -109,7 +106,6 @@ defmodule HolterWeb.Api.MonitorController do
     summary: "Update monitor",
     description: "Update an existing monitor's configuration.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -118,16 +114,14 @@ defmodule HolterWeb.Api.MonitorController do
     ],
     request_body: {"Update parameters", "application/json", MonitorSchemas.monitor_request()},
     responses: [
-      ok: {"Updated monitor", "application/json", MonitorSchemas.monitor()},
+      ok: {"Updated monitor", "application/json", MonitorSchemas.monitor_response()},
       not_found: {"Monitor not found", "application/json", MonitorSchemas.error()},
       unprocessable_entity: {"Validation error", "application/json", MonitorSchemas.error()}
     ]
   )
 
-  def update(conn, %{"workspace_slug" => workspace_slug, "id" => id, "monitor" => monitor_params}) do
-    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
-         {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.workspace_id == workspace.id || {:error, :not_found},
+  def update(conn, %{"id" => id, "monitor" => monitor_params}) do
+    with {:ok, monitor} <- Monitoring.get_monitor(id),
          {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(monitor, monitor_params) do
       render(conn, :show, monitor: monitor)
     end
@@ -137,7 +131,6 @@ defmodule HolterWeb.Api.MonitorController do
     summary: "Delete monitor",
     description: "Permanently delete a monitor and all its associated data.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Monitor UUID",
@@ -150,10 +143,8 @@ defmodule HolterWeb.Api.MonitorController do
     ]
   )
 
-  def delete(conn, %{"workspace_slug" => workspace_slug, "id" => id}) do
-    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
-         {:ok, monitor} <- Monitoring.get_monitor(id),
-         true <- monitor.workspace_id == workspace.id || {:error, :not_found},
+  def delete(conn, %{"id" => id}) do
+    with {:ok, monitor} <- Monitoring.get_monitor(id),
          {:ok, %Monitor{}} <- Monitoring.delete_monitor(monitor) do
       send_resp(conn, :no_content, "")
     end

@@ -138,7 +138,9 @@
             <div class="h-evidence-block h-evidence-redirect">
               <label>{gettext("Redirects")}</label>
               <div class="h-redirect-data">
-                <span class="h-badge">{gettext("%{count} hops", count: @selected_log.redirect_count)}</span>
+                <span class="h-badge">
+                  {gettext("%{count} hops", count: @selected_log.redirect_count)}
+                </span>
                 <span class="h-url-muted">{@selected_log.last_redirect_url}</span>
               </div>
             </div>

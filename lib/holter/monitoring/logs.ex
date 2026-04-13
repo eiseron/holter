@@ -68,11 +68,18 @@ defmodule Holter.Monitoring.Logs do
     order_by(query, [l], [{^dir, field(l, ^field)}, desc: l.inserted_at])
   end
 
+  @valid_statuses MapSet.new(["up", "down", "degraded", "compromised", "unknown"])
+
   defp apply_status_filter(query, nil), do: query
   defp apply_status_filter(query, ""), do: query
 
-  defp apply_status_filter(query, status),
-    do: where(query, [l], l.status == ^String.to_atom(status))
+  defp apply_status_filter(query, status) do
+    if MapSet.member?(@valid_statuses, status) do
+      where(query, [l], l.status == ^String.to_existing_atom(status))
+    else
+      query
+    end
+  end
 
   defp apply_date_range_filter(query, nil, nil), do: query
 

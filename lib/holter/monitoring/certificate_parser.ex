@@ -7,23 +7,41 @@ defmodule Holter.Monitoring.CertificateParser do
     cert_binary
     |> decode_otp_cert()
     |> extract_expiration_from_otp()
+  rescue
+    _ -> nil
+  catch
+    _ -> nil
   end
 
   def extract_expiration_from_otp(otp_cert) do
-    otp_cert
-    |> extract_validity()
-    |> extract_not_after()
-    |> decode_asn1_time()
+    case otp_cert do
+      {:OTPCertificate, tbs_cert, _signature_algorithm, _signature} ->
+        tbs_cert
+        |> extract_validity_from_tbs()
+        |> extract_not_after()
+        |> maybe_decode_time()
+
+      _ ->
+        nil
+    end
   end
+
+  defp maybe_decode_time(nil), do: nil
+  defp maybe_decode_time(time), do: decode_asn1_time(time)
 
   defp decode_otp_cert(cert), do: :public_key.pkix_decode_cert(cert, :otp)
 
-  defp extract_validity(otp_cert) do
-    tbs_cert = elem(otp_cert, 1)
-    elem(tbs_cert, 7)
+  defp extract_validity_from_tbs(tbs_cert) do
+    tbs_cert
+    |> Tuple.to_list()
+    |> Enum.find(fn
+      {:Validity, _, _} -> true
+      _ -> false
+    end)
   end
 
   defp extract_not_after({:Validity, _not_before, not_after}), do: not_after
+  defp extract_not_after(_), do: nil
 
   def decode_asn1_time({:utcTime, time}), do: parse_time(:short, List.to_string(time))
   def decode_asn1_time({:generalTime, time}), do: parse_time(:long, List.to_string(time))

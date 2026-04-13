@@ -2,7 +2,14 @@ defmodule HolterWeb.Api.ApiSpec do
   @moduledoc """
   OpenAPI 3.0 specification for the Holter API.
   """
-  alias HolterWeb.Api.MonitorSchemas
+  alias HolterWeb.Api.{
+    DailyMetricSchemas,
+    IncidentSchemas,
+    MonitorLogSchemas,
+    MonitorSchemas,
+    WorkspaceSchemas
+  }
+
   alias HolterWeb.Router
   alias OpenApiSpex.{Info, OpenApi, Paths, Server}
 
@@ -17,11 +24,16 @@ defmodule HolterWeb.Api.ApiSpec do
         description: "API for monitoring and security scanning."
       },
       servers: [
-        %Server{url: "http://localhost:4000/api"}
+        %Server{url: "/"}
       ],
       paths: Paths.from_router(Router),
       components: %OpenApiSpex.Components{
-        schemas: MonitorSchemas.all()
+        schemas:
+          MonitorSchemas.all()
+          |> Map.merge(WorkspaceSchemas.all())
+          |> Map.merge(MonitorLogSchemas.all())
+          |> Map.merge(DailyMetricSchemas.all())
+          |> Map.merge(IncidentSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()

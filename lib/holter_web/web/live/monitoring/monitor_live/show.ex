@@ -40,10 +40,22 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   @impl true
   def handle_event("run_now", _params, socket) do
-    if socket.assigns.cooldown_remaining > 0 do
-      {:noreply, socket}
-    else
-      trigger_manual_check(socket)
+    cond do
+      socket.assigns.cooldown_remaining > 0 ->
+        {:noreply,
+         socket
+         |> put_flash(:error, gettext("Please wait before triggering another manual check."))}
+
+      socket.assigns.form.source.changes != %{} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           gettext("You have unsaved changes. Please save them before checking.")
+         )}
+
+      true ->
+        trigger_manual_check(socket)
     end
   end
 
