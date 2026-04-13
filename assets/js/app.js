@@ -39,6 +39,8 @@ function getOrCreateSessionId() {
 
 const SESSION_ID = getOrCreateSessionId()
 
+const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
 // --- Client-Side Telemetry ---
 function sendLogToBackend(level, message, stack = null) {
   const body = JSON.stringify({
@@ -53,7 +55,8 @@ function sendLogToBackend(level, message, stack = null) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-session-id": SESSION_ID
+      "x-session-id": SESSION_ID,
+      "x-csrf-token": CSRF_TOKEN
     },
     body,
     keepalive: true

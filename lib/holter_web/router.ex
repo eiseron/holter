@@ -11,6 +11,13 @@ defmodule HolterWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :browser_api do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug HolterWeb.Plugs.SessionMetadataPlug
+    plug :protect_from_forgery
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
     plug HolterWeb.Plugs.SessionMetadataPlug
@@ -18,9 +25,12 @@ defmodule HolterWeb.Router do
   end
 
   scope "/api/v1", HolterWeb.Api do
-    pipe_through :api
-
+    pipe_through :browser_api
     post "/telemetry/logs", TelemetryController, :log
+  end
+
+  scope "/api/v1", HolterWeb.Api do
+    pipe_through :api
 
     scope "/workspaces/:workspace_slug" do
       get "/", WorkspaceController, :show
