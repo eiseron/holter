@@ -2,6 +2,8 @@ defmodule HolterWeb.Api.TelemetryControllerTest do
   use HolterWeb.ConnCase
 
   describe "POST /api/v1/telemetry/logs" do
+    @describetag :capture_log
+
     test "successfully receives and logs client-side info", %{conn: conn} do
       conn =
         post(conn, ~p"/api/v1/telemetry/logs", %{
