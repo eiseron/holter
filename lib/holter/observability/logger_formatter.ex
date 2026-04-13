@@ -47,4 +47,8 @@ defmodule Holter.Observability.LoggerFormatter do
   end
 
   defp scrub_map(v), do: v
+
+  if Mix.env() == :test do
+    def scrub_map_for_test(metadata), do: scrub_map(metadata)
+  end
 end

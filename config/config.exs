@@ -29,9 +29,6 @@ config :esbuild,
   ]
 
 # --- MODER LOGGING CONFIGURATION ---
-# Disable legacy backends to prevent conflicts and warnings
-config :logger, backends: []
-
 # Configure the modern handler system (Elixir 1.15+)
 config :logger, :default_handler,
   formatter: {Holter.Observability.LoggerFormatter, metadata: :all}
