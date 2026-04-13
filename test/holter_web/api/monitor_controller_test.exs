@@ -65,9 +65,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       conn =
-        put(conn, ~p"/api/v1/monitors/#{monitor.id}",
-          monitor: %{url: "https://updated.local"}
-        )
+        put(conn, ~p"/api/v1/monitors/#{monitor.id}", monitor: %{url: "https://updated.local"})
 
       assert json_response(conn, 200)["data"]["url"] == "https://updated.local"
     end

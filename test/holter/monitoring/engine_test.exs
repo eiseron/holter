@@ -222,7 +222,6 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "handles non-UTF8 encoded body gracefully without crashing", %{monitor: monitor} do
-      # Simulando um payload ISO-8859-1 que causaria erro de encoding no PostgreSQL (0xe7 = ç)
       invalid_utf8_body = <<195, 40, 231, 97, 111>>
 
       response = %Req.Response{
@@ -231,12 +230,36 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
 
-      # A asserção valida se a função não crashou e se o log foi gerado corretamente
       assert {:ok, _} = Engine.process_response(monitor, response, 100)
+    end
 
-      # Verifica se o snippet salvo não está quebrado (caracteres substituídos ou limpos)
+    test "saves non-UTF8 snippet correctly", %{monitor: monitor} do
+      invalid_utf8_body = <<195, 40, 231, 97, 111>>
+
+      response = %Req.Response{
+        status: 200,
+        body: invalid_utf8_body,
+        headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
+      }
+
+      {:ok, _} = Engine.process_response(monitor, response, 100)
+
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
       assert is_binary(log.response_snippet)
+    end
+
+    test "ensures saved snippet is valid UTF8", %{monitor: monitor} do
+      invalid_utf8_body = <<195, 40, 231, 97, 111>>
+
+      response = %Req.Response{
+        status: 200,
+        body: invalid_utf8_body,
+        headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
+      }
+
+      {:ok, _} = Engine.process_response(monitor, response, 100)
+
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
       assert String.valid?(log.response_snippet)
     end
   end

@@ -32,7 +32,7 @@ defmodule Holter.Monitoring.Engine do
       body = normalize_body(response.body)
 
       search_body =
-        if is_html?(content_type) do
+        if html?(content_type) do
           strip_html_tags(body)
         else
           body
@@ -270,7 +270,7 @@ defmodule Holter.Monitoring.Engine do
     headers |> Enum.find_value(fn {k, v} -> if k == key, do: v end)
   end
 
-  defp is_html?(content_type) do
+  defp html?(content_type) do
     type =
       content_type
       |> List.wrap()

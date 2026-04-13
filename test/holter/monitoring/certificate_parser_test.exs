@@ -44,7 +44,6 @@ defmodule Holter.Monitoring.CertificateParserTest do
     end
 
     test "returns nil when Validity block is missing or unexpected" do
-      # Estrutura mal-formada que causaria FunctionClauseError antes do FIX
       otp_cert = {:OTPCertificate, {:something_else}, nil, nil}
       assert is_nil(CertificateParser.extract_expiration_from_otp(otp_cert))
     end

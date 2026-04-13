@@ -49,7 +49,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       socket.assigns.form.source.changes != %{} ->
         {:noreply,
          socket
-         |> put_flash(:error, gettext("You have unsaved changes. Please save them before checking."))}
+         |> put_flash(
+           :error,
+           gettext("You have unsaved changes. Please save them before checking.")
+         )}
 
       true ->
         trigger_manual_check(socket)

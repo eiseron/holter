@@ -4,15 +4,13 @@ defmodule Holter.Monitoring.CertificateParser do
   """
 
   def parse_expiry(cert_binary) do
-    try do
-      cert_binary
-      |> decode_otp_cert()
-      |> extract_expiration_from_otp()
-    rescue
-      _ -> nil
-    catch
-      _ -> nil
-    end
+    cert_binary
+    |> decode_otp_cert()
+    |> extract_expiration_from_otp()
+  rescue
+    _ -> nil
+  catch
+    _ -> nil
   end
 
   def extract_expiration_from_otp(otp_cert) do
@@ -34,13 +32,9 @@ defmodule Holter.Monitoring.CertificateParser do
   defp decode_otp_cert(cert), do: :public_key.pkix_decode_cert(cert, :otp)
 
   defp extract_validity_from_tbs(tbs_cert) do
-    # O bloco de validade é o campo 5 ou 6 dependendo da presença de campos opcionais anteriores
-    # mas o pattern match direto no tuple é mais seguro se conhecermos a estrutura.
-    # No Erlang OTP, o Record OTPTBSCertificate tem a validade na 5a posição (índice 4 se v1) 
-    # ou posterior. Vamos varrer os elementos em busca da tag :Validity.
     tbs_cert
     |> Tuple.to_list()
-    |> Enum.find(fn 
+    |> Enum.find(fn
       {:Validity, _, _} -> true
       _ -> false
     end)
