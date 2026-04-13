@@ -7,7 +7,13 @@ defmodule HolterWeb.Api.ChangesetJSON do
   Renders changeset errors.
   """
   def error(%{changeset: changeset}) do
-    %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
+    %{
+      error: %{
+        code: "validation_failed",
+        message: "The provided parameters are invalid.",
+        details: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+      }
+    }
   end
 
   defp translate_error({msg, opts}) do

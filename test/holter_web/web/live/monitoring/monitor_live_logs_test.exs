@@ -108,7 +108,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5&status=up"
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=2&page_size=5&sort_by=checked_at&sort_dir=desc&status=up"
       )
     end
 
@@ -138,8 +138,207 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
       assert_patch(
         view,
-        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&status=down"
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page_size=5&sort_by=checked_at&sort_dir=desc&status=down"
       )
+    end
+  end
+
+  describe "log table column sorting" do
+    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+      slow =
+        log_fixture(%{
+          monitor_id: monitor.id,
+          latency_ms: 900,
+          checked_at: ~U[2026-04-01 10:00:00Z]
+        })
+
+      fast =
+        log_fixture(%{
+          monitor_id: monitor.id,
+          latency_ms: 50,
+          checked_at: ~U[2026-04-10 10:00:00Z]
+        })
+
+      %{conn: conn, monitor: monitor, workspace: workspace, slow: slow, fast: fast}
+    end
+
+    test "default page renders Time header as sort link with no active indicator", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
+      assert html =~ "h-table-sort-header"
+      assert html =~ "sort_by=checked_at"
+    end
+
+    test "sort_by=checked_at&sort_dir=asc returns oldest log first (oldest appears before newest)",
+         %{
+           conn: conn,
+           monitor: monitor,
+           workspace: workspace
+         } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
+        )
+
+      html = render(view)
+      first_row_pos = :binary.match(html, "2026-04-01")
+      second_row_pos = :binary.match(html, "2026-04-10")
+      assert first_row_pos != :nomatch
+      assert second_row_pos != :nomatch
+      assert elem(first_row_pos, 0) < elem(second_row_pos, 0)
+    end
+
+    test "sort_by=latency_ms&sort_dir=desc returns highest latency first", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=desc"
+        )
+
+      html = render(view)
+      pos_900 = :binary.match(html, "900ms")
+      pos_50 = :binary.match(html, "50ms")
+      assert pos_900 != :nomatch
+      assert pos_50 != :nomatch
+      assert elem(pos_900, 0) < elem(pos_50, 0)
+    end
+
+    test "clicking Time header from default (desc) patches URL to asc", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
+      view |> element("thead a[href*='sort_by=checked_at']") |> render_click()
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=asc"
+      )
+    end
+
+    test "clicking active sort column again toggles direction", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc"
+        )
+
+      view |> element("thead a[href*='sort_by=checked_at']") |> render_click()
+
+      assert_patch(
+        view,
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?page=1&page_size=50&sort_by=checked_at&sort_dir=desc"
+      )
+    end
+
+    test "clicking a different column defaults to desc and resets to page=1", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=checked_at&sort_dir=asc&page=2&page_size=1"
+        )
+
+      view |> element("thead a[href*='sort_by=latency_ms']") |> render_click()
+
+      patched = assert_patch(view)
+      assert patched =~ "sort_by=latency_ms"
+      assert patched =~ "sort_dir=desc"
+      refute patched =~ "page=2"
+    end
+
+    test "active sort column shows direction indicator", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
+        )
+
+      assert html =~ "h-sort-indicator"
+      assert html =~ "↑"
+    end
+
+    test "inactive sort columns show no indicator", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(
+          conn,
+          ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc"
+        )
+
+      refute html =~ "↓"
+    end
+
+    test "Evidence column header has no sort link", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs")
+
+      html = render(view)
+      refute html =~ ~r/h-table-sort-header[^<]*Evidence/
+    end
+
+    test "sort params coexist with status filter in URL", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?status=up&sort_by=latency_ms&sort_dir=desc"
+
+      {:ok, _view, html} = live(conn, url)
+
+      assert html =~ "sort_by=latency_ms"
+      assert html =~ "status=up"
+    end
+
+    test "page links preserve sort params", %{
+      conn: conn,
+      monitor: monitor,
+      workspace: workspace
+    } do
+      for _ <- 1..6 do
+        log_fixture(%{monitor_id: monitor.id})
+      end
+
+      url =
+        ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}/logs?sort_by=latency_ms&sort_dir=asc&page_size=3&page=1"
+
+      {:ok, _view, html} = live(conn, url)
+
+      assert html =~ "sort_by=latency_ms"
+      assert html =~ "sort_dir=asc"
+      assert html =~ "h-pagination-nav"
     end
   end
 

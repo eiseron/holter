@@ -13,6 +13,8 @@ defmodule Holter.Monitoring.MonitorLog do
     field :response_headers, :map
     field :response_ip, :string
     field :error_message, :string
+    field :redirect_count, :integer
+    field :last_redirect_url, :string
     field :checked_at, :utc_datetime
     field :monitor_snapshot, :map
 
@@ -34,6 +36,8 @@ defmodule Holter.Monitoring.MonitorLog do
       :response_headers,
       :response_ip,
       :error_message,
+      :redirect_count,
+      :last_redirect_url,
       :checked_at,
       :monitor_snapshot
     ])

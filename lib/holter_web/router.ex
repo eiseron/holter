@@ -15,10 +15,21 @@ defmodule HolterWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
   end
 
-  scope "/api/v1/workspaces/:workspace_slug", HolterWeb.Api do
+  scope "/api/v1", HolterWeb.Api do
     pipe_through :api
 
-    resources "/monitors", MonitorController, except: [:new, :edit]
+    scope "/workspaces/:workspace_slug" do
+      get "/", WorkspaceController, :show
+      resources "/monitors", MonitorController, only: [:index, :create]
+    end
+
+    resources "/monitors", MonitorController, except: [:index, :create, :new, :edit]
+
+    scope "/monitors/:monitor_id" do
+      resources "/logs", MonitorLogController, only: [:index, :show]
+      resources "/daily_metrics", DailyMetricController, only: [:index]
+      resources "/incidents", IncidentController, only: [:index]
+    end
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
@@ -43,7 +54,11 @@ defmodule HolterWeb.Router do
     scope "/api" do
       pipe_through :api
       get "/openapi", OpenApiSpex.Plug.RenderSpec, []
-      get "/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
+    end
+
+    scope "/" do
+      pipe_through :browser
+      get "/api/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
     end
   end
 end

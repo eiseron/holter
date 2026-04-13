@@ -71,39 +71,29 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
     test "Returns 422 for invalid data", %{conn: conn, workspace: workspace} do
       conn = json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{url: nil})
-      assert json_response(conn, 422)["errors"] != %{}
+      resp = json_response(conn, 422)
+      assert resp["error"]["code"] == "validation_failed"
     end
   end
 
-  describe "GET /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "GET /api/v1/monitors/:id" do
     test "Returns monitor details", %{conn: conn, workspace: workspace, api_spec: spec} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
-      conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}")
       body = json_response(conn, 200)
 
       assert body["data"]["id"] == monitor.id
       assert_schema(body, "MonitorResponse", spec)
     end
-
-    test "Returns 404 if monitor belongs to another workspace", %{
-      conn: conn,
-      workspace: workspace
-    } do
-      other_workspace = workspace_fixture()
-      monitor = monitor_fixture(%{workspace_id: other_workspace.id})
-
-      conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
-      assert json_response(conn, 404)
-    end
   end
 
-  describe "PUT /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "PUT /api/v1/monitors/:id" do
     test "Updates monitor and returns 200", %{conn: conn, workspace: workspace, api_spec: spec} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       conn =
-        json_put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
-          url: "https://updated.local"
+        json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
+          "monitor" => %{"url" => "https://updated.local"}
         })
 
       body = json_response(conn, 200)
@@ -124,7 +114,12 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           interval_seconds: 60
         })
 
-      assert %{"errors" => %{"detail" => "Monitor limit reached for this workspace"}} =
+      assert %{
+               "error" => %{
+                 "code" => "quota_reached",
+                 "message" => "Monitor limit reached for this workspace"
+               }
+             } =
                json_response(conn, 422)
     end
 
@@ -138,7 +133,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           interval_seconds: 60
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
 
     test "returns 422 when timeout >= interval_seconds", %{conn: conn, workspace: workspace} do
@@ -150,7 +145,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           timeout_seconds: 60
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
 
     test "returns 422 when body is sent with GET method", %{conn: conn, workspace: workspace} do
@@ -162,7 +157,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           body: "{\"key\": \"value\"}"
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
 
     test "returns 422 when body is invalid JSON", %{conn: conn, workspace: workspace} do
@@ -174,42 +169,42 @@ defmodule HolterWeb.Api.MonitorControllerTest do
           body: "not json"
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
   end
 
-  describe "PUT /api/v1/workspaces/:workspace_slug/monitors/:id — quota enforcement" do
+  describe "PUT /api/v1/monitors/:id — quota enforcement" do
     test "returns 422 when interval_seconds is below workspace minimum", %{conn: conn} do
       strict_workspace = workspace_fixture(%{min_interval_seconds: 300})
       monitor = monitor_fixture(%{workspace_id: strict_workspace.id, interval_seconds: 300})
 
       conn =
-        json_put(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors/#{monitor.id}", %{
-          interval_seconds: 60
+        json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
+          "monitor" => %{"interval_seconds" => 60}
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
 
     test "returns 422 when timeout >= interval_seconds", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 120})
 
       conn =
-        json_put(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}", %{
-          timeout_seconds: 120
+        json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
+          "monitor" => %{"timeout_seconds" => 120}
         })
 
-      assert %{"errors" => _} = json_response(conn, 422)
+      assert %{"error" => _} = json_response(conn, 422)
     end
   end
 
-  describe "DELETE /api/v1/workspaces/:workspace_slug/monitors/:id" do
+  describe "DELETE /api/v1/monitors/:id" do
     test "Deletes monitor and returns 204", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      conn = delete(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors/#{monitor.id}")
+      conn = delete(conn, ~p"/api/v1/monitors/#{monitor.id}")
       assert response(conn, 204)
-      assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
+      assert Monitoring.get_monitor(monitor.id) == {:error, :not_found}
     end
   end
 end

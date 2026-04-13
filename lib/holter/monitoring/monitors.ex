@@ -40,6 +40,15 @@ defmodule Holter.Monitoring.Monitors do
 
   def get_monitor!(id), do: Repo.get!(Monitor, id)
 
+  @doc """
+  Counts monitors for a given workspace.
+  """
+  def count_monitors(workspace_id) do
+    Monitor
+    |> where(workspace_id: ^workspace_id)
+    |> Repo.aggregate(:count, :id)
+  end
+
   def get_monitor(id) do
     case Repo.get(Monitor, id) do
       nil -> {:error, :not_found}

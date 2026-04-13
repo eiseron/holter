@@ -13,12 +13,6 @@ defmodule HolterWeb.Api.FallbackController do
     |> render(:error, changeset: changeset)
   end
 
-  def call(conn, {:error, :quota_exceeded}) do
-    conn
-    |> put_status(:unprocessable_entity)
-    |> json(%{errors: %{detail: "Monitor limit reached for this workspace"}})
-  end
-
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
@@ -31,5 +25,16 @@ defmodule HolterWeb.Api.FallbackController do
     |> put_status(:forbidden)
     |> put_view(json: HolterWeb.Api.ErrorJSON)
     |> render(:"403")
+  end
+
+  def call(conn, {:error, :quota_reached}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "quota_reached",
+        message: "Monitor limit reached for this workspace"
+      }
+    })
   end
 end

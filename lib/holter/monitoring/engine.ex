@@ -8,11 +8,20 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
 
-  def process_response(monitor, response, duration_ms) do
+  def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil) do
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do
-      finalize_check(monitor, %{
+      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url)
+    else
+      perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url)
+    end
+  end
+
+  defp handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url) do
+    finalize_check(
+      monitor,
+      %{
         check_status: :down,
         log_status: :down,
         status_code: response.status,
@@ -20,28 +29,28 @@ defmodule Holter.Monitoring.Engine do
         error_msg: "Access to restricted internal address blocked",
         snippet: nil,
         headers: nil,
-        ip: ip
-      })
-    else
-      body = normalize_body(response.body)
-      {positive_ok, negative_ok} = validate_keywords(body, monitor)
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
 
-      check_status = determine_check_status(response.status, positive_ok, negative_ok)
+  defp perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url) do
+    content_type = get_header(response.headers, "content-type")
+    body = normalize_body(response.body)
+    search_body = prepare_search_body(body, content_type)
 
-      error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+    {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+    check_status = determine_check_status(response.status, positive_ok, negative_ok)
+    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-      {headers, snippet, ip} =
-        if check_status != monitor.health_status do
-          {
-            filter_headers(response.headers),
-            clean_body_snippet(body, get_header(response.headers, "content-type")),
-            ip
-          }
-        else
-          {nil, nil, ip}
-        end
+    {headers, snippet} =
+      maybe_collect_evidence(monitor, check_status, body, content_type, response.headers)
 
-      finalize_check(monitor, %{
+    finalize_check(
+      monitor,
+      %{
         check_status: check_status,
         log_status: check_status,
         status_code: response.status,
@@ -49,8 +58,22 @@ defmodule Holter.Monitoring.Engine do
         error_msg: error_msg,
         snippet: snippet,
         headers: headers,
-        ip: ip
-      })
+        ip: ip,
+        redirect_count: redirects,
+        last_redirect_url: last_url
+      }
+    )
+  end
+
+  defp prepare_search_body(body, content_type) do
+    if html?(content_type), do: strip_html_tags(body), else: body
+  end
+
+  defp maybe_collect_evidence(monitor, check_status, body, content_type, headers) do
+    if check_status != monitor.health_status do
+      {filter_headers(headers), clean_body_snippet(body, content_type)}
+    else
+      {nil, nil}
     end
   end
 
@@ -79,13 +102,13 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp determine_check_status(status, positive_ok, _negative_ok)
-       when status < 200 or status >= 400 or not positive_ok,
+       when status < 200 or status >= 300 or not positive_ok,
        do: :down
 
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_error_message(status, _, _) when status < 200 or status >= 400,
+  defp determine_error_message(status, _, _) when status < 200 or status >= 300,
     do: "HTTP Error: #{status}"
 
   defp determine_error_message(_, false, _), do: "Missing required keywords"
@@ -106,6 +129,8 @@ defmodule Holter.Monitoring.Engine do
       response_headers: params.headers,
       response_ip: params.ip,
       region: get_region(),
+      redirect_count: params[:redirect_count],
+      last_redirect_url: params[:last_redirect_url],
       checked_at: now,
       monitor_snapshot: snapshot
     })
@@ -249,6 +274,17 @@ defmodule Holter.Monitoring.Engine do
     headers |> Enum.find_value(fn {k, v} -> if k == key, do: v end)
   end
 
+  defp html?(content_type) do
+    type =
+      content_type
+      |> List.wrap()
+      |> List.first()
+      |> Kernel.||("")
+      |> String.downcase()
+
+    String.contains?(type, "html")
+  end
+
   defp clean_body_snippet(body, content_type) do
     type =
       content_type
@@ -262,9 +298,24 @@ defmodule Holter.Monitoring.Engine do
       |> normalize_whitespace()
       |> sanitize_for_db()
       |> mask_secrets()
+      |> ensure_utf8()
       |> String.slice(0, 512)
     else
       "Binary content (skipped)"
+    end
+  end
+
+  defp ensure_utf8(text) do
+    if String.valid?(text) do
+      text
+    else
+      text
+      |> :binary.bin_to_list()
+      |> Enum.map(fn
+        b when b < 128 -> b
+        _ -> ??
+      end)
+      |> List.to_string()
     end
   end
 
