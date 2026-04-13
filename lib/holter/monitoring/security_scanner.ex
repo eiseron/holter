@@ -30,11 +30,21 @@ defmodule Holter.Monitoring.SecurityScanner do
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 7 do
-    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expires in %{days} days (Critical)", days: days))
+    upsert_incident(
+      monitor,
+      :ssl_expiry,
+      now,
+      gettext("Certificate expires in %{days} days (Critical)", days: days)
+    )
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 15 do
-    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expires in %{days} days (Warning)", days: days))
+    upsert_incident(
+      monitor,
+      :ssl_expiry,
+      now,
+      gettext("Certificate expires in %{days} days (Warning)", days: days)
+    )
   end
 
   defp dispatch_incident_logic(monitor, _days, now) do

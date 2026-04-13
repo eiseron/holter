@@ -20,7 +20,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveNewTest do
          %{conn: conn, workspace: workspace} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
 
-      assert render(view) =~ "Criar um novo Monitor"
+      assert render(view) =~ "Create a new Monitor"
     end
 
     test "Given empty or invalid attributes, when dispatching a validate event, then the form reacts and renders block errors",

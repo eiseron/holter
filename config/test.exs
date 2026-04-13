@@ -50,3 +50,6 @@ config :holter, Oban,
 config :holter, dev_routes: true
 
 config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
+
+# Set default locale to English for tests
+config :holter, HolterWeb.Gettext, default_locale: "en"

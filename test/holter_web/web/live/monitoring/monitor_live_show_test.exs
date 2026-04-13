@@ -29,7 +29,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       {:ok, _view, html} =
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
-      assert html =~ "Configurações do Monitor"
+      assert html =~ "Monitor Settings"
     end
 
     test "Given a monitor, when page loads, then it displays the monitor URL", %{
@@ -194,7 +194,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
-      assert render(view) =~ "Aguarde 60s"
+      assert render(view) =~ "Wait 60s"
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
 

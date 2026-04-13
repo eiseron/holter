@@ -200,7 +200,7 @@ defmodule Holter.Monitoring.Monitor do
           changeset,
           :timeout_seconds,
           gettext("must be less than the check interval (%{interval}s)"),
-          interval: interval
+          interval: Integer.to_string(interval)
         )
       else
         changeset
@@ -217,7 +217,7 @@ defmodule Holter.Monitoring.Monitor do
 
       if method in @bodyless_methods && body && body != "" do
         add_error(changeset, :body, gettext("must be empty for %{method} requests"),
-          method: String.upcase(to_string(method))
+          method: method |> to_string() |> String.upcase()
         )
       else
         changeset
