@@ -11,7 +11,6 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
   def call(conn, _opts) do
     session_id = get_session_id(conn)
     workspace_id = extract_workspace_id(conn)
-
     request_id = conn.assigns[:request_id] || Keyword.get(Logger.metadata(), :request_id)
 
     conn = assign(conn, :request_id, request_id)
@@ -26,7 +25,6 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
         remote_ip: format_ip(conn.remote_ip),
         user_agent: get_req_header(conn, "user-agent") |> List.first()
       }
-      |> Map.merge(Holter.Observability.system_versions())
       |> Map.reject(fn {_, v} -> is_nil(v) end)
 
     Logger.metadata(Map.to_list(metadata))
@@ -54,7 +52,7 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
   defp extract_workspace_id(conn) do
     case conn.params do
       %Plug.Conn.Unfetched{} -> nil
-      params -> params["workspace_id"] || extract_from_body(conn)
+      params -> params["workspace_slug"] || params["workspace_id"] || extract_from_body(conn)
     end
   end
 

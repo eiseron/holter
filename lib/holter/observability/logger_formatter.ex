@@ -1,10 +1,11 @@
 defmodule Holter.Observability.LoggerFormatter do
   @moduledoc """
-  Custom LoggerJSON formatter that scrubs sensitive data from metadata.
+  Custom LoggerJSON formatter that scrubs sensitive data and ensures system metadata.
   """
   @behaviour LoggerJSON.Formatter
 
   alias LoggerJSON.Formatters.Basic
+  alias Holter.Observability
 
   @sensitive_keys ~w(
     password
@@ -21,9 +22,14 @@ defmodule Holter.Observability.LoggerFormatter do
 
   @impl true
   def format(log_event, opts) do
-    scrubbed_metadata = scrub_map(log_event.meta)
-    log_event = %{log_event | meta: scrubbed_metadata}
-
+    # 1. Ensure system versions are present in metadata
+    enriched_meta = Map.merge(Observability.system_versions(), log_event.meta)
+    
+    # 2. Scrub sensitive data
+    scrubbed_meta = scrub_map(enriched_meta)
+    
+    # 3. Rebuild event and format
+    log_event = %{log_event | meta: scrubbed_meta}
     Basic.format(log_event, opts)
   end
 

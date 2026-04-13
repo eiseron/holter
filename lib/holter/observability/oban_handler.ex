@@ -4,9 +4,6 @@ defmodule Holter.Observability.ObanHandler do
   """
   require Logger
 
-  @doc """
-  Attaches the handler to Oban job events.
-  """
   def attach do
     :telemetry.attach_many(
       "holter-oban-logger",
@@ -21,12 +18,18 @@ defmodule Holter.Observability.ObanHandler do
   end
 
   def handle_event([:oban, :job, :start], _measurements, %{job: job}, _config) do
-    Logger.metadata(
+    metadata = %{
       job_id: job.id,
-      job_worker: job.worker,
+      job_worker: inspect(job.worker),
       job_queue: job.queue,
       context: :oban_job
-    )
+    }
+
+    Logger.metadata(Map.to_list(metadata))
+
+    if Code.ensure_loaded?(Sentry.Context) do
+      Sentry.Context.set_tags_context(metadata)
+    end
   end
 
   def handle_event(_event, _measurements, _metadata, _config) do

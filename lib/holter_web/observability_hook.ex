@@ -20,7 +20,6 @@ defmodule HolterWeb.ObservabilityHook do
         view: socket.view |> to_string(),
         user_agent: get_connect_info(socket, :user_agent)
       }
-      |> Map.merge(Holter.Observability.system_versions())
       |> Map.reject(fn {_, v} -> is_nil(v) end)
 
     Logger.metadata(Map.to_list(metadata))
