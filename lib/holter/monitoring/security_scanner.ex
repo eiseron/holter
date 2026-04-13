@@ -5,6 +5,7 @@ defmodule Holter.Monitoring.SecurityScanner do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
+  use Gettext, backend: HolterWeb.Gettext
 
   def process_ssl(monitor, expiration_date) do
     now = DateTime.utc_now()
@@ -19,21 +20,21 @@ defmodule Holter.Monitoring.SecurityScanner do
 
   def handle_ssl_error(monitor, reason) do
     now = DateTime.utc_now()
-    cause = "SSL Error: #{inspect(reason)}"
+    cause = gettext("SSL Error: %{reason}", reason: inspect(reason))
     upsert_incident(monitor, :ssl_expiry, now, cause)
     Monitoring.recalculate_health_status(monitor)
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 0 do
-    upsert_incident(monitor, :ssl_expiry, now, "Certificate expired")
+    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expired"))
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 7 do
-    upsert_incident(monitor, :ssl_expiry, now, "Certificate expires in #{days} days (Critical)")
+    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expires in %{days} days (Critical)", days: days))
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 15 do
-    upsert_incident(monitor, :ssl_expiry, now, "Certificate expires in #{days} days (Warning)")
+    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expires in %{days} days (Warning)", days: days))
   end
 
   defp dispatch_incident_logic(monitor, _days, now) do
