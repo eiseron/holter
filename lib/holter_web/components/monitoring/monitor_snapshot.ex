@@ -42,6 +42,20 @@ defmodule HolterWeb.Components.Monitoring.MonitorSnapshot do
         <% end %>
       </div>
 
+      <%= if @snapshot["headers"] && is_map(@snapshot["headers"]) && map_size(@snapshot["headers"]) > 0 do %>
+        <div class="h-col-span-2 h-snapshot-rules-section">
+          <label class="h-snapshot-label"><%= gettext("Custom Headers (JSON)") %></label>
+          <code class="h-snapshot-code"><%= Jason.encode!(@snapshot["headers"], pretty: true) %></code>
+        </div>
+      <% end %>
+
+      <%= if @snapshot["body"] && @snapshot["body"] != "" do %>
+        <div class="h-col-span-2 h-snapshot-rules-section">
+          <label class="h-snapshot-label"><%= gettext("Request Body") %></label>
+          <code class="h-snapshot-code"><%= @snapshot["body"] %></code>
+        </div>
+      <% end %>
+
       <%= if @snapshot["keyword_positive"] && Enum.any?(@snapshot["keyword_positive"]) do %>
         <div class="h-col-span-2 h-snapshot-rules-section">
           <label class="h-snapshot-label"><%= gettext("Must Contain (Keywords)") %></label>
