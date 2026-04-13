@@ -362,7 +362,7 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:162
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:163
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr ""
@@ -487,4 +487,12 @@ msgstr ""
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:54
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:22
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:34
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:33
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:36
+#, elixir-autogen, elixir-format
+msgid "Workspace not found"
 msgstr ""

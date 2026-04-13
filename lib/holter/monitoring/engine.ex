@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.Engine do
   @moduledoc """
   Core monitoring logic detached from Oban workers.
-  This service handles response processing, keyword validation, 
+  This service handles response processing, keyword validation,
   incident lifecycle, and monitor log creation.
   """
 

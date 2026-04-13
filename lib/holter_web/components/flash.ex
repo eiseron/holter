@@ -8,7 +8,7 @@ defmodule HolterWeb.Components.Flash do
   ## Examples
 
       <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash kind={:info} phx-mounted={show("#flash")}>{gettext("Welcome Back!")}</.flash>
   """
   attr :id, :string, doc: "the optional id of flash container"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
