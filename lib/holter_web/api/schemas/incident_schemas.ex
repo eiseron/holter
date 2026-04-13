@@ -7,7 +7,8 @@ defmodule HolterWeb.Api.IncidentSchemas do
   def all do
     %{
       "Incident" => incident(),
-      "IncidentList" => incident_list()
+      "IncidentList" => incident_list(),
+      "Error" => error()
     }
   end
 
@@ -49,13 +50,19 @@ defmodule HolterWeb.Api.IncidentSchemas do
       title: "Error",
       description: "Standard error response.",
       type: :object,
-      additionalProperties: false,
       properties: %{
-        errors: %Schema{
+        error: %Schema{
           type: :object,
-          additionalProperties: %Schema{type: :array, items: %Schema{type: :string}}
+          properties: %{
+            code: %Schema{type: :string, description: "Machine-readable error code (slug)."},
+            message: %Schema{type: :string, description: "Human-readable error message."},
+            details: %Schema{type: :object, description: "Optional additional error details (e.g. validation errors)."}
+          },
+          required: [:code, :message]
         }
-      }
+      },
+      required: [:error],
+      additionalProperties: false
     }
   end
 end
