@@ -1,6 +1,7 @@
 defmodule Holter.Monitoring.Monitor do
   use Ecto.Schema
   import Ecto.Changeset
+
   @manual_check_cooldown 60
   def manual_check_cooldown, do: @manual_check_cooldown
 
@@ -13,6 +14,10 @@ defmodule Holter.Monitoring.Monitor do
   def interval_min_seconds, do: @interval_min_seconds
   def interval_max_seconds, do: @interval_max_seconds
   def interval_default_seconds, do: @interval_default_seconds
+
+  @bodyless_methods [:get, :head]
+  @body_methods [:post, :put, :patch, :delete, :options]
+  @max_keywords 20
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -67,30 +72,59 @@ defmodule Holter.Monitoring.Monitor do
   end
 
   @doc false
-  def changeset(monitor, attrs) do
+  def changeset(monitor, attrs, workspace \\ nil) do
     monitor
-    |> cast(attrs, [
-      :user_id,
-      :logical_state,
-      :health_status,
-      :url,
-      :method,
-      :interval_seconds,
-      :timeout_seconds,
-      :headers,
-      :raw_headers,
-      :body,
-      :ssl_ignore,
-      :follow_redirects,
-      :max_redirects,
-      :raw_keyword_positive,
-      :raw_keyword_negative,
-      :last_checked_at,
-      :last_success_at,
-      :last_manual_check_at,
-      :ssl_expires_at,
-      :workspace_id
-    ])
+    |> cast_fields(attrs)
+    |> validate_core_fields()
+    |> validate_url_field()
+    |> validate_http_semantics(workspace)
+    |> process_virtual_fields()
+  end
+
+  def capture_snapshot(%__MODULE__{} = monitor) do
+    %{
+      url: monitor.url,
+      method: monitor.method,
+      interval_seconds: monitor.interval_seconds,
+      timeout_seconds: monitor.timeout_seconds,
+      headers: monitor.headers,
+      body: monitor.body,
+      keyword_positive: monitor.keyword_positive,
+      keyword_negative: monitor.keyword_negative,
+      ssl_ignore: monitor.ssl_ignore,
+      follow_redirects: monitor.follow_redirects,
+      max_redirects: monitor.max_redirects
+    }
+  end
+
+  @allowed_fields [
+    :logical_state,
+    :health_status,
+    :url,
+    :method,
+    :interval_seconds,
+    :timeout_seconds,
+    :headers,
+    :raw_headers,
+    :body,
+    :ssl_ignore,
+    :follow_redirects,
+    :max_redirects,
+    :raw_keyword_positive,
+    :raw_keyword_negative,
+    :last_checked_at,
+    :last_success_at,
+    :last_manual_check_at,
+    :ssl_expires_at
+  ]
+
+  defp cast_fields(monitor, attrs) do
+    allowed = if is_nil(monitor.id), do: [:workspace_id | @allowed_fields], else: @allowed_fields
+    cast(monitor, attrs, allowed)
+  end
+
+  defp validate_core_fields(changeset) do
+    changeset
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds, :workspace_id])
     |> validate_number(:interval_seconds,
       greater_than_or_equal_to: 1,
@@ -101,11 +135,155 @@ defmodule Holter.Monitoring.Monitor do
     |> validate_length(:url, max: 2048)
     |> validate_length(:raw_headers, max: 4096)
     |> validate_length(:body, max: 8192)
+  end
+
+  defp validate_url_field(changeset) do
+    changeset
     |> validate_url()
     |> validate_ssrf()
+  end
+
+  defp validate_http_semantics(changeset, workspace) do
+    changeset
+    |> validate_workspace_interval(workspace)
+    |> validate_timeout_vs_interval()
+    |> validate_body_allowed_for_method()
+    |> validate_body_json()
+    |> validate_ssl_ignore_requires_https()
+    |> validate_quota_on_activation(workspace)
+  end
+
+  defp validate_quota_on_activation(changeset, nil), do: changeset
+
+  defp validate_quota_on_activation(changeset, workspace) do
+    state_changed? = field_changed?(changeset, :logical_state)
+    new_state = get_field(changeset, :logical_state)
+
+    if state_changed? and changeset.data.logical_state == :archived and new_state != :archived do
+      if Holter.Monitoring.at_quota?(workspace, changeset.data.id) do
+        add_error(changeset, :logical_state, "Monitor limit reached for this workspace",
+          code: :quota_reached
+        )
+      else
+        changeset
+      end
+    else
+      changeset
+    end
+  end
+
+  defp process_virtual_fields(changeset) do
+    changeset
     |> validate_raw_headers()
     |> parse_keywords(:raw_keyword_positive, :keyword_positive)
     |> parse_keywords(:raw_keyword_negative, :keyword_negative)
+    |> validate_keyword_count()
+  end
+
+  defp validate_workspace_interval(changeset, nil), do: changeset
+
+  defp validate_workspace_interval(changeset, %{min_interval_seconds: min}) do
+    validate_number(changeset, :interval_seconds,
+      greater_than_or_equal_to: min,
+      message: "must be at least #{min}s for this workspace plan"
+    )
+  end
+
+  defp validate_timeout_vs_interval(changeset) do
+    if field_changed?(changeset, :timeout_seconds) or field_changed?(changeset, :interval_seconds) do
+      interval = get_field(changeset, :interval_seconds)
+      timeout = get_field(changeset, :timeout_seconds)
+
+      if interval && timeout && timeout >= interval do
+        add_error(
+          changeset,
+          :timeout_seconds,
+          "must be less than the check interval (%{interval}s)",
+          interval: interval
+        )
+      else
+        changeset
+      end
+    else
+      changeset
+    end
+  end
+
+  defp validate_body_allowed_for_method(changeset) do
+    if field_changed?(changeset, :body) or field_changed?(changeset, :method) do
+      method = get_field(changeset, :method)
+      body = get_field(changeset, :body)
+
+      if method in @bodyless_methods && body && body != "" do
+        add_error(changeset, :body, "must be empty for %{method} requests",
+          method: String.upcase(to_string(method))
+        )
+      else
+        changeset
+      end
+    else
+      changeset
+    end
+  end
+
+  defp validate_body_json(changeset) do
+    if field_changed?(changeset, :body) do
+      check_body_json(changeset, get_field(changeset, :method), get_field(changeset, :body))
+    else
+      changeset
+    end
+  end
+
+  defp check_body_json(changeset, method, body)
+       when method in @body_methods and is_binary(body) and body != "" do
+    case Jason.decode(body) do
+      {:ok, _} -> changeset
+      {:error, _} -> add_error(changeset, :body, "must be a valid JSON string")
+    end
+  end
+
+  defp check_body_json(changeset, _method, _body), do: changeset
+
+  defp validate_ssl_ignore_requires_https(changeset) do
+    if field_changed?(changeset, :ssl_ignore) or field_changed?(changeset, :url) do
+      ssl_ignore = get_field(changeset, :ssl_ignore)
+      url = get_field(changeset, :url)
+
+      if ssl_ignore && url && String.starts_with?(url, "http://") do
+        add_error(changeset, :ssl_ignore, "is only applicable to HTTPS URLs")
+      else
+        changeset
+      end
+    else
+      changeset
+    end
+  end
+
+  defp field_changed?(changeset, field), do: Map.has_key?(changeset.changes, field)
+
+  defp validate_keyword_count(changeset) do
+    changeset
+    |> check_keyword_list(:keyword_positive)
+    |> check_keyword_list(:keyword_negative)
+  end
+
+  defp check_keyword_list(changeset, field) do
+    if field_changed?(changeset, field) do
+      keywords = get_field(changeset, field) || []
+
+      if length(keywords) > @max_keywords do
+        add_error(
+          changeset,
+          field,
+          "cannot have more than #{@max_keywords} keywords (got %{count})",
+          count: length(keywords)
+        )
+      else
+        changeset
+      end
+    else
+      changeset
+    end
   end
 
   defp parse_keywords(changeset, raw_field, target_field) do
@@ -135,8 +313,7 @@ defmodule Holter.Monitoring.Monitor do
       {:ok, json_str} when is_binary(json_str) ->
         case Jason.decode(json_str) do
           {:ok, map} when is_map(map) ->
-            sanitized_map = sanitize_map(map)
-            put_change(changeset, :headers, sanitized_map)
+            put_change(changeset, :headers, sanitize_map(map))
 
           _ ->
             add_error(changeset, :raw_headers, "must be a valid JSON object")
@@ -148,10 +325,7 @@ defmodule Holter.Monitoring.Monitor do
   end
 
   defp sanitize_map(map) do
-    map
-    |> Map.new(fn {k, v} ->
-      {sanitize_string(k), sanitize_string(v)}
-    end)
+    Map.new(map, fn {k, v} -> {sanitize_string(k), sanitize_string(v)} end)
   end
 
   defp sanitize_string(value) when is_binary(value) do
@@ -235,21 +409,5 @@ defmodule Holter.Monitoring.Monitor do
       _ ->
         {:error, "must be a valid http or https URL"}
     end
-  end
-
-  def capture_snapshot(%__MODULE__{} = monitor) do
-    %{
-      url: monitor.url,
-      method: monitor.method,
-      interval_seconds: monitor.interval_seconds,
-      timeout_seconds: monitor.timeout_seconds,
-      headers: monitor.headers,
-      body: monitor.body,
-      keyword_positive: monitor.keyword_positive,
-      keyword_negative: monitor.keyword_negative,
-      ssl_ignore: monitor.ssl_ignore,
-      follow_redirects: monitor.follow_redirects,
-      max_redirects: monitor.max_redirects
-    }
   end
 end

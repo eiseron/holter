@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Incidents, Monitor}
+  alias Holter.Monitoring.{Incidents, Monitor, Workspace}
   alias Holter.Repo
 
   def list_monitors do
@@ -39,6 +39,15 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def get_monitor!(id), do: Repo.get!(Monitor, id)
+
+  @doc """
+  Counts monitors for a given workspace.
+  """
+  def count_monitors(workspace_id) do
+    Monitor
+    |> where(workspace_id: ^workspace_id)
+    |> Repo.aggregate(:count, :id)
+  end
 
   def get_monitor(id) do
     case Repo.get(Monitor, id) do
@@ -104,21 +113,23 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def create_monitor(attrs \\ %{}) do
-    case %Monitor{}
-         |> Monitor.changeset(attrs)
-         |> Repo.insert() do
-      {:ok, monitor} ->
-        broadcast({:ok, monitor}, :monitor_created)
-        {:ok, monitor}
+    workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
+    logical_state = attrs[:logical_state] || attrs["logical_state"] || :active
 
-      error ->
-        error
+    with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
+         :ok <- check_monitor_quota(workspace, logical_state),
+         changeset = %Monitor{} |> Monitor.changeset(attrs, workspace),
+         {:ok, monitor} <- Repo.insert(changeset) do
+      broadcast({:ok, monitor}, :monitor_created)
+      {:ok, monitor}
     end
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
+
     case monitor
-         |> Monitor.changeset(attrs)
+         |> Monitor.changeset(attrs, workspace)
          |> Repo.update() do
       {:ok, updated} ->
         broadcast({:ok, updated}, :monitor_updated)
@@ -129,9 +140,54 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
+  defp fetch_workspace_for_quota(nil), do: {:error, :not_found}
+
+  defp fetch_workspace_for_quota(id) do
+    case Repo.get(Workspace, id) do
+      nil -> {:error, :not_found}
+      ws -> {:ok, ws}
+    end
+  end
+
+  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
+    query =
+      Monitor
+      |> where([m], m.workspace_id == ^ws_id)
+      |> where([m], m.logical_state != :archived)
+
+    query =
+      if exclude_monitor_id do
+        where(query, [m], m.id != ^exclude_monitor_id)
+      else
+        query
+      end
+
+    count = Repo.aggregate(query, :count, :id)
+    count >= max
+  end
+
+  defp check_monitor_quota(workspace, logical_state) do
+    if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
+      {:error, :quota_reached}
+    else
+      :ok
+    end
+  end
+
   def mark_manual_check_triggered(%Monitor{} = monitor) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    update_monitor(monitor, %{last_manual_check_at: now})
+    system_update_monitor(monitor, %{last_manual_check_at: now})
+  end
+
+  defp system_update_monitor(%Monitor{} = monitor, attrs) do
+    case monitor |> Monitor.changeset(attrs) |> Repo.update() do
+      {:ok, updated} ->
+        broadcast({:ok, updated}, :monitor_updated)
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   defp broadcast({:ok, monitor}, event) do
@@ -150,6 +206,10 @@ defmodule Holter.Monitoring.Monitors do
     Monitor.changeset(monitor, attrs)
   end
 
+  def change_monitor(%Monitor{} = monitor, attrs, workspace) do
+    Monitor.changeset(monitor, attrs, workspace)
+  end
+
   def recalculate_health_status(%Monitor{id: id}) do
     monitor = get_monitor!(id)
     log_status = status_from_latest_log(monitor.id)
@@ -161,7 +221,7 @@ defmodule Holter.Monitoring.Monitors do
       |> Enum.max_by(&status_severity/1, fn -> :unknown end)
 
     if monitor.health_status != new_status do
-      update_monitor(monitor, %{health_status: new_status})
+      system_update_monitor(monitor, %{health_status: new_status})
     else
       {:ok, monitor}
     end

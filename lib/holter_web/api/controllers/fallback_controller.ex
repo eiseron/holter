@@ -26,4 +26,15 @@ defmodule HolterWeb.Api.FallbackController do
     |> put_view(json: HolterWeb.Api.ErrorJSON)
     |> render(:"403")
   end
+
+  def call(conn, {:error, :quota_reached}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "quota_reached",
+        message: "Monitor limit reached for this workspace"
+      }
+    })
+  end
 end

@@ -39,4 +39,11 @@
     background-color: var(--color-error);
     color: var(--color-error-content);
   }
+
+  &.h-btn-disabled,
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }

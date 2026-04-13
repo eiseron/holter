@@ -48,8 +48,10 @@ defmodule Holter.MonitoringTest do
                Monitoring.create_monitor(valid_attrs)
     end
 
-    test "Given missing required fields, when creating a monitor, then it rejects insertion and returns an error changeset" do
-      assert {:error, %Ecto.Changeset{valid?: false}} = Monitoring.create_monitor(@invalid_attrs)
+    test "Given missing required fields, when creating a monitor, then it rejects insertion and returns an error changeset",
+         %{workspace: workspace} do
+      assert {:error, %Ecto.Changeset{valid?: false}} =
+               Monitoring.create_monitor(Map.put(@invalid_attrs, :workspace_id, workspace.id))
     end
 
     test "Given a monitor, when creating a change template, then it returns an empty tracking changeset properly",

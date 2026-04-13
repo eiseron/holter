@@ -30,10 +30,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
   end
 
   defp fetch_monitors(socket) do
-    assign(
-      socket,
-      :monitors,
-      Monitoring.list_monitors_with_sparklines(socket.assigns.workspace.id)
-    )
+    workspace = socket.assigns.workspace
+    monitors = Monitoring.list_monitors_with_sparklines(workspace.id)
+    active_count = Enum.count(monitors, &(&1.logical_state != :archived))
+
+    socket
+    |> assign(:monitors, monitors)
+    |> assign(:at_quota, active_count >= workspace.max_monitors)
   end
 end

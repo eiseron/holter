@@ -4,24 +4,12 @@ defmodule HolterWeb.Api.MonitorSchemas do
   """
   alias OpenApiSpex.Schema
 
-  def monitor_response do
-    %Schema{
-      title: "MonitorResponse",
-      description: "Response containing a single monitor.",
-      type: :object,
-      additionalProperties: false,
-      properties: %{
-        data: monitor()
-      },
-      required: [:data]
-    }
-  end
-
   def all do
     %{
       "Monitor" => monitor(),
       "MonitorResponse" => monitor_response(),
-      "MonitorRequest" => monitor_request(),
+      "MonitorCreateRequest" => monitor_create_request(),
+      "MonitorUpdateRequest" => monitor_update_request(),
       "MonitorList" => monitor_list(),
       "Error" => error()
     }
@@ -54,6 +42,17 @@ defmodule HolterWeb.Api.MonitorSchemas do
         body: %Schema{type: :string, nullable: true},
         keyword_positive: %Schema{type: :array, items: %Schema{type: :string}},
         keyword_negative: %Schema{type: :array, items: %Schema{type: :string}},
+        raw_headers: %Schema{type: :string, nullable: true, description: "Raw string of headers"},
+        raw_keyword_positive: %Schema{
+          type: :string,
+          nullable: true,
+          description: "Comma-separated positive keywords"
+        },
+        raw_keyword_negative: %Schema{
+          type: :string,
+          nullable: true,
+          description: "Comma-separated negative keywords"
+        },
         last_checked_at: %Schema{type: :string, format: :"date-time", nullable: true},
         last_success_at: %Schema{type: :string, format: :"date-time", nullable: true},
         ssl_expires_at: %Schema{type: :string, format: :"date-time", nullable: true},
@@ -64,29 +63,55 @@ defmodule HolterWeb.Api.MonitorSchemas do
     }
   end
 
-  def monitor_request do
+  def monitor_response do
     %Schema{
-      title: "MonitorRequest",
-      description: "Parameters for creating or updating a monitor.",
+      title: "MonitorResponse",
+      description: "A single monitor wrapped in a data envelope.",
       type: :object,
       additionalProperties: false,
       properties: %{
-        url: %Schema{type: :string, format: :uri},
-        method: %Schema{
-          type: :string,
-          enum: ["get", "post", "put", "patch", "delete", "options", "head"]
-        },
-        interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
-        timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 300},
-        ssl_ignore: %Schema{type: :boolean, default: false},
-        follow_redirects: %Schema{type: :boolean, default: true},
-        max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},
-        raw_headers: %Schema{type: :string, nullable: true},
-        raw_keyword_positive: %Schema{type: :string, nullable: true},
-        raw_keyword_negative: %Schema{type: :string, nullable: true},
-        body: %Schema{type: :string, nullable: true}
+        data: monitor()
       },
+      required: [:data]
+    }
+  end
+
+  defp monitor_fields do
+    %{
+      url: %Schema{type: :string, format: :uri},
+      method: %Schema{
+        type: :string,
+        enum: ["get", "post", "put", "patch", "delete", "options", "head"]
+      },
+      interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
+      timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 300},
+      ssl_ignore: %Schema{type: :boolean, default: false},
+      follow_redirects: %Schema{type: :boolean, default: true},
+      max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},
+      raw_headers: %Schema{type: :string, nullable: true},
+      raw_keyword_positive: %Schema{type: :string, nullable: true},
+      raw_keyword_negative: %Schema{type: :string, nullable: true},
+      body: %Schema{type: :string, nullable: true}
+    }
+  end
+
+  def monitor_create_request do
+    %Schema{
+      title: "MonitorCreateRequest",
+      description:
+        "Parameters for creating a monitor. url, method and interval_seconds are required.",
+      type: :object,
+      properties: monitor_fields(),
       required: [:url, :method, :interval_seconds]
+    }
+  end
+
+  def monitor_update_request do
+    %Schema{
+      title: "MonitorUpdateRequest",
+      description: "Parameters for updating a monitor. All fields are optional.",
+      type: :object,
+      properties: monitor_fields()
     }
   end
 

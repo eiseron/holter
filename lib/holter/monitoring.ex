@@ -6,12 +6,15 @@ defmodule Holter.Monitoring do
   alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Workspaces}
 
   defdelegate list_monitors, to: Monitors
+  defdelegate count_monitors(workspace_id), to: Monitors
+  defdelegate at_quota?(workspace, exclude_monitor_id \\ nil), to: Monitors
   defdelegate get_monitor!(id), to: Monitors
   defdelegate get_monitor(id), to: Monitors
   defdelegate create_monitor(attrs), to: Monitors
   defdelegate update_monitor(monitor, attrs), to: Monitors
   defdelegate delete_monitor(monitor), to: Monitors
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
+  defdelegate change_monitor(monitor, attrs, workspace), to: Monitors
   defdelegate recalculate_health_status(monitor), to: Monitors
   defdelegate list_monitors_for_dispatch, to: Monitors
   defdelegate mark_manual_check_triggered(monitor), to: Monitors

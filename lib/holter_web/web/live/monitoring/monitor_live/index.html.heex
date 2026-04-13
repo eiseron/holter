@@ -1,5 +1,9 @@
 <div class="monitor-dashboard-premium">
-  <.dashboard_header new_monitor_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"} />
+  <.dashboard_header
+    new_monitor_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"}
+    at_quota={@at_quota}
+    max_monitors={@workspace.max_monitors}
+  />
 
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>
