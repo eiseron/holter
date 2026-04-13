@@ -215,7 +215,10 @@ defmodule Holter.Monitoring.Monitor do
       body = get_field(changeset, :body)
 
       if method in @bodyless_methods && body && body != "" do
-        add_error(changeset, :body, gettext("must be empty for %{method} requests", method: method)
+        add_error(
+          changeset,
+          :body,
+          gettext("must be empty for %{method} requests", method: method)
         )
       else
         changeset

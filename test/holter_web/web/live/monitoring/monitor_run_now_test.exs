@@ -26,7 +26,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       workspace: workspace
     } do
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
 
@@ -50,7 +50,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       assert render(view) =~ "disabled"
 
@@ -70,7 +70,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{last_manual_check_at: last_check})
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/#{monitor.id}")
+        live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       assert render(view) =~ "disabled"
 

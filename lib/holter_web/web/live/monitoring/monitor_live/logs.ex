@@ -4,36 +4,26 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   alias Holter.Monitoring
 
   @impl true
-  def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
-    case Monitoring.get_workspace_by_slug(slug) do
-      {:ok, workspace} ->
-        if connected?(socket) do
-          Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
-        end
-
-        monitor = Monitoring.get_monitor!(id)
-
-        {:ok,
-         socket
-         |> assign(:workspace, workspace)
-         |> assign(:monitor, monitor)
-         |> assign(:logs, [])
-         |> assign(:selected_log, nil)
-         |> assign(:formatted_snippet, nil)
-         |> assign(:formatted_headers, nil)
-         |> assign(:evidence_inherited, false)
-         |> assign(:evidence_source_time, nil)
-         |> assign(:filters, %{})
-         |> assign(:page_number, 1)
-         |> assign(:total_pages, 1)
-         |> assign(:form, to_form(%{}, as: "filters"))}
-
-      {:error, :not_found} ->
-        {:ok,
-         socket
-         |> put_flash(:error, gettext("Workspace not found"))
-         |> push_navigate(to: "/")}
+  def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
     end
+
+    monitor = Monitoring.get_monitor!(id)
+
+    {:ok,
+     socket
+     |> assign(:monitor, monitor)
+     |> assign(:logs, [])
+     |> assign(:selected_log, nil)
+     |> assign(:formatted_snippet, nil)
+     |> assign(:formatted_headers, nil)
+     |> assign(:evidence_inherited, false)
+     |> assign(:evidence_source_time, nil)
+     |> assign(:filters, %{})
+     |> assign(:page_number, 1)
+     |> assign(:total_pages, 1)
+     |> assign(:form, to_form(%{}, as: "filters"))}
   end
 
   @impl true
@@ -43,7 +33,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     form = to_form(Map.new(filters, fn {k, v} -> {Atom.to_string(k), v} end), as: "filters")
 
     path =
-      ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/monitor/#{socket.assigns.monitor.id}/logs"
+      ~p"/monitoring/monitor/#{socket.assigns.monitor.id}/logs"
 
     {:noreply,
      socket
