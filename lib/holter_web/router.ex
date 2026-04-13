@@ -4,15 +4,29 @@ defmodule HolterWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug HolterWeb.Plugs.SessionMetadataPlug
     plug :fetch_live_flash
     plug :put_root_layout, html: {HolterWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
+  pipeline :browser_api do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug HolterWeb.Plugs.SessionMetadataPlug
+    plug :protect_from_forgery
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
+    plug HolterWeb.Plugs.SessionMetadataPlug
     plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
+  end
+
+  scope "/api/v1", HolterWeb.Api do
+    pipe_through :browser_api
+    post "/telemetry/logs", TelemetryController, :log
   end
 
   scope "/api/v1", HolterWeb.Api do

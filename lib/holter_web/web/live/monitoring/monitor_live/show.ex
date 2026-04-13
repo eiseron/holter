@@ -111,7 +111,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     {:noreply,
      socket
      |> assign(:monitor, hydrated_monitor)
-     |> assign(:daily_metrics, Monitoring.list_daily_metrics(monitor.id))}
+     |> assign(:daily_metrics, Monitoring.list_daily_metrics(monitor.id))
+     |> assign_cooldown(monitor.last_manual_check_at)}
   end
 
   @impl true

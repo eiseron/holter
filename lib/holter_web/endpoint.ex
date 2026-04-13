@@ -9,8 +9,12 @@ defmodule HolterWeb.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
+    websocket: [
+      connect_info: [session: @session_options, user_agent: true, x_headers: ["x-request-id"]]
+    ],
+    longpoll: [
+      connect_info: [session: @session_options, user_agent: true, x_headers: ["x-request-id"]]
+    ]
 
   #
   plug Plug.Static,
@@ -33,6 +37,7 @@ defmodule HolterWeb.Endpoint do
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+  plug HolterWeb.Plugs.SessionMetadataPlug
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

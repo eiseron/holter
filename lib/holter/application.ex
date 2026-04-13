@@ -3,8 +3,12 @@ defmodule Holter.Application do
 
   use Application
 
+  alias Holter.Observability.ObanHandler
+
   @impl true
   def start(_type, _args) do
+    ObanHandler.attach()
+
     children = [
       HolterWeb.Telemetry,
       Holter.Repo,

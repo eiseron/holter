@@ -53,6 +53,8 @@ defmodule HolterWeb do
       use Phoenix.LiveView,
         layout: {HolterWeb.Layouts, :app}
 
+      on_mount HolterWeb.ObservabilityHook
+
       unquote(html_helpers())
     end
   end
@@ -91,6 +93,8 @@ defmodule HolterWeb do
     quote do
       use Phoenix.LiveView,
         layout: {HolterWeb.Layouts, :app}
+
+      on_mount HolterWeb.ObservabilityHook
 
       unquote(html_helpers())
 

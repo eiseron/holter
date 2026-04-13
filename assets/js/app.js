@@ -26,10 +26,79 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/holter"
 import topbar from "../vendor/topbar"
 
+function getOrCreateSessionId() {
+  let sessionId = sessionStorage.getItem("session_id")
+  if (!sessionId) {
+    sessionId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : Math.random().toString(36).substring(2) + Date.now().toString(36)
+    sessionStorage.setItem("session_id", sessionId)
+  }
+  return sessionId
+}
+
+const SESSION_ID = getOrCreateSessionId()
+
+const CSRF_TOKEN = document.querySelector("meta[name='csrf-token']")?.getAttribute("content")
+const REQUEST_ID = document.querySelector("meta[name='request-id']")?.getAttribute("content")
+
+// --- Client-Side Telemetry ---
+function sendLogToBackend(level, message, stack = null) {
+  const body = JSON.stringify({
+    level,
+    message: typeof message === 'string' ? message : JSON.stringify(message),
+    stack,
+    url: window.location.href
+  })
+
+  // Use fetch with keepalive to ensure log is sent even if page is closing
+  fetch("/api/v1/telemetry/logs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-session-id": SESSION_ID,
+      "x-csrf-token": CSRF_TOKEN
+    },
+    body,
+    keepalive: true
+  }).catch(() => {}) // Silently fail to avoid infinite recursion
+}
+
+// Intercept global errors
+window.onerror = (message, source, lineno, colno, error) => {
+  sendLogToBackend("error", message, error?.stack || `${source}:${lineno}:${colno}`)
+}
+
+window.onunhandledrejection = (event) => {
+  sendLogToBackend("error", `Unhandled Rejection: ${event.reason}`)
+}
+
+// Intercept console methods (keeping original functionality)
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error
+}
+
+console.log = (...args) => {
+  originalConsole.log(...args)
+}
+
+console.warn = (...args) => {
+  originalConsole.warn(...args)
+  sendLogToBackend("warn", args.join(" "))
+}
+
+console.error = (...args) => {
+  originalConsole.error(...args)
+  sendLogToBackend("error", args.join(" "))
+}
+// --- End Telemetry ---
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
+  params: {_csrf_token: csrfToken, session_id: SESSION_ID, request_id: REQUEST_ID},
   hooks: {...colocatedHooks},
 })
 

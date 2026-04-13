@@ -118,3 +118,13 @@ if config_env() == :prod do
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
+
+if System.get_env("SENTRY_DSN") do
+  config :sentry,
+    dsn: System.get_env("SENTRY_DSN"),
+    environment_name: config_env(),
+    enable_source_code_context: true,
+    root_source_code_paths: [File.cwd!()],
+    tags: %{env: config_env()},
+    traces_sample_rate: String.to_float(System.get_env("SENTRY_TRACES_SAMPLE_RATE") || "0.1")
+end

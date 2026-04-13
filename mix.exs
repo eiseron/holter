@@ -65,7 +65,10 @@ defmodule Holter.MixProject do
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.2", only: :test},
       {:open_api_spex, "~> 3.22"},
-      {:ymlr, "~> 5.1"}
+      {:ymlr, "~> 5.1"},
+      {:logger_json, "~> 6.0"},
+      {:sentry, "~> 10.2"},
+      {:hackney, "~> 1.20"}
     ]
   end
 

@@ -21,8 +21,14 @@ services:
       DB_USER: postgres
       DB_PASS: postgres
       DB_HOST: db
+      SENTRY_DSN: "http://public@sentry-mock:8080/1"
     depends_on:
       - db
+      - sentry-mock
+  sentry-mock:
+    image: jmalloc/echo-server
+    ports:
+      - "8000:8080"
   db:
     image: postgres:18
     environment:
