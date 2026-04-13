@@ -274,9 +274,24 @@ defmodule Holter.Monitoring.Engine do
       |> normalize_whitespace()
       |> sanitize_for_db()
       |> mask_secrets()
+      |> ensure_utf8()
       |> String.slice(0, 512)
     else
       "Binary content (skipped)"
+    end
+  end
+
+  defp ensure_utf8(text) do
+    if String.valid?(text) do
+      text
+    else
+      text
+      |> :binary.bin_to_list()
+      |> Enum.map(fn
+        b when b < 128 -> b
+        _ -> ??
+      end)
+      |> List.to_string()
     end
   end
 
