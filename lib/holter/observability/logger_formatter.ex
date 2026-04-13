@@ -4,8 +4,8 @@ defmodule Holter.Observability.LoggerFormatter do
   """
   @behaviour LoggerJSON.Formatter
 
-  alias LoggerJSON.Formatters.Basic
   alias Holter.Observability
+  alias LoggerJSON.Formatters.Basic
 
   @sensitive_keys ~w(
     password
@@ -22,15 +22,14 @@ defmodule Holter.Observability.LoggerFormatter do
 
   @impl true
   def format(log_event, opts) do
-    # 1. Ensure system versions are present in metadata
-    enriched_meta = Map.merge(Observability.system_versions(), log_event.meta)
-    
-    # 2. Scrub sensitive data
-    scrubbed_meta = scrub_map(enriched_meta)
-    
-    # 3. Rebuild event and format
-    log_event = %{log_event | meta: scrubbed_meta}
+    log_event = %{log_event | meta: process_meta(log_event.meta)}
     Basic.format(log_event, opts)
+  end
+
+  defp process_meta(meta) do
+    Observability.system_versions()
+    |> Map.merge(Map.new(meta))
+    |> scrub_map()
   end
 
   defp scrub_map(metadata) when is_list(metadata) do
@@ -55,6 +54,6 @@ defmodule Holter.Observability.LoggerFormatter do
   defp scrub_map(v), do: v
 
   if Mix.env() == :test do
-    def scrub_map_for_test(metadata), do: scrub_map(metadata)
+    def process_meta_for_test(meta), do: process_meta(meta)
   end
 end

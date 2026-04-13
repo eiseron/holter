@@ -36,8 +36,23 @@ config :logger, :default_handler,
 # Configuration for legacy tools that might still read this
 config :logger, :console,
   format: "$message\n",
-  metadata: [:request_id, :session_id, :workspace_id, :monitor_id, :job_id, :job_worker, :job_queue, :context, :user_agent, :node, :hostname, :holter_version, :phoenix_version]
-
+  metadata: [
+    :request_id,
+    :session_id,
+    :workspace_id,
+    :monitor_id,
+    :job_id,
+    :job_worker,
+    :job_queue,
+    :context,
+    :user_agent,
+    :node,
+    :hostname,
+    :holter_version,
+    :otp_version,
+    :elixir_version,
+    :phoenix_version
+  ]
 
 # -----------------------------------
 
