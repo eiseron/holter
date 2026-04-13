@@ -57,6 +57,7 @@ config :logger, :console,
     :workspace_id,
     :monitor_id,
     :context,
+    :user_agent,
     :holter_version,
     :phoenix_version
   ]

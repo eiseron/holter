@@ -18,7 +18,8 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
         workspace_id: workspace_id,
         request_path: conn.request_path,
         request_method: conn.method,
-        remote_ip: format_ip(conn.remote_ip)
+        remote_ip: format_ip(conn.remote_ip),
+        user_agent: get_req_header(conn, "user-agent") |> List.first()
       }
       |> Map.merge(Holter.Observability.system_versions())
       |> Map.reject(fn {_, v} -> is_nil(v) end)

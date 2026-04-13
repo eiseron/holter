@@ -15,7 +15,8 @@ defmodule HolterWeb.ObservabilityHook do
         session_id: session_id,
         workspace_id: workspace_id,
         context: :live_view,
-        view: socket.view |> to_string()
+        view: socket.view |> to_string(),
+        user_agent: get_connect_info(socket, :user_agent)
       }
       |> Map.merge(Holter.Observability.system_versions())
       |> Map.reject(fn {_, v} -> is_nil(v) end)
