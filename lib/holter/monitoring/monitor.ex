@@ -199,8 +199,7 @@ defmodule Holter.Monitoring.Monitor do
         add_error(
           changeset,
           :timeout_seconds,
-          gettext("must be less than the check interval (%{interval}s)"),
-          interval: Integer.to_string(interval)
+          gettext("must be less than the check interval (%{interval}s)", interval: interval)
         )
       else
         changeset
@@ -216,8 +215,7 @@ defmodule Holter.Monitoring.Monitor do
       body = get_field(changeset, :body)
 
       if method in @bodyless_methods && body && body != "" do
-        add_error(changeset, :body, gettext("must be empty for %{method} requests"),
-          method: method |> to_string() |> String.upcase()
+        add_error(changeset, :body, gettext("must be empty for %{method} requests", method: method)
         )
       else
         changeset
@@ -276,9 +274,10 @@ defmodule Holter.Monitoring.Monitor do
         add_error(
           changeset,
           field,
-          gettext("cannot have more than %{max_keywords} keywords (got %{count})"),
-          max_keywords: @max_keywords,
-          count: length(keywords)
+          gettext("cannot have more than %{max_keywords} keywords (got %{count})",
+            max_keywords: @max_keywords,
+            count: length(keywords)
+          )
         )
       else
         changeset
