@@ -9,8 +9,12 @@ defmodule HolterWeb.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options, user_agent: true]],
-    longpoll: [connect_info: [session: @session_options, user_agent: true]]
+    websocket: [
+      connect_info: [session: @session_options, user_agent: true, x_headers: ["x-request-id"]]
+    ],
+    longpoll: [
+      connect_info: [session: @session_options, user_agent: true, x_headers: ["x-request-id"]]
+    ]
 
   #
   plug Plug.Static,

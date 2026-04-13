@@ -14,6 +14,7 @@ defmodule HolterWeb.Plugs.SessionMetadataPlug do
 
     metadata =
       %{
+        request_id: conn.assigns[:request_id] || Keyword.get(Logger.metadata(), :request_id),
         session_id: session_id,
         workspace_id: workspace_id,
         request_path: conn.request_path,

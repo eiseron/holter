@@ -12,6 +12,7 @@ defmodule HolterWeb.ObservabilityHook do
 
     metadata =
       %{
+        request_id: extract_request_id(socket),
         session_id: session_id,
         workspace_id: workspace_id,
         context: :live_view,
@@ -28,6 +29,18 @@ defmodule HolterWeb.ObservabilityHook do
     end
 
     {:cont, assign_new(socket, :session_id, fn -> session_id end)}
+  end
+
+  defp extract_request_id(socket) do
+    if connected?(socket) do
+      get_connect_info(socket, :x_headers)
+      |> Enum.find_value(fn
+        {"x-request-id", value} -> value
+        _ -> nil
+      end)
+    else
+      nil
+    end
   end
 
   defp extract_session_id(socket) do

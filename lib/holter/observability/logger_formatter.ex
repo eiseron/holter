@@ -21,8 +21,8 @@ defmodule Holter.Observability.LoggerFormatter do
 
   @impl true
   def format(log_event, opts) do
-    scrubbed_metadata = scrub_map(log_event.metadata)
-    log_event = %{log_event | metadata: scrubbed_metadata}
+    scrubbed_metadata = scrub_map(log_event.meta)
+    log_event = %{log_event | meta: scrubbed_metadata}
 
     Basic.format(log_event, opts)
   end
