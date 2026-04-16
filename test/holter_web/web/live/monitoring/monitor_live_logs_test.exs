@@ -379,11 +379,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       %{conn: conn, log: log, monitor: monitor}
     end
 
-    test "navigates to log detail page with See Details link", %{conn: conn, log: log} do
+    test "navigates to log detail page with View Details link", %{conn: conn, log: log} do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{log.monitor_id}/logs?page=1")
 
-      assert render(view) =~ "See Details"
+      assert render(view) =~ "View Details"
     end
 
     test "displays evidence metadata (status, latency, region, redirects)", %{

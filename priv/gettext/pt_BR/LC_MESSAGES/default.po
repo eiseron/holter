@@ -574,7 +574,7 @@ msgstr "deve ser menor que o intervalo de verificação (%{interval}s)"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:90
 #, elixir-autogen, elixir-format
-msgid "See Details"
+msgid "View Details"
 msgstr "Ver Detalhes"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:5
