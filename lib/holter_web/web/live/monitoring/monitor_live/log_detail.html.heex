@@ -79,13 +79,13 @@
           <pre class="h-snippet-content">{@formatted_snippet}</pre>
         </div>
       <% end %>
-    </div>
 
-    <%= if @log.monitor_snapshot do %>
-      <div class="h-evidence-block">
-        <label>{gettext("Monitor Configuration")}</label>
-        <.monitor_snapshot snapshot={@log.monitor_snapshot} />
-      </div>
-    <% end %>
+      <%= if @log.monitor_snapshot do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Monitor Configuration")}</label>
+          <.monitor_snapshot snapshot={@log.monitor_snapshot} />
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
