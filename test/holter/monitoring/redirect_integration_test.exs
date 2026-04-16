@@ -52,10 +52,15 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
       assert Monitoring.get_monitor!(monitor.id).health_status == :up
 
-      assert [%{redirect_count: 1, last_redirect_url: last_url}] =
+      assert [%{redirect_count: 1, last_redirect_url: last_url, redirect_list: redirect_list}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
 
       assert last_url =~ "/probe/final"
+
+      assert length(redirect_list) == 2
+      assert hd(redirect_list)["status_code"] == 301
+      assert List.last(redirect_list)["status_code"] == 200
+      assert Enum.all?(redirect_list, &is_binary(&1["ip"]))
     end
 
     test "fails if max_redirects is reached", %{monitor: monitor, job_args: job_args, port: port} do

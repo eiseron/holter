@@ -45,6 +45,27 @@ defmodule HolterWeb.Api.MonitorLogControllerTest do
       assert json_response(conn, 200)["data"]["response_snippet"] == "<html>"
     end
 
+    test "Returns redirect_list in log detail response", %{conn: conn, monitor: monitor} do
+      log =
+        monitor_log_fixture(%{
+          monitor_id: monitor.id,
+          redirect_count: 1,
+          redirect_list: [
+            %{"url" => "https://example.com", "ip" => "1.2.3.4", "status_code" => 301},
+            %{"url" => "https://www.example.com", "ip" => "1.2.3.5", "status_code" => 200}
+          ]
+        })
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/logs/#{log.id}")
+      data = json_response(conn, 200)["data"]
+
+      assert [hop1, hop2] = data["redirect_list"]
+      assert hop1["url"] == "https://example.com"
+      assert hop1["ip"] == "1.2.3.4"
+      assert hop1["status_code"] == 301
+      assert hop2["status_code"] == 200
+    end
+
     test "Returns 404 if log belongs to another monitor", %{conn: conn, monitor: monitor} do
       other_monitor = monitor_fixture()
       log = monitor_log_fixture(%{monitor_id: other_monitor.id})

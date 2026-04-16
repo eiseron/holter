@@ -225,6 +225,56 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       assert [%{redirect_count: 5, status_code: 302}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
     end
+
+    test "populates redirect_list with url, ip and status_code for each hop", %{monitor: monitor} do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 3})
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/hop1"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 302, headers: [{"location", "/hop2"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 200, body: "success"}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+
+      assert [%{redirect_count: 2, redirect_list: redirect_list}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+
+      assert length(redirect_list) == 3
+
+      [hop1, hop2, hop3] = redirect_list
+
+      assert hop1["url"] =~ "test.local"
+      assert hop1["status_code"] == 301
+      assert is_binary(hop1["ip"])
+
+      assert hop2["url"] =~ "/hop1"
+      assert hop2["status_code"] == 302
+      assert is_binary(hop2["ip"])
+
+      assert hop3["url"] =~ "/hop2"
+      assert hop3["status_code"] == 200
+      assert is_binary(hop3["ip"])
+    end
+
+    test "redirect_list contains only the origin when no redirects occur", %{monitor: monitor} do
+      stub_response("success", 200)
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+
+      assert [%{redirect_count: 0, redirect_list: [hop]}] =
+               Monitoring.list_monitor_logs(monitor, %{}).logs
+
+      assert hop["url"] == monitor.url
+      assert hop["status_code"] == 200
+      assert is_binary(hop["ip"])
+    end
   end
 
   defp stub_response(body, status) do
