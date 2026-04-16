@@ -99,7 +99,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       assert html =~ "success-context"
       assert html =~ "Valid Success Data"
       assert html =~ "h-evidence-inherited-notice"
-      assert html =~ "connection error before an HTTP response"
+      assert html =~ "response was unchanged since the last collection"
     end
 
     test "inherits across multiple sequential FAILURES back to the last valid capture", %{

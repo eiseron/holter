@@ -388,15 +388,10 @@ msgstr "Página %{page_number} de %{total_pages}"
 msgid "Real-time Overview"
 msgstr "Visão Geral em Tempo Real"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:51
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:44
 #, elixir-autogen, elixir-format
-msgid "The check encountered a connection error before an HTTP response was received, so no headers or content were captured. Showing the most recent evidence from %{time}."
-msgstr "A verificação encontrou um erro de conexão antes de receber uma resposta HTTP, portanto nenhum cabeçalho ou conteúdo foi capturado. Mostrando a evidência mais recente de %{time}."
-
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:57
-#, elixir-autogen, elixir-format
-msgid "This check did not record response headers or a content snapshot. Showing the most recent evidence from %{time}."
-msgstr "Esta verificação não registrou cabeçalhos de resposta nem um snapshot de conteúdo. Mostrando a evidência mais recente de %{time}."
+msgid "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}."
+msgstr "Nenhuma nova evidência foi capturada para esta verificação porque a resposta não mudou desde a última coleta. Mostrando a evidência mais recente de %{time}."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:49
 #, elixir-autogen, elixir-format
