@@ -10,7 +10,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorSnapshot do
   def monitor_snapshot(assigns) do
     ~H"""
     <div class="h-fieldset-card">
-      <h3 class="h-fieldset-legend">{gettext("Monitor Configuration")}</h3>
       <div class="h-form-grid h-grid-cols-2">
         <div>
           <label class="h-snapshot-label">{gettext("URL")}</label>

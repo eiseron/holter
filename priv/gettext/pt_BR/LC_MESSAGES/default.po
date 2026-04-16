@@ -22,6 +22,16 @@ msgstr "Ações"
 msgid "Attempting to reconnect"
 msgstr "Tentando reconectar"
 
+#: lib/holter_web/components/monitoring/monitor_snapshot.ex:41
+#, elixir-autogen, elixir-format
+msgid "Monitor Configuration"
+msgstr "Configuração do Monitor"
+
+#: lib/holter_web/components/monitoring/monitor_snapshot.ex:40
+#, elixir-autogen, elixir-format
+msgid "Yes"
+msgstr "Sim"
+
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:171
 #, elixir-autogen, elixir-format
 msgid "Check Interval"

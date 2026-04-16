@@ -82,7 +82,10 @@
     </div>
 
     <%= if @log.monitor_snapshot do %>
-      <.monitor_snapshot snapshot={@log.monitor_snapshot} />
+      <div class="h-evidence-block">
+        <label>{gettext("Monitor Configuration")}</label>
+        <.monitor_snapshot snapshot={@log.monitor_snapshot} />
+      </div>
     <% end %>
   </div>
 </div>
