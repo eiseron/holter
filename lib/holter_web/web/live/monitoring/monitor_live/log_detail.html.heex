@@ -41,10 +41,17 @@
       <%= if @evidence_inherited do %>
         <div class="h-evidence-inherited-notice">
           <p>
-            ⚠️ {gettext(
-              "This check did not capture new evidence. Showing the most recent evidence from %{time}.",
-              time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
-            )}
+            ⚠️ <%= if @log.error_message do %>
+              {gettext(
+                "The check encountered a connection error before an HTTP response was received, so no headers or content were captured. Showing the most recent evidence from %{time}.",
+                time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+              )}
+            <% else %>
+              {gettext(
+                "This check did not record response headers or a content snapshot. Showing the most recent evidence from %{time}.",
+                time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+              )}
+            <% end %>
           </p>
           <p class="h-mt-2">
             <.link
