@@ -225,7 +225,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       assert [%{redirect_count: 5, status_code: 302}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
     end
-
   end
 
   describe "redirect_list with a two-hop chain" do
@@ -298,8 +297,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     setup %{monitor: monitor} do
       stub_response("success", 200)
       :ok = perform_job(HTTPCheck, job_args(monitor))
+
       [%{redirect_count: redirect_count, redirect_list: [hop]}] =
         Monitoring.list_monitor_logs(monitor, %{}).logs
+
       %{hop: hop, monitor: monitor, redirect_count: redirect_count}
     end
 

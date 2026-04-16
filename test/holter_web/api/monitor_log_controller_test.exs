@@ -45,7 +45,17 @@ defmodule HolterWeb.Api.MonitorLogControllerTest do
       assert json_response(conn, 200)["data"]["response_snippet"] == "<html>"
     end
 
-    test "Returns redirect_list in log detail response", %{conn: conn, monitor: monitor} do
+    test "Returns 404 if log belongs to another monitor", %{conn: conn, monitor: monitor} do
+      other_monitor = monitor_fixture()
+      log = monitor_log_fixture(%{monitor_id: other_monitor.id})
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/logs/#{log.id}")
+      assert json_response(conn, 404)
+    end
+  end
+
+  describe "GET /api/v1/monitors/:monitor_id/logs/:id redirect_list" do
+    setup %{conn: conn, monitor: monitor} do
       log =
         monitor_log_fixture(%{
           monitor_id: monitor.id,
@@ -57,21 +67,29 @@ defmodule HolterWeb.Api.MonitorLogControllerTest do
         })
 
       conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/logs/#{log.id}")
-      data = json_response(conn, 200)["data"]
-
-      assert [hop1, hop2] = data["redirect_list"]
-      assert hop1["url"] == "https://example.com"
-      assert hop1["ip"] == "1.2.3.4"
-      assert hop1["status_code"] == 301
-      assert hop2["status_code"] == 200
+      redirect_list = json_response(conn, 200)["data"]["redirect_list"]
+      [hop1, hop2] = redirect_list
+      %{redirect_list: redirect_list, hop1: hop1, hop2: hop2}
     end
 
-    test "Returns 404 if log belongs to another monitor", %{conn: conn, monitor: monitor} do
-      other_monitor = monitor_fixture()
-      log = monitor_log_fixture(%{monitor_id: other_monitor.id})
+    test "list has two entries", %{redirect_list: redirect_list} do
+      assert length(redirect_list) == 2
+    end
 
-      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/logs/#{log.id}")
-      assert json_response(conn, 404)
+    test "hop 1 url is correct", %{hop1: hop1} do
+      assert hop1["url"] == "https://example.com"
+    end
+
+    test "hop 1 ip is correct", %{hop1: hop1} do
+      assert hop1["ip"] == "1.2.3.4"
+    end
+
+    test "hop 1 status_code is 301", %{hop1: hop1} do
+      assert hop1["status_code"] == 301
+    end
+
+    test "hop 2 status_code is 200", %{hop2: hop2} do
+      assert hop2["status_code"] == 200
     end
   end
 end

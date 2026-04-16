@@ -52,15 +52,10 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
       assert Monitoring.get_monitor!(monitor.id).health_status == :up
 
-      assert [%{redirect_count: 1, last_redirect_url: last_url, redirect_list: redirect_list}] =
+      assert [%{redirect_count: 1, last_redirect_url: last_url}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
 
       assert last_url =~ "/probe/final"
-
-      assert length(redirect_list) == 2
-      assert hd(redirect_list)["status_code"] == 301
-      assert List.last(redirect_list)["status_code"] == 200
-      assert Enum.all?(redirect_list, &is_binary(&1["ip"]))
     end
 
     test "fails if max_redirects is reached", %{monitor: monitor, job_args: job_args, port: port} do
@@ -103,6 +98,39 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
                Monitoring.list_monitor_logs(monitor, %{}).logs
 
       assert last_url =~ "/probe/relative"
+    end
+  end
+
+  describe "redirect_list for a single 301→200 chain" do
+    setup %{monitor: monitor, job_args: job_args, port: port} do
+      DummyService.enqueue(@call_id,
+        status: 301,
+        headers: [{"location", "http://localhost:#{port}/probe/final"}]
+      )
+
+      DummyService.enqueue("final", status: 200, body: "FINAL CONTENT")
+
+      :ok = perform_job(HTTPCheck, job_args)
+
+      [%{redirect_list: redirect_list}] = Monitoring.list_monitor_logs(monitor, %{}).logs
+      [hop1, hop2] = redirect_list
+      %{redirect_list: redirect_list, hop1: hop1, hop2: hop2}
+    end
+
+    test "list has two entries", %{redirect_list: redirect_list} do
+      assert length(redirect_list) == 2
+    end
+
+    test "first hop status_code is 301", %{hop1: hop1} do
+      assert hop1["status_code"] == 301
+    end
+
+    test "last hop status_code is 200", %{hop2: hop2} do
+      assert hop2["status_code"] == 200
+    end
+
+    test "all hops have binary ip", %{redirect_list: redirect_list} do
+      assert Enum.all?(redirect_list, &is_binary(&1["ip"]))
     end
   end
 end
