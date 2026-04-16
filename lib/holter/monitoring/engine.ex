@@ -9,7 +9,14 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring.Monitor
   use Gettext, backend: HolterWeb.Gettext
 
-  def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil, redirect_list \\ []) do
+  def process_response(
+        monitor,
+        response,
+        duration_ms,
+        redirects \\ 0,
+        last_url \\ nil,
+        redirect_list \\ []
+      ) do
     Logger.metadata(
       monitor_id: monitor.id,
       workspace_id: monitor.workspace_id,
@@ -21,11 +28,27 @@ defmodule Holter.Monitoring.Engine do
     if restricted_ip?(ip) do
       handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url, redirect_list)
     else
-      perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url, redirect_list)
+      perform_full_validation(
+        monitor,
+        response,
+        duration_ms,
+        ip,
+        redirects,
+        last_url,
+        redirect_list
+      )
     end
   end
 
-  defp handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url, redirect_list) do
+  defp handle_restricted_ip(
+         monitor,
+         response,
+         duration_ms,
+         ip,
+         redirects,
+         last_url,
+         redirect_list
+       ) do
     finalize_check(
       monitor,
       %{
@@ -44,7 +67,15 @@ defmodule Holter.Monitoring.Engine do
     )
   end
 
-  defp perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url, redirect_list) do
+  defp perform_full_validation(
+         monitor,
+         response,
+         duration_ms,
+         ip,
+         redirects,
+         last_url,
+         redirect_list
+       ) do
     content_type = get_header(response.headers, "content-type")
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)

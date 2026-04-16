@@ -170,7 +170,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp private_network_address?({192, 168, _, _}), do: true
   defp private_network_address?({169, 254, _, _}), do: true
   defp private_network_address?({0, 0, 0, 0}), do: true
-  defp private_network_address?({0, 0, 0, 0, 0, 0, 1}), do: true
+  defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_network_address?(_), do: false
 
   defp build_opts(monitor, url, safe_ip, remaining_timeout) do

@@ -151,15 +151,27 @@ defmodule Holter.MonitoringTest do
     end
 
     test "returns nil when no other logs exist", %{monitor: monitor} do
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: DateTime.utc_now()})
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: DateTime.utc_now()
+        })
+
       assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
     end
 
     test "returns nil when all other logs have no payload", %{monitor: monitor} do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: DateTime.add(now, -60, :second)})
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        checked_at: DateTime.add(now, -60, :second)
+      })
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
 
       assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
     end
@@ -175,7 +187,8 @@ defmodule Holter.MonitoringTest do
           checked_at: DateTime.add(now, -60, :second)
         })
 
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
 
       assert Monitoring.find_nearest_technical_log(monitor.id, log).id == with_headers.id
     end
@@ -191,7 +204,8 @@ defmodule Holter.MonitoringTest do
           checked_at: DateTime.add(now, -60, :second)
         })
 
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
 
       assert Monitoring.find_nearest_technical_log(monitor.id, log).id == with_snippet.id
     end
@@ -213,7 +227,8 @@ defmodule Holter.MonitoringTest do
     test "does not return logs checked after the target log", %{monitor: monitor} do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
 
       Monitoring.create_monitor_log(%{
         monitor_id: monitor.id,
@@ -243,7 +258,8 @@ defmodule Holter.MonitoringTest do
           checked_at: DateTime.add(now, -60, :second)
         })
 
-      {:ok, log} = Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
 
       assert Monitoring.find_nearest_technical_log(monitor.id, log).id == closer.id
     end
