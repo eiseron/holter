@@ -143,4 +143,125 @@ defmodule Holter.MonitoringTest do
       assert "cannot be changed after creation" in errors_on(changeset).slug
     end
   end
+
+  describe "find_nearest_technical_log/2" do
+    setup do
+      monitor = monitor_fixture()
+      %{monitor: monitor}
+    end
+
+    test "returns nil when no other logs exist", %{monitor: monitor} do
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: DateTime.utc_now()
+        })
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
+    end
+
+    test "returns nil when all other logs have no payload", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        checked_at: DateTime.add(now, -60, :second)
+      })
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
+    end
+
+    test "returns most recent log with non-empty response_headers", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, with_headers} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_headers: %{"server" => "nginx"},
+          checked_at: DateTime.add(now, -60, :second)
+        })
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log).id == with_headers.id
+    end
+
+    test "returns most recent log with non-empty response_snippet", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, with_snippet} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_snippet: "some content",
+          checked_at: DateTime.add(now, -60, :second)
+        })
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log).id == with_snippet.id
+    end
+
+    test "does not return the log itself even if it has a payload", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_headers: %{"server" => "nginx"},
+          checked_at: now
+        })
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
+    end
+
+    test "does not return logs checked after the target log", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        response_headers: %{"server" => "nginx"},
+        checked_at: DateTime.add(now, 60, :second)
+      })
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log) == nil
+    end
+
+    test "returns the closest preceding log when multiple candidates exist", %{monitor: monitor} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        response_headers: %{"server" => "older"},
+        checked_at: DateTime.add(now, -120, :second)
+      })
+
+      {:ok, closer} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_headers: %{"server" => "nginx"},
+          checked_at: DateTime.add(now, -60, :second)
+        })
+
+      {:ok, log} =
+        Monitoring.create_monitor_log(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      assert Monitoring.find_nearest_technical_log(monitor.id, log).id == closer.id
+    end
+  end
 end

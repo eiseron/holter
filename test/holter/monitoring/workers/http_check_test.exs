@@ -227,6 +227,100 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
   end
 
+  describe "redirect_list with a two-hop chain" do
+    setup %{monitor: monitor} do
+      {:ok, monitor} =
+        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 3})
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 301, headers: [{"location", "/hop1"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 302, headers: [{"location", "/hop2"}], body: ""}}
+      end)
+
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 200, body: "success"}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+
+      [%{redirect_list: redirect_list}] = Monitoring.list_monitor_logs(monitor, %{}).logs
+      [hop1, hop2, hop3] = redirect_list
+
+      %{redirect_list: redirect_list, hop1: hop1, hop2: hop2, hop3: hop3}
+    end
+
+    test "records three entries in redirect_list", %{redirect_list: redirect_list} do
+      assert length(redirect_list) == 3
+    end
+
+    test "hop 1 url is the origin", %{hop1: hop1} do
+      assert hop1["url"] =~ "test.local"
+    end
+
+    test "hop 1 status_code is 301", %{hop1: hop1} do
+      assert hop1["status_code"] == 301
+    end
+
+    test "hop 1 ip is a string", %{hop1: hop1} do
+      assert is_binary(hop1["ip"])
+    end
+
+    test "hop 2 url is the first redirect destination", %{hop2: hop2} do
+      assert hop2["url"] =~ "/hop1"
+    end
+
+    test "hop 2 status_code is 302", %{hop2: hop2} do
+      assert hop2["status_code"] == 302
+    end
+
+    test "hop 2 ip is a string", %{hop2: hop2} do
+      assert is_binary(hop2["ip"])
+    end
+
+    test "hop 3 url is the second redirect destination", %{hop3: hop3} do
+      assert hop3["url"] =~ "/hop2"
+    end
+
+    test "hop 3 status_code is 200", %{hop3: hop3} do
+      assert hop3["status_code"] == 200
+    end
+
+    test "hop 3 ip is a string", %{hop3: hop3} do
+      assert is_binary(hop3["ip"])
+    end
+  end
+
+  describe "redirect_list when no redirects occur" do
+    setup %{monitor: monitor} do
+      stub_response("success", 200)
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+
+      [%{redirect_count: redirect_count, redirect_list: [hop]}] =
+        Monitoring.list_monitor_logs(monitor, %{}).logs
+
+      %{hop: hop, monitor: monitor, redirect_count: redirect_count}
+    end
+
+    test "redirect_count is zero", %{redirect_count: redirect_count} do
+      assert redirect_count == 0
+    end
+
+    test "origin hop url matches monitor url", %{hop: hop, monitor: monitor} do
+      assert hop["url"] == monitor.url
+    end
+
+    test "origin hop status_code is 200", %{hop: hop} do
+      assert hop["status_code"] == 200
+    end
+
+    test "origin hop ip is a string", %{hop: hop} do
+      assert is_binary(hop["ip"])
+    end
+  end
+
   defp stub_response(body, status) do
     expect(MonitorClientMock, :request, fn _opts ->
       {:ok, %Req.Response{status: status, body: body}}

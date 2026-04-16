@@ -12,15 +12,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
   setup do
     monitor = monitor_fixture(@monitor_attrs)
-    workspace = Monitoring.get_workspace!(monitor.workspace_id)
-    %{monitor: monitor, workspace: workspace}
+    %{monitor: monitor}
   end
 
   describe "evidence inheritance" do
     test "inherits from last valid log even with multiple empty logs in between", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -55,10 +53,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
-
-      view
-      |> render_click("view_evidence", %{"id" => newest_log.id})
+        live(conn, ~p"/monitoring/logs/#{newest_log.id}")
 
       html = render(view)
 
@@ -72,8 +67,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
     test "FAILURE with error correctly inherits technical context from previous SUCCESS", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -94,10 +88,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
-
-      view
-      |> render_click("view_evidence", %{"id" => failure_log.id})
+        live(conn, ~p"/monitoring/logs/#{failure_log.id}")
 
       html = render(view)
 
@@ -105,12 +96,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       assert html =~ "success-context"
       assert html =~ "Valid Success Data"
       assert html =~ "h-evidence-inherited-notice"
+      assert html =~ "response was unchanged since the last collection"
     end
 
     test "inherits across multiple sequential FAILURES back to the last valid capture", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -137,10 +128,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         })
 
       {:ok, view, _html} =
-        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
-
-      view
-      |> render_click("view_evidence", %{"id" => clicked_failure.id})
+        live(conn, ~p"/monitoring/logs/#{clicked_failure.id}")
 
       html = render(view)
 

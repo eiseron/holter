@@ -105,6 +105,7 @@ defmodule HolterWeb do
       import HolterWeb.Components.Monitoring.Sparkline
       import HolterWeb.Components.Monitoring.DailyMetricsSection
       import HolterWeb.Components.Monitoring.MonitorFormFields
+      import HolterWeb.Components.Monitoring.MonitorSnapshot
     end
   end
 

@@ -47,6 +47,20 @@ defmodule HolterWeb.Api.MonitorLogSchemas do
         error_message: %Schema{type: :string, nullable: true},
         redirect_count: %Schema{type: :integer, nullable: true},
         last_redirect_url: %Schema{type: :string, nullable: true},
+        redirect_list: %Schema{
+          type: :array,
+          nullable: true,
+          items: %Schema{
+            type: :object,
+            additionalProperties: false,
+            properties: %{
+              url: %Schema{type: :string},
+              ip: %Schema{type: :string},
+              status_code: %Schema{type: :integer, nullable: true}
+            },
+            required: [:url, :ip]
+          }
+        },
         monitor_snapshot: %Schema{type: :object, nullable: true, additionalProperties: true},
         checked_at: %Schema{type: :string, format: :"date-time"},
         inserted_at: %Schema{type: :string, format: :"date-time"},

@@ -9,7 +9,14 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring.Monitor
   use Gettext, backend: HolterWeb.Gettext
 
-  def process_response(monitor, response, duration_ms, redirects \\ 0, last_url \\ nil) do
+  def process_response(
+        monitor,
+        response,
+        duration_ms,
+        redirects \\ 0,
+        last_url \\ nil,
+        redirect_list \\ []
+      ) do
     Logger.metadata(
       monitor_id: monitor.id,
       workspace_id: monitor.workspace_id,
@@ -19,13 +26,29 @@ defmodule Holter.Monitoring.Engine do
     ip = extract_ip(response)
 
     if restricted_ip?(ip) do
-      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url)
+      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url, redirect_list)
     else
-      perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url)
+      perform_full_validation(
+        monitor,
+        response,
+        duration_ms,
+        ip,
+        redirects,
+        last_url,
+        redirect_list
+      )
     end
   end
 
-  defp handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url) do
+  defp handle_restricted_ip(
+         monitor,
+         response,
+         duration_ms,
+         ip,
+         redirects,
+         last_url,
+         redirect_list
+       ) do
     finalize_check(
       monitor,
       %{
@@ -38,12 +61,21 @@ defmodule Holter.Monitoring.Engine do
         headers: nil,
         ip: ip,
         redirect_count: redirects,
-        last_redirect_url: last_url
+        last_redirect_url: last_url,
+        redirect_list: redirect_list
       }
     )
   end
 
-  defp perform_full_validation(monitor, response, duration_ms, ip, redirects, last_url) do
+  defp perform_full_validation(
+         monitor,
+         response,
+         duration_ms,
+         ip,
+         redirects,
+         last_url,
+         redirect_list
+       ) do
     content_type = get_header(response.headers, "content-type")
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)
@@ -67,7 +99,8 @@ defmodule Holter.Monitoring.Engine do
         headers: headers,
         ip: ip,
         redirect_count: redirects,
-        last_redirect_url: last_url
+        last_redirect_url: last_url,
+        redirect_list: redirect_list
       }
     )
   end
@@ -138,6 +171,7 @@ defmodule Holter.Monitoring.Engine do
       region: get_region(),
       redirect_count: params[:redirect_count],
       last_redirect_url: params[:last_redirect_url],
+      redirect_list: params[:redirect_list] || [],
       checked_at: now,
       monitor_snapshot: snapshot
     })

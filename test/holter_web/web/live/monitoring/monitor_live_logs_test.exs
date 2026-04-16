@@ -12,12 +12,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
   setup do
     monitor = monitor_fixture(@monitor_attrs)
-    workspace = Monitoring.get_workspace!(monitor.workspace_id)
-    %{monitor: monitor, workspace: workspace}
+    %{monitor: monitor}
   end
 
   describe "technical logs page basics" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 123})
 
       {:ok, view, html} =
@@ -36,7 +35,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "filtering and combined states" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       today = ~U[2026-04-08 10:00:00Z]
       yesterday = ~U[2026-04-07 10:00:00Z]
 
@@ -46,13 +45,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: today})
       log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: yesterday})
 
-      %{conn: conn, monitor: monitor, workspace: workspace}
+      %{conn: conn, monitor: monitor}
     end
 
     test "filters by combined status and date range", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=down&start_date=2026-04-08&page=1"
@@ -68,8 +66,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "renders empty state when no logs match filters", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=compromised&page=1"
@@ -82,7 +79,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "advanced pagination logic" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       for i <- 1..12 do
         log_fixture(%{
           monitor_id: monitor.id,
@@ -91,13 +88,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         })
       end
 
-      %{conn: conn, monitor: monitor, workspace: workspace}
+      %{conn: conn, monitor: monitor}
     end
 
     test "clicking page number preserves existing filters", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&page_size=5&page=1"
@@ -114,8 +110,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "handles out of bounds page numbers by resetting to last valid page", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?page=10&page_size=5"
@@ -126,7 +121,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       assert page_info =~ "3"
     end
 
-    test "updating filter resets to page 1", %{conn: conn, monitor: monitor, workspace: workspace} do
+    test "updating filter resets to page 1", %{
+      conn: conn,
+      monitor: monitor
+    } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?page=2&page_size=5"
 
@@ -144,7 +142,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "log table column sorting" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       slow =
         log_fixture(%{
           monitor_id: monitor.id,
@@ -159,13 +157,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
           checked_at: ~U[2026-04-10 10:00:00Z]
         })
 
-      %{conn: conn, monitor: monitor, workspace: workspace, slow: slow, fast: fast}
+      %{conn: conn, monitor: monitor, slow: slow, fast: fast}
     end
 
     test "default page renders Time header as sort link with no active indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -177,8 +174,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     test "sort_by=checked_at&sort_dir=asc returns oldest log first (oldest appears before newest)",
          %{
            conn: conn,
-           monitor: monitor,
-           workspace: workspace
+           monitor: monitor
          } do
       {:ok, view, _html} =
         live(
@@ -196,8 +192,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "sort_by=latency_ms&sort_dir=desc returns highest latency first", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -215,8 +210,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking Time header from default (desc) patches URL to asc", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -231,8 +225,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking active sort column again toggles direction", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -250,8 +243,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking a different column defaults to desc and resets to page=1", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -269,8 +261,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "active sort column shows direction indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(
@@ -284,8 +275,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "inactive sort columns show no indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(
@@ -298,8 +288,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "Evidence column header has no sort link", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -310,8 +299,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "sort params coexist with status filter in URL", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&sort_by=latency_ms&sort_dir=desc"
@@ -324,8 +312,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "page links preserve sort params", %{
       conn: conn,
-      monitor: monitor,
-      workspace: workspace
+      monitor: monitor
     } do
       for _ <- 1..6 do
         log_fixture(%{monitor_id: monitor.id})
@@ -342,33 +329,112 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     end
   end
 
-  describe "technical evidence modal logic" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+  describe "technical evidence detail page" do
+    setup %{conn: conn, monitor: monitor} do
       {:ok, log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
           status: :down,
           status_code: 500,
           latency_ms: 456,
-          response_headers: %{"server" => "nginx"},
+          region: "us-west-2",
+          redirect_count: 2,
+          last_redirect_url: "https://redirected.example.com",
+          redirect_list: [
+            %{"url" => "https://example.com", "ip" => "1.2.3.4", "status_code" => 301},
+            %{"url" => "https://redirected.example.com", "ip" => "5.6.7.8", "status_code" => 200}
+          ],
+          error_message: "Connection timeout",
+          response_headers: %{"server" => "nginx", "content-type" => "text/html"},
           response_snippet: "Server Error",
-          checked_at: DateTime.utc_now()
+          checked_at: DateTime.utc_now(),
+          monitor_snapshot: %{
+            "url" => "https://example.local",
+            "method" => "get",
+            "interval_seconds" => 60,
+            "timeout_seconds" => 30,
+            "headers" => %{"Authorization" => "Bearer token"},
+            "body" => "request=data",
+            "keyword_positive" => ["success", "ok"],
+            "keyword_negative" => ["error", "failed"],
+            "ssl_ignore" => false,
+            "follow_redirects" => true,
+            "max_redirects" => 5
+          }
         })
 
-      {:ok, view, _html} =
-        live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs?page=1")
-
-      %{view: view, log: log}
+      %{conn: conn, log: log, monitor: monitor}
     end
 
-    test "it opens and closes the technical evidence modal", %{view: view} do
-      view |> element("button[phx-click=\"view_evidence\"]") |> render_click()
-      assert has_element?(view, "#evidence-modal")
-      assert render(view) =~ "nginx"
-      assert render(view) =~ "Server Error"
+    test "navigates to log detail page with View Details link", %{conn: conn, log: log} do
+      {:ok, view, _html} =
+        live(conn, ~p"/monitoring/monitor/#{log.monitor_id}/logs?page=1")
 
-      view |> element("button", "close") |> render_click()
-      refute has_element?(view, "#evidence-modal")
+      assert render(view) =~ "View Details"
+    end
+
+    test "displays evidence metadata (status, latency, region, redirects)", %{
+      conn: conn,
+      log: log
+    } do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ "DOWN"
+      assert html =~ "500"
+      assert html =~ "456ms"
+      assert html =~ "us-west-2"
+      assert html =~ "Redirect Chain"
+      assert html =~ "1.2.3.4"
+      assert html =~ "5.6.7.8"
+      assert html =~ "301"
+      assert html =~ "redirected.example.com"
+    end
+
+    test "displays error message when present", %{conn: conn, log: log} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ "Connection timeout"
+    end
+
+    test "displays response headers and snippet", %{conn: conn, log: log} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ "nginx"
+      assert html =~ "text/html"
+      assert html =~ "Server Error"
+    end
+
+    test "displays monitor configuration snapshot", %{conn: conn, log: log} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ "https://example.local"
+      assert html =~ "GET"
+      assert html =~ "60s"
+      assert html =~ "30s"
+      assert html =~ "5"
+      assert html =~ "Authorization"
+      assert html =~ "Bearer token"
+      assert html =~ "request=data"
+      assert html =~ "success, ok"
+      assert html =~ "error, failed"
+    end
+
+    test "displays monitor URL in header", %{conn: conn, log: log, monitor: monitor} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ monitor.url
+    end
+
+    test "displays back link to logs list", %{conn: conn, log: log, monitor: monitor} do
+      {:ok, _view, html} =
+        live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert html =~ ~p"/monitoring/monitor/#{monitor.id}/logs"
     end
   end
 end

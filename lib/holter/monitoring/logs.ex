@@ -124,6 +124,20 @@ defmodule Holter.Monitoring.Logs do
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
+  def find_nearest_technical_log(monitor_id, log) do
+    from(l in MonitorLog,
+      where: l.monitor_id == ^monitor_id,
+      where: l.id != ^log.id,
+      where: l.checked_at <= ^log.checked_at,
+      where:
+        fragment("? IS NOT NULL AND ? != '{}'::jsonb", l.response_headers, l.response_headers) or
+          (not is_nil(l.response_snippet) and l.response_snippet != ""),
+      order_by: [desc: l.checked_at],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
   def create_monitor_log(attrs \\ %{}) do
     case %MonitorLog{}
          |> MonitorLog.changeset(attrs)

@@ -22,6 +22,16 @@ msgstr "Ações"
 msgid "Attempting to reconnect"
 msgstr "Tentando reconectar"
 
+#: lib/holter_web/components/monitoring/monitor_snapshot.ex:41
+#, elixir-autogen, elixir-format
+msgid "Monitor Configuration"
+msgstr "Configuração do Monitor"
+
+#: lib/holter_web/components/monitoring/monitor_snapshot.ex:40
+#, elixir-autogen, elixir-format
+msgid "Yes"
+msgstr "Sim"
+
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:171
 #, elixir-autogen, elixir-format
 msgid "Check Interval"
@@ -234,11 +244,6 @@ msgstr "Ativo"
 msgid "Avg Latency"
 msgstr "Latência Média"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:173
-#, elixir-autogen, elixir-format
-msgid "Close"
-msgstr "Fechar"
-
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:20
 #, elixir-autogen, elixir-format
 msgid "Daily Uptime History"
@@ -307,11 +312,6 @@ msgstr "Executar Agora"
 msgid "Status"
 msgstr "Status"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:109
-#, elixir-autogen, elixir-format
-msgid "Technical Evidence"
-msgstr "Evidência Técnica"
-
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "Technical Logs"
@@ -326,11 +326,6 @@ msgstr "Hora"
 #, elixir-autogen, elixir-format
 msgid "Uptime (%)"
 msgstr "Tempo de Atividade (%)"
-
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:90
-#, elixir-autogen, elixir-format
-msgid "View Evidence"
-msgstr "Ver Evidência"
 
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:23
 #, elixir-autogen, elixir-format
@@ -403,10 +398,10 @@ msgstr "Página %{page_number} de %{total_pages}"
 msgid "Real-time Overview"
 msgstr "Visão Geral em Tempo Real"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:116
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:44
 #, elixir-autogen, elixir-format
-msgid "This check did not capture new evidence. Showing the most recent evidence from %{time}."
-msgstr "Esta verificação não capturou novas evidências. Mostrando a evidência mais recente de %{time}."
+msgid "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}."
+msgstr "Nenhuma nova evidência foi capturada para esta verificação porque a resposta não mudou desde a última coleta. Mostrando a evidência mais recente de %{time}."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:49
 #, elixir-autogen, elixir-format
@@ -478,6 +473,11 @@ msgstr "Número máximo de redirecionamentos sequenciais a seguir (1-20)."
 #, elixir-autogen, elixir-format
 msgid "Please wait before triggering another manual check."
 msgstr "Por favor, aguarde antes de acionar outra verificação manual."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "Redirect Chain"
+msgstr "Cadeia de Redirecionamentos"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:139
 #, elixir-autogen, elixir-format
@@ -586,3 +586,18 @@ msgstr "deve estar vazio para requisições %{method}"
 #, elixir-autogen, elixir-format
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "deve ser menor que o intervalo de verificação (%{interval}s)"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "View Details"
+msgstr "Ver Detalhes"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Log Details"
+msgstr "Detalhes do Log"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "View original log"
+msgstr "Ver log original"
