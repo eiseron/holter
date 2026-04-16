@@ -12,12 +12,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
   setup do
     monitor = monitor_fixture(@monitor_attrs)
-    workspace = Monitoring.get_workspace!(monitor.workspace_id)
-    %{monitor: monitor, workspace: workspace}
+    %{monitor: monitor}
   end
 
   describe "technical logs page basics" do
-    setup %{conn: conn, monitor: monitor, workspace: _workspace} do
+    setup %{conn: conn, monitor: monitor} do
       log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 123})
 
       {:ok, view, html} =
@@ -36,7 +35,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "filtering and combined states" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       today = ~U[2026-04-08 10:00:00Z]
       yesterday = ~U[2026-04-07 10:00:00Z]
 
@@ -46,13 +45,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: today})
       log_fixture(%{monitor_id: monitor.id, status: :down, checked_at: yesterday})
 
-      %{conn: conn, monitor: monitor, workspace: workspace}
+      %{conn: conn, monitor: monitor}
     end
 
     test "filters by combined status and date range", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=down&start_date=2026-04-08&page=1"
@@ -68,8 +66,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "renders empty state when no logs match filters", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=compromised&page=1"
@@ -82,7 +79,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "advanced pagination logic" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       for i <- 1..12 do
         log_fixture(%{
           monitor_id: monitor.id,
@@ -91,13 +88,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         })
       end
 
-      %{conn: conn, monitor: monitor, workspace: workspace}
+      %{conn: conn, monitor: monitor}
     end
 
     test "clicking page number preserves existing filters", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&page_size=5&page=1"
@@ -114,8 +110,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "handles out of bounds page numbers by resetting to last valid page", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?page=10&page_size=5"
@@ -128,8 +123,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "updating filter resets to page 1", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?page=2&page_size=5"
@@ -148,7 +142,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "log table column sorting" do
-    setup %{conn: conn, monitor: monitor, workspace: workspace} do
+    setup %{conn: conn, monitor: monitor} do
       slow =
         log_fixture(%{
           monitor_id: monitor.id,
@@ -163,13 +157,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
           checked_at: ~U[2026-04-10 10:00:00Z]
         })
 
-      %{conn: conn, monitor: monitor, workspace: workspace, slow: slow, fast: fast}
+      %{conn: conn, monitor: monitor, slow: slow, fast: fast}
     end
 
     test "default page renders Time header as sort link with no active indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -181,8 +174,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
     test "sort_by=checked_at&sort_dir=asc returns oldest log first (oldest appears before newest)",
          %{
            conn: conn,
-           monitor: monitor,
-           workspace: _workspace
+           monitor: monitor
          } do
       {:ok, view, _html} =
         live(
@@ -200,8 +192,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "sort_by=latency_ms&sort_dir=desc returns highest latency first", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -219,8 +210,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking Time header from default (desc) patches URL to asc", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -235,8 +225,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking active sort column again toggles direction", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -254,8 +243,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "clicking a different column defaults to desc and resets to page=1", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(
@@ -273,8 +261,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "active sort column shows direction indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(
@@ -288,8 +275,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "inactive sort columns show no indicator", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, _view, html} =
         live(
@@ -302,8 +288,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "Evidence column header has no sort link", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}/logs")
@@ -314,8 +299,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "sort params coexist with status filter in URL", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       url =
         ~p"/monitoring/monitor/#{monitor.id}/logs?status=up&sort_by=latency_ms&sort_dir=desc"
@@ -328,8 +312,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
 
     test "page links preserve sort params", %{
       conn: conn,
-      monitor: monitor,
-      workspace: _workspace
+      monitor: monitor
     } do
       for _ <- 1..6 do
         log_fixture(%{monitor_id: monitor.id})
@@ -347,7 +330,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
   end
 
   describe "technical evidence detail page" do
-    setup %{conn: conn, monitor: monitor, workspace: _workspace} do
+    setup %{conn: conn, monitor: monitor} do
       {:ok, log} =
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
