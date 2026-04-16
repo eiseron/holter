@@ -37,10 +37,10 @@
                 <div class="h-redirect-hop-detail">
                   <code class="h-redirect-url">{hop["url"]}</code>
                   <div class="h-redirect-hop-meta">
+                    <span class="h-redirect-ip">{hop["ip"]}</span>
                     <%= if hop["status_code"] do %>
                       <span class="h-redirect-status">{hop["status_code"]}</span>
                     <% end %>
-                    <span class="h-redirect-ip">{hop["ip"]}</span>
                   </div>
                 </div>
               </li>

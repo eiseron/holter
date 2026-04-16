@@ -135,8 +135,15 @@
 }
 
 .h-redirect-status {
-  font-weight: 600;
-  color: var(--color-text-muted);
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: 0.03em;
 }
 
 .h-redirect-ip {
