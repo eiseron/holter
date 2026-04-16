@@ -15,6 +15,7 @@ defmodule Holter.Monitoring.MonitorLog do
     field :error_message, :string
     field :redirect_count, :integer
     field :last_redirect_url, :string
+    field :redirect_list, {:array, :map}, default: []
     field :checked_at, :utc_datetime
     field :monitor_snapshot, :map
 
@@ -38,6 +39,7 @@ defmodule Holter.Monitoring.MonitorLog do
       :error_message,
       :redirect_count,
       :last_redirect_url,
+      :redirect_list,
       :checked_at,
       :monitor_snapshot
     ])

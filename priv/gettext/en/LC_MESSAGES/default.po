@@ -474,6 +474,11 @@ msgstr "Maximum number of sequential redirects to follow (1-20)."
 msgid "Please wait before triggering another manual check."
 msgstr "Please wait before triggering another manual check."
 
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "Redirect Chain"
+msgstr "Redirect Chain"
+
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:139
 #, elixir-autogen, elixir-format
 msgid "Redirects"

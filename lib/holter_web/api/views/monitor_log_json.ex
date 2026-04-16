@@ -44,6 +44,7 @@ defmodule HolterWeb.Api.MonitorLogJSON do
       error_message: log.error_message,
       redirect_count: log.redirect_count,
       last_redirect_url: log.last_redirect_url,
+      redirect_list: log.redirect_list,
       monitor_snapshot: log.monitor_snapshot,
       checked_at: log.checked_at,
       inserted_at: log.inserted_at,

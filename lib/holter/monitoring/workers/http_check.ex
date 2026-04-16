@@ -12,14 +12,15 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
     start_time = System.monotonic_time()
-    check_url(monitor, monitor.url, 0, start_time)
+    check_url(monitor, monitor.url, 0, [], start_time)
     :ok
   end
 
-  defp check_url(monitor, url, redirects, start_time) do
+  defp check_url(monitor, url, redirects, redirect_list, start_time) do
     case validate_destination(url) do
       {:ok, safe_ip} ->
-        fetch_response(monitor, url, safe_ip, redirects, start_time)
+        hop = %{"url" => url, "ip" => safe_ip}
+        fetch_response(monitor, url, safe_ip, redirects, redirect_list ++ [hop], start_time)
 
       {:error, reason} ->
         Engine.handle_failure(
@@ -30,7 +31,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     end
   end
 
-  defp fetch_response(monitor, url, safe_ip, redirects, start_time) do
+  defp fetch_response(monitor, url, safe_ip, redirects, redirect_list, start_time) do
     remaining_timeout = calculate_remaining_timeout(monitor, start_time)
 
     if remaining_timeout <= 0 do
@@ -40,7 +41,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         calculate_duration(start_time)
       )
     else
-      execute_request(monitor, url, safe_ip, redirects, start_time, remaining_timeout)
+      execute_request(monitor, url, safe_ip, redirects, redirect_list, start_time, remaining_timeout)
     end
   end
 
@@ -49,42 +50,42 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     monitor.timeout_seconds * 1000 - elapsed_ms
   end
 
-  defp execute_request(monitor, url, safe_ip, redirects, start_time, remaining_timeout) do
+  defp execute_request(monitor, url, safe_ip, redirects, redirect_list, start_time, remaining_timeout) do
     client = Application.get_env(:holter, :monitor_client, HTTP)
     opts = build_opts(monitor, url, safe_ip, remaining_timeout)
 
     case client.request(opts) do
       {:ok, response} ->
         current_duration = calculate_duration(start_time)
-        handle_response(monitor, response, url, redirects, start_time, current_duration)
+        handle_response(monitor, response, url, redirects, redirect_list, start_time, current_duration)
 
       {:error, error} ->
         Engine.handle_failure(monitor, error, calculate_duration(start_time))
     end
   end
 
-  defp handle_response(monitor, response, url, redirects, start_time, current_duration) do
+  defp handle_response(monitor, response, url, redirects, redirect_list, start_time, current_duration) do
     should_follow =
       response.status in 301..308 and monitor.follow_redirects and
         redirects < monitor.max_redirects
 
     if should_follow do
-      follow_redirect(monitor, response, url, redirects, start_time)
+      follow_redirect(monitor, response, url, redirects, redirect_list, start_time)
     else
-      Engine.process_response(monitor, response, current_duration, redirects, url)
+      Engine.process_response(monitor, response, current_duration, redirects, url, redirect_list)
     end
   end
 
-  defp follow_redirect(monitor, response, url, redirects, start_time) do
+  defp follow_redirect(monitor, response, url, redirects, redirect_list, start_time) do
     case get_header(response.headers, "location") do
       nil ->
         current_duration = calculate_duration(start_time)
-        Engine.process_response(monitor, response, current_duration, redirects, url)
+        Engine.process_response(monitor, response, current_duration, redirects, url, redirect_list)
 
       location ->
         location = if is_list(location), do: List.first(location), else: location
         next_url = URI.merge(url, location) |> to_string()
-        check_url(monitor, next_url, redirects + 1, start_time)
+        check_url(monitor, next_url, redirects + 1, redirect_list, start_time)
     end
   end
 
