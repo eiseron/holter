@@ -23,7 +23,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
     test "triggers a manual check and starts the cooldown immediately", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -42,7 +42,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
     test "respects the cooldown period and prevents duplicate clicks", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, monitor} =
         Monitoring.update_monitor(monitor, %{
@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
     test "re-enables the button after the cooldown expires", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       last_check =
         DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() - 10), :second)

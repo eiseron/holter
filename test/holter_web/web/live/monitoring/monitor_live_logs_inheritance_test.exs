@@ -20,7 +20,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
     test "inherits from last valid log even with multiple empty logs in between", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -70,7 +70,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
     test "FAILURE with error correctly inherits technical context from previous SUCCESS", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -104,7 +104,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
     test "inherits across multiple sequential FAILURES back to the last valid capture", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 

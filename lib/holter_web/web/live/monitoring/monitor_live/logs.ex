@@ -60,7 +60,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
      )}
   end
 
-
   @impl true
   def handle_info({event, _data}, socket)
       when event in [

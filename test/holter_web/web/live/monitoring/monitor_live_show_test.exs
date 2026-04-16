@@ -24,7 +24,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a monitor, when page loads, then it renders the title", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, _view, html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -35,7 +35,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a monitor, when page loads, then it displays the monitor URL", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, _view, html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -46,7 +46,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a user updating URL, when form submitted, then URL persists in database", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
          %{
            conn: conn,
            monitor: monitor,
-           workspace: workspace
+           workspace: _workspace
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -78,7 +78,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
          %{
            conn: conn,
            monitor: monitor,
-           workspace: workspace
+           workspace: _workspace
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -91,7 +91,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a user updating ssl_ignore, when submitted, then boolean persists", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -106,7 +106,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a user updating positive keywords, when submitted, then it tracks as an array", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -127,7 +127,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
          %{
            conn: conn,
            monitor: monitor,
-           workspace: workspace
+           workspace: _workspace
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -144,7 +144,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a user updating raw headers, when submitted, then it decodes as JSON map", %{
       conn: conn,
       monitor: monitor,
-      workspace: workspace
+      workspace: _workspace
     } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -175,7 +175,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
          %{
            conn: conn,
            monitor: monitor,
-           workspace: workspace
+           workspace: _workspace
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -188,7 +188,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
          %{
            conn: conn,
            monitor: monitor,
-           workspace: workspace
+           workspace: _workspace
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -199,7 +199,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     end
 
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
-         %{conn: conn, monitor: monitor, workspace: workspace} do
+         %{conn: conn, monitor: monitor, workspace: _workspace} do
       import Mox
       alias Holter.Monitoring.Workers.HTTPCheck
 
