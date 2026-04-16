@@ -65,6 +65,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   end
 
   defp handle_response(monitor, response, url, redirects, redirect_list, start_time, current_duration) do
+    redirect_list = List.update_at(redirect_list, -1, &Map.put(&1, "status_code", response.status))
+
     should_follow =
       response.status in 301..308 and monitor.follow_redirects and
         redirects < monitor.max_redirects

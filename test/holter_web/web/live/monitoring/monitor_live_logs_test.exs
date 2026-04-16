@@ -341,8 +341,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
           redirect_count: 2,
           last_redirect_url: "https://redirected.example.com",
           redirect_list: [
-            %{"url" => "https://example.com", "ip" => "1.2.3.4"},
-            %{"url" => "https://redirected.example.com", "ip" => "5.6.7.8"}
+            %{"url" => "https://example.com", "ip" => "1.2.3.4", "status_code" => 301},
+            %{"url" => "https://redirected.example.com", "ip" => "5.6.7.8", "status_code" => 200}
           ],
           error_message: "Connection timeout",
           response_headers: %{"server" => "nginx", "content-type" => "text/html"},
@@ -387,6 +387,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       assert html =~ "Redirect Chain"
       assert html =~ "1.2.3.4"
       assert html =~ "5.6.7.8"
+      assert html =~ "301"
       assert html =~ "redirected.example.com"
     end
 
