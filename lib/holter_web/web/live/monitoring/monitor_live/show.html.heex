@@ -9,15 +9,17 @@
       UUID: {@monitor.id}
     </:subtitle>
     <:actions>
-      <.link
-        navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
-        class="h-btn h-btn-soft"
-      >
-        {gettext("Daily Metrics")}
-      </.link>
-      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
-        {gettext("Technical Logs")}
-      </.link>
+      <div class="h-header-nav-group">
+        <.link
+          navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
+          class="h-btn h-btn-soft"
+        >
+          {gettext("Daily Metrics")}
+        </.link>
+        <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+          {gettext("Technical Logs")}
+        </.link>
+      </div>
       <.button
         type="button"
         phx-click="run_now"
