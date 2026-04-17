@@ -25,6 +25,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
      |> assign(:log, log)
      |> assign(:payload_log, payload_log)
      |> assign(:evidence_inherited, inherited?)
+     |> assign(:evidence_is_last_known_good, inherited? and log.status != :up)
      |> assign(:formatted_snippet, format_evidence_snippet(payload_log.response_snippet))
      |> assign(:formatted_headers, format_response_headers(payload_log.response_headers))}
   end

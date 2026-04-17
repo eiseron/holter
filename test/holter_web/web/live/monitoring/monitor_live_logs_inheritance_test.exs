@@ -96,7 +96,66 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       assert html =~ "success-context"
       assert html =~ "Valid Success Data"
       assert html =~ "h-evidence-inherited-notice"
+      assert html =~ "last known good state"
+      refute html =~ "response was unchanged since the last collection"
+    end
+
+    test "shows 'last known good state' label when DOWN log inherits from UP log", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        status_code: 200,
+        response_headers: %{"content-type" => "text/html"},
+        checked_at: DateTime.add(now, -60, :second)
+      })
+
+      {:ok, failure_log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :down,
+          error_message: "socket closed",
+          checked_at: now
+        })
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/logs/#{failure_log.id}")
+      html = render(view)
+
+      assert html =~ "last known good state"
+      assert html =~ "h-evidence-inherited-notice"
+      refute html =~ "response was unchanged since the last collection"
+    end
+
+    test "shows 'response unchanged' label when UP log inherits from UP log", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        response_headers: %{"x-cache" => "HIT"},
+        checked_at: DateTime.add(now, -60, :second)
+      })
+
+      {:ok, up_log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: now
+        })
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/logs/#{up_log.id}")
+      html = render(view)
+
       assert html =~ "response was unchanged since the last collection"
+      assert html =~ "h-evidence-inherited-notice"
+      refute html =~ "last known good state"
     end
 
     test "inherits across multiple sequential FAILURES back to the last valid capture", %{
