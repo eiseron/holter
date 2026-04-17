@@ -12,9 +12,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
       if has_technical_payload?(log) do
         {log, false}
       else
-        case Monitoring.find_nearest_technical_log(monitor.id, log) do
-          nil -> {log, false}
-          source -> {source, true}
+        # Only inherit evidence for up logs (response deduplication).
+        # Non-up logs have no payload because no response was received — inheriting
+        # a previous successful response would misrepresent the failure.
+        if log.status == :up do
+          case Monitoring.find_nearest_technical_log(monitor.id, log) do
+            nil -> {log, false}
+            source -> {source, true}
+          end
+        else
+          {log, false}
         end
       end
 
@@ -25,7 +32,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
      |> assign(:log, log)
      |> assign(:payload_log, payload_log)
      |> assign(:evidence_inherited, inherited?)
-     |> assign(:evidence_is_last_known_good, inherited? and log.status != :up)
      |> assign(:formatted_snippet, format_evidence_snippet(payload_log.response_snippet))
      |> assign(:formatted_headers, format_response_headers(payload_log.response_headers))}
   end

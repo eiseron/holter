@@ -52,19 +52,10 @@
       <%= if @evidence_inherited do %>
         <div class="h-evidence-inherited-notice">
           <p>
-            <%= if @evidence_is_last_known_good do %>
-              ⚠️ {gettext(
-                "This check failed with no server response. The evidence below is the last known good state from a previous check (%{status} %{status_code}) captured at %{time}.",
-                status: String.upcase(to_string(@payload_log.status)),
-                status_code: @payload_log.status_code || "",
-                time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
-              )}
-            <% else %>
-              ℹ️ {gettext(
-                "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}.",
-                time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
-              )}
-            <% end %>
+            ℹ️ {gettext(
+              "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}.",
+              time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+            )}
           </p>
           <p class="h-mt-2">
             <.link
