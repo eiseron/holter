@@ -52,7 +52,7 @@
       <%= if @evidence_inherited do %>
         <div class="h-evidence-inherited-notice">
           <p>
-            ℹ️ {gettext(
+            ⚠️ {gettext(
               "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}.",
               time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
             )}
