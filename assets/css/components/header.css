@@ -28,3 +28,10 @@
 .h-header-actions {
   flex: none;
 }
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 479px) {
+  .h-header.h-header-with-actions { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .h-header-actions { width: 100%; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+}
