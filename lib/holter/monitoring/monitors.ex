@@ -3,6 +3,7 @@ defmodule Holter.Monitoring.Monitors do
 
   import Ecto.Query
   alias Holter.Monitoring.{Incidents, Monitor, Workspace}
+  alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
   def list_monitors do
@@ -120,9 +121,23 @@ defmodule Holter.Monitoring.Monitors do
          :ok <- check_monitor_quota(workspace, logical_state),
          changeset = %Monitor{} |> Monitor.changeset(attrs, workspace),
          {:ok, monitor} <- Repo.insert(changeset) do
+      if monitor.logical_state == :active do
+        enqueue_checks(monitor)
+      end
+
       broadcast({:ok, monitor}, :monitor_created)
       {:ok, monitor}
     end
+  end
+
+  def enqueue_checks(%Monitor{} = monitor) do
+    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+
+    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
+      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+    end
+
+    :ok
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do

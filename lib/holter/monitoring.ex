@@ -11,6 +11,7 @@ defmodule Holter.Monitoring do
   defdelegate get_monitor!(id), to: Monitors
   defdelegate get_monitor(id), to: Monitors
   defdelegate create_monitor(attrs), to: Monitors
+  defdelegate enqueue_checks(monitor), to: Monitors
   defdelegate update_monitor(monitor, attrs), to: Monitors
   defdelegate delete_monitor(monitor), to: Monitors
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors

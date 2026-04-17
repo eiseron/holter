@@ -1,5 +1,6 @@
 defmodule Holter.MonitoringTest do
   use Holter.DataCase
+  use Oban.Testing, repo: Holter.Repo
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Workspace
@@ -37,15 +38,22 @@ defmodule Holter.MonitoringTest do
       assert Monitoring.get_monitor!(monitor.id) == monitor
     end
 
-    test "Given valid attributes, when creating a monitor, then it successfully persists and returns the structured data",
+    test "Given valid attributes, when creating a monitor, then it successfully persists and triggers an initial check",
          %{valid_attrs: valid_attrs} do
       assert {:ok,
               %Monitor{
+                id: monitor_id,
                 url: "https://example.com",
                 keyword_positive: ["success", "login"],
                 keyword_negative: ["hacked", "defaced"]
-              }} =
+              } = monitor} =
                Monitoring.create_monitor(valid_attrs)
+
+      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => monitor_id})
+
+      if String.starts_with?(monitor.url, "https") do
+        assert_enqueued(worker: Holter.Monitoring.Workers.SSLCheck, args: %{"id" => monitor_id})
+      end
     end
 
     test "Given missing required fields, when creating a monitor, then it rejects insertion and returns an error changeset",
