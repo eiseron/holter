@@ -42,7 +42,7 @@ defmodule Holter.Monitoring do
 
   defdelegate create_workspace(attrs), to: Workspaces
   defdelegate update_workspace(workspace, attrs), to: Workspaces
-  defdelegate mark_check_triggered(workspace), to: Workspaces
+  defdelegate consume_trigger_budget(workspace), to: Workspaces
   defdelegate get_workspace!(id), to: Workspaces
   defdelegate get_workspace_by_slug(slug), to: Workspaces
   defdelegate get_workspace_by_slug!(slug), to: Workspaces

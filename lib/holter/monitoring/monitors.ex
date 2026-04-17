@@ -59,7 +59,6 @@ defmodule Holter.Monitoring.Monitors do
 
   @max_page_size 100
   @default_page_size 25
-  @creation_check_cooldown 60
 
   def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
@@ -133,29 +132,20 @@ defmodule Holter.Monitoring.Monitors do
 
       case Repo.insert(changeset) do
         {:error, cs} -> Repo.rollback(cs)
-        {:ok, monitor} -> maybe_stamp_workspace(monitor, workspace)
+        {:ok, monitor} -> maybe_enqueue_on_creation(monitor, workspace)
       end
     end)
   end
 
-  defp maybe_stamp_workspace(monitor, workspace) do
-    should_enqueue =
-      monitor.logical_state == :active and not creation_check_on_cooldown?(workspace)
-
-    if should_enqueue do
-      case Workspaces.mark_check_triggered(workspace) do
-        {:ok, _} -> :ok
-        {:error, reason} -> Repo.rollback(reason)
+  defp maybe_enqueue_on_creation(monitor, workspace) do
+    if monitor.logical_state == :active do
+      case Workspaces.consume_trigger_budget(workspace) do
+        {:ok, _} -> {monitor, true}
+        {:error, _} -> {monitor, false}
       end
+    else
+      {monitor, false}
     end
-
-    {monitor, should_enqueue}
-  end
-
-  defp creation_check_on_cooldown?(%Workspace{last_check_triggered_at: nil}), do: false
-
-  defp creation_check_on_cooldown?(%Workspace{last_check_triggered_at: last}) do
-    DateTime.diff(DateTime.utc_now(), last) < @creation_check_cooldown
   end
 
   def enqueue_checks(%Monitor{} = monitor) do
@@ -218,8 +208,12 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-    system_update_monitor(monitor, %{last_manual_check_at: now})
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
+
+    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      system_update_monitor(monitor, %{last_manual_check_at: now})
+    end
   end
 
   defp system_update_monitor(%Monitor{} = monitor, attrs) do

@@ -29,11 +29,75 @@ defmodule Holter.Monitoring.Workspaces do
     |> Repo.update()
   end
 
-  def mark_check_triggered(%Workspace{} = workspace) do
+  def consume_trigger_budget(%Workspace{} = workspace) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
+    {short_count, short_start} =
+      resolve_window(
+        workspace.trigger_short_count,
+        workspace.trigger_short_window_start,
+        Workspace.trigger_short_window_seconds(),
+        now
+      )
+
+    {long_count, long_start} =
+      resolve_window(
+        workspace.trigger_long_count,
+        workspace.trigger_long_window_start,
+        Workspace.trigger_long_window_seconds(),
+        now
+      )
+
+    cond do
+      short_count >= workspace.max_triggers_per_minute ->
+        {:error, :short_budget_exhausted}
+
+      long_count >= workspace.max_triggers_per_hour ->
+        {:error, :long_budget_exhausted}
+
+      true ->
+        apply_budget_increment(
+          workspace,
+          short_count + 1,
+          short_start,
+          long_count + 1,
+          long_start
+        )
+    end
+  end
+
+  defp resolve_window(_count, nil, _window_seconds, now), do: {0, now}
+
+  defp resolve_window(count, window_start, window_seconds, now) do
+    if DateTime.diff(now, window_start) < window_seconds do
+      {count, window_start}
+    else
+      {0, now}
+    end
+  end
+
+  defp apply_budget_increment(
+         %Workspace{} = workspace,
+         short_count,
+         short_start,
+         long_count,
+         long_start
+       ) do
     workspace
-    |> Workspace.changeset(%{last_check_triggered_at: now})
+    |> Ecto.Changeset.cast(
+      %{
+        trigger_short_count: short_count,
+        trigger_short_window_start: short_start,
+        trigger_long_count: long_count,
+        trigger_long_window_start: long_start
+      },
+      [
+        :trigger_short_count,
+        :trigger_short_window_start,
+        :trigger_long_count,
+        :trigger_long_window_start
+      ]
+    )
     |> Repo.update()
   end
 end

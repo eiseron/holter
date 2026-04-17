@@ -147,6 +147,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
          |> assign(:monitor, hydrate_virtual_array_fields(updated_monitor))
          |> assign_cooldown(updated_monitor.last_manual_check_at)}
 
+      {:error, :short_budget_exhausted} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Too many checks in the last minute. Please wait."))}
+
+      {:error, :long_budget_exhausted} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Hourly check limit reached for this workspace."))}
+
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to trigger check"))}
     end
