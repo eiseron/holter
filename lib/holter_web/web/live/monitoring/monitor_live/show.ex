@@ -22,6 +22,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       socket
       |> assign(:workspace, workspace)
       |> assign(:monitor, hydrated_monitor)
+      |> assign(:page_title, gettext("Monitor Details"))
       |> assign(:form, to_form(changeset))
       |> assign_cooldown(monitor.last_manual_check_at)
 

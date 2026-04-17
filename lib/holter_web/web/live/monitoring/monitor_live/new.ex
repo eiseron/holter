@@ -24,6 +24,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
           {:ok,
            socket
            |> assign(:workspace, workspace)
+           |> assign(:page_title, gettext("New Monitor"))
            |> assign(:form, to_form(changeset))}
         end
 

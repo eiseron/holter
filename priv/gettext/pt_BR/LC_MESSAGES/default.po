@@ -60,7 +60,7 @@ msgstr "Padrões de Intervalo"
 msgid "Method"
 msgstr "Método"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:56
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:57
 #, elixir-autogen, elixir-format
 msgid "Monitor created successfully"
 msgstr "Monitor criado com sucesso"
@@ -213,12 +213,12 @@ msgstr "Excluindo..."
 msgid "Monitor Settings"
 msgstr "Configurações do Monitor"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:85
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:86
 #, elixir-autogen, elixir-format
 msgid "Monitor deleted successfully"
 msgstr "Monitor excluído com sucesso"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:70
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:71
 #, elixir-autogen, elixir-format
 msgid "Monitor updated successfully"
 msgstr "Monitor atualizado com sucesso"
@@ -364,7 +364,7 @@ msgstr "Snippet de Conteúdo"
 msgid "Details"
 msgstr "Detalhes"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:152
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:153
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr "Falha ao disparar a verificação"
@@ -375,12 +375,14 @@ msgid "From"
 msgstr "De"
 
 #: lib/holter_web/components/monitoring/dashboard_header.ex:16
+#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:17
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
 msgstr "Dashboard"
 
 #: lib/holter_web/components/monitoring/dashboard_header.ex:38
 #: lib/holter_web/components/monitoring/dashboard_header.ex:55
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:27
 #, elixir-autogen, elixir-format
 msgid "New Monitor"
 msgstr "Novo Monitor"
@@ -441,7 +443,7 @@ msgid "Monitor limit reached (%{max}/%{max})"
 msgstr "Limite de monitores atingido (%{max}/%{max})"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:16
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:66
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:67
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace (max: %{max})"
 msgstr "Limite de monitores atingido para este workspace (máximo: %{max})"
@@ -467,18 +469,18 @@ msgstr "Máx. de Redirecionamentos"
 msgid "Maximum number of sequential redirects to follow (1-20)."
 msgstr "Número máximo de redirecionamentos sequenciais a seguir (1-20)."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:37
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:38
 #, elixir-autogen, elixir-format
 msgid "Please wait before triggering another manual check."
 msgstr "Por favor, aguarde antes de acionar outra verificação manual."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:44
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:45
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
 msgstr "Você tem alterações não salvas. Por favor, salve-as antes de verificar."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:22
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:33
+#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:23
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:34
 #, elixir-autogen, elixir-format
 msgid "Workspace not found"
 msgstr "Workspace não encontrado"
@@ -573,6 +575,7 @@ msgstr "deve estar vazio para requisições %{method}"
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "deve ser menor que o intervalo de verificação (%{interval}s)"
 
+#: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.ex:18
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "Daily Metrics"
@@ -612,3 +615,18 @@ msgstr "Ver log original"
 #, elixir-autogen, elixir-format
 msgid "Yes"
 msgstr "Sim"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.ex:24
+#, elixir-autogen, elixir-format
+msgid "Log Evidence"
+msgstr "Evidência do Log"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:25
+#, elixir-autogen, elixir-format
+msgid "Monitor Details"
+msgstr "Detalhes do Monitor"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:17
+#, elixir-autogen, elixir-format
+msgid "Monitor Logs"
+msgstr "Logs do Monitor"

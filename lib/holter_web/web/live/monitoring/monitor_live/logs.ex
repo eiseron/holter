@@ -14,6 +14,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
     {:ok,
      socket
      |> assign(:monitor, monitor)
+     |> assign(:page_title, gettext("Monitor Logs"))
      |> assign(:logs, [])
      |> assign(:filters, %{})
      |> assign(:page_number, 1)

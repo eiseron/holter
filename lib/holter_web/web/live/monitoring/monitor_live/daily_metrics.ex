@@ -15,6 +15,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
     {:ok,
      socket
      |> assign(:monitor, monitor)
+     |> assign(:page_title, gettext("Daily Metrics"))
      |> assign(:metrics, [])
      |> assign(:page_number, 1)
      |> assign(:total_pages, 1)}

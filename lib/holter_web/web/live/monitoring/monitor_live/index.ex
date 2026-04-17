@@ -14,6 +14,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
         {:ok,
          socket
          |> assign(:workspace, workspace)
+         |> assign(:page_title, gettext("Dashboard"))
          |> fetch_monitors()}
 
       {:error, :not_found} ->
