@@ -16,14 +16,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     workspace = Monitoring.get_workspace!(monitor.workspace_id)
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
 
-    daily_metrics = Monitoring.list_daily_metrics(id)
     changeset = Monitoring.change_monitor(hydrated_monitor)
 
     socket =
       socket
       |> assign(:workspace, workspace)
       |> assign(:monitor, hydrated_monitor)
-      |> assign(:daily_metrics, daily_metrics)
       |> assign(:form, to_form(changeset))
       |> assign_cooldown(monitor.last_manual_check_at)
 
@@ -103,7 +101,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     {:noreply,
      socket
      |> assign(:monitor, hydrated_monitor)
-     |> assign(:daily_metrics, Monitoring.list_daily_metrics(monitor.id))
      |> assign_cooldown(monitor.last_manual_check_at)}
   end
 
