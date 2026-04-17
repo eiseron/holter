@@ -122,7 +122,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     remaining = max(0, Monitor.manual_check_cooldown() - diff)
 
-    if remaining > 0 and connected?(socket) do
+    already_ticking = Map.get(socket.assigns, :cooldown_remaining, 0) > 0
+
+    if remaining > 0 and not already_ticking and connected?(socket) do
       Process.send_after(self(), :tick, 1000)
     end
 
