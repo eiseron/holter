@@ -35,7 +35,7 @@ defmodule Holter.Monitoring do
   defdelegate update_incident(incident, attrs), to: Incidents
   defdelegate resolve_incident(incident, resolved_at), to: Incidents
 
-  defdelegate list_daily_metrics(monitor_id), to: Metrics
+  defdelegate list_daily_metrics(monitor_id, filters \\ %{}), to: Metrics
   defdelegate get_daily_metric(monitor_id, date), to: Metrics
   defdelegate upsert_daily_metric(attrs), to: Metrics
 

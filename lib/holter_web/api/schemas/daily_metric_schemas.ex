@@ -34,12 +34,23 @@ defmodule HolterWeb.Api.DailyMetricSchemas do
   def daily_metric_list do
     %Schema{
       title: "DailyMetricList",
-      description: "A list of daily metric entries ordered by date descending.",
+      description: "A paginated list of daily metric entries.",
       type: :object,
       additionalProperties: false,
       properties: %{
-        data: %Schema{type: :array, items: daily_metric()}
-      }
+        data: %Schema{type: :array, items: daily_metric()},
+        meta: %Schema{
+          type: :object,
+          additionalProperties: false,
+          properties: %{
+            page: %Schema{type: :integer},
+            page_size: %Schema{type: :integer},
+            total_pages: %Schema{type: :integer}
+          },
+          required: [:page, :page_size, :total_pages]
+        }
+      },
+      required: [:data, :meta]
     }
   end
 
