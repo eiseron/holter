@@ -262,7 +262,7 @@ msgstr ""
 msgid "Downtime"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:81
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "Error Message"
 msgstr ""
@@ -299,7 +299,7 @@ msgstr ""
 msgid "Region"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:89
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:91
 #, elixir-autogen, elixir-format
 msgid "Response Headers"
 msgstr ""
@@ -354,7 +354,7 @@ msgstr ""
 msgid "All Statuses"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:96
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:98
 #, elixir-autogen, elixir-format
 msgid "Content Snippet"
 msgstr ""
@@ -530,7 +530,7 @@ msgstr ""
 msgid "SSL Error: %{reason}"
 msgstr ""
 
-#: lib/holter/monitoring/workspace.ex:87
+#: lib/holter/monitoring/workspace.ex:102
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr ""
@@ -586,7 +586,7 @@ msgstr ""
 msgid "Log Details"
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:103
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:105
 #, elixir-autogen, elixir-format
 msgid "Monitor Configuration"
 msgstr ""
@@ -649,4 +649,9 @@ msgstr ""
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:152
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
+msgstr ""
+
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:77
+#, elixir-autogen, elixir-format
+msgid "Too many monitors created recently. Please wait before creating another."
 msgstr ""

@@ -262,7 +262,7 @@ msgstr "Date"
 msgid "Downtime"
 msgstr "Downtime"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:81
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "Error Message"
 msgstr "Error Message"
@@ -299,7 +299,7 @@ msgstr "Pausado"
 msgid "Region"
 msgstr "Região"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:89
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:91
 #, elixir-autogen, elixir-format
 msgid "Response Headers"
 msgstr "Cabeçalhos de Resposta"
@@ -354,7 +354,7 @@ msgstr "min"
 msgid "All Statuses"
 msgstr "All Statuses"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:96
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:98
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Content Snippet"
 msgstr "Content Snippet"
@@ -530,7 +530,7 @@ msgstr "Monitor limit reached for this workspace"
 msgid "SSL Error: %{reason}"
 msgstr "SSL Error: %{reason}"
 
-#: lib/holter/monitoring/workspace.ex:87
+#: lib/holter/monitoring/workspace.ex:102
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "cannot be changed after creation"
@@ -586,7 +586,7 @@ msgstr "Daily Metrics"
 msgid "Log Details"
 msgstr "Log Details"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:103
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:105
 #, elixir-autogen, elixir-format
 msgid "Monitor Configuration"
 msgstr "Monitor Configuration"
@@ -650,3 +650,8 @@ msgstr "The connection failed before a response was received (no HTTP status cod
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
 msgstr "Too many checks in the last minute. Please wait."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:77
+#, elixir-autogen, elixir-format
+msgid "Too many monitors created recently. Please wait before creating another."
+msgstr "Too many monitors created recently. Please wait before creating another."
