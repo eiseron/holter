@@ -6,6 +6,8 @@ defmodule HolterWeb.Api.DailyMetricController do
   use HolterWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import HolterWeb.Api.ParamHelpers
+
   alias Holter.Monitoring
   alias HolterWeb.Api.DailyMetricSchemas
 
@@ -59,28 +61,5 @@ defmodule HolterWeb.Api.DailyMetricController do
     |> maybe_put_integer(params, "page_size", :page_size)
     |> maybe_put_string(params, "sort_by", :sort_by)
     |> maybe_put_string(params, "sort_dir", :sort_dir)
-  end
-
-  defp maybe_put_integer(acc, params, key, atom_key) do
-    case Map.get(params, key) do
-      val when is_binary(val) ->
-        case Integer.parse(val) do
-          {int, ""} -> Map.put(acc, atom_key, int)
-          _ -> acc
-        end
-
-      val when is_integer(val) ->
-        Map.put(acc, atom_key, val)
-
-      _ ->
-        acc
-    end
-  end
-
-  defp maybe_put_string(acc, params, key, atom_key) do
-    case Map.get(params, key) do
-      val when is_binary(val) and val != "" -> Map.put(acc, atom_key, val)
-      _ -> acc
-    end
   end
 end
