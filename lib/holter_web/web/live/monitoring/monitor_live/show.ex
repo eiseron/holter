@@ -3,8 +3,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
-  alias Holter.Monitoring.Workers.HTTPCheck
-  alias Holter.Monitoring.Workers.SSLCheck
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -142,23 +140,23 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   defp trigger_manual_check(socket) do
     case Monitoring.mark_manual_check_triggered(socket.assigns.monitor) do
       {:ok, updated_monitor} ->
-        enqueue_manual_checks(updated_monitor)
+        Monitoring.enqueue_checks(updated_monitor)
 
         {:noreply,
          socket
          |> assign(:monitor, hydrate_virtual_array_fields(updated_monitor))
          |> assign_cooldown(updated_monitor.last_manual_check_at)}
 
+      {:error, :short_budget_exhausted} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Too many checks in the last minute. Please wait."))}
+
+      {:error, :long_budget_exhausted} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Hourly check limit reached for this workspace."))}
+
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to trigger check"))}
-    end
-  end
-
-  defp enqueue_manual_checks(monitor) do
-    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
-
-    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
-      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
     end
   end
 end

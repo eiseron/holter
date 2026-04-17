@@ -2,7 +2,8 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Incidents, Monitor, Workspace}
+  alias Holter.Monitoring.{Incidents, Monitor, Workspace, Workspaces}
+  alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
   def list_monitors do
@@ -118,11 +119,43 @@ defmodule Holter.Monitoring.Monitors do
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
-         changeset = %Monitor{} |> Monitor.changeset(attrs, workspace),
-         {:ok, monitor} <- Repo.insert(changeset) do
+         {:ok, {monitor, should_enqueue}} <- create_monitor_transactionally(attrs, workspace) do
+      if should_enqueue, do: enqueue_checks(monitor)
       broadcast({:ok, monitor}, :monitor_created)
       {:ok, monitor}
     end
+  end
+
+  defp create_monitor_transactionally(attrs, workspace) do
+    Repo.transaction(fn ->
+      changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
+
+      case Repo.insert(changeset) do
+        {:error, cs} -> Repo.rollback(cs)
+        {:ok, monitor} -> maybe_enqueue_on_creation(monitor, workspace)
+      end
+    end)
+  end
+
+  defp maybe_enqueue_on_creation(monitor, workspace) do
+    if monitor.logical_state == :active do
+      case Workspaces.consume_trigger_budget(workspace) do
+        {:ok, _} -> {monitor, true}
+        {:error, _} -> {monitor, false}
+      end
+    else
+      {monitor, false}
+    end
+  end
+
+  def enqueue_checks(%Monitor{} = monitor) do
+    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+
+    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
+      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+    end
+
+    :ok
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
@@ -175,8 +208,12 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-    system_update_monitor(monitor, %{last_manual_check_at: now})
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
+
+    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      system_update_monitor(monitor, %{last_manual_check_at: now})
+    end
   end
 
   defp system_update_monitor(%Monitor{} = monitor, attrs) do

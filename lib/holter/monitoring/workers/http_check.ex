@@ -2,7 +2,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   @moduledoc """
   Oban worker for performing HTTP availability checks.
   """
-  use Oban.Worker, queue: :checks, max_attempts: 3
+  use Oban.Worker,
+    queue: :checks,
+    max_attempts: 3,
+    unique: [period: 60, states: [:available, :scheduled, :executing]]
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine

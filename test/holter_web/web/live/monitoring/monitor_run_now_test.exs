@@ -15,6 +15,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
         last_manual_check_at: nil
       })
 
+    Holter.Repo.delete_all(Oban.Job)
+
     %{monitor: monitor}
   end
 
