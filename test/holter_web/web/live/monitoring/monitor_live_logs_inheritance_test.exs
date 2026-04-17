@@ -16,7 +16,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
   end
 
   describe "evidence inheritance" do
-    test "inherits from last valid log even with multiple empty logs in between", %{
+    test "up log inherits from last valid up log even with multiple empty logs in between", %{
       conn: conn,
       monitor: monitor
     } do
@@ -65,7 +65,34 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       assert html =~ source_time
     end
 
-    test "FAILURE with error correctly inherits technical context from previous SUCCESS", %{
+    test "up log shows 'response unchanged' notice when inheriting from previous up log", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Monitoring.create_monitor_log(%{
+        monitor_id: monitor.id,
+        status: :up,
+        response_headers: %{"x-cache" => "HIT"},
+        checked_at: DateTime.add(now, -60, :second)
+      })
+
+      {:ok, up_log} =
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: now
+        })
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/logs/#{up_log.id}")
+      html = render(view)
+
+      assert html =~ "response was unchanged since the last collection"
+      assert html =~ "h-evidence-inherited-notice"
+    end
+
+    test "down log does not inherit evidence from a previous up log", %{
       conn: conn,
       monitor: monitor
     } do
@@ -83,7 +110,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
         Monitoring.create_monitor_log(%{
           monitor_id: monitor.id,
           status: :down,
-          error_message: "Connection Timeout",
+          error_message: "socket closed",
           checked_at: now
         })
 
@@ -92,14 +119,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
 
       html = render(view)
 
-      assert html =~ "Connection Timeout"
-      assert html =~ "success-context"
-      assert html =~ "Valid Success Data"
-      assert html =~ "h-evidence-inherited-notice"
-      assert html =~ "response was unchanged since the last collection"
+      assert html =~ "socket closed"
+      refute html =~ "success-context"
+      refute html =~ "Valid Success Data"
+      refute html =~ "h-evidence-inherited-notice"
     end
 
-    test "inherits across multiple sequential FAILURES back to the last valid capture", %{
+    test "down log does not inherit evidence across multiple sequential failures", %{
       conn: conn,
       monitor: monitor
     } do
@@ -133,8 +159,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsInheritanceTest do
       html = render(view)
 
       assert html =~ "Current Failure (Connection Refused)"
-      assert html =~ "original-capture"
-      assert html =~ "h-evidence-inherited-notice"
+      refute html =~ "original-capture"
+      refute html =~ "h-evidence-inherited-notice"
     end
   end
 end
