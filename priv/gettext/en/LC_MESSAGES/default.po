@@ -634,7 +634,7 @@ msgstr "Monitor Logs"
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:156
 #, elixir-autogen, elixir-format
 msgid "Hourly check limit reached for this workspace."
-msgstr ""
+msgstr "Hourly check limit reached for this workspace."
 
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:76
 #, elixir-autogen, elixir-format
@@ -649,4 +649,4 @@ msgstr "The connection failed before a response was received (no HTTP status cod
 #: lib/holter_web/web/live/monitoring/monitor_live/show.ex:152
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
-msgstr ""
+msgstr "Too many checks in the last minute. Please wait."
