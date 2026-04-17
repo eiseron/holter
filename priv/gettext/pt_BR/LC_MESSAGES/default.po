@@ -591,7 +591,12 @@ msgstr "Detalhes do Log"
 msgid "Monitor Configuration"
 msgstr "Configuração do Monitor"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:55
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "This check failed with no server response. The evidence below is the last known good state from a previous check (%{status} %{status_code}) captured at %{time}."
+msgstr "Esta verificação falhou sem resposta do servidor. A evidência abaixo é o último estado conhecido e funcional de uma verificação anterior (%{status} %{status_code}) capturada em %{time}."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:63
 #, elixir-autogen, elixir-format
 msgid "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}."
 msgstr "Nenhuma nova evidência foi capturada para esta verificação porque a resposta não mudou desde a última coleta. Mostrando a evidência mais recente de %{time}."
