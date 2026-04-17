@@ -17,7 +17,10 @@ defmodule Holter.Monitoring.MonitorClient do
     @impl true
     def request(opts) do
       opts
-      |> Keyword.put_new(:retry, false)
+      |> Keyword.put_new(:retry, fn
+        _request, %Req.Response{} -> false
+        _request, _exception -> true
+      end)
       |> Req.request()
     end
 
