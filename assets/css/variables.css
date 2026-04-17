@@ -165,6 +165,10 @@
   --transition-fast:  150ms linear;
   --transition-base:  200ms linear;
   --transition-slow:  300ms linear;
+
+  /* ── Breakpoints (reference — use raw values in @media queries) ──────────
+     sm: 480px  md: 640px  lg: 768px  xl: 1024px
+     ─────────────────────────────────────────────────────────────────────── */
 }
 
 @media (prefers-color-scheme: light) {
