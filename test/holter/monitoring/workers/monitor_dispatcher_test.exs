@@ -8,6 +8,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
   setup do
     monitor = create_active_monitor()
+    Holter.Repo.delete_all(Oban.Job)
     %{monitor: monitor}
   end
 

@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Incidents, Monitor, Workspace}
+  alias Holter.Monitoring.{Incidents, Monitor, Workspace, Workspaces}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -59,6 +59,7 @@ defmodule Holter.Monitoring.Monitors do
 
   @max_page_size 100
   @default_page_size 25
+  @creation_check_cooldown 60
 
   def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
@@ -119,15 +120,42 @@ defmodule Holter.Monitoring.Monitors do
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
-         changeset = %Monitor{} |> Monitor.changeset(attrs, workspace),
-         {:ok, monitor} <- Repo.insert(changeset) do
-      if monitor.logical_state == :active do
-        enqueue_checks(monitor)
-      end
-
+         {:ok, {monitor, should_enqueue}} <- create_monitor_transactionally(attrs, workspace) do
+      if should_enqueue, do: enqueue_checks(monitor)
       broadcast({:ok, monitor}, :monitor_created)
       {:ok, monitor}
     end
+  end
+
+  defp create_monitor_transactionally(attrs, workspace) do
+    Repo.transaction(fn ->
+      changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
+
+      case Repo.insert(changeset) do
+        {:error, cs} -> Repo.rollback(cs)
+        {:ok, monitor} -> maybe_stamp_workspace(monitor, workspace)
+      end
+    end)
+  end
+
+  defp maybe_stamp_workspace(monitor, workspace) do
+    should_enqueue =
+      monitor.logical_state == :active and not creation_check_on_cooldown?(workspace)
+
+    if should_enqueue do
+      case Workspaces.mark_check_triggered(workspace) do
+        {:ok, _} -> :ok
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end
+
+    {monitor, should_enqueue}
+  end
+
+  defp creation_check_on_cooldown?(%Workspace{last_check_triggered_at: nil}), do: false
+
+  defp creation_check_on_cooldown?(%Workspace{last_check_triggered_at: last}) do
+    DateTime.diff(DateTime.utc_now(), last) < @creation_check_cooldown
   end
 
   def enqueue_checks(%Monitor{} = monitor) do

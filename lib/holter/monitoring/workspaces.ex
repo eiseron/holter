@@ -28,4 +28,12 @@ defmodule Holter.Monitoring.Workspaces do
     |> Workspace.changeset(attrs)
     |> Repo.update()
   end
+
+  def mark_check_triggered(%Workspace{} = workspace) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    workspace
+    |> Workspace.changeset(%{last_check_triggered_at: now})
+    |> Repo.update()
+  end
 end

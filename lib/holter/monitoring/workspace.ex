@@ -12,6 +12,7 @@ defmodule Holter.Monitoring.Workspace do
     field :retention_days, :integer, default: 3
     field :max_monitors, :integer, default: 3
     field :min_interval_seconds, :integer, default: 600
+    field :last_check_triggered_at, :utc_datetime
 
     has_many :monitors, Holter.Monitoring.Monitor
 
@@ -21,7 +22,14 @@ defmodule Holter.Monitoring.Workspace do
   @doc false
   def changeset(workspace, attrs) do
     workspace
-    |> cast(attrs, [:name, :slug, :retention_days, :max_monitors, :min_interval_seconds])
+    |> cast(attrs, [
+      :name,
+      :slug,
+      :retention_days,
+      :max_monitors,
+      :min_interval_seconds,
+      :last_check_triggered_at
+    ])
     |> validate_required([:name])
     |> maybe_generate_slug()
     |> validate_required([:slug, :retention_days, :max_monitors, :min_interval_seconds])
