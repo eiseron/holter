@@ -1,0 +1,73 @@
+<div class="h-monitor-container">
+  <.header>
+    <div class="h-title-row" data-role="page-title">
+      <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
+      {gettext("Daily Uptime History")}
+    </div>
+    <:subtitle>
+      <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+    </:subtitle>
+    <:actions>
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+        {gettext("View Technical Logs")}
+      </.link>
+    </:actions>
+  </.header>
+
+  <div class="h-mt-6">
+    <div :if={Enum.empty?(@metrics)} class="h-empty-state">
+      <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
+    </div>
+
+    <.table :if={not Enum.empty?(@metrics)} id="metrics-table" rows={@metrics}>
+      <:col
+        :let={metric}
+        label={gettext("Date")}
+        sort_url={@sort_info["date"].url}
+        sort_active={@sort_info["date"].active}
+        sort_dir={@sort_info["date"].dir}
+      >
+        {Calendar.strftime(metric.date, "%Y-%m-%d")}
+      </:col>
+      <:col
+        :let={metric}
+        label={gettext("Uptime (%)")}
+        sort_url={@sort_info["uptime_percent"].url}
+        sort_active={@sort_info["uptime_percent"].active}
+        sort_dir={@sort_info["uptime_percent"].dir}
+      >
+        <span class={
+          if DailyMetric.uptime_healthy?(metric), do: "h-text-success", else: "h-text-error"
+        }>
+          {metric.uptime_percent}%
+        </span>
+      </:col>
+      <:col
+        :let={metric}
+        label={gettext("Avg Latency")}
+        sort_url={@sort_info["avg_latency_ms"].url}
+        sort_active={@sort_info["avg_latency_ms"].active}
+        sort_dir={@sort_info["avg_latency_ms"].dir}
+      >
+        {metric.avg_latency_ms}ms
+      </:col>
+      <:col
+        :let={metric}
+        label={gettext("Downtime")}
+        sort_url={@sort_info["total_downtime_minutes"].url}
+        sort_active={@sort_info["total_downtime_minutes"].active}
+        sort_dir={@sort_info["total_downtime_minutes"].dir}
+      >
+        {metric.total_downtime_minutes} {gettext("min")}
+      </:col>
+    </.table>
+
+    <.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
+  </div>
+</div>

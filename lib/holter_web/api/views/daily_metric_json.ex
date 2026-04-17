@@ -4,8 +4,18 @@ defmodule HolterWeb.Api.DailyMetricJSON do
   """
   alias Holter.Monitoring.DailyMetric
 
-  def index(%{metrics: metrics}) do
-    %{data: for(metric <- metrics, do: data(metric))}
+  def index(%{
+        result: %{
+          metrics: metrics,
+          page_number: page,
+          total_pages: total_pages,
+          page_size: page_size
+        }
+      }) do
+    %{
+      data: for(metric <- metrics, do: data(metric)),
+      meta: %{page: page, page_size: page_size, total_pages: total_pages}
+    }
   end
 
   defp data(%DailyMetric{} = metric) do

@@ -11,18 +11,12 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsSection do
   Renders the daily uptime history section with a metrics table.
   """
   attr :metrics, :list, required: true
-  attr :logs_url, :string, required: true
 
   def daily_metrics_section(assigns) do
     ~H"""
     <section class="h-section">
       <.header>
         {gettext("Daily Uptime History")}
-        <:actions>
-          <.link navigate={@logs_url} class="h-btn h-btn-soft">
-            {gettext("View Technical Logs")}
-          </.link>
-        </:actions>
       </.header>
 
       <div :if={Enum.empty?(@metrics)} class="h-empty-state">

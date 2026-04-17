@@ -21,6 +21,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
     {:ok,
      socket
      |> assign(:monitor, monitor)
+     |> assign(:page_title, gettext("Log Evidence"))
      |> assign(:log, log)
      |> assign(:payload_log, payload_log)
      |> assign(:evidence_inherited, inherited?)

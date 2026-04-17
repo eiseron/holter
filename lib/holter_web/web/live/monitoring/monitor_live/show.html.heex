@@ -9,6 +9,15 @@
       UUID: {@monitor.id}
     </:subtitle>
     <:actions>
+      <.link
+        navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
+        class="h-btn h-btn-soft"
+      >
+        {gettext("Daily Metrics")}
+      </.link>
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+        {gettext("Technical Logs")}
+      </.link>
       <.button
         type="button"
         phx-click="run_now"
@@ -22,11 +31,6 @@
       </.button>
     </:actions>
   </.header>
-
-  <.daily_metrics_section
-    metrics={@daily_metrics}
-    logs_url={~p"/monitoring/monitor/#{@monitor.id}/logs"}
-  />
 
   <.form
     for={@form}
