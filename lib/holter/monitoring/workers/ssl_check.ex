@@ -2,7 +2,10 @@ defmodule Holter.Monitoring.Workers.SSLCheck do
   @moduledoc """
   Oban worker responsible for performing SSL expiration and handshake checks.
   """
-  use Oban.Worker, queue: :checks, max_attempts: 2
+  use Oban.Worker,
+    queue: :checks,
+    max_attempts: 2,
+    unique: [period: 60, states: [:available, :scheduled, :executing]]
 
   alias Holter.Monitoring
   alias Holter.Monitoring.SecurityScanner
