@@ -262,7 +262,7 @@ msgstr "Data"
 msgid "Downtime"
 msgstr "Indisponibilidade"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:81
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "Error Message"
 msgstr "Mensagem de Erro"
@@ -299,7 +299,7 @@ msgstr "Pausado"
 msgid "Region"
 msgstr "Região"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:89
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:91
 #, elixir-autogen, elixir-format
 msgid "Response Headers"
 msgstr "Cabeçalhos de Resposta"
@@ -354,7 +354,7 @@ msgstr "min"
 msgid "All Statuses"
 msgstr "Todos os Status"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:96
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:98
 #, elixir-autogen, elixir-format
 msgid "Content Snippet"
 msgstr "Snippet de Conteúdo"
@@ -530,7 +530,7 @@ msgstr "Limite de monitores atingido para este workspace"
 msgid "SSL Error: %{reason}"
 msgstr "Erro SSL: %{reason}"
 
-#: lib/holter/monitoring/workspace.ex:87
+#: lib/holter/monitoring/workspace.ex:102
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "não pode ser alterado após a criação"
@@ -586,7 +586,7 @@ msgstr "Métricas Diárias"
 msgid "Log Details"
 msgstr "Detalhes do Log"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:103
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:105
 #, elixir-autogen, elixir-format
 msgid "Monitor Configuration"
 msgstr "Configuração do Monitor"
@@ -650,3 +650,8 @@ msgstr "A conexão falhou antes de receber uma resposta (sem código de status H
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
 msgstr "Muitas verificações no último minuto. Por favor, aguarde."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:77
+#, elixir-autogen, elixir-format
+msgid "Too many monitors created recently. Please wait before creating another."
+msgstr "Muitos monitores criados recentemente. Aguarde antes de criar outro."

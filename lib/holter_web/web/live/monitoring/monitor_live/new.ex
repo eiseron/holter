@@ -69,6 +69,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
            )
          )}
 
+      {:error, :create_rate_limited} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Too many monitors created recently. Please wait before creating another.")
+         )}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end

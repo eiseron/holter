@@ -132,9 +132,27 @@ defmodule Holter.Monitoring.Monitors do
 
       case Repo.insert(changeset) do
         {:error, cs} -> Repo.rollback(cs)
-        {:ok, monitor} -> maybe_enqueue_on_creation(monitor, workspace)
+        {:ok, monitor} -> after_insert(monitor, workspace)
       end
     end)
+  end
+
+  defp after_insert(monitor, workspace) do
+    case consume_create_budget_for(monitor, workspace) do
+      :ok -> maybe_enqueue_on_creation(monitor, workspace)
+      {:error, reason} -> Repo.rollback(reason)
+    end
+  end
+
+  defp consume_create_budget_for(monitor, workspace) do
+    if monitor.logical_state == :active do
+      case Workspaces.consume_create_budget(workspace) do
+        {:ok, _} -> :ok
+        error -> error
+      end
+    else
+      :ok
+    end
   end
 
   defp maybe_enqueue_on_creation(monitor, workspace) do

@@ -37,4 +37,15 @@ defmodule HolterWeb.Api.FallbackController do
       }
     })
   end
+
+  def call(conn, {:error, :create_rate_limited}) do
+    conn
+    |> put_status(:too_many_requests)
+    |> json(%{
+      error: %{
+        code: "create_rate_limited",
+        message: "Too many monitors created. Please wait before creating another."
+      }
+    })
+  end
 end

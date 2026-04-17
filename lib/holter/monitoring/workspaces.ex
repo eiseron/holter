@@ -66,6 +66,43 @@ defmodule Holter.Monitoring.Workspaces do
     end
   end
 
+  def consume_create_budget(%Workspace{} = workspace) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    {short_count, short_start} =
+      resolve_window(
+        workspace.create_short_count,
+        workspace.create_short_window_start,
+        Workspace.create_short_window_seconds(),
+        now
+      )
+
+    {long_count, long_start} =
+      resolve_window(
+        workspace.create_long_count,
+        workspace.create_long_window_start,
+        Workspace.create_long_window_seconds(),
+        now
+      )
+
+    cond do
+      short_count >= workspace.max_creates_per_minute ->
+        {:error, :create_rate_limited}
+
+      long_count >= workspace.max_creates_per_hour ->
+        {:error, :create_rate_limited}
+
+      true ->
+        apply_create_budget_increment(
+          workspace,
+          short_count + 1,
+          short_start,
+          long_count + 1,
+          long_start
+        )
+    end
+  end
+
   defp resolve_window(_count, nil, _window_seconds, now), do: {0, now}
 
   defp resolve_window(count, window_start, window_seconds, now) do
@@ -96,6 +133,31 @@ defmodule Holter.Monitoring.Workspaces do
         :trigger_short_window_start,
         :trigger_long_count,
         :trigger_long_window_start
+      ]
+    )
+    |> Repo.update()
+  end
+
+  defp apply_create_budget_increment(
+         %Workspace{} = workspace,
+         short_count,
+         short_start,
+         long_count,
+         long_start
+       ) do
+    workspace
+    |> Ecto.Changeset.cast(
+      %{
+        create_short_count: short_count,
+        create_short_window_start: short_start,
+        create_long_count: long_count,
+        create_long_window_start: long_start
+      },
+      [
+        :create_short_count,
+        :create_short_window_start,
+        :create_long_count,
+        :create_long_window_start
       ]
     )
     |> Repo.update()
