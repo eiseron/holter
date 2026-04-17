@@ -72,7 +72,16 @@
 
       <%= if @log.error_message do %>
         <div class="h-evidence-block h-evidence-error">
-          <label>{gettext("Error Message")}</label>
+          <%= if is_nil(@log.status_code) do %>
+            <label>{gettext("Network Error")}</label>
+            <p class="h-text-muted h-text-sm">
+              {gettext(
+                "The connection failed before a response was received (no HTTP status code)."
+              )}
+            </p>
+          <% else %>
+            <label>{gettext("Error Message")}</label>
+          <% end %>
           <pre>{@log.error_message}</pre>
         </div>
       <% end %>

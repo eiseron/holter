@@ -213,12 +213,12 @@ msgstr "Deleting..."
 msgid "Monitor Settings"
 msgstr "Monitor Settings"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:86
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:84
 #, elixir-autogen, elixir-format
 msgid "Monitor deleted successfully"
 msgstr "Monitor deleted successfully"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:71
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:69
 #, elixir-autogen, elixir-format
 msgid "Monitor updated successfully"
 msgstr "Monitor updated successfully"
@@ -262,7 +262,7 @@ msgstr "Date"
 msgid "Downtime"
 msgstr "Downtime"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:75
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:81
 #, elixir-autogen, elixir-format
 msgid "Error Message"
 msgstr "Error Message"
@@ -299,7 +299,7 @@ msgstr "Pausado"
 msgid "Region"
 msgstr "Região"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:82
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:89
 #, elixir-autogen, elixir-format
 msgid "Response Headers"
 msgstr "Cabeçalhos de Resposta"
@@ -354,7 +354,7 @@ msgstr "min"
 msgid "All Statuses"
 msgstr "All Statuses"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:89
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:96
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Content Snippet"
 msgstr "Content Snippet"
@@ -364,7 +364,7 @@ msgstr "Content Snippet"
 msgid "Details"
 msgstr "Details"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:153
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:159
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr "Failed to trigger check"
@@ -469,12 +469,12 @@ msgstr "Max Redirects"
 msgid "Maximum number of sequential redirects to follow (1-20)."
 msgstr "Maximum number of sequential redirects to follow (1-20)."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:38
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:36
 #, elixir-autogen, elixir-format
 msgid "Please wait before triggering another manual check."
 msgstr "Please wait before triggering another manual check."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:45
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:43
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
 msgstr "You have unsaved changes. Please save them before checking."
@@ -530,7 +530,7 @@ msgstr "Monitor limit reached for this workspace"
 msgid "SSL Error: %{reason}"
 msgstr "SSL Error: %{reason}"
 
-#: lib/holter/monitoring/workspace.ex:61
+#: lib/holter/monitoring/workspace.ex:87
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "cannot be changed after creation"
@@ -575,7 +575,7 @@ msgstr "must be empty for %{method} requests"
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "must be less than the check interval (%{interval}s)"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.ex:18
+#: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.ex:22
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "Daily Metrics"
@@ -586,7 +586,7 @@ msgstr "Daily Metrics"
 msgid "Log Details"
 msgstr "Log Details"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:96
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Monitor Configuration"
 msgstr "Monitor Configuration"
@@ -616,17 +616,37 @@ msgstr "View original log"
 msgid "Yes"
 msgstr "Yes"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.ex:24
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.ex:16
 #, elixir-autogen, elixir-format
 msgid "Log Evidence"
 msgstr "Log Evidence"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:25
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:23
 #, elixir-autogen, elixir-format
 msgid "Monitor Details"
 msgstr "Monitor Details"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:17
+#: lib/holter_web/web/live/monitoring/monitor_live/logs.ex:21
 #, elixir-autogen, elixir-format
 msgid "Monitor Logs"
 msgstr "Monitor Logs"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:156
+#, elixir-autogen, elixir-format
+msgid "Hourly check limit reached for this workspace."
+msgstr "Hourly check limit reached for this workspace."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Network Error"
+msgstr "Network Error"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "The connection failed before a response was received (no HTTP status code)."
+msgstr "The connection failed before a response was received (no HTTP status code)."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:152
+#, elixir-autogen, elixir-format
+msgid "Too many checks in the last minute. Please wait."
+msgstr "Too many checks in the last minute. Please wait."

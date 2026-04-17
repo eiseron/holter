@@ -321,6 +321,29 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     end
   end
 
+  describe "perform/1 logging on socket closed error" do
+    setup %{monitor: monitor} do
+      expect(MonitorClientMock, :request, fn _opts ->
+        {:error, %Mint.TransportError{reason: :closed}}
+      end)
+
+      :ok = perform_job(HTTPCheck, job_args(monitor))
+    end
+
+    test "records :down status", %{monitor: monitor} do
+      assert [%{status: :down}] = Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+
+    test "records socket closed in error_message", %{monitor: monitor} do
+      assert [%{error_message: msg}] = Monitoring.list_monitor_logs(monitor, %{}).logs
+      assert msg =~ "closed"
+    end
+
+    test "records nil status_code", %{monitor: monitor} do
+      assert [%{status_code: nil}] = Monitoring.list_monitor_logs(monitor, %{}).logs
+    end
+  end
+
   defp stub_response(body, status) do
     expect(MonitorClientMock, :request, fn _opts ->
       {:ok, %Req.Response{status: status, body: body}}
