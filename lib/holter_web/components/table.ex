@@ -37,7 +37,7 @@ defmodule HolterWeb.Components.Table do
       end
 
     ~H"""
-    <div class="h-table-wrapper">
+    <figure class="h-table-wrapper">
       <table class="h-table h-table-zebra">
         <thead>
           <tr>
@@ -77,7 +77,7 @@ defmodule HolterWeb.Components.Table do
           </tr>
         </tbody>
       </table>
-    </div>
+    </figure>
     """
   end
 end
