@@ -1,5 +1,6 @@
 defmodule HolterWeb.Api.MonitorControllerTest do
   use HolterWeb.ConnCase
+  use Oban.Testing, repo: Holter.Repo
 
   import OpenApiSpex.TestAssertions
 
@@ -56,7 +57,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   describe "POST /api/v1/workspaces/:workspace_slug/monitors" do
     @valid_attrs %{url: "https://api-test.local", method: "get", interval_seconds: 60}
 
-    test "Creates a monitor and returns 201", %{
+    test "Creates a monitor and triggers initial check", %{
       conn: conn,
       workspace: workspace,
       api_spec: spec
@@ -66,6 +67,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
       assert %{"id" => id} = body["data"]
       assert Monitoring.get_monitor!(id).workspace_id == workspace.id
+      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => id})
       assert_schema(body, "MonitorResponse", spec)
     end
 
