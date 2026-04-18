@@ -30,31 +30,15 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
     <div class="metrics-chart-container" id={"metrics-chart-#{@monitor_id}"}>
       <%= if @sorted_metrics == [] do %>
         <svg class="metrics-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
-          <line
-            x1="0"
-            y1="80"
-            x2="800"
-            y2="80"
-            stroke="rgba(255,255,255,0.08)"
-            stroke-width="1"
-            stroke-dasharray="6 4"
-          />
+          <line x1="0" y1="80" x2="800" y2="80" class="chart-empty-line" />
         </svg>
         <p class="metrics-no-data">{gettext("No daily metrics recorded yet")}</p>
       <% else %>
         <svg class="metrics-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
-          <line x1="0" y1="160" x2="800" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+          <line x1="0" y1="160" x2="800" y2="160" class="chart-baseline" />
 
           <%= for grid <- @uptime_grid do %>
-            <line
-              x1="0"
-              y1={grid.y}
-              x2="800"
-              y2={grid.y}
-              stroke="rgba(255,255,255,0.05)"
-              stroke-width="1"
-              class="metrics-grid-line"
-            />
+            <line x1="0" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
             <text x="2" y={grid.y - 2} class="metrics-date-label">{grid.label}</text>
           <% end %>
 

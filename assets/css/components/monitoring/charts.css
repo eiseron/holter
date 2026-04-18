@@ -1,3 +1,25 @@
+/* ── Shared SVG primitives ── */
+
+.chart-empty-line {
+  fill: none;
+  stroke: var(--color-monitor-border);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+
+.chart-baseline {
+  fill: none;
+  stroke: var(--color-monitor-border);
+  stroke-width: 1;
+}
+
+.chart-grid-line {
+  fill: none;
+  stroke: var(--color-border-subtle);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
 /* ── Monitor Overview Chart (Show page) ── */
 
 .ovw-chart-container {
@@ -13,7 +35,7 @@
 }
 
 .ovw-area-fill {
-  fill: color-mix(in srgb, var(--prim-purple-500) 15%, transparent);
+  fill: none;
   stroke: none;
 }
 
@@ -53,12 +75,8 @@
   stroke-linejoin: round;
 }
 
-.scatter-grid-line {
-  pointer-events: none;
-}
-
 .scatter-dot {
-  opacity: 0.85;
+  opacity: 0.9;
   transition: opacity 0.15s ease;
 }
 
@@ -69,7 +87,7 @@
 .scatter-axis-label {
   font-family: var(--font-mono, monospace);
   font-size: 9px;
-  fill: color-mix(in srgb, var(--color-monitor-text) 40%, transparent);
+  fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
 }
 
 .scatter-no-data {
@@ -98,7 +116,7 @@
 }
 
 .metrics-bar:hover {
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .metrics-latency-line {
@@ -109,14 +127,10 @@
   stroke-linejoin: round;
 }
 
-.metrics-grid-line {
-  pointer-events: none;
-}
-
 .metrics-date-label {
   font-family: var(--font-mono, monospace);
   font-size: 8px;
-  fill: color-mix(in srgb, var(--color-monitor-text) 40%, transparent);
+  fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
 }
 
 .metrics-no-data {

@@ -25,45 +25,25 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
         <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
-          <line
-            x1="0"
-            y1="60"
-            x2="800"
-            y2="60"
-            stroke="rgba(255,255,255,0.08)"
-            stroke-width="1"
-            stroke-dasharray="6 4"
-          />
+          <line x1="0" y1="60" x2="800" y2="60" class="chart-empty-line" />
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
         <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
           <defs>
             <linearGradient id={"ovw-grad-#{@monitor_id}"} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0.25" />
-              <stop offset="100%" stop-color="var(--color-monitor-pulse-primary)" stop-opacity="0.02" />
+              <stop offset="0%" stop-color="var(--prim-purple-500)" stop-opacity="0.3" />
+              <stop offset="100%" stop-color="var(--prim-purple-500)" stop-opacity="0.03" />
             </linearGradient>
           </defs>
 
-          <path
-            d={@area_path}
-            fill={"url(#ovw-grad-#{@monitor_id})"}
-            stroke="none"
-            class="ovw-area-fill"
-          />
+          <path d={@area_path} fill={"url(#ovw-grad-#{@monitor_id})"} class="ovw-area-fill" />
           <path d={@line_path} class="ovw-area-line" />
         </svg>
 
         <svg class="ovw-ribbon-svg" viewBox="0 0 800 20" preserveAspectRatio="none">
           <%= for rect <- @ribbon_rects do %>
-            <rect
-              x={rect.x}
-              y="0"
-              width={rect.width}
-              height="20"
-              fill={rect.fill}
-              opacity="0.75"
-            />
+            <rect x={rect.x} y="0" width={rect.width} height="20" fill={rect.fill} />
           <% end %>
         </svg>
       <% end %>

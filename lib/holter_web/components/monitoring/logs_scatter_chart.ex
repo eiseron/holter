@@ -30,31 +30,15 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     <div class="scatter-chart-container" id={"scatter-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
         <svg class="scatter-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
-          <line
-            x1="0"
-            y1="80"
-            x2="800"
-            y2="80"
-            stroke="rgba(255,255,255,0.08)"
-            stroke-width="1"
-            stroke-dasharray="6 4"
-          />
+          <line x1="0" y1="80" x2="800" y2="80" class="chart-empty-line" />
         </svg>
         <p class="scatter-no-data">{gettext("No logs match the current filters")}</p>
       <% else %>
         <svg class="scatter-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
-          <line x1="0" y1="140" x2="800" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+          <line x1="0" y1="140" x2="800" y2="140" class="chart-baseline" />
 
           <%= for grid <- @grid_lines do %>
-            <line
-              x1="0"
-              y1={grid.y}
-              x2="800"
-              y2={grid.y}
-              stroke="rgba(255,255,255,0.05)"
-              stroke-width="1"
-              class="scatter-grid-line"
-            />
+            <line x1="0" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
             <text x="2" y={grid.y - 2} class="scatter-axis-label">{grid.label}</text>
           <% end %>
 
