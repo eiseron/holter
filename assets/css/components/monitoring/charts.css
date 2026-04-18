@@ -1,0 +1,129 @@
+/* ── Monitor Overview Chart (Show page) ── */
+
+.ovw-chart-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.ovw-area-svg,
+.ovw-ribbon-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ovw-area-fill {
+  fill: color-mix(in srgb, var(--color-monitor-pulse-primary) 15%, transparent);
+  stroke: none;
+}
+
+.ovw-area-line {
+  fill: none;
+  stroke: var(--color-monitor-pulse-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ovw-no-data {
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 30%, transparent);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ── Logs Scatter Chart (Technical Logs page) ── */
+
+.scatter-chart-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.scatter-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.scatter-trend-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-monitor-pulse-primary) 40%, transparent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scatter-dot {
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.scatter-dot:hover {
+  opacity: 1;
+}
+
+.scatter-axis-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  fill: color-mix(in srgb, var(--color-monitor-text) 40%, transparent);
+}
+
+.scatter-no-data {
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 30%, transparent);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ── Daily Metrics Chart (Daily Metrics page) ── */
+
+.metrics-chart-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.metrics-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.metrics-bar {
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.metrics-bar:hover {
+  opacity: 1;
+}
+
+.metrics-latency-line {
+  fill: none;
+  stroke: var(--color-monitor-pulse-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metrics-date-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  fill: color-mix(in srgb, var(--color-monitor-text) 40%, transparent);
+}
+
+.metrics-no-data {
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 30%, transparent);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+  .ovw-chart-container,
+  .scatter-chart-container,
+  .metrics-chart-container {
+    margin-bottom: var(--space-4);
+  }
+}

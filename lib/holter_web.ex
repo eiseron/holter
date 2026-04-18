@@ -106,6 +106,9 @@ defmodule HolterWeb do
       import HolterWeb.Components.Monitoring.DailyMetricsSection
       import HolterWeb.Components.Monitoring.MonitorFormFields
       import HolterWeb.Components.Monitoring.MonitorSnapshot
+      import HolterWeb.Components.Monitoring.MonitorOverviewChart
+      import HolterWeb.Components.Monitoring.LogsScatterChart
+      import HolterWeb.Components.Monitoring.DailyMetricsChart
     end
   end
 
