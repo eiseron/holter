@@ -19,6 +19,24 @@
   flex-shrink: 0;
 }
 
+.pause-icon {
+  width: 10px;
+  height: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.pause-icon::before,
+.pause-icon::after {
+  content: "";
+  width: 3px;
+  height: 10px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
 .pulse-dot::after {
   content: "";
   position: absolute;
@@ -66,5 +84,10 @@
     color: var(--color-status-unknown-on-solid);
     .pulse-dot,
     .pulse-dot::after { background: var(--color-status-unknown-on-solid); }
+  }
+
+  &.h-status-paused {
+    background: var(--color-status-paused);
+    color: var(--color-status-paused-on-solid);
   }
 }

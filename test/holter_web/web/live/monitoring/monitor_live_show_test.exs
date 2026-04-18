@@ -229,6 +229,35 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
     end
 
+    test "Given a paused monitor, when page loads, then badge shows PAUSED label", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{logical_state: :paused})
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert html =~ "PAUSED"
+    end
+
+    test "Given a paused monitor, when page loads, then badge uses paused style class", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{logical_state: :paused})
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert html =~ "h-status-paused"
+    end
+
+    test "Given an active monitor, when page loads, then badge does not show PAUSED label", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      refute html =~ "PAUSED"
+    end
+
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
          %{conn: conn, monitor: monitor} do
       import Mox
