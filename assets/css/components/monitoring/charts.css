@@ -148,4 +148,20 @@
   .metrics-chart-container {
     margin-bottom: var(--space-4);
   }
+
+  .ovw-area-svg {
+    min-height: 140px;
+  }
+
+  .ovw-ribbon-svg {
+    min-height: 24px;
+  }
+
+  .scatter-svg {
+    min-height: 180px;
+  }
+
+  .metrics-svg {
+    min-height: 220px;
+  }
 }
