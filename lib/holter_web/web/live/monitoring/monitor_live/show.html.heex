@@ -9,7 +9,7 @@
       UUID: {@monitor.id}
     </:subtitle>
     <:actions>
-      <div class="h-header-nav-group">
+      <nav class="h-header-nav-group">
         <.link
           navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
           class="h-btn h-btn-soft"
@@ -19,7 +19,7 @@
         <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
           {gettext("Technical Logs")}
         </.link>
-      </div>
+      </nav>
       <.button
         type="button"
         phx-click="run_now"
