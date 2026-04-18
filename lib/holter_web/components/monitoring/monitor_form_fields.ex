@@ -55,7 +55,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
           </p>
         </div>
 
-        <div class="h-col-span-2" :if={not body_hidden?(@form)}>
+        <div :if={not body_hidden?(@form)} class="h-col-span-2">
           <.input
             field={@form[:body]}
             type="textarea"
