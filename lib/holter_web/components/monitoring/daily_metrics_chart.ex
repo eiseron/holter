@@ -47,6 +47,10 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
           <% end %>
 
           <%= for bar <- @bars do %>
+            <line x1={bar.label_x} y1="0" x2={bar.label_x} y2="160" class="chart-grid-line" />
+          <% end %>
+
+          <%= for bar <- @bars do %>
             <rect
               x={bar.x}
               y={bar.y}
