@@ -10,7 +10,7 @@ defmodule HolterWeb.ObservabilityHook do
     session_id = extract_from_params(socket, "session_id") || Map.get(session, "session_id")
     request_id = extract_from_params(socket, "request_id") || Map.get(session, "request_id")
     workspace_id = Map.get(session, "workspace_id")
-    timezone = extract_from_params(socket, "timezone") || "Etc/UTC"
+    timezone = sanitize_timezone(extract_from_params(socket, "timezone"))
 
     metadata =
       %{
@@ -47,4 +47,12 @@ defmodule HolterWeb.ObservabilityHook do
       nil
     end
   end
+
+  @max_timezone_length 64
+
+  defp sanitize_timezone(raw) when is_binary(raw) and byte_size(raw) <= @max_timezone_length do
+    if HolterWeb.Timezone.valid_timezone?(raw), do: raw, else: "Etc/UTC"
+  end
+
+  defp sanitize_timezone(_), do: "Etc/UTC"
 end
