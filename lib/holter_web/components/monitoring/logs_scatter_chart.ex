@@ -112,6 +112,7 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       ms = round(max_latency * i / 4)
       %{y: Float.round(normalize_y(ms, max_latency), 1), label: "#{ms}ms"}
     end)
+    |> then(&(&1 ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]))
   end
 
   defp build_vertical_grids(min_ts, max_ts) do
