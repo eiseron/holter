@@ -49,6 +49,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
               width={bar.width}
               height={bar.height}
               fill={bar.fill}
+              opacity="0.35"
               class="metrics-bar"
             />
             <text
@@ -92,8 +93,8 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
         height: Float.round(bar_height, 1),
         fill:
           if(DailyMetric.uptime_healthy?(metric),
-            do: "var(--color-status-up-bg)",
-            else: "var(--color-status-down-bg)"
+            do: "var(--color-status-up)",
+            else: "var(--color-status-down)"
           ),
         label: Calendar.strftime(metric.date, "%m/%d"),
         label_x: Float.round(x + slot_width / 2, 1)

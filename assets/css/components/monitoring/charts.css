@@ -34,11 +34,6 @@
   display: block;
 }
 
-.ovw-area-fill {
-  fill: none;
-  stroke: none;
-}
-
 .ovw-area-line {
   fill: none;
   stroke: var(--prim-purple-500);
@@ -111,12 +106,11 @@
 }
 
 .metrics-bar {
-  opacity: 1;
   transition: opacity 0.15s ease;
 }
 
 .metrics-bar:hover {
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
 .metrics-latency-line {
