@@ -68,6 +68,56 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
       assert List.first(urls_updated) == monitor_1.url
     end
 
+    test "Given a paused monitor alongside an active monitor, when displayed, then paused appears after active",
+         %{conn: conn, workspace: workspace} do
+      monitor_active =
+        monitor_fixture(
+          workspace_id: workspace.id,
+          url: "https://active.local",
+          health_status: :up
+        )
+
+      monitor_paused =
+        monitor_fixture(
+          workspace_id: workspace.id,
+          url: "https://paused.local",
+          health_status: :up,
+          logical_state: :paused
+        )
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+
+      urls = extract_monitor_urls(view)
+
+      assert Enum.find_index(urls, &(&1 == monitor_active.url)) <
+               Enum.find_index(urls, &(&1 == monitor_paused.url))
+    end
+
+    test "Given a paused DOWN monitor and an active UP monitor, when displayed, then active UP appears before paused DOWN",
+         %{conn: conn, workspace: workspace} do
+      monitor_active_up =
+        monitor_fixture(
+          workspace_id: workspace.id,
+          url: "https://active-up.local",
+          health_status: :up
+        )
+
+      monitor_paused_down =
+        monitor_fixture(
+          workspace_id: workspace.id,
+          url: "https://paused-down.local",
+          health_status: :down,
+          logical_state: :paused
+        )
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+
+      urls = extract_monitor_urls(view)
+
+      assert Enum.find_index(urls, &(&1 == monitor_active_up.url)) <
+               Enum.find_index(urls, &(&1 == monitor_paused_down.url))
+    end
+
     test "Given multiple failing monitors, when displayed, then they are ordered by severity (DOWN > DEGRADED)",
          %{conn: conn, workspace: workspace} do
       _monitor_up =
