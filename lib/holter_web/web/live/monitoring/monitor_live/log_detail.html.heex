@@ -54,7 +54,7 @@
           <p>
             ⚠️ {gettext(
               "No new evidence was captured for this check because the response was unchanged since the last collection. Showing the most recent evidence from %{time}.",
-              time: Calendar.strftime(@payload_log.checked_at, "%Y-%m-%d %H:%M:%S")
+              time: format_datetime(@payload_log.checked_at, @timezone)
             )}
           </p>
           <p class="h-mt-2">

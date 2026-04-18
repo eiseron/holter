@@ -98,7 +98,7 @@ console.error = (...args) => {
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken, session_id: SESSION_ID, request_id: REQUEST_ID},
+  params: {_csrf_token: csrfToken, session_id: SESSION_ID, request_id: REQUEST_ID, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone},
   hooks: {...colocatedHooks},
 })
 

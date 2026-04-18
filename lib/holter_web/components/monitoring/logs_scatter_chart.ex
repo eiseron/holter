@@ -12,10 +12,14 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
   attr :logs, :list, default: []
   attr :start_date, :string, default: nil
   attr :end_date, :string, default: nil
+  attr :timezone, :string, default: "Etc/UTC"
 
   def logs_scatter_chart(assigns) do
     sorted = Enum.sort_by(assigns.logs, & &1.checked_at, DateTime)
-    {min_ts, max_ts} = derive_time_range(sorted, assigns.start_date, assigns.end_date)
+
+    {min_ts, max_ts} =
+      derive_time_range(sorted, assigns.start_date, assigns.end_date, assigns.timezone)
+
     max_latency = derive_max_latency(sorted)
 
     assigns =
@@ -25,8 +29,8 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       |> assign(:dots, build_dots(sorted, min_ts, max_ts, max_latency))
       |> assign(:grid_lines, build_grid_lines(max_latency))
       |> assign(:vertical_grids, build_vertical_grids(min_ts, max_ts))
-      |> assign(:x_label_start, format_ts_label(min_ts))
-      |> assign(:x_label_end, format_ts_label(max_ts))
+      |> assign(:x_label_start, format_ts_label(min_ts, assigns.timezone))
+      |> assign(:x_label_end, format_ts_label(max_ts, assigns.timezone))
 
     ~H"""
     <div class="scatter-chart-container" id={"scatter-chart-#{@monitor_id}"}>
@@ -91,31 +95,33 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     """
   end
 
-  defp derive_time_range([], start_date, end_date) do
+  defp derive_time_range([], start_date, end_date, timezone) do
     now = DateTime.utc_now()
 
-    {parse_date_ts(start_date, :start) || DateTime.to_unix(DateTime.add(now, -86_400, :second)),
-     parse_date_ts(end_date, :end) || DateTime.to_unix(now)}
+    {parse_date_ts(start_date, :start, timezone) ||
+       DateTime.to_unix(DateTime.add(now, -86_400, :second)),
+     parse_date_ts(end_date, :end, timezone) || DateTime.to_unix(now)}
   end
 
-  defp derive_time_range(logs, start_date, end_date) do
+  defp derive_time_range(logs, start_date, end_date, timezone) do
     first_log_ts = DateTime.to_unix(hd(logs).checked_at)
     last_log_ts = DateTime.to_unix(List.last(logs).checked_at)
 
-    min_ts = parse_date_ts(start_date, :start) || first_log_ts
-    max_ts = parse_date_ts(end_date, :end) || last_log_ts
+    min_ts = parse_date_ts(start_date, :start, timezone) || first_log_ts
+    max_ts = parse_date_ts(end_date, :end, timezone) || last_log_ts
 
     range = max(max_ts - min_ts, 1)
     {min_ts, min_ts + range}
   end
 
-  defp parse_date_ts(nil, _type), do: nil
+  defp parse_date_ts(nil, _type, _timezone), do: nil
 
-  defp parse_date_ts(date_str, type) do
+  defp parse_date_ts(date_str, type, timezone) do
     with {:ok, date} <- Date.from_iso8601(date_str),
          time = if(type == :start, do: ~T[00:00:00], else: ~T[23:59:59]),
-         {:ok, dt} <- DateTime.new(date, time, "Etc/UTC") do
-      DateTime.to_unix(dt)
+         {:ok, local_dt} <- DateTime.new(date, time, timezone),
+         {:ok, utc_dt} <- DateTime.shift_zone(local_dt, "Etc/UTC") do
+      DateTime.to_unix(utc_dt)
     else
       _ -> nil
     end
@@ -145,13 +151,10 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       middle ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
-  defp build_vertical_grids(min_ts, max_ts) do
-    range = max_ts - min_ts
-
-    [1, 2, 3, 4]
-    |> Enum.map(fn i ->
+  defp build_vertical_grids(_min_ts, _max_ts) do
+    Enum.map(1..4, fn i ->
       x = @label_left + i / 5.0 * (@svg_width - @label_left)
-      %{x: Float.round(x, 1), label: format_ts_label(round(min_ts + range * i / 5))}
+      %{x: Float.round(x, 1)}
     end)
   end
 
@@ -190,10 +193,16 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     @y_bottom - clamped / max_latency * (@y_bottom - @y_top) * 1.0
   end
 
-  defp format_ts_label(unix_ts) do
-    unix_ts
-    |> DateTime.from_unix!()
-    |> Calendar.strftime("%m-%d %H:%M")
+  defp format_ts_label(unix_ts, timezone) do
+    utc = DateTime.from_unix!(unix_ts)
+
+    local =
+      case DateTime.shift_zone(utc, timezone) do
+        {:ok, dt} -> dt
+        _ -> utc
+      end
+
+    Calendar.strftime(local, "%m-%d %H:%M")
   end
 
   defp status_color(:up), do: "var(--color-status-up)"

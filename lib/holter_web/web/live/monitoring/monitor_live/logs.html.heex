@@ -57,6 +57,7 @@
     logs={@logs}
     start_date={@filters.start_date}
     end_date={@filters.end_date}
+    timezone={@timezone}
   />
 
   <div class="h-mt-6">
@@ -68,7 +69,7 @@
         sort_active={@sort_info["checked_at"].active}
         sort_dir={@sort_info["checked_at"].dir}
       >
-        {Calendar.strftime(log.checked_at, "%Y-%m-%d %H:%M:%S")}
+        {format_datetime(log.checked_at, @timezone)}
       </:col>
       <:col
         :let={log}

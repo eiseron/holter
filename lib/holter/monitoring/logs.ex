@@ -35,9 +35,11 @@ defmodule Holter.Monitoring.Logs do
   end
 
   defp build_base_query(monitor_id, filters) do
+    timezone = filters[:timezone] || "Etc/UTC"
+
     from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
     |> apply_status_filter(filters[:status])
-    |> apply_date_range_filter(filters[:start_date], filters[:end_date])
+    |> apply_date_range_filter(filters[:start_date], filters[:end_date], timezone)
   end
 
   defp calculate_pagination(query, page_size, requested_page) do
@@ -81,24 +83,25 @@ defmodule Holter.Monitoring.Logs do
     end
   end
 
-  defp apply_date_range_filter(query, nil, nil), do: query
+  defp apply_date_range_filter(query, nil, nil, _timezone), do: query
 
-  defp apply_date_range_filter(query, start_date, nil) do
-    case parse_date_to_datetime(start_date, :start) do
+  defp apply_date_range_filter(query, start_date, nil, timezone) do
+    case parse_date_to_datetime(start_date, :start, timezone) do
       {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
       _ -> query
     end
   end
 
-  defp apply_date_range_filter(query, nil, end_date) do
-    case parse_date_to_datetime(end_date, :end) do
+  defp apply_date_range_filter(query, nil, end_date, timezone) do
+    case parse_date_to_datetime(end_date, :end, timezone) do
       {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
       _ -> query
     end
   end
 
-  defp apply_date_range_filter(query, start_date, end_date) do
-    case {parse_date_to_datetime(start_date, :start), parse_date_to_datetime(end_date, :end)} do
+  defp apply_date_range_filter(query, start_date, end_date, timezone) do
+    case {parse_date_to_datetime(start_date, :start, timezone),
+          parse_date_to_datetime(end_date, :end, timezone)} do
       {{:ok, start_dt}, {:ok, end_dt}} ->
         where(query, [l], l.checked_at >= ^start_dt and l.checked_at <= ^end_dt)
 
@@ -113,12 +116,14 @@ defmodule Holter.Monitoring.Logs do
     end
   end
 
-  defp parse_date_to_datetime(date_str, type) do
-    with {:ok, date} <- Date.from_iso8601(date_str) do
-      case type do
-        :start -> DateTime.new(date, ~T[00:00:00], "Etc/UTC")
-        :end -> DateTime.new(date, ~T[23:59:59], "Etc/UTC")
-      end
+  defp parse_date_to_datetime(date_str, type, timezone) do
+    with {:ok, date} <- Date.from_iso8601(date_str),
+         time = if(type == :start, do: ~T[00:00:00], else: ~T[23:59:59]),
+         {:ok, local_dt} <- DateTime.new(date, time, timezone),
+         {:ok, utc_dt} <- DateTime.shift_zone(local_dt, "Etc/UTC") do
+      {:ok, utc_dt}
+    else
+      _ -> :error
     end
   end
 

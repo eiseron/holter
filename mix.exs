@@ -68,7 +68,8 @@ defmodule Holter.MixProject do
       {:ymlr, "~> 5.1"},
       {:logger_json, "~> 6.0"},
       {:sentry, "~> 10.2"},
-      {:hackney, "~> 1.20"}
+      {:hackney, "~> 1.20"},
+      {:tzdata, "~> 1.1"}
     ]
   end
 
