@@ -84,12 +84,15 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         true -> 1000
       end
 
-    1..div(max_latency, step)
-    |> Enum.map(fn i -> i * step end)
-    |> Enum.filter(fn ms -> ms < max_latency end)
-    |> Enum.map(fn ms ->
-      %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
-    end)
+    lines =
+      1..div(max_latency, step)
+      |> Enum.map(fn i -> i * step end)
+      |> Enum.filter(fn ms -> ms < max_latency end)
+      |> Enum.map(fn ms ->
+        %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
+      end)
+
+    lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
   defp build_line_path([]), do: ""
