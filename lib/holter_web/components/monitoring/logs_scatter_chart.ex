@@ -102,18 +102,9 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
   defp build_grid_lines(0), do: []
 
   defp build_grid_lines(max_latency) do
-    step =
-      cond do
-        max_latency <= 100 -> 25
-        max_latency <= 500 -> 100
-        max_latency <= 2000 -> 500
-        true -> 1000
-      end
-
-    1..div(max_latency, step)
-    |> Enum.map(fn i -> i * step end)
-    |> Enum.filter(fn ms -> ms < max_latency end)
-    |> Enum.map(fn ms ->
+    [1, 2, 3]
+    |> Enum.map(fn i ->
+      ms = round(max_latency * i / 4)
       %{y: Float.round(normalize_y(ms, max_latency), 1), label: "#{ms}ms"}
     end)
   end
