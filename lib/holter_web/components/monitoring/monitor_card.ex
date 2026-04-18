@@ -22,7 +22,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCard do
           <p class="h-text-xs h-opacity-50">
             {@monitor.method |> to_string() |> String.upcase()} • {@monitor.interval_seconds}s
           </p>
-          <.health_badge status={@monitor.health_status} />
+          <.health_badge status={@monitor.health_status} logical_state={@monitor.logical_state} />
         </div>
       </header>
 

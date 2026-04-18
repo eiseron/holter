@@ -109,6 +109,9 @@
   --color-status-unknown-text:     var(--prim-gray-60);
   --color-status-unknown-on-solid: var(--prim-white);
 
+  --color-status-paused:          rgba(254, 243, 199, 0.18);
+  --color-status-paused-on-solid: var(--prim-amber-100);
+
   --color-monitor-bg:              var(--prim-graphite);
   --color-monitor-surface:         var(--prim-dark-surface);
   --color-monitor-surface-hover:   #5a5a5a;
@@ -210,6 +213,9 @@
     --color-status-unknown-light:  var(--prim-slate-400);
     --color-status-unknown-bg:     var(--prim-gray-tint);
     --color-status-unknown-text:   var(--prim-gray-dark);
+
+    --color-status-paused:          var(--prim-amber-tint);
+    --color-status-paused-on-solid: var(--prim-amber-dark);
 
     --color-monitor-bg:              var(--color-bg);
     --color-monitor-surface:         var(--color-surface-raised);

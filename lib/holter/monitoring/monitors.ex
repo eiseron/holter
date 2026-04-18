@@ -100,6 +100,8 @@ defmodule Holter.Monitoring.Monitors do
     query
     |> order_by([m],
       desc:
+        fragment("CASE WHEN logical_state = 'paused' THEN 0 ELSE 1 END"),
+      desc:
         fragment("""
         CASE
           WHEN health_status = 'down' THEN 4
