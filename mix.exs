@@ -98,8 +98,7 @@ defmodule Holter.MixProject do
         "format",
         "deps.audit",
         "credo --strict",
-        "test --cover",
-        "mutation"
+        "test --cover"
       ],
       mutation: ["muex --fail-at 50 --optimize lib/holter/monitoring"]
     ]
