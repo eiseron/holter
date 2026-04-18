@@ -19,7 +19,7 @@ defmodule Holter.Credo.Check.Readability.NoComments do
   end
 
   defp excluded_file?(filename) do
-    String.contains?(filename, "lib/credo/")
+    String.contains?(filename, "lib/credo/") or String.contains?(filename, "test/")
   end
 
   defp find_issues(source_file, params) do

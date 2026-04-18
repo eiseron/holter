@@ -18,7 +18,7 @@ defmodule Holter.Credo.Check.Refactor.StrictFunctionArity do
 
   def run(source_file, params \\ []) do
     issue_meta = IssueMeta.for(source_file, params)
-    max_arity = Params.get(params, :max_arity, 3)
+    max_arity = Keyword.get(params, :max_arity, 3)
 
     Credo.Code.prewalk(source_file, &traverse(&1, &2, issue_meta, max_arity))
   end
