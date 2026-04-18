@@ -24,6 +24,7 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       |> assign(:trend_path, build_trend_path(sorted, min_ts, max_ts, max_latency))
       |> assign(:dots, build_dots(sorted, min_ts, max_ts, max_latency))
       |> assign(:grid_lines, build_grid_lines(max_latency))
+      |> assign(:vertical_grids, build_vertical_grids(min_ts, max_ts))
       |> assign(:x_label_start, format_ts_label(min_ts))
       |> assign(:x_label_end, format_ts_label(max_ts))
 
@@ -43,6 +44,10 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
             <text x="2" y={grid.y + 3} dominant-baseline="middle" class="chart-scale-label">
               {grid.label}
             </text>
+          <% end %>
+
+          <%= for vg <- @vertical_grids do %>
+            <line x1={vg.x} y1="10" x2={vg.x} y2="140" class="chart-grid-line" />
           <% end %>
 
           <path d={@trend_path} class="scatter-trend-line" />
@@ -106,6 +111,16 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     |> Enum.map(fn i ->
       ms = round(max_latency * i / 4)
       %{y: Float.round(normalize_y(ms, max_latency), 1), label: "#{ms}ms"}
+    end)
+  end
+
+  defp build_vertical_grids(min_ts, max_ts) do
+    range = max_ts - min_ts
+
+    [1, 2, 3, 4]
+    |> Enum.map(fn i ->
+      x = @label_left + i / 5.0 * (@svg_width - @label_left)
+      %{x: Float.round(x, 1), label: format_ts_label(round(min_ts + range * i / 5))}
     end)
   end
 
