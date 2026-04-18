@@ -7,12 +7,14 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   @y_top 10
   @y_bottom 100
   @latency_cap 2000
+  @label_left 40
 
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
 
   def monitor_overview_chart(assigns) do
     sorted = Enum.sort_by(assigns.logs, & &1.checked_at, DateTime)
+    max_latency = derive_max_latency(sorted)
 
     assigns =
       assigns
@@ -20,12 +22,13 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
       |> assign(:area_path, build_area_path(sorted))
       |> assign(:line_path, build_line_path(sorted))
       |> assign(:ribbon_rects, build_ribbon_rects(sorted))
+      |> assign(:grid_lines, build_grid_lines(max_latency))
 
     ~H"""
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
         <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
-          <line x1="0" y1="60" x2="800" y2="60" class="chart-empty-line" />
+          <line x1="40" y1="60" x2="800" y2="60" class="chart-empty-line" />
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
@@ -37,7 +40,16 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
             </linearGradient>
           </defs>
 
-          <path d={@area_path} fill={"url(#ovw-grad-#{@monitor_id})"} class="ovw-area-fill" />
+          <%= for grid <- @grid_lines do %>
+            <line x1="40" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
+            <text x="2" y={grid.y + 3} dominant-baseline="middle" class="chart-scale-label">
+              {grid.label}
+            </text>
+          <% end %>
+
+          <line x1="40" y1="100" x2="800" y2="100" class="chart-baseline" />
+
+          <path d={@area_path} fill={"url(#ovw-grad-#{@monitor_id})"} />
           <path d={@line_path} class="ovw-area-line" />
         </svg>
 
@@ -49,6 +61,35 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
       <% end %>
     </div>
     """
+  end
+
+  defp derive_max_latency([]), do: 0
+
+  defp derive_max_latency(logs) do
+    logs
+    |> Enum.map(& &1.latency_ms)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.max(fn -> 0 end)
+    |> min(@latency_cap)
+  end
+
+  defp build_grid_lines(0), do: []
+
+  defp build_grid_lines(max_latency) do
+    step =
+      cond do
+        max_latency <= 100 -> 25
+        max_latency <= 500 -> 100
+        max_latency <= 2000 -> 500
+        true -> 1000
+      end
+
+    1..div(max_latency, step)
+    |> Enum.map(fn i -> i * step end)
+    |> Enum.filter(fn ms -> ms < max_latency end)
+    |> Enum.map(fn ms ->
+      %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
+    end)
   end
 
   defp build_line_path([]), do: ""
@@ -78,7 +119,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
     first_x = elem(hd(points), 0)
     last_x = elem(List.last(points), 0)
-
     coords = Enum.map_join(points, " ", fn {x, y} -> "#{x},#{y}" end)
     "M #{coords} L #{last_x},#{@area_height} L #{first_x},#{@area_height} Z"
   end
@@ -113,17 +153,15 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   defp time_range(logs) do
     first = hd(logs).checked_at
     last = List.last(logs).checked_at
-
     min_ts = DateTime.to_unix(first)
     max_ts = DateTime.to_unix(last)
-
     range = max(max_ts - min_ts, 1)
     {min_ts, min_ts + range}
   end
 
   defp map_x(dt, min_ts, max_ts) do
     ts = DateTime.to_unix(dt)
-    (ts - min_ts) / (max_ts - min_ts) * @svg_width * 1.0
+    @label_left + (ts - min_ts) / (max_ts - min_ts) * (@svg_width - @label_left) * 1.0
   end
 
   defp normalize_y(nil), do: @y_bottom * 1.0

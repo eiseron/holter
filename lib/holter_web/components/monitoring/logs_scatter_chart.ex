@@ -6,6 +6,7 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
   @y_top 10
   @y_bottom 140
   @latency_cap 5000
+  @label_left 40
 
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
@@ -30,34 +31,28 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     <div class="scatter-chart-container" id={"scatter-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
         <svg class="scatter-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
-          <line x1="0" y1="80" x2="800" y2="80" class="chart-empty-line" />
+          <line x1="40" y1="80" x2="800" y2="80" class="chart-empty-line" />
         </svg>
         <p class="scatter-no-data">{gettext("No logs match the current filters")}</p>
       <% else %>
         <svg class="scatter-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
-          <line x1="0" y1="140" x2="800" y2="140" class="chart-baseline" />
+          <line x1="40" y1="140" x2="800" y2="140" class="chart-baseline" />
 
           <%= for grid <- @grid_lines do %>
-            <line x1="0" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
-            <text x="2" y={grid.y - 2} class="scatter-axis-label">{grid.label}</text>
+            <line x1="40" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
+            <text x="2" y={grid.y + 3} dominant-baseline="middle" class="chart-scale-label">
+              {grid.label}
+            </text>
           <% end %>
 
           <path d={@trend_path} class="scatter-trend-line" />
 
           <%= for dot <- @dots do %>
-            <circle
-              cx={dot.cx}
-              cy={dot.cy}
-              r="4"
-              fill={dot.fill}
-              class="scatter-dot"
-            />
+            <circle cx={dot.cx} cy={dot.cy} r="4" fill={dot.fill} class="scatter-dot" />
           <% end %>
 
-          <text x="2" y="158" class="scatter-axis-label">{@x_label_start}</text>
-          <text x="798" y="158" text-anchor="end" class="scatter-axis-label">
-            {@x_label_end}
-          </text>
+          <text x="40" y="158" class="scatter-axis-label">{@x_label_start}</text>
+          <text x="798" y="158" text-anchor="end" class="scatter-axis-label">{@x_label_end}</text>
         </svg>
       <% end %>
     </div>
@@ -146,7 +141,7 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
 
   defp map_x(dt, min_ts, max_ts) do
     ts = DateTime.to_unix(dt)
-    (ts - min_ts) / (max_ts - min_ts) * @svg_width * 1.0
+    @label_left + (ts - min_ts) / (max_ts - min_ts) * (@svg_width - @label_left) * 1.0
   end
 
   defp normalize_y(nil, _max), do: @y_bottom * 1.0

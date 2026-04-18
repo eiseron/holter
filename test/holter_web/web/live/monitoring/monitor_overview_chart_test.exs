@@ -38,7 +38,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorOverviewChartTest do
       {:ok, _lv, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       assert html =~ "ovw-area-line"
-      assert html =~ "ovw-area-fill"
     end
 
     test "status ribbon uses down color for failed checks", %{conn: conn} do
