@@ -58,9 +58,9 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
             />
             <text
               x={bar.label_x}
-              y="170"
+              y="178"
               text-anchor="middle"
-              transform={"rotate(-45, #{bar.label_x}, 170)"}
+              transform={"rotate(-45, #{bar.label_x}, 178)"}
               class="metrics-date-label"
             >
               {bar.label}
