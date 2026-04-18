@@ -33,20 +33,18 @@ defmodule Holter.Monitoring.Workspaces do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     {short_count, short_start} =
-      resolve_window(
-        workspace.trigger_short_count,
-        workspace.trigger_short_window_start,
-        Workspace.trigger_short_window_seconds(),
-        now
-      )
+      resolve_window(workspace, now, %{
+        type: :trigger,
+        window: :short,
+        seconds: Workspace.trigger_short_window_seconds()
+      })
 
     {long_count, long_start} =
-      resolve_window(
-        workspace.trigger_long_count,
-        workspace.trigger_long_window_start,
-        Workspace.trigger_long_window_seconds(),
-        now
-      )
+      resolve_window(workspace, now, %{
+        type: :trigger,
+        window: :long,
+        seconds: Workspace.trigger_long_window_seconds()
+      })
 
     cond do
       short_count >= workspace.max_triggers_per_minute ->
@@ -56,13 +54,12 @@ defmodule Holter.Monitoring.Workspaces do
         {:error, :long_budget_exhausted}
 
       true ->
-        apply_budget_increment(
-          workspace,
-          short_count + 1,
-          short_start,
-          long_count + 1,
-          long_start
-        )
+        apply_budget_increment(workspace, %{
+          short_count: short_count + 1,
+          short_start: short_start,
+          long_count: long_count + 1,
+          long_start: long_start
+        })
     end
   end
 
@@ -70,20 +67,18 @@ defmodule Holter.Monitoring.Workspaces do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     {short_count, short_start} =
-      resolve_window(
-        workspace.create_short_count,
-        workspace.create_short_window_start,
-        Workspace.create_short_window_seconds(),
-        now
-      )
+      resolve_window(workspace, now, %{
+        type: :create,
+        window: :short,
+        seconds: Workspace.create_short_window_seconds()
+      })
 
     {long_count, long_start} =
-      resolve_window(
-        workspace.create_long_count,
-        workspace.create_long_window_start,
-        Workspace.create_long_window_seconds(),
-        now
-      )
+      resolve_window(workspace, now, %{
+        type: :create,
+        window: :long,
+        seconds: Workspace.create_long_window_seconds()
+      })
 
     cond do
       short_count >= workspace.max_creates_per_minute ->
@@ -93,40 +88,50 @@ defmodule Holter.Monitoring.Workspaces do
         {:error, :create_rate_limited}
 
       true ->
-        apply_create_budget_increment(
-          workspace,
-          short_count + 1,
-          short_start,
-          long_count + 1,
-          long_start
-        )
+        apply_create_budget_increment(workspace, %{
+          short_count: short_count + 1,
+          short_start: short_start,
+          long_count: long_count + 1,
+          long_start: long_start
+        })
     end
   end
 
-  defp resolve_window(_count, nil, _window_seconds, now), do: {0, now}
+  defp resolve_window(workspace, now, opts) do
+    type = opts.type
+    window = opts.window
+    window_seconds = opts.seconds
 
-  defp resolve_window(count, window_start, window_seconds, now) do
-    if DateTime.diff(now, window_start) < window_seconds do
+    {count, window_start} =
+      case {type, window} do
+        {:trigger, :short} ->
+          {workspace.trigger_short_count, workspace.trigger_short_window_start}
+
+        {:trigger, :long} ->
+          {workspace.trigger_long_count, workspace.trigger_long_window_start}
+
+        {:create, :short} ->
+          {workspace.create_short_count, workspace.create_short_window_start}
+
+        {:create, :long} ->
+          {workspace.create_long_count, workspace.create_long_window_start}
+      end
+
+    if window_start && DateTime.diff(now, window_start) < window_seconds do
       {count, window_start}
     else
       {0, now}
     end
   end
 
-  defp apply_budget_increment(
-         %Workspace{} = workspace,
-         short_count,
-         short_start,
-         long_count,
-         long_start
-       ) do
+  defp apply_budget_increment(%Workspace{} = workspace, budget_data) do
     workspace
     |> Ecto.Changeset.cast(
       %{
-        trigger_short_count: short_count,
-        trigger_short_window_start: short_start,
-        trigger_long_count: long_count,
-        trigger_long_window_start: long_start
+        trigger_short_count: budget_data.short_count,
+        trigger_short_window_start: budget_data.short_start,
+        trigger_long_count: budget_data.long_count,
+        trigger_long_window_start: budget_data.long_start
       },
       [
         :trigger_short_count,
@@ -138,20 +143,14 @@ defmodule Holter.Monitoring.Workspaces do
     |> Repo.update()
   end
 
-  defp apply_create_budget_increment(
-         %Workspace{} = workspace,
-         short_count,
-         short_start,
-         long_count,
-         long_start
-       ) do
+  defp apply_create_budget_increment(%Workspace{} = workspace, budget_data) do
     workspace
     |> Ecto.Changeset.cast(
       %{
-        create_short_count: short_count,
-        create_short_window_start: short_start,
-        create_long_count: long_count,
-        create_long_window_start: long_start
+        create_short_count: budget_data.short_count,
+        create_short_window_start: budget_data.short_start,
+        create_long_count: budget_data.long_count,
+        create_long_window_start: budget_data.long_start
       },
       [
         :create_short_count,

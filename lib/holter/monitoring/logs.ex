@@ -18,13 +18,11 @@ defmodule Holter.Monitoring.Logs do
     {total_pages, current_page} = calculate_pagination(base_query, page_size, filters[:page])
 
     logs =
-      fetch_paginated_logs(
-        base_query,
-        current_page,
-        page_size,
-        filters[:sort_by],
-        filters[:sort_dir]
-      )
+      fetch_paginated_logs(base_query, current_page, %{
+        page_size: page_size,
+        sort_by: filters[:sort_by],
+        sort_dir: filters[:sort_dir]
+      })
 
     %{
       logs: logs,
@@ -39,7 +37,10 @@ defmodule Holter.Monitoring.Logs do
 
     from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
     |> apply_status_filter(filters[:status])
-    |> apply_date_range_filter(filters[:start_date], filters[:end_date], timezone)
+    |> apply_date_range_filter(
+      %{start_date: filters[:start_date], end_date: filters[:end_date]},
+      timezone
+    )
   end
 
   defp calculate_pagination(query, page_size, requested_page) do
@@ -54,7 +55,10 @@ defmodule Holter.Monitoring.Logs do
     {total_pages, current_page}
   end
 
-  defp fetch_paginated_logs(query, page, page_size, sort_by, sort_dir) do
+  defp fetch_paginated_logs(query, page, params) do
+    page_size = params.page_size
+    sort_by = params.sort_by
+    sort_dir = params.sort_dir
     offset = (page - 1) * page_size
 
     query
@@ -83,23 +87,23 @@ defmodule Holter.Monitoring.Logs do
     end
   end
 
-  defp apply_date_range_filter(query, nil, nil, _timezone), do: query
+  defp apply_date_range_filter(query, %{start_date: nil, end_date: nil}, _timezone), do: query
 
-  defp apply_date_range_filter(query, start_date, nil, timezone) do
+  defp apply_date_range_filter(query, %{start_date: start_date, end_date: nil}, timezone) do
     case parse_date_to_datetime(start_date, :start, timezone) do
       {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
       _ -> query
     end
   end
 
-  defp apply_date_range_filter(query, nil, end_date, timezone) do
+  defp apply_date_range_filter(query, %{start_date: nil, end_date: end_date}, timezone) do
     case parse_date_to_datetime(end_date, :end, timezone) do
       {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
       _ -> query
     end
   end
 
-  defp apply_date_range_filter(query, start_date, end_date, timezone) do
+  defp apply_date_range_filter(query, %{start_date: start_date, end_date: end_date}, timezone) do
     case {parse_date_to_datetime(start_date, :start, timezone),
           parse_date_to_datetime(end_date, :end, timezone)} do
       {{:ok, start_dt}, {:ok, end_dt}} ->

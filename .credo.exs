@@ -42,7 +42,8 @@
       # them here, so they can be loaded by Credo before running the analysis.
       requires: [
         "credo_checks/readability/no_comments.ex",
-        "credo_checks/testing/one_assert_per_test.ex"
+        "credo_checks/testing/one_assert_per_test.ex",
+        "credo_checks/refactor/strict_function_arity.ex"
       ],
       #
       # If you want to enforce a style guide and need a more traditional linting
@@ -115,7 +116,7 @@
           {Credo.Check.Refactor.CyclomaticComplexity, []},
           {Credo.Check.Refactor.FilterCount, []},
           {Credo.Check.Refactor.FilterFilter, []},
-          {Credo.Check.Refactor.FunctionArity, []},
+          {Holter.Credo.Check.Refactor.StrictFunctionArity, [max_arity: 3]},
           {Credo.Check.Refactor.LongQuoteBlocks, []},
           {Credo.Check.Refactor.MapJoin, []},
           {Credo.Check.Refactor.MatchInCondition, []},
@@ -153,6 +154,7 @@
           {Credo.Check.Warning.WrongTestFilename, []}
         ],
         disabled: [
+          {Credo.Check.Refactor.FunctionArity, []},
           {Credo.Check.Refactor.UtcNowTruncate, []},
           {Credo.Check.Consistency.MultiAliasImportRequireUse, []},
           {Credo.Check.Consistency.UnusedVariableNames, []},

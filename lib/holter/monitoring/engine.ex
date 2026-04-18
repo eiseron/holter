@@ -9,14 +9,7 @@ defmodule Holter.Monitoring.Engine do
   alias Holter.Monitoring.Monitor
   use Gettext, backend: HolterWeb.Gettext
 
-  def process_response(
-        monitor,
-        response,
-        duration_ms,
-        redirects \\ 0,
-        last_url \\ nil,
-        redirect_list \\ []
-      ) do
+  def process_response(monitor, response, metadata) do
     Logger.metadata(
       monitor_id: monitor.id,
       workspace_id: monitor.workspace_id,
@@ -24,58 +17,35 @@ defmodule Holter.Monitoring.Engine do
     )
 
     ip = extract_ip(response)
+    metadata = Map.put(metadata, :ip, ip)
 
     if restricted_ip?(ip) do
-      handle_restricted_ip(monitor, response, duration_ms, ip, redirects, last_url, redirect_list)
+      handle_restricted_ip(monitor, response, metadata)
     else
-      perform_full_validation(
-        monitor,
-        response,
-        duration_ms,
-        ip,
-        redirects,
-        last_url,
-        redirect_list
-      )
+      perform_full_validation(monitor, response, metadata)
     end
   end
 
-  defp handle_restricted_ip(
-         monitor,
-         response,
-         duration_ms,
-         ip,
-         redirects,
-         last_url,
-         redirect_list
-       ) do
+  defp handle_restricted_ip(monitor, response, metadata) do
     finalize_check(
       monitor,
       %{
         check_status: :down,
         log_status: :down,
         status_code: response.status,
-        duration_ms: duration_ms,
+        duration_ms: metadata.duration_ms,
         error_msg: gettext("Access to restricted internal address blocked"),
         snippet: nil,
         headers: nil,
-        ip: ip,
-        redirect_count: redirects,
-        last_redirect_url: last_url,
-        redirect_list: redirect_list
+        ip: metadata.ip,
+        redirect_count: Map.get(metadata, :redirects, 0),
+        last_redirect_url: Map.get(metadata, :last_url),
+        redirect_list: Map.get(metadata, :redirect_list, [])
       }
     )
   end
 
-  defp perform_full_validation(
-         monitor,
-         response,
-         duration_ms,
-         ip,
-         redirects,
-         last_url,
-         redirect_list
-       ) do
+  defp perform_full_validation(monitor, response, metadata) do
     content_type = get_header(response.headers, "content-type")
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)
@@ -84,8 +54,8 @@ defmodule Holter.Monitoring.Engine do
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
     error_msg = determine_error_message(response.status, positive_ok, negative_ok)
 
-    {headers, snippet} =
-      maybe_collect_evidence(monitor, check_status, body, content_type, response.headers)
+    response_data = %{body: body, content_type: content_type, headers: response.headers}
+    {headers, snippet} = maybe_collect_evidence(monitor, check_status, response_data)
 
     finalize_check(
       monitor,
@@ -93,14 +63,14 @@ defmodule Holter.Monitoring.Engine do
         check_status: check_status,
         log_status: check_status,
         status_code: response.status,
-        duration_ms: duration_ms,
+        duration_ms: metadata.duration_ms,
         error_msg: error_msg,
         snippet: snippet,
         headers: headers,
-        ip: ip,
-        redirect_count: redirects,
-        last_redirect_url: last_url,
-        redirect_list: redirect_list
+        ip: metadata.ip,
+        redirect_count: Map.get(metadata, :redirects, 0),
+        last_redirect_url: Map.get(metadata, :last_url),
+        redirect_list: Map.get(metadata, :redirect_list, [])
       }
     )
   end
@@ -109,9 +79,10 @@ defmodule Holter.Monitoring.Engine do
     if html?(content_type), do: strip_html_tags(body), else: body
   end
 
-  defp maybe_collect_evidence(monitor, check_status, body, content_type, headers) do
+  defp maybe_collect_evidence(monitor, check_status, response_data) do
     if check_status != monitor.health_status do
-      {filter_headers(headers), clean_body_snippet(body, content_type)}
+      {filter_headers(response_data.headers),
+       clean_body_snippet(response_data.body, response_data.content_type)}
     else
       {nil, nil}
     end
@@ -176,24 +147,30 @@ defmodule Holter.Monitoring.Engine do
       monitor_snapshot: snapshot
     })
 
-    handle_incident_logic(monitor, params.check_status, params.error_msg, snapshot, now)
+    handle_incident_logic(monitor, %{
+      check_status: params.check_status,
+      error_msg: params.error_msg,
+      snapshot: snapshot,
+      now: now
+    })
+
     updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     {:ok, updated_monitor}
   end
 
-  defp handle_incident_logic(monitor, :up, _error_msg, _snapshot, now) do
+  defp handle_incident_logic(monitor, %{check_status: :up, now: now}) do
     resolve_if_open(monitor, :downtime, now)
     resolve_if_open(monitor, :defacement, now)
   end
 
-  defp handle_incident_logic(monitor, :down, error_msg, snapshot, now) do
-    open_if_missing(monitor, :downtime, error_msg, snapshot, now)
+  defp handle_incident_logic(monitor, %{check_status: :down} = metadata) do
+    open_if_missing(monitor, :downtime, metadata)
   end
 
-  defp handle_incident_logic(monitor, :compromised, error_msg, snapshot, now) do
-    resolve_if_open(monitor, :downtime, now)
-    open_if_missing(monitor, :defacement, error_msg, snapshot, now)
+  defp handle_incident_logic(monitor, %{check_status: :compromised} = metadata) do
+    resolve_if_open(monitor, :downtime, metadata.now)
+    open_if_missing(monitor, :defacement, metadata)
   end
 
   defp resolve_if_open(monitor, type, now) do
@@ -203,15 +180,15 @@ defmodule Holter.Monitoring.Engine do
     end
   end
 
-  defp open_if_missing(monitor, type, error_msg, snapshot, now) do
+  defp open_if_missing(monitor, type, metadata) do
     case Monitoring.get_open_incident(monitor.id, type) do
       nil ->
         Monitoring.create_incident(%{
           monitor_id: monitor.id,
           type: type,
-          started_at: now,
-          root_cause: error_msg,
-          monitor_snapshot: snapshot
+          started_at: metadata.now,
+          root_cause: metadata.error_msg,
+          monitor_snapshot: metadata.snapshot
         })
 
       _ ->

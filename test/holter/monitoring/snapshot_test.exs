@@ -27,7 +27,7 @@ defmodule Holter.Monitoring.SnapshotTest do
       headers: [{"content-type", "text/plain"}]
     }
 
-    {:ok, _} = Engine.process_response(monitor, response, 100)
+    {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
 
     log = List.first(Monitoring.list_monitor_logs(monitor, %{}).logs)
     assert log.monitor_snapshot
@@ -44,7 +44,7 @@ defmodule Holter.Monitoring.SnapshotTest do
       headers: [{"content-type", "text/plain"}]
     }
 
-    {:ok, _} = Engine.process_response(monitor, response, 100)
+    {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
 
     incident = Monitoring.get_open_incident(monitor.id, :downtime)
     assert incident.monitor_snapshot
@@ -59,14 +59,14 @@ defmodule Holter.Monitoring.SnapshotTest do
       headers: [{"content-type", "text/plain"}]
     }
 
-    {:ok, _} = Engine.process_response(monitor, response_ok, 100)
+    {:ok, _} = Engine.process_response(monitor, response_ok, %{duration_ms: 100})
     log1 = List.first(Monitoring.list_monitor_logs(monitor, %{}).logs)
     assert log1.monitor_snapshot["url"] == "https://example.local"
 
     {:ok, updated_monitor} = Monitoring.update_monitor(monitor, %{url: "https://new-url.local"})
 
     Process.sleep(1100)
-    {:ok, _} = Engine.process_response(updated_monitor, response_ok, 100)
+    {:ok, _} = Engine.process_response(updated_monitor, response_ok, %{duration_ms: 100})
 
     [log2 | _] = Monitoring.list_monitor_logs(monitor, %{}).logs
     assert log2.monitor_snapshot["url"] == "https://new-url.local"

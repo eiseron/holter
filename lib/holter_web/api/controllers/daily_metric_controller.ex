@@ -57,9 +57,9 @@ defmodule HolterWeb.Api.DailyMetricController do
 
   defp sanitize_filters(params) do
     %{}
-    |> maybe_put_integer(params, "page", :page)
-    |> maybe_put_integer(params, "page_size", :page_size)
-    |> maybe_put_string(params, "sort_by", :sort_by)
-    |> maybe_put_string(params, "sort_dir", :sort_dir)
+    |> maybe_put_integer(params, {"page", :page})
+    |> maybe_put_integer(params, {"page_size", :page_size})
+    |> maybe_put_string(params, {"sort_by", :sort_by})
+    |> maybe_put_string(params, {"sort_dir", :sort_dir})
   end
 end

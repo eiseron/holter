@@ -64,6 +64,7 @@ defmodule Holter.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.2", only: :test},
+      {:muex, "~> 0.6.1", only: [:dev, :test]},
       {:open_api_spex, "~> 3.22"},
       {:ymlr, "~> 5.1"},
       {:logger_json, "~> 6.0"},
@@ -98,7 +99,8 @@ defmodule Holter.MixProject do
         "deps.audit",
         "credo --strict",
         "test --cover"
-      ]
+      ],
+      mutation: ["muex --fail-at 50 --optimize lib/holter/monitoring"]
     ]
   end
 end

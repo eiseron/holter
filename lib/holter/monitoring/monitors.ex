@@ -99,8 +99,7 @@ defmodule Holter.Monitoring.Monitors do
   defp tactical_ranking(query) do
     query
     |> order_by([m],
-      desc:
-        fragment("CASE WHEN logical_state = 'paused' THEN 0 ELSE 1 END"),
+      desc: fragment("CASE WHEN logical_state = 'paused' THEN 0 ELSE 1 END"),
       desc:
         fragment("""
         CASE
