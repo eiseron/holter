@@ -42,7 +42,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
      |> assign(:form, form)
      |> assign(:patch_path, path)
      |> assign_page_links(path, filters)
-     |> assign_sort_info(path, @sortable_cols, filters)}
+     |> assign_sort_info(%{path: path, sortable_cols: @sortable_cols, filters: filters})}
   end
 
   @impl true

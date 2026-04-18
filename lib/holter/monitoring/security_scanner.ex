@@ -21,30 +21,28 @@ defmodule Holter.Monitoring.SecurityScanner do
   def handle_ssl_error(monitor, reason) do
     now = DateTime.utc_now()
     cause = gettext("SSL Error: %{reason}", reason: inspect(reason))
-    upsert_incident(monitor, :ssl_expiry, now, cause)
+    upsert_incident(monitor, %{type: :ssl_expiry, now: now, cause: cause})
     Monitoring.recalculate_health_status(monitor)
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 0 do
-    upsert_incident(monitor, :ssl_expiry, now, gettext("Certificate expired"))
+    upsert_incident(monitor, %{type: :ssl_expiry, now: now, cause: gettext("Certificate expired")})
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 7 do
-    upsert_incident(
-      monitor,
-      :ssl_expiry,
-      now,
-      gettext("Certificate expires in %{days} days (Critical)", days: days)
-    )
+    upsert_incident(monitor, %{
+      type: :ssl_expiry,
+      now: now,
+      cause: gettext("Certificate expires in %{days} days (Critical)", days: days)
+    })
   end
 
   defp dispatch_incident_logic(monitor, days, now) when days < 15 do
-    upsert_incident(
-      monitor,
-      :ssl_expiry,
-      now,
-      gettext("Certificate expires in %{days} days (Warning)", days: days)
-    )
+    upsert_incident(monitor, %{
+      type: :ssl_expiry,
+      now: now,
+      cause: gettext("Certificate expires in %{days} days (Warning)", days: days)
+    })
   end
 
   defp dispatch_incident_logic(monitor, _days, now) do
@@ -62,10 +60,13 @@ defmodule Holter.Monitoring.SecurityScanner do
     end
   end
 
-  defp upsert_incident(monitor, type, now, cause) do
+  defp upsert_incident(monitor, params) do
+    type = params.type
+    cause = params.cause
+
     case Monitoring.get_open_incident(monitor.id, type) do
       nil ->
-        create_ssl_incident(monitor, type, now, cause)
+        create_ssl_incident(monitor, params)
         Monitoring.recalculate_health_status(monitor)
 
       incident ->
@@ -74,12 +75,12 @@ defmodule Holter.Monitoring.SecurityScanner do
     end
   end
 
-  defp create_ssl_incident(monitor, type, now, cause) do
+  defp create_ssl_incident(monitor, params) do
     Monitoring.create_incident(%{
       monitor_id: monitor.id,
-      type: type,
-      started_at: now,
-      root_cause: cause,
+      type: params.type,
+      started_at: params.now,
+      root_cause: params.cause,
       monitor_snapshot: Monitor.capture_snapshot(monitor)
     })
   end

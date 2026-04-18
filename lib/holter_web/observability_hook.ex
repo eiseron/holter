@@ -6,6 +6,7 @@ defmodule HolterWeb.ObservabilityHook do
   import Phoenix.Component
   require Logger
 
+  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   def on_mount(:default, _params, session, socket) do
     session_id = extract_from_params(socket, "session_id") || Map.get(session, "session_id")
     request_id = extract_from_params(socket, "request_id") || Map.get(session, "request_id")

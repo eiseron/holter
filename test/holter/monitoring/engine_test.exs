@@ -22,7 +22,11 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when response is 200 OK and matching keywords" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, ok_response("Everything is a success!"), 100)
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("Everything is a success!"), %{
+          duration_ms: 100
+        })
+
       :ok
     end
 
@@ -33,7 +37,11 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when response is HTTP 500" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, error_response(500, "Internal Error"), 100)
+      {:ok, _} =
+        Engine.process_response(monitor, error_response(500, "Internal Error"), %{
+          duration_ms: 100
+        })
+
       :ok
     end
 
@@ -53,7 +61,9 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when positive keyword is missing" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, ok_response("No match here"), 100)
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("No match here"), %{duration_ms: 100})
+
       :ok
     end
 
@@ -73,7 +83,11 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when forbidden keyword is found (defacement)" do
     setup %{monitor: monitor} do
-      {:ok, _} = Engine.process_response(monitor, ok_response("success but has an error"), 100)
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("success but has an error"), %{
+          duration_ms: 100
+        })
+
       :ok
     end
 
@@ -93,8 +107,12 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when transitioning from down to compromised" do
     setup %{monitor: monitor} do
-      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, ""), 100)
-      {:ok, _} = Engine.process_response(monitor_down, ok_response("success error"), 100)
+      {:ok, monitor_down} =
+        Engine.process_response(monitor, error_response(500, ""), %{duration_ms: 100})
+
+      {:ok, _} =
+        Engine.process_response(monitor_down, ok_response("success error"), %{duration_ms: 100})
+
       :ok
     end
 
@@ -113,8 +131,12 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "when recovering from defacement" do
     setup %{monitor: monitor} do
-      {:ok, monitor_hacked} = Engine.process_response(monitor, ok_response("success error"), 100)
-      {:ok, _} = Engine.process_response(monitor_hacked, ok_response("success"), 100)
+      {:ok, monitor_hacked} =
+        Engine.process_response(monitor, ok_response("success error"), %{duration_ms: 100})
+
+      {:ok, _} =
+        Engine.process_response(monitor_hacked, ok_response("success"), %{duration_ms: 100})
+
       :ok
     end
 
@@ -149,7 +171,7 @@ defmodule Holter.Monitoring.EngineTest do
         Engine.process_response(
           monitor,
           error_response(500, "<html><body>Internal Error</body></html>"),
-          100
+          %{duration_ms: 100}
         )
 
       %{log: List.first(Monitoring.list_monitor_logs(monitor, %{}).logs)}
@@ -170,8 +192,11 @@ defmodule Holter.Monitoring.EngineTest do
 
   describe "selective evidence storage on identical checks" do
     setup %{monitor: monitor} do
-      {:ok, monitor_down} = Engine.process_response(monitor, error_response(500, "Error 1"), 100)
-      {:ok, _} = Engine.process_response(monitor_down, error_response(500, "Error 2"), 100)
+      {:ok, monitor_down} =
+        Engine.process_response(monitor, error_response(500, "Error 1"), %{duration_ms: 100})
+
+      {:ok, _} =
+        Engine.process_response(monitor_down, error_response(500, "Error 2"), %{duration_ms: 100})
 
       logs = Monitoring.list_monitor_logs(monitor, %{}).logs |> Enum.sort_by(& &1.checked_at)
       %{logs: logs}
@@ -198,7 +223,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", ["text/html; charset=utf-8"]}]
       }
 
-      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+      assert {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
     end
 
     test "handles headers when they come as a string", %{monitor: monitor} do
@@ -208,7 +233,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", "text/plain"}]
       }
 
-      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+      assert {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
     end
 
     test "handles missing body gracefully", %{monitor: monitor} do
@@ -218,7 +243,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: []
       }
 
-      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+      assert {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
     end
 
     test "handles non-UTF8 encoded body gracefully without crashing", %{monitor: monitor} do
@@ -230,7 +255,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
 
-      assert {:ok, _} = Engine.process_response(monitor, response, 100)
+      assert {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
     end
 
     test "saves non-UTF8 snippet correctly", %{monitor: monitor} do
@@ -242,7 +267,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
 
-      {:ok, _} = Engine.process_response(monitor, response, 100)
+      {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
 
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
       assert is_binary(log.response_snippet)
@@ -257,7 +282,7 @@ defmodule Holter.Monitoring.EngineTest do
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
 
-      {:ok, _} = Engine.process_response(monitor, response, 100)
+      {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
 
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
       assert String.valid?(log.response_snippet)

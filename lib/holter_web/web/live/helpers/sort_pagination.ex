@@ -5,7 +5,10 @@ defmodule HolterWeb.LiveView.SortPagination do
 
   import Phoenix.Component, only: [assign: 3]
 
-  def assign_sort_info(socket, path, sortable_cols, filters) do
+  def assign_sort_info(socket, params) do
+    path = params.path
+    sortable_cols = params.sortable_cols
+    filters = params.filters
     sort_info = Map.new(sortable_cols, fn col -> {col, build_sort_col(path, filters, col)} end)
     assign(socket, :sort_info, sort_info)
   end

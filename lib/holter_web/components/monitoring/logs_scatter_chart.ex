@@ -18,15 +18,20 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     sorted = Enum.sort_by(assigns.logs, & &1.checked_at, DateTime)
 
     {min_ts, max_ts} =
-      derive_time_range(sorted, assigns.start_date, assigns.end_date, assigns.timezone)
+      derive_time_range(sorted, %{
+        start_date: assigns.start_date,
+        end_date: assigns.end_date,
+        timezone: assigns.timezone
+      })
 
     max_latency = derive_max_latency(sorted)
+    range_data = %{min_ts: min_ts, max_ts: max_ts, max_latency: max_latency}
 
     assigns =
       assigns
       |> assign(:sorted_logs, sorted)
-      |> assign(:trend_path, build_trend_path(sorted, min_ts, max_ts, max_latency))
-      |> assign(:dots, build_dots(sorted, min_ts, max_ts, max_latency))
+      |> assign(:trend_path, build_trend_path(sorted, range_data))
+      |> assign(:dots, build_dots(sorted, range_data))
       |> assign(:grid_lines, build_grid_lines(max_latency))
       |> assign(:vertical_grids, build_vertical_grids(min_ts, max_ts))
       |> assign(:x_label_start, format_ts_label(min_ts, assigns.timezone))
@@ -95,20 +100,20 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     """
   end
 
-  defp derive_time_range([], start_date, end_date, timezone) do
+  defp derive_time_range([], params) do
     now = DateTime.utc_now()
 
-    {parse_date_ts(start_date, :start, timezone) ||
+    {parse_date_ts(params.start_date, :start, params.timezone) ||
        DateTime.to_unix(DateTime.add(now, -86_400, :second)),
-     parse_date_ts(end_date, :end, timezone) || DateTime.to_unix(now)}
+     parse_date_ts(params.end_date, :end, params.timezone) || DateTime.to_unix(now)}
   end
 
-  defp derive_time_range(logs, start_date, end_date, timezone) do
+  defp derive_time_range(logs, params) do
     first_log_ts = DateTime.to_unix(hd(logs).checked_at)
     last_log_ts = DateTime.to_unix(List.last(logs).checked_at)
 
-    min_ts = parse_date_ts(start_date, :start, timezone) || first_log_ts
-    max_ts = parse_date_ts(end_date, :end, timezone) || last_log_ts
+    min_ts = parse_date_ts(params.start_date, :start, params.timezone) || first_log_ts
+    max_ts = parse_date_ts(params.end_date, :end, params.timezone) || last_log_ts
 
     range = max(max_ts - min_ts, 1)
     {min_ts, min_ts + range}
@@ -158,9 +163,13 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     end)
   end
 
-  defp build_trend_path([], _min_ts, _max_ts, _max_latency), do: ""
+  defp build_trend_path([], _range_data), do: ""
 
-  defp build_trend_path(logs, min_ts, max_ts, max_latency) do
+  defp build_trend_path(logs, range_data) do
+    min_ts = range_data.min_ts
+    max_ts = range_data.max_ts
+    max_latency = range_data.max_latency
+
     "M " <>
       Enum.map_join(logs, " ", fn log ->
         x = map_x(log.checked_at, min_ts, max_ts)
@@ -169,7 +178,11 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       end)
   end
 
-  defp build_dots(logs, min_ts, max_ts, max_latency) do
+  defp build_dots(logs, range_data) do
+    min_ts = range_data.min_ts
+    max_ts = range_data.max_ts
+    max_latency = range_data.max_latency
+
     Enum.map(logs, fn log ->
       %{
         cx: Float.round(map_x(log.checked_at, min_ts, max_ts), 1),

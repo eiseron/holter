@@ -107,7 +107,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
       end
 
     lines =
-      1..div(max_latency, step)
+      1..div(max_latency, step)//1
       |> Enum.map(fn i -> i * step end)
       |> Enum.filter(fn ms -> ms < max_latency end)
       |> Enum.map(fn ms ->

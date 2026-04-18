@@ -127,22 +127,46 @@ defmodule HolterWeb.LiveView.SortPaginationTest do
     end
   end
 
-  describe "assign_sort_info/4" do
+  describe "assign_sort_info/2" do
     test "sets :sort_info with an entry for each sortable column" do
       filters = %{sort_by: "date", sort_dir: "desc", page: 1}
-      s = socket() |> assign_sort_info("/metrics", ~w(date uptime_percent), filters)
+
+      s =
+        socket()
+        |> assign_sort_info(%{
+          path: "/metrics",
+          sortable_cols: ~w(date uptime_percent),
+          filters: filters
+        })
+
       assert Map.keys(s.assigns.sort_info) == ["date", "uptime_percent"]
     end
 
     test "active column is marked active" do
       filters = %{sort_by: "date", sort_dir: "desc", page: 1}
-      s = socket() |> assign_sort_info("/metrics", ~w(date uptime_percent), filters)
+
+      s =
+        socket()
+        |> assign_sort_info(%{
+          path: "/metrics",
+          sortable_cols: ~w(date uptime_percent),
+          filters: filters
+        })
+
       assert s.assigns.sort_info["date"].active == true
     end
 
     test "inactive column is not marked active" do
       filters = %{sort_by: "date", sort_dir: "desc", page: 1}
-      s = socket() |> assign_sort_info("/metrics", ~w(date uptime_percent), filters)
+
+      s =
+        socket()
+        |> assign_sort_info(%{
+          path: "/metrics",
+          sortable_cols: ~w(date uptime_percent),
+          filters: filters
+        })
+
       assert s.assigns.sort_info["uptime_percent"].active == false
     end
   end

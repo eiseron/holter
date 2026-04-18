@@ -45,6 +45,7 @@ defmodule Holter.Credo.Check.Readability.NoComments do
       not String.starts_with?(line, "##") and
       not String.starts_with?(line, "#!") and
       not String.starts_with?(line, "#[") and
+      not String.contains?(line, "credo:") and
       String.length(line) > 1 and
       not Regex.match?(~r/^#\s*-+$/, line)
   end

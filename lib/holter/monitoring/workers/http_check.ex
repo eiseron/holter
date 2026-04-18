@@ -68,18 +68,26 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp execute_request(monitor, state, remaining_timeout) do
     client = Application.get_env(:holter, :monitor_client, HTTP)
-    opts = build_opts(monitor, state.url, state.safe_ip, remaining_timeout)
+
+    opts =
+      build_opts(monitor, %{url: state.url, safe_ip: state.safe_ip, timeout: remaining_timeout})
 
     case client.request(opts) do
       {:ok, response} ->
-        handle_response(monitor, response, state, calculate_duration(state.start_time))
+        handle_response(monitor, response, %{
+          state: state,
+          duration: calculate_duration(state.start_time)
+        })
 
       {:error, error} ->
         Engine.handle_failure(monitor, error, calculate_duration(state.start_time))
     end
   end
 
-  defp handle_response(monitor, response, state, current_duration) do
+  defp handle_response(monitor, response, params) do
+    state = params.state
+    current_duration = params.duration
+
     state = %{
       state
       | redirect_list:
@@ -93,28 +101,24 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     if should_follow do
       follow_redirect(monitor, response, state)
     else
-      Engine.process_response(
-        monitor,
-        response,
-        current_duration,
-        state.redirects,
-        state.url,
-        state.redirect_list
-      )
+      Engine.process_response(monitor, response, %{
+        duration_ms: current_duration,
+        redirects: state.redirects,
+        last_url: state.url,
+        redirect_list: state.redirect_list
+      })
     end
   end
 
   defp follow_redirect(monitor, response, state) do
     case get_header(response.headers, "location") do
       nil ->
-        Engine.process_response(
-          monitor,
-          response,
-          calculate_duration(state.start_time),
-          state.redirects,
-          state.url,
-          state.redirect_list
-        )
+        Engine.process_response(monitor, response, %{
+          duration_ms: calculate_duration(state.start_time),
+          redirects: state.redirects,
+          last_url: state.url,
+          redirect_list: state.redirect_list
+        })
 
       location ->
         location = if is_list(location), do: List.first(location), else: location
@@ -176,7 +180,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_network_address?(_), do: false
 
-  defp build_opts(monitor, url, safe_ip, remaining_timeout) do
+  defp build_opts(monitor, params) do
+    url = params.url
+    safe_ip = params.safe_ip
+    remaining_timeout = params.timeout
     uri = URI.parse(url)
     original_host = uri.host
 
