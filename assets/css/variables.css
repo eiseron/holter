@@ -220,13 +220,13 @@
     --color-monitor-text-muted:      var(--color-text-muted);
     --color-monitor-pulse-alert:     var(--prim-rose-500);
 
-    --color-evidence-bg:           var(--prim-slate-900);
-    --color-evidence-text:         var(--prim-slate-100);
-    --color-evidence-border:       var(--prim-slate-800);
-    --color-evidence-scroll:       var(--prim-slate-700);
-    --color-evidence-error-bg:     var(--prim-red-900);
-    --color-evidence-error-text:   var(--prim-red-light);
-    --color-evidence-error-border: var(--prim-red-border);
+    --color-evidence-bg:           var(--prim-slate-100);
+    --color-evidence-text:         var(--prim-slate-900);
+    --color-evidence-border:       var(--prim-slate-200);
+    --color-evidence-scroll:       var(--prim-slate-400);
+    --color-evidence-error-bg:     var(--prim-red-tint);
+    --color-evidence-error-text:   var(--prim-red-dark);
+    --color-evidence-error-border: var(--prim-red-500);
 
     --shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1);
