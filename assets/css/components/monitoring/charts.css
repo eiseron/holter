@@ -179,17 +179,16 @@
   .scatter-chart-container,
   .metrics-chart-container {
     margin-bottom: var(--space-4);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .ovw-area-svg {
-    height: 160px;
-  }
-
-  .scatter-svg {
-    height: 200px;
-  }
-
+  .ovw-area-svg,
+  .ovw-ribbon-svg,
+  .scatter-svg,
   .metrics-svg {
-    height: 240px;
+    width: 640px;
+    min-width: 640px;
+    height: auto;
   }
 }
