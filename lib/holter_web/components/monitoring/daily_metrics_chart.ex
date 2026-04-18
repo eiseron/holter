@@ -86,10 +86,13 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
   end
 
   defp build_uptime_grid do
-    Enum.map(@uptime_grid_pcts, fn pct ->
-      y = Float.round(@bar_area_height - pct / 100.0 * @bar_area_height, 1)
-      %{y: y, label: "#{pct}%"}
-    end)
+    middle =
+      Enum.map(@uptime_grid_pcts, fn pct ->
+        y = Float.round(@bar_area_height - pct / 100.0 * @bar_area_height, 1)
+        %{y: y, label: "#{pct}%"}
+      end)
+
+    [%{y: @bar_area_height * 1.0, label: "0%"}] ++ middle
   end
 
   defp build_latency_labels(0), do: []
@@ -103,12 +106,15 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
         true -> 1000
       end
 
-    1..div(max_latency, step)
-    |> Enum.map(fn i -> i * step end)
-    |> Enum.filter(fn ms -> ms <= max_latency end)
-    |> Enum.map(fn ms ->
-      %{y: Float.round(normalize_latency_y(ms, max_latency), 1), label: "#{ms}ms"}
-    end)
+    middle =
+      1..div(max_latency, step)
+      |> Enum.map(fn i -> i * step end)
+      |> Enum.filter(fn ms -> ms < max_latency end)
+      |> Enum.map(fn ms ->
+        %{y: Float.round(normalize_latency_y(ms, max_latency), 1), label: "#{ms}ms"}
+      end)
+
+    [%{y: @bar_area_height * 1.0, label: "0ms"}] ++ middle ++ [%{y: Float.round(normalize_latency_y(max_latency, max_latency), 1), label: "#{max_latency}ms"}]
   end
 
   defp build_bars(metrics, slot_width) do

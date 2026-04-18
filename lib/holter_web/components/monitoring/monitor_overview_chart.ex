@@ -92,7 +92,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
       end)
 
-    lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
+    [%{y: @y_bottom * 1.0, label: "0ms"}] ++ lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
   defp build_line_path([]), do: ""
