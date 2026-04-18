@@ -26,12 +26,12 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     ~H"""
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
-        <svg class="ovw-area-svg" viewBox="0 0 800 108" preserveAspectRatio="none">
+        <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
           <line x1="40" y1="60" x2="800" y2="60" class="chart-empty-line" />
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
-        <svg class="ovw-area-svg" viewBox="0 0 800 108" preserveAspectRatio="none">
+        <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id={"ovw-grad-#{@monitor_id}"} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="var(--prim-purple-500)" stop-opacity="0.3" />
@@ -52,7 +52,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
           <path d={@line_path} class="ovw-area-line" />
         </svg>
 
-        <svg class="ovw-ribbon-svg" viewBox="0 0 800 20" preserveAspectRatio="none">
+        <svg class="ovw-ribbon-svg" viewBox="40 0 760 20" preserveAspectRatio="none">
           <%= for rect <- @ribbon_rects do %>
             <rect x={rect.x} y="0" width={rect.width} height="20" fill={rect.fill} opacity="0.35" />
           <% end %>
@@ -114,7 +114,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
       end)
 
-    [%{y: @y_bottom * 1.0, label: "0ms"}] ++
+    [%{y: (@y_bottom - 6) * 1.0, label: "0ms"}] ++
       lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
