@@ -1,5 +1,13 @@
+.h-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0;
+  padding: 0;
+}
+
 .h-table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   font-size: var(--font-size-base);
   text-align: left;
@@ -10,6 +18,7 @@
       font-weight: 600;
       color: var(--color-text-muted);
       border-bottom: 1px solid var(--color-border);
+      white-space: nowrap;
     }
   }
 
@@ -20,6 +29,7 @@
       td {
         padding: var(--space-3) var(--space-4);
         vertical-align: middle;
+        white-space: nowrap;
       }
 
       &:last-child {

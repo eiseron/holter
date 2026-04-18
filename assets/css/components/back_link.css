@@ -4,6 +4,10 @@
   gap: var(--space-4);
 }
 
+@media (max-width: 439px) {
+  .h-title-row { gap: var(--space-2); }
+}
+
 .h-btn-back {
   display: flex;
   align-items: center;

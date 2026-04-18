@@ -5,3 +5,6 @@
   border-radius: var(--radius-box);
   border: 1px solid var(--color-border);
 }
+
+@media (max-width: 479px) { .h-section { padding: var(--space-4); margin: var(--space-4) 0; } }
+@media (min-width: 480px) and (max-width: 767px) { .h-section { padding: var(--space-6); margin: var(--space-6) 0; } }

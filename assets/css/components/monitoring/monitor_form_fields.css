@@ -39,9 +39,9 @@
   }
 }
 
-.h-grid-cols-3 {
-  grid-template-columns: 1fr 1fr 1fr;
-}
+.h-grid-cols-3 { grid-template-columns: 1fr; }
+@media (min-width: 640px) { .h-grid-cols-3 { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .h-grid-cols-3 { grid-template-columns: 1fr 1fr 1fr; } }
 
 .h-col-span-2 {
   grid-column: 1 / -1;
@@ -60,4 +60,8 @@
   align-items: center;
   border-top: 1px solid var(--color-border);
   padding-top: var(--space-6);
+}
+
+@media (max-width: 479px) {
+  .h-actions-row { flex-direction: column-reverse; align-items: stretch; gap: var(--space-4); }
 }
