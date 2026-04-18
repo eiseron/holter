@@ -17,7 +17,6 @@ defmodule Holter.Observability.ObanHandler do
     )
   end
 
-  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   def handle_event([:oban, :job, :start], _measurements, %{job: job}, _config) do
     metadata = %{
       job_id: job.id,
@@ -33,7 +32,6 @@ defmodule Holter.Observability.ObanHandler do
     end
   end
 
-  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   def handle_event(_event, _measurements, _metadata, _config) do
     :ok
   end
