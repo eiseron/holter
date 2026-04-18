@@ -17,6 +17,8 @@ defmodule Holter.Monitoring.Monitor do
   def interval_default_seconds, do: @interval_default_seconds
 
   @bodyless_methods [:get, :head]
+  def bodyless_methods, do: @bodyless_methods
+
   @body_methods [:post, :put, :patch, :delete, :options]
   @max_keywords 20
 
