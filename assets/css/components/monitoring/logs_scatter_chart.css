@@ -1,0 +1,54 @@
+.scatter-chart-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.scatter-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.scatter-trend-line {
+  fill: none;
+  stroke: var(--prim-purple-500);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scatter-dot {
+  opacity: 0.9;
+  transition: opacity 0.15s ease;
+}
+
+.scatter-dot:hover {
+  opacity: 1;
+}
+
+.scatter-axis-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
+}
+
+.scatter-no-data {
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 30%, transparent);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+@media (max-width: 640px) {
+  .scatter-chart-container {
+    margin-bottom: var(--space-4);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scatter-svg {
+    width: 640px;
+    min-width: 640px;
+    height: auto;
+  }
+}
