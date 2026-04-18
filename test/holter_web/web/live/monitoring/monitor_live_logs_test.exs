@@ -201,11 +201,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
         )
 
       html = render(view)
-      pos_900 = :binary.match(html, "900ms")
-      pos_50 = :binary.match(html, "50ms")
-      assert pos_900 != :nomatch
-      assert pos_50 != :nomatch
-      assert elem(pos_900, 0) < elem(pos_50, 0)
+      pos_slow = :binary.match(html, "2026-04-01")
+      pos_fast = :binary.match(html, "2026-04-10")
+      assert pos_slow != :nomatch
+      assert pos_fast != :nomatch
+      assert elem(pos_slow, 0) < elem(pos_fast, 0)
     end
 
     test "clicking Time header from default (desc) patches URL to asc", %{

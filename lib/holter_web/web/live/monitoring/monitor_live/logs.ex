@@ -28,7 +28,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   @impl true
   def handle_params(params, _uri, socket) do
-    filters = parse_filters(params)
+    filters = parse_filters(params, socket.assigns[:timezone] || "Etc/UTC")
     pagination = Monitoring.list_monitor_logs(socket.assigns.monitor, filters)
     form = to_form(Map.new(filters, fn {k, v} -> {Atom.to_string(k), v} end), as: "filters")
 
@@ -82,17 +82,19 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   @valid_filter_keys ~w(status start_date end_date page page_size sort_by sort_dir)
 
-  defp parse_filters(params) do
+  defp parse_filters(params, timezone) do
     %{
       status: nil,
       start_date: nil,
       end_date: nil,
+      timezone: timezone,
       page: 1,
       page_size: 50,
       sort_by: "checked_at",
       sort_dir: "desc"
     }
     |> Map.merge(normalize_params(params))
+    |> Map.put(:timezone, timezone)
     |> cast_integer_param(:page, 1)
     |> cast_integer_param(:page_size, 50)
     |> validate_sort_params()

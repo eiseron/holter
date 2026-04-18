@@ -43,10 +43,12 @@ defmodule HolterWeb.LiveView.SortPagination do
     )
   end
 
+  @non_url_params [:id, :workspace_slug, :timezone, "id", "workspace_slug", "timezone"]
+
   def encode_filters(filters) do
     filters
     |> Enum.reject(fn {k, v} ->
-      is_nil(v) or v == "" or k in [:id, :workspace_slug, "id", "workspace_slug"]
+      is_nil(v) or v == "" or k in @non_url_params
     end)
     |> Enum.sort_by(fn {k, _} -> to_string(k) end)
     |> URI.encode_query()

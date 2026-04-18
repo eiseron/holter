@@ -60,6 +60,8 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_paths: [File.cwd!()]
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 config :phoenix, :json_library, Jason
 
 config :holter, Oban,

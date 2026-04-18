@@ -10,6 +10,7 @@ defmodule HolterWeb.ObservabilityHook do
     session_id = extract_from_params(socket, "session_id") || Map.get(session, "session_id")
     request_id = extract_from_params(socket, "request_id") || Map.get(session, "request_id")
     workspace_id = Map.get(session, "workspace_id")
+    timezone = extract_from_params(socket, "timezone") || "Etc/UTC"
 
     metadata =
       %{
@@ -28,7 +29,12 @@ defmodule HolterWeb.ObservabilityHook do
       Sentry.Context.set_tags_context(metadata)
     end
 
-    {:cont, assign_new(socket, :session_id, fn -> session_id end)}
+    socket =
+      socket
+      |> assign_new(:session_id, fn -> session_id end)
+      |> assign_new(:timezone, fn -> timezone end)
+
+    {:cont, socket}
   end
 
   defp extract_from_params(socket, key) do
