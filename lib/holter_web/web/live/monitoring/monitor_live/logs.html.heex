@@ -52,6 +52,13 @@
     </.form>
   </div>
 
+  <.logs_scatter_chart
+    monitor_id={@monitor.id}
+    logs={@logs}
+    start_date={@filters.start_date}
+    end_date={@filters.end_date}
+  />
+
   <div class="h-mt-6">
     <.table id="logs-table" rows={@logs}>
       <:col

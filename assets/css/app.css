@@ -26,6 +26,10 @@
 @import "./components/monitoring/monitor_form_fields.css";
 @import "./components/monitoring/daily_metrics_section.css";
 @import "./components/monitoring/logs.css";
+@import "./components/monitoring/chart_shared.css";
+@import "./components/monitoring/monitor_overview_chart.css";
+@import "./components/monitoring/logs_scatter_chart.css";
+@import "./components/monitoring/daily_metrics_chart.css";
 
 
 /* Global overrides for structural components */

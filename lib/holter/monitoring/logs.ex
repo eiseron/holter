@@ -122,6 +122,15 @@ defmodule Holter.Monitoring.Logs do
     end
   end
 
+  def list_recent_logs_for_chart(monitor_id, hours \\ 24) do
+    cutoff = DateTime.add(DateTime.utc_now(), -hours * 3600, :second)
+
+    MonitorLog
+    |> where([l], l.monitor_id == ^monitor_id and l.checked_at >= ^cutoff)
+    |> order_by([l], asc: l.checked_at)
+    |> Repo.all()
+  end
+
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
   def find_nearest_technical_log(monitor_id, log) do

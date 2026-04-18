@@ -1,0 +1,41 @@
+.ovw-chart-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.ovw-area-svg,
+.ovw-ribbon-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ovw-area-line {
+  fill: none;
+  stroke: var(--prim-purple-500);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ovw-no-data {
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 30%, transparent);
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+@media (max-width: 640px) {
+  .ovw-chart-container {
+    margin-bottom: var(--space-4);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ovw-area-svg,
+  .ovw-ribbon-svg {
+    width: 640px;
+    min-width: 640px;
+    height: auto;
+  }
+}

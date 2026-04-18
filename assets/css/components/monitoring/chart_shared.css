@@ -1,0 +1,59 @@
+/* ── Shared SVG primitives ── */
+
+.chart-empty-line {
+  fill: none;
+  stroke: var(--color-monitor-border);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+
+.chart-baseline {
+  fill: none;
+  stroke: var(--color-monitor-border);
+  stroke-width: 1;
+}
+
+.chart-grid-line {
+  fill: none;
+  stroke: var(--color-border-subtle);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.chart-scale-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
+}
+
+/* ── Chart Legend ── */
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: color-mix(in srgb, var(--color-monitor-text) 60%, transparent);
+}
+
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.chart-legend-line {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
