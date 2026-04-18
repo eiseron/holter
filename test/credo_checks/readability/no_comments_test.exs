@@ -9,14 +9,11 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
   alias Credo.SourceFile
   alias Holter.Credo.Check.Readability.NoComments
 
+  @c "#"
+
   test "it reports descriptive comments" do
     source_file =
-      """
-      defmodule Test do
-        # This is a descriptive comment
-        def run, do: :ok
-      end
-      """
+      ("defmodule Test do\n  " <> @c <> " This is a descriptive comment\n  def run, do: :ok\nend")
       |> SourceFile.parse("test.ex")
 
     issues = NoComments.run(source_file)
@@ -26,12 +23,7 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
 
   test "it provides correct message for descriptive comments" do
     source_file =
-      """
-      defmodule Test do
-        # This is a descriptive comment
-        def run, do: :ok
-      end
-      """
+      ("defmodule Test do\n  " <> @c <> " This is a descriptive comment\n  def run, do: :ok\nend")
       |> SourceFile.parse("test.ex")
 
     [issue | _] = NoComments.run(source_file)
@@ -72,12 +64,7 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
 
   test "it reports credo control comments" do
     source_file =
-      """
-      defmodule Test do
-        # credo:disable-for-next-line
-        def run, do: :ok
-      end
-      """
+      ("defmodule Test do\n  " <> @c <> " credo:disable-for-next-line\n  def run, do: :ok\nend")
       |> SourceFile.parse("test.ex")
 
     issues = NoComments.run(source_file)
@@ -87,12 +74,7 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
 
   test "it allows divider lines" do
     source_file =
-      """
-      defmodule Test do
-        # ---
-        def run, do: :ok
-      end
-      """
+      ("defmodule Test do\n  " <> @c <> " ---\n  def run, do: :ok\nend")
       |> SourceFile.parse("test.ex")
 
     issues = NoComments.run(source_file)
