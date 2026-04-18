@@ -63,6 +63,41 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveNewTest do
       refute html =~ "Request Body"
     end
 
+    test "Given follow redirects checked (default), when page loads, then max redirects field is visible",
+         %{conn: conn, workspace: workspace} do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      assert html =~ "Max Redirects"
+    end
+
+    test "Given follow redirects unchecked, when validate fires, then max redirects field is hidden",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{follow_redirects: "false"})
+        |> render_change()
+
+      refute html =~ "Max Redirects"
+    end
+
+    test "Given follow redirects unchecked, when re-checked, then max redirects field reappears",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      view
+      |> form("#monitor-form", monitor: %{follow_redirects: "false"})
+      |> render_change()
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{follow_redirects: "true"})
+        |> render_change()
+
+      assert html =~ "Max Redirects"
+    end
+
     test "Given the creation route, when mounted, then the page correctly translates and establishes the HTML DOM",
          %{conn: conn, workspace: workspace} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")

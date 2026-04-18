@@ -21,6 +21,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       %{monitor: monitor, workspace: workspace}
     end
 
+    test "Given a monitor with follow redirects enabled (default), when page loads, then max redirects field is visible",
+         %{conn: conn, monitor: monitor} do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert html =~ "Max Redirects"
+    end
+
+    test "Given follow redirects unchecked, when validate fires, then max redirects field is hidden",
+         %{conn: conn, monitor: monitor} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{follow_redirects: "false"})
+        |> render_change()
+
+      refute html =~ "Max Redirects"
+    end
+
     test "Given a GET monitor, when page loads, then body field is hidden", %{
       conn: conn,
       monitor: monitor

@@ -131,7 +131,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
           </p>
         </div>
 
-        <div>
+        <div :if={not redirects_hidden?(@form)}>
           <.input
             field={@form[:max_redirects]}
             type="number"
@@ -215,6 +215,10 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
       </div>
     </div>
     """
+  end
+
+  defp redirects_hidden?(form) do
+    form[:follow_redirects].value in [false, "false"]
   end
 
   defp body_hidden?(form) do
