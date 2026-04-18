@@ -58,6 +58,29 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
             <rect x={rect.x} y="0" width={rect.width} height="20" fill={rect.fill} opacity="0.35" />
           <% end %>
         </svg>
+
+        <div class="chart-legend">
+          <span class="chart-legend-item">
+            <span class="chart-legend-line" style="background: var(--prim-purple-500)"></span>
+            {gettext("Latency")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-up)"></span>
+            {gettext("Up")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-down)"></span>
+            {gettext("Down")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-degraded)"></span>
+            {gettext("Degraded")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-compromised)"></span>
+            {gettext("Compromised")}
+          </span>
+        </div>
       <% end %>
     </div>
     """
@@ -92,7 +115,8 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
       end)
 
-    [%{y: @y_bottom * 1.0, label: "0ms"}] ++ lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
+    [%{y: @y_bottom * 1.0, label: "0ms"}] ++
+      lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
   defp build_line_path([]), do: ""

@@ -59,6 +59,33 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
           <text x="40" y="158" class="scatter-axis-label">{@x_label_start}</text>
           <text x="798" y="158" text-anchor="end" class="scatter-axis-label">{@x_label_end}</text>
         </svg>
+
+        <div class="chart-legend">
+          <span class="chart-legend-item">
+            <span class="chart-legend-line" style="background: var(--prim-purple-500)"></span>
+            {gettext("Latency")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-up)"></span>
+            {gettext("Up")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-down)"></span>
+            {gettext("Down")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-degraded)"></span>
+            {gettext("Degraded")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-compromised)"></span>
+            {gettext("Compromised")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-unknown)"></span>
+            {gettext("Unknown")}
+          </span>
+        </div>
       <% end %>
     </div>
     """
@@ -114,7 +141,8 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
         %{y: Float.round(normalize_y(ms, max_latency), 1), label: "#{ms}ms"}
       end)
 
-    [%{y: @y_bottom * 1.0, label: "0ms"}] ++ middle ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
+    [%{y: @y_bottom * 1.0, label: "0ms"}] ++
+      middle ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
   end
 
   defp build_vertical_grids(min_ts, max_ts) do

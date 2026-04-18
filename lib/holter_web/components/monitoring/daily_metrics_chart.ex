@@ -80,6 +80,21 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
             </text>
           <% end %>
         </svg>
+
+        <div class="chart-legend">
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-up)"></span>
+            {gettext("Uptime ≥ 99%")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-down)"></span>
+            {gettext("Uptime < 99%")}
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-line" style="background: var(--prim-purple-500)"></span>
+            {gettext("Avg Latency")}
+          </span>
+        </div>
       <% end %>
     </div>
     """
