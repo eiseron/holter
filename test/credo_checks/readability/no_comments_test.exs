@@ -70,7 +70,7 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
     assert Enum.empty?(issues)
   end
 
-  test "it allows credo control comments" do
+  test "it reports credo control comments" do
     source_file =
       """
       defmodule Test do
@@ -82,7 +82,7 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
 
     issues = NoComments.run(source_file)
 
-    assert Enum.empty?(issues)
+    assert length(issues) == 1
   end
 
   test "it allows divider lines" do
