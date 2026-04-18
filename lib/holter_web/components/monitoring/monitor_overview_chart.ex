@@ -52,7 +52,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
           <path d={@line_path} class="ovw-area-line" />
         </svg>
 
-        <svg class="ovw-ribbon-svg" viewBox="40 0 760 20" preserveAspectRatio="none">
+        <svg class="ovw-ribbon-svg" viewBox="0 0 800 20" preserveAspectRatio="none">
           <%= for rect <- @ribbon_rects do %>
             <rect x={rect.x} y="0" width={rect.width} height="20" fill={rect.fill} opacity="0.35" />
           <% end %>
