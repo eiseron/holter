@@ -3,7 +3,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   use HolterWeb, :component
 
   @svg_width 800
-  @area_height 120
   @y_top 10
   @y_bottom 100
   @latency_cap 2000
@@ -27,12 +26,12 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     ~H"""
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
-        <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
+        <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
           <line x1="40" y1="60" x2="800" y2="60" class="chart-empty-line" />
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
-        <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
+        <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id={"ovw-grad-#{@monitor_id}"} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="var(--prim-purple-500)" stop-opacity="0.3" />
@@ -147,7 +146,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     first_x = elem(hd(points), 0)
     last_x = elem(List.last(points), 0)
     coords = Enum.map_join(points, " ", fn {x, y} -> "#{x},#{y}" end)
-    "M #{coords} L #{last_x},#{@area_height} L #{first_x},#{@area_height} Z"
+    "M #{coords} L #{last_x},#{@y_bottom} L #{first_x},#{@y_bottom} Z"
   end
 
   defp build_ribbon_rects([]), do: []
