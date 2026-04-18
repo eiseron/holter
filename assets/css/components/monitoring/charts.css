@@ -20,6 +20,12 @@
   pointer-events: none;
 }
 
+.chart-scale-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
+}
+
 /* ── Monitor Overview Chart (Show page) ── */
 
 .ovw-chart-container {
