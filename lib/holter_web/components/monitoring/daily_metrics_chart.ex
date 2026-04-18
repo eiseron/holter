@@ -8,6 +8,8 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
   @bar_area_height 160
   @latency_cap 5000
 
+  @uptime_grid_pcts [25, 50, 75]
+
   attr :monitor_id, :string, required: true
   attr :metrics, :list, default: []
 
@@ -22,6 +24,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
       |> assign(:sorted_metrics, sorted)
       |> assign(:bars, build_bars(sorted, slot_width))
       |> assign(:latency_path, build_latency_path(sorted, slot_width, max_latency))
+      |> assign(:uptime_grid, build_uptime_grid())
 
     ~H"""
     <div class="metrics-chart-container" id={"metrics-chart-#{@monitor_id}"}>
@@ -39,12 +42,21 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
         </svg>
         <p class="metrics-no-data">{gettext("No daily metrics recorded yet")}</p>
       <% else %>
-        <svg
-          class="metrics-svg"
-          viewBox="0 0 800 200"
-          preserveAspectRatio="none"
-        >
+        <svg class="metrics-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
           <line x1="0" y1="160" x2="800" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+
+          <%= for grid <- @uptime_grid do %>
+            <line
+              x1="0"
+              y1={grid.y}
+              x2="800"
+              y2={grid.y}
+              stroke="rgba(255,255,255,0.05)"
+              stroke-width="1"
+              class="metrics-grid-line"
+            />
+            <text x="2" y={grid.y - 2} class="metrics-date-label">{grid.label}</text>
+          <% end %>
 
           <%= for bar <- @bars do %>
             <rect
@@ -73,6 +85,13 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
     """
   end
 
+  defp build_uptime_grid do
+    Enum.map(@uptime_grid_pcts, fn pct ->
+      y = Float.round(@bar_area_height - pct / 100.0 * @bar_area_height, 1)
+      %{y: y, label: "#{pct}%"}
+    end)
+  end
+
   defp build_bars(metrics, slot_width) do
     metrics
     |> Enum.with_index()
@@ -89,8 +108,8 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
         height: Float.round(bar_height, 1),
         fill:
           if(DailyMetric.uptime_healthy?(metric),
-            do: "var(--color-status-up)",
-            else: "var(--color-status-down)"
+            do: "var(--color-status-up-bg)",
+            else: "var(--color-status-down-bg)"
           ),
         label: Calendar.strftime(metric.date, "%m/%d"),
         label_x: Float.round(x + slot_width / 2, 1)

@@ -153,10 +153,10 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     @y_bottom - clamped / @latency_cap * (@y_bottom - @y_top) * 1.0
   end
 
-  defp status_color(:up), do: "var(--color-status-up)"
-  defp status_color(:down), do: "var(--color-status-down)"
-  defp status_color(:degraded), do: "var(--color-status-degraded)"
-  defp status_color(:compromised), do: "var(--color-status-compromised)"
-  defp status_color(:unknown), do: "var(--color-status-unknown)"
-  defp status_color(_), do: "var(--color-status-down)"
+  defp status_color(:up), do: "var(--color-status-up-bg)"
+  defp status_color(:down), do: "var(--color-status-down-bg)"
+  defp status_color(:degraded), do: "var(--color-status-degraded-bg)"
+  defp status_color(:compromised), do: "var(--color-status-compromised-bg)"
+  defp status_color(:unknown), do: "var(--color-status-unknown-bg)"
+  defp status_color(_), do: "var(--color-status-down-bg)"
 end

@@ -22,9 +22,9 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
       |> assign(:sorted_logs, sorted)
       |> assign(:trend_path, build_trend_path(sorted, min_ts, max_ts, max_latency))
       |> assign(:dots, build_dots(sorted, min_ts, max_ts, max_latency))
+      |> assign(:grid_lines, build_grid_lines(max_latency))
       |> assign(:x_label_start, format_ts_label(min_ts))
       |> assign(:x_label_end, format_ts_label(max_ts))
-      |> assign(:y_label_max, if(max_latency > 0, do: "#{max_latency}ms", else: ""))
 
     ~H"""
     <div class="scatter-chart-container" id={"scatter-chart-#{@monitor_id}"}>
@@ -45,6 +45,19 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
         <svg class="scatter-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
           <line x1="0" y1="140" x2="800" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
 
+          <%= for grid <- @grid_lines do %>
+            <line
+              x1="0"
+              y1={grid.y}
+              x2="800"
+              y2={grid.y}
+              stroke="rgba(255,255,255,0.05)"
+              stroke-width="1"
+              class="scatter-grid-line"
+            />
+            <text x="2" y={grid.y - 2} class="scatter-axis-label">{grid.label}</text>
+          <% end %>
+
           <path d={@trend_path} class="scatter-trend-line" />
 
           <%= for dot <- @dots do %>
@@ -61,7 +74,6 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
           <text x="798" y="158" text-anchor="end" class="scatter-axis-label">
             {@x_label_end}
           </text>
-          <text x="2" y="18" class="scatter-axis-label">{@y_label_max}</text>
         </svg>
       <% end %>
     </div>
@@ -106,6 +118,25 @@ defmodule HolterWeb.Components.Monitoring.LogsScatterChart do
     |> Enum.reject(&is_nil/1)
     |> Enum.max(fn -> 0 end)
     |> min(@latency_cap)
+  end
+
+  defp build_grid_lines(0), do: []
+
+  defp build_grid_lines(max_latency) do
+    step =
+      cond do
+        max_latency <= 100 -> 25
+        max_latency <= 500 -> 100
+        max_latency <= 2000 -> 500
+        true -> 1000
+      end
+
+    1..div(max_latency, step)
+    |> Enum.map(fn i -> i * step end)
+    |> Enum.filter(fn ms -> ms < max_latency end)
+    |> Enum.map(fn ms ->
+      %{y: Float.round(normalize_y(ms, max_latency), 1), label: "#{ms}ms"}
+    end)
   end
 
   defp build_trend_path([], _min_ts, _max_ts, _max_latency), do: ""
