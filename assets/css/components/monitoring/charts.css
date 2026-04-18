@@ -182,18 +182,17 @@
   }
 
   .ovw-area-svg {
-    min-height: 140px;
-  }
-
-  .ovw-ribbon-svg {
-    min-height: 24px;
+    aspect-ratio: 5 / 2;
+    height: auto;
   }
 
   .scatter-svg {
-    min-height: 180px;
+    aspect-ratio: 5 / 2;
+    height: auto;
   }
 
   .metrics-svg {
-    min-height: 220px;
+    aspect-ratio: 2 / 1;
+    height: auto;
   }
 }
