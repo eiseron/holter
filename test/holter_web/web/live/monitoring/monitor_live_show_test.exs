@@ -21,6 +21,29 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       %{monitor: monitor, workspace: workspace}
     end
 
+    test "Given a GET monitor, when page loads, then body field is hidden", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      refute html =~ "Request Body"
+    end
+
+    test "Given a GET monitor, when method is changed to POST, then body field appears", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{method: "post"})
+        |> render_change()
+
+      assert html =~ "Request Body"
+    end
+
     test "Given a monitor, when page loads, then it renders the title", %{
       conn: conn,
       monitor: monitor

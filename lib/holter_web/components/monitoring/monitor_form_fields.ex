@@ -55,7 +55,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
           </p>
         </div>
 
-        <div class="h-col-span-2">
+        <div class="h-col-span-2" :if={not body_hidden?(@form)}>
           <.input
             field={@form[:body]}
             type="textarea"
@@ -215,6 +215,11 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
       </div>
     </div>
     """
+  end
+
+  defp body_hidden?(form) do
+    method = to_string(form[:method].value)
+    method in Enum.map(Monitor.bodyless_methods(), &to_string/1)
   end
 
   defp field_integer(field, fallback) do

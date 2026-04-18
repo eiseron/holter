@@ -16,6 +16,53 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveNewTest do
       %{workspace: workspace}
     end
 
+    test "Given GET method (default), when page loads, then body field is hidden",
+         %{conn: conn, workspace: workspace} do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      refute html =~ "Request Body"
+    end
+
+    test "Given POST method, when validate fires, then body field becomes visible",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{method: "post"})
+        |> render_change()
+
+      assert html =~ "Request Body"
+    end
+
+    test "Given POST method, when method is changed back to GET, then body field is hidden again",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      view
+      |> form("#monitor-form", monitor: %{method: "post"})
+      |> render_change()
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{method: "get"})
+        |> render_change()
+
+      refute html =~ "Request Body"
+    end
+
+    test "Given HEAD method, when validate fires, then body field is hidden",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
+
+      html =
+        view
+        |> form("#monitor-form", monitor: %{method: "head"})
+        |> render_change()
+
+      refute html =~ "Request Body"
+    end
+
     test "Given the creation route, when mounted, then the page correctly translates and establishes the HTML DOM",
          %{conn: conn, workspace: workspace} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitor/new")
