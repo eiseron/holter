@@ -1,6 +1,8 @@
 defmodule Holter.Credo.Check.Refactor.StrictFunctionArityTest do
   use ExUnit.Case, async: true
 
+  Code.require_file("../../../credo_checks/refactor/strict_function_arity.ex", __DIR__)
+
   setup_all do
     Application.ensure_all_started(:credo)
     :ok

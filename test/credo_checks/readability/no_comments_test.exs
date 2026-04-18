@@ -1,6 +1,8 @@
 defmodule Holter.Credo.Check.Readability.NoCommentsTest do
   use ExUnit.Case, async: true
 
+  Code.require_file("../../../credo_checks/readability/no_comments.ex", __DIR__)
+
   setup_all do
     Application.ensure_all_started(:credo)
     :ok

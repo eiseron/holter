@@ -1,6 +1,8 @@
 defmodule Holter.Credo.Check.Testing.OneAssertPerTestTest do
   use ExUnit.Case, async: true
 
+  Code.require_file("../../../credo_checks/testing/one_assert_per_test.ex", __DIR__)
+
   setup_all do
     Application.ensure_all_started(:credo)
     :ok
