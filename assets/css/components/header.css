@@ -40,9 +40,6 @@
   border-right: 1px solid var(--color-text-muted);
 }
 
-/* ── Responsive ─────────────────────────────────────── */
-
-/* Tablet: stack title above actions, keep actions as a row */
 @media (max-width: 767px) {
   .h-header.h-header-with-actions {
     flex-direction: column;
@@ -52,7 +49,6 @@
   .h-header-actions { width: 100%; }
 }
 
-/* Mobile: additionally stack actions into a column with full-width buttons */
 @media (max-width: 479px) {
   .h-header-actions { flex-direction: column; align-items: stretch; gap: var(--space-2); }
   .h-header-nav-group { border-right: none; padding-right: 0; }

@@ -16,8 +16,6 @@
   text-align: center;
 }
 
-/* ── Responsive ─────────────────────────────────────── */
-
 @media (max-width: 479px) {
   .h-logs-pagination { flex-direction: column; align-items: center; gap: var(--space-4); }
   .h-pagination-nav { flex-wrap: wrap; justify-content: center; }

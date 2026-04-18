@@ -17,7 +17,6 @@
 .h-gap-4            { gap: var(--space-4); }
 .h-flex-gap-4       { display: flex; gap: var(--space-4); }
 
-/* ── Responsive layout helpers ──────────────────────────────────────────── */
 @media (max-width: 479px) {
   .h-flex-col-sm        { flex-direction: column; }
   .h-items-start-sm     { align-items: flex-start; }
