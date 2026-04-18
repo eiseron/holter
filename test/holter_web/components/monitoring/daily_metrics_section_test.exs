@@ -7,7 +7,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsSectionTest do
 
   test "renders empty state message" do
     html = render_component(&daily_metrics_section/1, metrics: [])
-    assert html =~ "Nenhum histórico registrado ainda"
+    assert html =~ "No history recorded yet"
   end
 
   test "renders metrics table headers" do
