@@ -46,7 +46,13 @@
     align-items: flex-start;
     gap: var(--space-4);
   }
+  .h-header-content { width: 100%; min-width: 0; }
   .h-header-actions { width: 100%; }
+}
+
+@media (max-width: 439px) {
+  .h-header-title { font-size: var(--font-size-md); line-height: 1.5rem; }
+  .h-header-subtitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 @media (max-width: 479px) {
