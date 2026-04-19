@@ -1,9 +1,6 @@
-defmodule HolterWeb.Api.ApiSpec do
+defmodule HolterWeb.Api.MonitoringApiSpec do
   @moduledoc """
-  Root OpenAPI 3.0 specification for the Holter API.
-
-  Aggregates all module specs and serves the development Swagger UI.
-  For per-module specs see e.g. `HolterWeb.Api.MonitoringApiSpec`.
+  OpenAPI 3.0 specification scoped to the Monitoring module.
   """
   alias HolterWeb.Api.{
     DailyMetricSchemas,
@@ -22,9 +19,9 @@ defmodule HolterWeb.Api.ApiSpec do
   def spec do
     %OpenApi{
       info: %Info{
-        title: "Holter API",
+        title: "Holter Monitoring API",
         version: "1.0.0",
-        description: "API for monitoring and security scanning."
+        description: "API for monitor management, logs, daily metrics, and incidents."
       },
       servers: [
         %Server{url: "/"}

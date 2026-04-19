@@ -1478,8 +1478,8 @@ components:
       x-struct:
       x-validate:
 info:
-  description: API for monitor management, logs, daily metrics, and incidents.
-  title: Holter Monitoring API
+  description: API for monitoring and security scanning.
+  title: Holter API
   version: 1.0.0
 openapi: 3.0.0
 paths:

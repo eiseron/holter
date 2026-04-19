@@ -65,7 +65,8 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 config :phoenix, :json_library, Jason
 
 config :holter, :api_specs, [
-  {HolterWeb.Api.ApiSpec, "docs/api/monitoring.yml"}
+  {HolterWeb.Api.MonitoringApiSpec, "docs/api/monitoring.yml"},
+  {HolterWeb.Api.ApiSpec, "docs/api/openapi.yml"}
 ]
 
 config :holter, Oban,
