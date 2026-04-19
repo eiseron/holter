@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
   def all do
     %{
       "Incident" => incident(),
+      "IncidentResponse" => incident_response(),
       "IncidentList" => incident_list(),
       "Error" => error()
     }
@@ -30,6 +31,18 @@ defmodule HolterWeb.Api.IncidentSchemas do
         updated_at: %Schema{type: :string, format: :"date-time"}
       },
       required: [:id, :type, :started_at]
+    }
+  end
+
+  def incident_response do
+    %Schema{
+      title: "IncidentResponse",
+      description: "Response body for a single incident.",
+      type: :object,
+      additionalProperties: false,
+      properties: %{
+        data: incident()
+      }
     }
   end
 

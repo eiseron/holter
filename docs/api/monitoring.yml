@@ -300,6 +300,76 @@ components:
       type: object
       x-struct:
       x-validate:
+    IncidentResponse:
+      additionalProperties: false
+      description: Response body for a single incident.
+      properties:
+        data:
+          additionalProperties: false
+          description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+          properties:
+            duration_seconds:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            monitor_snapshot:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            resolved_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            root_cause:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            started_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - downtime
+                - defacement
+                - ssl_expiry
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - type
+            - started_at
+          title: Incident
+          type: object
+          x-struct:
+          x-validate:
+      title: IncidentResponse
+      type: object
+      x-struct:
+      x-validate:
     Monitor:
       additionalProperties: false
       description: A monitoring target for HTTP/HTTPS/SSL checks.

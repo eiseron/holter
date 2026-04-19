@@ -10,7 +10,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
         id: "abc12345-0000-0000-0000-000000000000",
         url: "https://example.com",
         method: :get,
-        interval_seconds: 60,
+        interval_seconds: 30,
         health_status: :up,
         logical_state: :active,
         logs: [],
@@ -33,7 +33,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
 
     test "renders interval in seconds" do
       html = render_component(&monitor_card/1, monitor: monitor_attrs(), detail_url: "/details")
-      assert html =~ "60s"
+      assert html =~ "30s"
     end
 
     test "renders first 8 characters of monitor ID" do
@@ -60,14 +60,24 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
       assert html =~ ~s(data-role="open-incidents-count")
     end
 
-    test "renders the open incident count number in the badge" do
+    test "renders singular 'incident' when count is exactly one" do
       html =
         render_component(&monitor_card/1,
-          monitor: monitor_attrs(%{open_incidents_count: 3}),
+          monitor: monitor_attrs(%{open_incidents_count: 1}),
           detail_url: "/d"
         )
 
-      assert html =~ "3 open"
+      assert html =~ "1 incident"
+    end
+
+    test "renders the open incident count number in the badge" do
+      html =
+        render_component(&monitor_card/1,
+          monitor: monitor_attrs(%{open_incidents_count: 2}),
+          detail_url: "/d"
+        )
+
+      assert html =~ "2 incidents"
     end
 
     test "does not render open incidents badge when count is zero" do

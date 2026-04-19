@@ -391,6 +391,71 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "Unit-level Bug Simulation: Log Status Race Condition" do
+    test "the log recorded during recovery incorrectly inherits the OLD status",
+         %{monitor: monitor} do
+      {:ok, _} = Engine.handle_failure(monitor, %RuntimeError{message: "fail"}, 100)
+
+      response = %Req.Response{status: 200, body: "success", headers: []}
+      {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      %{logs: [latest_log | _]} = Monitoring.list_monitor_logs(monitor, %{page_size: 1})
+      assert latest_log.status == :up
+    end
+  end
+
+  describe "Unit-level Bug Simulation: Compromised -> Down transition" do
+    test "defacement incident SHOULD resolve when monitor goes down (fails if bug exists)",
+         %{monitor: monitor} do
+      {:ok, monitor} = Engine.process_response(monitor, ok_response("success error"), %{duration_ms: 100})
+      assert length(Monitoring.list_open_incidents(monitor.id)) == 1
+
+      {:ok, _} = Engine.process_response(monitor, error_response(500, ""), %{duration_ms: 100})
+
+      assert length(Monitoring.list_open_incidents(monitor.id)) == 1
+      assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
+    end
+  end
+
+  describe "Bug simulation: Log Status Transition (Race Condition)" do
+    test "Given a DOWN monitor, when it returns to UP, then the generated log SHOULD be UP (fails if bug exists)",
+         %{monitor: monitor} do
+      {:ok, _} = Engine.handle_failure(monitor, %RuntimeError{message: "fail"}, 100)
+      monitor = Monitoring.get_monitor!(monitor.id)
+      assert monitor.health_status == :down
+
+      response = %Req.Response{status: 200, body: "success", headers: []}
+      {:ok, updated_monitor} = Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      assert updated_monitor.health_status == :up
+
+      %{logs: [latest_log | _]} = Monitoring.list_monitor_logs(updated_monitor, %{page_size: 1})
+
+      assert latest_log.status == :up
+    end
+  end
+
+  describe "Bug simulation: Orphaned Defacement Incident (Compromised -> Down)" do
+    test "Given a COMPROMISED monitor, when it transitions to DOWN, then the defacement incident SHOULD be resolved (fails if bug exists)",
+         %{monitor: monitor} do
+      response_compromised = %Req.Response{
+        status: 200,
+        body: "success but has error",
+        headers: []
+      }
+
+      {:ok, monitor} = Engine.process_response(monitor, response_compromised, %{duration_ms: 50})
+      assert monitor.health_status == :compromised
+
+      response_down = %Req.Response{status: 500, body: "Error", headers: []}
+      {:ok, monitor} = Engine.process_response(monitor, response_down, %{duration_ms: 50})
+      assert monitor.health_status == :down
+
+      assert length(Monitoring.list_open_incidents(monitor.id)) == 1
+      assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
+    end
+  end
+
   defp ok_response(body),
     do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
 

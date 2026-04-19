@@ -62,6 +62,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIndexTest do
 
       assert html =~ "disabled"
     end
+
+    test "Bug simulation: Static Interval Display (fails if bug exists)",
+         %{conn: conn, workspace: workspace} do
+      monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 900})
+
+      {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+
+      assert html =~ "900s"
+      refute html =~ "600s"
+    end
   end
 
   describe "Dashboard ranking order" do
@@ -149,6 +159,36 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIndexTest do
       )
 
       refute has_element?(lv, "[data-role='monitor-url']", "https://gone.local")
+    end
+  end
+
+  describe "Dashboard terminology" do
+    setup do
+      workspace = workspace_fixture()
+      %{workspace: workspace}
+    end
+
+    test "Given a monitor with 1 incident, when mounted, then it shows '1 incident'",
+         %{conn: conn, workspace: workspace} do
+      monitor = monitor_fixture(%{workspace_id: workspace.id, open_incidents_count: 1})
+      incident_fixture(%{monitor_id: monitor.id})
+
+      {:ok, _lv, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+
+      assert html =~ "1 incident"
+    end
+
+    test "Given a monitor with multiple incidents, when mounted, then it shows 'X incidents'",
+         %{conn: conn, workspace: workspace} do
+      monitor = monitor_fixture(%{workspace_id: workspace.id, open_incidents_count: 2})
+      incident_fixture(%{monitor_id: monitor.id})
+      incident_fixture(%{monitor_id: monitor.id, type: :ssl_expiry})
+
+      {:ok, _lv, html} =
+        live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+
+      assert html =~ "2 incidents"
     end
   end
 end
