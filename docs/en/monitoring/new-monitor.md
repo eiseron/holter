@@ -19,8 +19,8 @@ If your workspace is at quota, the button is disabled. Delete or archive an exis
 | Max Redirects | Maximum number of redirects to follow (only visible when Follow Redirects is on). |
 | Request Body | Request payload sent with the request (only visible for POST, PUT, PATCH). |
 | Headers | Custom HTTP headers as a JSON object, e.g. `{"Authorization": "Bearer token"}`. |
-| Positive Keywords | Comma-separated words that must appear in the response body. A missing keyword marks the check as failed. |
-| Negative Keywords | Comma-separated words that must **not** appear in the response body. A found keyword marks the check as failed. Keywords are separated by commas or semicolons. |
+| Positive Keywords | Words separated by commas or semicolons that must appear in the response body. A missing keyword marks the check as failed. |
+| Negative Keywords | Words separated by commas or semicolons that must **not** appear in the response body. A found keyword marks the check as failed. |
 
 ## Security Settings
 

@@ -19,7 +19,7 @@ Se o workspace estiver na cota máxima, o botão estará desabilitado. Exclua ou
 | Máx. Redirecionamentos | Número máximo de redirecionamentos a seguir (visível apenas quando Seguir Redirecionamentos está ativo). |
 | Corpo da Requisição | Payload enviado com a requisição (visível apenas para POST, PUT, PATCH). |
 | Headers | Cabeçalhos HTTP personalizados como objeto JSON, ex.: `{"Authorization": "Bearer token"}`. |
-| Palavras-chave Positivas | Palavras separadas por vírgula que devem aparecer no corpo da resposta. A ausência de uma palavra marca a verificação como falha. |
+| Palavras-chave Positivas | Palavras separadas por vírgula ou ponto-e-vírgula que devem aparecer no corpo da resposta. A ausência de uma delas marca a verificação como falha. |
 | Palavras-chave Negativas | Palavras separadas por vírgula ou ponto-e-vírgula que **não** devem aparecer no corpo da resposta. A presença de uma delas marca a verificação como falha. |
 
 ## Configurações de Segurança
