@@ -4,15 +4,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   import HolterWeb.LiveView.SortPagination
 
   alias Holter.Monitoring
+  alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @sortable_cols ~w(checked_at status latency_ms)
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
-    end
-
+    PubSubSubscriptions.subscribe_to_monitor(socket, id)
     monitor = Monitoring.get_monitor!(id)
 
     {:ok,
@@ -93,37 +91,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
       sort_by: "checked_at",
       sort_dir: "desc"
     }
-    |> Map.merge(normalize_params(params))
+    |> Map.merge(FilterParams.normalize(params, @valid_filter_keys))
     |> Map.put(:timezone, timezone)
-    |> cast_integer_param(:page, 1)
-    |> cast_integer_param(:page_size, 50)
-    |> validate_sort_params()
-  end
-
-  defp validate_sort_params(filters) do
-    sort_by =
-      if filters.sort_by in @sortable_cols, do: filters.sort_by, else: "checked_at"
-
-    sort_dir =
-      if filters.sort_dir in ~w(asc desc), do: filters.sort_dir, else: "desc"
-
-    %{filters | sort_by: sort_by, sort_dir: sort_dir}
-  end
-
-  defp normalize_params(params) do
-    for {k, v} <- params, k in @valid_filter_keys, into: %{} do
-      {String.to_existing_atom(k), v}
-    end
-  end
-
-  defp cast_integer_param(filters, key, default) do
-    value =
-      case Map.get(filters, key) do
-        v when is_binary(v) -> String.to_integer(v)
-        v when is_integer(v) -> v
-        _ -> default
-      end
-
-    Map.put(filters, key, value)
+    |> FilterParams.cast_integer(:page, 1)
+    |> FilterParams.cast_integer(:page_size, 50)
+    |> FilterParams.validate_sort(@sortable_cols, "checked_at")
   end
 end
