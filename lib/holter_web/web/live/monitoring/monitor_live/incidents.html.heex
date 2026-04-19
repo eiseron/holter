@@ -1,0 +1,95 @@
+<.monitor_page_container>
+  <:title>
+    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
+    {gettext("Incidents")}
+  </:title>
+  <:subtitle>
+    <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+  </:subtitle>
+
+  <div class="h-logs-filters">
+    <.form for={@form} phx-change="filter_updated" class="h-form-row">
+      <div class="h-form-item">
+        <.input
+          field={@form[:type]}
+          type="select"
+          label={gettext("Type")}
+          prompt={gettext("All Types")}
+          options={[
+            {gettext("Downtime"), "downtime"},
+            {gettext("Defacement"), "defacement"},
+            {gettext("SSL Expiry"), "ssl_expiry"}
+          ]}
+        />
+      </div>
+
+      <div class="h-form-item">
+        <.input
+          field={@form[:state]}
+          type="select"
+          label={gettext("State")}
+          prompt={gettext("All States")}
+          options={[
+            {gettext("Open"), "open"},
+            {gettext("Resolved"), "resolved"}
+          ]}
+        />
+      </div>
+    </.form>
+  </div>
+
+  <div class="h-mt-6">
+    <.empty_state :if={Enum.empty?(@incidents)} class="h-empty-state">
+      <p>{gettext("No incidents found for the selected filters.")}</p>
+    </.empty_state>
+
+    <.table :if={not Enum.empty?(@incidents)} id="incidents-table" rows={@incidents}>
+      <:col :let={incident} label={gettext("Since")}>
+        {format_datetime(incident.started_at, @timezone)}
+      </:col>
+      <:col :let={incident} label={gettext("Type")}>
+        <span
+          class="h-badge h-badge-danger"
+          data-role="incident-type"
+          data-incident-type={incident.type}
+        >
+          <%= case incident.type do %>
+            <% :downtime -> %>
+              {gettext("Downtime")}
+            <% :defacement -> %>
+              {gettext("Defacement")}
+            <% :ssl_expiry -> %>
+              {gettext("SSL Expiry")}
+          <% end %>
+        </span>
+      </:col>
+      <:col :let={incident} label={gettext("State")}>
+        <%= if is_nil(incident.resolved_at) do %>
+          <span class="h-badge h-badge-danger" data-role="incident-state">{gettext("Open")}</span>
+        <% else %>
+          <span class="h-badge h-badge-neutral" data-role="incident-state">
+            {gettext("Resolved")}
+          </span>
+        <% end %>
+      </:col>
+      <:col :let={incident} label={gettext("Duration")}>
+        <%= if incident.duration_seconds do %>
+          {div(incident.duration_seconds, 60)} {gettext("min")}
+        <% else %>
+          —
+        <% end %>
+      </:col>
+      <:col :let={incident} label={gettext("Root Cause")}>
+        <span class="h-text-truncate">{incident.root_cause}</span>
+      </:col>
+    </.table>
+
+    <.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
+  </div>
+</.monitor_page_container>

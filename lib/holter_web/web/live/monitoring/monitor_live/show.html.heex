@@ -18,6 +18,12 @@
       <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
         {gettext("Technical Logs")}
       </.link>
+      <.link
+        navigate={~p"/monitoring/monitor/#{@monitor.id}/incidents"}
+        class="h-btn h-btn-soft"
+      >
+        {gettext("Incidents")}
+      </.link>
     </nav>
     <.button
       type="button"

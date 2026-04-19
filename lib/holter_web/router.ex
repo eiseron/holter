@@ -59,6 +59,7 @@ defmodule HolterWeb.Router do
     live "/monitor/:id", MonitorLive.Show, :show
     live "/monitor/:id/logs", MonitorLive.Logs, :index
     live "/monitor/:id/daily_metrics", MonitorLive.DailyMetrics, :index
+    live "/monitor/:id/incidents", MonitorLive.Incidents, :index
     live "/logs/:log_id", MonitorLive.LogDetail, :show
   end
 
