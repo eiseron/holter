@@ -4,7 +4,7 @@ O Dashboard é a tela principal do módulo de monitoramento. Ele exibe todos os 
 
 ## Acessando o Dashboard
 
-Navegue para `/monitoring/workspaces/{workspace_slug}/dashboard`. O slug do workspace é único e aparece em todas as URLs do monitoramento.
+Navegue para `/monitoring/workspaces/{workspace_slug}/dashboard`. O slug do workspace aparece apenas nas URLs do dashboard e do formulário de novo monitor; as páginas de monitor individual, logs e métricas utilizam o ID do monitor ou do log.
 
 ## Cards de Monitor
 

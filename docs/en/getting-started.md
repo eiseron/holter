@@ -6,7 +6,7 @@ Holter monitors your URLs on a recurring schedule, tracks uptime history, and op
 
 ### Workspace
 
-A workspace is an isolated environment that groups monitors together. Each workspace has a monitor quota — the maximum number of monitors allowed under your plan. All monitoring URLs are scoped to a workspace slug (e.g. `/monitoring/workspaces/my-company/dashboard`).
+A workspace is an isolated environment that groups monitors together. Each workspace has a monitor quota — the maximum number of monitors allowed under your plan. The workspace slug appears in the dashboard and new-monitor URLs (e.g. `/monitoring/workspaces/my-company/dashboard`). Individual monitor, log, and metrics pages use the monitor or log ID instead.
 
 ### Monitor
 

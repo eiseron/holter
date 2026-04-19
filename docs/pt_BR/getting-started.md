@@ -6,7 +6,7 @@ O Holter monitora suas URLs em um intervalo recorrente, rastreia o histórico de
 
 ### Workspace
 
-Um workspace é um ambiente isolado que agrupa monitores. Cada workspace tem uma cota de monitores — o número máximo permitido pelo seu plano. Todas as URLs de monitoramento são vinculadas ao slug do workspace (ex.: `/monitoring/workspaces/minha-empresa/dashboard`).
+Um workspace é um ambiente isolado que agrupa monitores. Cada workspace tem uma cota de monitores — o número máximo permitido pelo seu plano. O slug do workspace aparece nas URLs do dashboard e do formulário de novo monitor (ex.: `/monitoring/workspaces/minha-empresa/dashboard`). As páginas de monitor individual, logs e métricas utilizam o ID do monitor ou do log.
 
 ### Monitor
 

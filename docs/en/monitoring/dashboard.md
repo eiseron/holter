@@ -4,7 +4,7 @@ The Dashboard is the main view of the monitoring module. It shows all monitors b
 
 ## Accessing the Dashboard
 
-Navigate to `/monitoring/workspaces/{workspace_slug}/dashboard`. The workspace slug is unique to your workspace and appears in every monitoring URL.
+Navigate to `/monitoring/workspaces/{workspace_slug}/dashboard`. The workspace slug appears in the dashboard and new-monitor URLs; individual monitor, log, and metrics pages use the monitor or log ID instead.
 
 ## Monitor Cards
 
