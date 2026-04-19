@@ -35,4 +35,27 @@ defmodule HolterWeb.Api.IncidentController do
       render(conn, :index, incidents: incidents)
     end
   end
+
+  operation(:show,
+    summary: "Get incident details",
+    description:
+      "Retrieve a single incident by its UUID, including root cause and monitor snapshot.",
+    parameters: [
+      id: [
+        in: :path,
+        description: "Incident UUID",
+        schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
+      ]
+    ],
+    responses: [
+      ok: {"Incident details", "application/json", IncidentSchemas.incident()},
+      not_found: {"Incident not found", "application/json", IncidentSchemas.error()}
+    ]
+  )
+
+  def show(conn, %{"id" => id}) do
+    with {:ok, incident} <- Monitoring.get_incident(id) do
+      render(conn, :show, incident: incident)
+    end
+  end
 end

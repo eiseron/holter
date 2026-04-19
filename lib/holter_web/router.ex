@@ -39,6 +39,8 @@ defmodule HolterWeb.Router do
 
     resources "/monitors", MonitorController, except: [:index, :create, :new, :edit]
 
+    resources "/incidents", IncidentController, only: [:show]
+
     scope "/monitors/:monitor_id" do
       resources "/logs", MonitorLogController, only: [:index, :show]
       resources "/daily_metrics", DailyMetricController, only: [:index]
