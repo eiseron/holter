@@ -17,9 +17,9 @@
   <.daily_metrics_chart monitor_id={@monitor.id} metrics={@metrics} />
 
   <div class="h-mt-6">
-    <div :if={Enum.empty?(@metrics)} class="h-empty-state">
+    <.empty_state :if={Enum.empty?(@metrics)} class="h-empty-state">
       <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
-    </div>
+    </.empty_state>
 
     <.table :if={not Enum.empty?(@metrics)} id="metrics-table" rows={@metrics}>
       <:col
