@@ -6,7 +6,7 @@ defmodule Holter.Monitoring.Engine do
   """
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.{Incidents, Monitor, Monitors}
   use Gettext, backend: HolterWeb.Gettext
 
   def process_response(monitor, response, metadata) do
@@ -132,9 +132,18 @@ defmodule Holter.Monitoring.Engine do
     now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
 
+    open_incidents = Monitoring.list_open_incidents(monitor.id)
+    {active_incident_id, incident_status} = pick_active_incident(open_incidents)
+
+    effective_log_status =
+      if Monitors.status_severity(incident_status) > Monitors.status_severity(params.log_status),
+        do: incident_status,
+        else: params.log_status
+
     record_monitor_log(%{
       monitor_id: monitor.id,
-      status: params.log_status,
+      status: effective_log_status,
+      incident_id: active_incident_id,
       status_code: params.status_code,
       latency_ms: params.duration_ms,
       error_message: params.error_msg,
@@ -159,6 +168,17 @@ defmodule Holter.Monitoring.Engine do
     updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     {:ok, updated_monitor}
+  end
+
+  defp pick_active_incident([]), do: {nil, :unknown}
+
+  defp pick_active_incident(incidents) do
+    incident =
+      Enum.max_by(incidents, fn i ->
+        Monitors.status_severity(Incidents.incident_to_health(i))
+      end)
+
+    {incident.id, Incidents.incident_to_health(incident)}
   end
 
   defp handle_incident_logic(monitor, %{check_status: :up, now: now}) do

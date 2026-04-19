@@ -315,6 +315,82 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "incident-aware logging: active ssl_expiry incident during HTTP check" do
+    setup %{monitor: monitor} do
+      {:ok, ssl_incident} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :ssl_expiry,
+          started_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          root_cause: "Certificate expires in 3 days (Critical)"
+        })
+
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("success"), %{duration_ms: 100})
+
+      %{ssl_incident: ssl_incident}
+    end
+
+    test "log status inherits :compromised from Critical ssl_expiry incident instead of :up",
+         %{monitor: monitor} do
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert log.status == :compromised
+    end
+
+    test "log incident_id links to the active ssl_expiry incident",
+         %{monitor: monitor, ssl_incident: ssl_incident} do
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert log.incident_id == ssl_incident.id
+    end
+
+    test "ssl_expiry incident remains open because HTTP check lifecycle does not resolve it",
+         %{monitor: monitor} do
+      assert %{type: :ssl_expiry} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
+    end
+  end
+
+  describe "incident-aware logging: active degraded ssl_expiry incident during HTTP check" do
+    setup %{monitor: monitor} do
+      {:ok, _} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :ssl_expiry,
+          started_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          root_cause: "Certificate expires in 10 days (Warning)"
+        })
+
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("success"), %{duration_ms: 100})
+
+      :ok
+    end
+
+    test "log status is :degraded when ssl_expiry root_cause is a warning", %{monitor: monitor} do
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert log.status == :degraded
+    end
+  end
+
+  describe "incident-aware logging: no active incidents" do
+    setup %{monitor: monitor} do
+      {:ok, _} =
+        Engine.process_response(monitor, ok_response("success"), %{duration_ms: 100})
+
+      :ok
+    end
+
+    test "log status equals the raw check result when no open incidents exist",
+         %{monitor: monitor} do
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert log.status == :up
+    end
+
+    test "log incident_id is nil when no open incidents exist", %{monitor: monitor} do
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert is_nil(log.incident_id)
+    end
+  end
+
   defp ok_response(body),
     do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
 
