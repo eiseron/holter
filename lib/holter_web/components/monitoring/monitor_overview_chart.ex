@@ -201,4 +201,28 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   defp status_color(:compromised), do: "var(--color-status-compromised)"
   defp status_color(:unknown), do: "var(--color-status-unknown)"
   defp status_color(_), do: "var(--color-status-down)"
+
+  defp build_x_axis_labels([], _tz), do: []
+
+  defp build_x_axis_labels(logs, tz) do
+    {min_ts, max_ts} = time_range(logs)
+    duration = max_ts - min_ts
+
+    num_labels = 5
+    interval = duration / (num_labels - 1)
+
+    for i <- 0..(num_labels - 1) do
+      ts = min_ts + i * interval
+
+      dt =
+        round(ts)
+        |> DateTime.from_unix!()
+        |> HolterWeb.Timezone.shift_or_utc(tz)
+
+      %{
+        x: ChartUtils.map_x(dt, {min_ts, max_ts}, {@label_left, @svg_width}),
+        label: Calendar.strftime(dt, "%H:%M")
+      }
+    end
+  end
 end
