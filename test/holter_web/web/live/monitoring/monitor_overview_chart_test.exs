@@ -50,6 +50,38 @@ defmodule HolterWeb.Web.Monitoring.MonitorOverviewChartTest do
       assert html =~ "--color-status-down"
     end
 
+    test "renders dynamic X-axis time labels and vertical grid lines", %{conn: conn} do
+      monitor = monitor_fixture()
+      now = DateTime.utc_now()
+      one_hour_ago = DateTime.add(now, -1, :hour)
+
+      log_fixture(%{monitor_id: monitor.id, status: :up, checked_at: one_hour_ago})
+      log_fixture(%{monitor_id: monitor.id, status: :up, checked_at: now})
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert html =~ "chart-grid-line"
+      assert html =~ "chart-scale-label"
+
+      assert html =~ ~r/\d{2}:\d{2}/
+    end
+
+    test "scales horizontal grid lines based on max latency", %{conn: conn} do
+      monitor = monitor_fixture()
+
+      log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 100})
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "100ms"
+      assert html =~ "50ms"
+
+      log_fixture(%{monitor_id: monitor.id, status: :up, latency_ms: 1000})
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "1000ms"
+      assert html =~ "500ms"
+    end
+
     test "updates chart when a new log_created event arrives via PubSub", %{conn: conn} do
       monitor = monitor_fixture()
 

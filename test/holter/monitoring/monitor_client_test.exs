@@ -25,9 +25,22 @@ defmodule Holter.Monitoring.MonitorClientTest do
                HTTP.request(url: "#{base_url}/test-err")
     end
 
-    test "retry logic is configured for exceptions" do
-      opts = [url: "http://localhost:1", max_retries: 0]
-      assert {:error, _} = HTTP.request(opts)
+    test "includes the custom Holter User-Agent in requests", %{base_url: base_url} do
+      DummyService.enqueue("ua-test", status: 200, body: "OK")
+
+      {:ok, _response} = HTTP.request(url: "#{base_url}/ua-test")
+
+      [request | _] = DummyService.get_requests()
+
+      user_agent =
+        request.req_headers
+        |> Enum.find_value(fn {k, v} -> if k == "user-agent", do: v end)
+
+      version = Application.spec(:holter, :vsn) |> to_string()
+      domain = System.get_env("APP_DOMAIN", "holter.dev")
+
+      assert user_agent =~ "Holter/#{version}"
+      assert user_agent =~ "(+https://#{domain})"
     end
   end
 

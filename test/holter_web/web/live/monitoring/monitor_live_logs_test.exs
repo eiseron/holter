@@ -91,6 +91,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       %{conn: conn, monitor: monitor}
     end
 
+    test "can change the page size via the select dropdown", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      url = ~p"/monitoring/monitor/#{monitor.id}/logs"
+      {:ok, view, _html} = live(conn, url)
+
+      assert has_element?(view, "select[name='filters[page_size]']")
+
+      view
+      |> form("form[phx-change=\"filter_updated\"]")
+      |> render_change(%{filters: %{page_size: "25"}})
+
+      assert_patch(
+        view,
+        ~p"/monitoring/monitor/#{monitor.id}/logs?page_size=25&sort_by=checked_at&sort_dir=desc"
+      )
+    end
+
     test "clicking page number preserves existing filters", %{
       conn: conn,
       monitor: monitor

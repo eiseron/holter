@@ -17,21 +17,32 @@ defmodule Holter.Test.DummyService do
 
   def enqueue(call_id, opts) do
     Agent.update(__MODULE__, fn state ->
-      responses = Map.get(state, call_id, [])
-      Map.put(state, call_id, responses ++ [opts])
+      responses = Map.get(state.responses, call_id, [])
+      %{state | responses: Map.put(state.responses, call_id, responses ++ [opts])}
     end)
   end
 
+  def get_requests do
+    Agent.get(__MODULE__, & &1.requests)
+  end
+
   def reset do
-    Agent.update(__MODULE__, fn _ -> %{} end)
+    Agent.update(__MODULE__, fn _ -> %{responses: %{}, requests: []} end)
   end
 
   get "/probe/:call_id" do
+    Agent.update(__MODULE__, fn state ->
+      %{state | requests: state.requests ++ [conn]}
+    end)
+
     state = Agent.get(__MODULE__, & &1)
 
-    case Map.get(state, call_id) do
+    case Map.get(state.responses, call_id) do
       [next | rest] ->
-        Agent.update(__MODULE__, &Map.put(&1, call_id, rest))
+        Agent.update(__MODULE__, fn state ->
+          %{state | responses: Map.put(state.responses, call_id, rest)}
+        end)
+
         status = Keyword.get(next, :status, 200)
         body = Keyword.get(next, :body, "OK")
         headers = Keyword.get(next, :headers, [])
@@ -48,7 +59,7 @@ defmodule Holter.Test.DummyService do
   match(_, do: send_resp(conn, 404, "Not Found: #{conn.request_path}"))
 
   def start_link(_) do
-    Agent.start_link(fn -> %{} end, name: __MODULE__)
+    Agent.start_link(fn -> %{responses: %{}, requests: []} end, name: __MODULE__)
   end
 
   def child_spec(opts) do
