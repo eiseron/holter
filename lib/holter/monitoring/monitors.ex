@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Incidents, Monitor, Workspace, Workspaces}
+  alias Holter.Monitoring.{Broadcaster, Incidents, Monitor, Workspace, Workspaces}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -122,7 +122,7 @@ defmodule Holter.Monitoring.Monitors do
          :ok <- check_monitor_quota(workspace, logical_state),
          {:ok, {monitor, should_enqueue}} <- create_monitor_transactionally(attrs, workspace) do
       if should_enqueue, do: enqueue_checks(monitor)
-      broadcast({:ok, monitor}, :monitor_created)
+      Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
       {:ok, monitor}
     end
   end
@@ -184,7 +184,7 @@ defmodule Holter.Monitoring.Monitors do
          |> Monitor.changeset(attrs, workspace)
          |> Repo.update() do
       {:ok, updated} ->
-        broadcast({:ok, updated}, :monitor_updated)
+        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
         {:ok, updated}
 
       error ->
@@ -238,21 +238,13 @@ defmodule Holter.Monitoring.Monitors do
   defp system_update_monitor(%Monitor{} = monitor, attrs) do
     case monitor |> Monitor.changeset(attrs) |> Repo.update() do
       {:ok, updated} ->
-        broadcast({:ok, updated}, :monitor_updated)
+        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
         {:ok, updated}
 
       error ->
         error
     end
   end
-
-  defp broadcast({:ok, monitor}, event) do
-    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitor:#{monitor.id}", {event, monitor})
-    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, monitor})
-    {:ok, monitor}
-  end
-
-  defp broadcast(error, _), do: error
 
   def delete_monitor(%Monitor{} = monitor) do
     Repo.delete(monitor)

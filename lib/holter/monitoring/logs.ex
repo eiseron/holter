@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Logs do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.MonitorLog
+  alias Holter.Monitoring.{Broadcaster, DateFilter, MonitorLog, Pagination}
   alias Holter.Repo
 
   @sortable_columns %{
@@ -15,7 +15,7 @@ defmodule Holter.Monitoring.Logs do
     page_size = filters[:page_size] || 50
     base_query = build_base_query(monitor.id, filters)
 
-    {total_pages, current_page} = calculate_pagination(base_query, page_size, filters[:page])
+    {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
 
     logs =
       fetch_paginated_logs(base_query, current_page, %{
@@ -41,18 +41,6 @@ defmodule Holter.Monitoring.Logs do
       %{start_date: filters[:start_date], end_date: filters[:end_date]},
       timezone
     )
-  end
-
-  defp calculate_pagination(query, page_size, requested_page) do
-    total_count = Repo.one(from(l in query, select: count(l.id)))
-    total_pages = ceil(total_count / page_size) |> max(1)
-
-    current_page =
-      (requested_page || 1)
-      |> min(total_pages)
-      |> max(1)
-
-    {total_pages, current_page}
   end
 
   defp fetch_paginated_logs(query, page, params) do
@@ -90,22 +78,22 @@ defmodule Holter.Monitoring.Logs do
   defp apply_date_range_filter(query, %{start_date: nil, end_date: nil}, _timezone), do: query
 
   defp apply_date_range_filter(query, %{start_date: start_date, end_date: nil}, timezone) do
-    case parse_date_to_datetime(start_date, :start, timezone) do
+    case DateFilter.parse_to_datetime(start_date, :start, timezone) do
       {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
       _ -> query
     end
   end
 
   defp apply_date_range_filter(query, %{start_date: nil, end_date: end_date}, timezone) do
-    case parse_date_to_datetime(end_date, :end, timezone) do
+    case DateFilter.parse_to_datetime(end_date, :end, timezone) do
       {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
       _ -> query
     end
   end
 
   defp apply_date_range_filter(query, %{start_date: start_date, end_date: end_date}, timezone) do
-    case {parse_date_to_datetime(start_date, :start, timezone),
-          parse_date_to_datetime(end_date, :end, timezone)} do
+    case {DateFilter.parse_to_datetime(start_date, :start, timezone),
+          DateFilter.parse_to_datetime(end_date, :end, timezone)} do
       {{:ok, start_dt}, {:ok, end_dt}} ->
         where(query, [l], l.checked_at >= ^start_dt and l.checked_at <= ^end_dt)
 
@@ -117,17 +105,6 @@ defmodule Holter.Monitoring.Logs do
 
       _ ->
         query
-    end
-  end
-
-  defp parse_date_to_datetime(date_str, type, timezone) do
-    with {:ok, date} <- Date.from_iso8601(date_str),
-         time = if(type == :start, do: ~T[00:00:00], else: ~T[23:59:59]),
-         {:ok, local_dt} <- DateTime.new(date, time, timezone),
-         {:ok, utc_dt} <- DateTime.shift_zone(local_dt, "Etc/UTC") do
-      {:ok, utc_dt}
-    else
-      _ -> :error
     end
   end
 
@@ -161,21 +138,13 @@ defmodule Holter.Monitoring.Logs do
          |> MonitorLog.changeset(attrs)
          |> Repo.insert() do
       {:ok, log} ->
-        broadcast({:ok, log}, :log_created)
+        Broadcaster.broadcast({:ok, log}, :log_created, log.monitor_id)
         {:ok, log}
 
       error ->
         error
     end
   end
-
-  defp broadcast({:ok, log}, event) do
-    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitor:#{log.monitor_id}", {event, log})
-    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, log})
-    {:ok, log}
-  end
-
-  defp broadcast(error, _), do: error
 
   @doc """
   Deletes a chunk of logs older than the retention days for a specific monitor.

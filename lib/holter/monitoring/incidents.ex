@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Incidents do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.Incident
+  alias Holter.Monitoring.{Broadcaster, Incident}
   alias Holter.Repo
 
   def list_incidents(monitor_id) do
@@ -35,7 +35,7 @@ defmodule Holter.Monitoring.Incidents do
          |> Incident.changeset(attrs)
          |> Repo.insert() do
       {:ok, incident} ->
-        broadcast({:ok, incident}, :incident_created)
+        Broadcaster.broadcast({:ok, incident}, :incident_created, incident.monitor_id)
         {:ok, incident}
 
       error ->
@@ -48,7 +48,7 @@ defmodule Holter.Monitoring.Incidents do
          |> Incident.changeset(attrs)
          |> Repo.update() do
       {:ok, updated} ->
-        broadcast({:ok, updated}, :incident_updated)
+        Broadcaster.broadcast({:ok, updated}, :incident_updated, updated.monitor_id)
         {:ok, updated}
 
       error ->
@@ -63,7 +63,7 @@ defmodule Holter.Monitoring.Incidents do
          |> Incident.changeset(%{resolved_at: resolved_at, duration_seconds: duration})
          |> Repo.update() do
       {:ok, updated} ->
-        broadcast({:ok, updated}, :incident_resolved)
+        Broadcaster.broadcast({:ok, updated}, :incident_resolved, updated.monitor_id)
         {:ok, updated}
 
       error ->
@@ -71,16 +71,4 @@ defmodule Holter.Monitoring.Incidents do
     end
   end
 
-  defp broadcast({:ok, incident}, event) do
-    Phoenix.PubSub.broadcast(
-      Holter.PubSub,
-      "monitoring:monitor:#{incident.monitor_id}",
-      {event, incident}
-    )
-
-    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:monitors", {event, incident})
-    {:ok, incident}
-  end
-
-  defp broadcast(error, _), do: error
 end
