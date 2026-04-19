@@ -80,4 +80,9 @@
   .h-logs-table-container td:last-child {
     display: none !important;
   }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+  }
 }
