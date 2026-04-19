@@ -99,6 +99,7 @@ defmodule HolterWeb do
       unquote(html_helpers())
 
       import HolterWeb.Timezone, only: [format_datetime: 2]
+      import HolterWeb.Components.Monitoring.MonitorPageContainer
       import HolterWeb.Components.Monitoring.DashboardHeader
       import HolterWeb.Components.Monitoring.MonitorCard
       import HolterWeb.Components.Monitoring.HealthBadge

@@ -1,6 +1,7 @@
 defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   @moduledoc false
   use HolterWeb, :component
+  alias HolterWeb.Components.ChartUtils
 
   @svg_width 800
   @y_top 10
@@ -13,7 +14,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
   def monitor_overview_chart(assigns) do
     sorted = Enum.sort_by(assigns.logs, & &1.checked_at, DateTime)
-    max_latency = derive_max_latency(sorted)
+    max_latency = ChartUtils.derive_max_value(sorted, :latency_ms, @latency_cap)
 
     assigns =
       assigns
@@ -85,16 +86,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     """
   end
 
-  defp derive_max_latency([]), do: 0
-
-  defp derive_max_latency(logs) do
-    logs
-    |> Enum.map(& &1.latency_ms)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.max(fn -> 0 end)
-    |> min(@latency_cap)
-  end
-
   defp build_grid_lines(0), do: []
 
   defp build_grid_lines(max_latency) do
@@ -111,7 +102,14 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
       |> Enum.map(fn i -> i * step end)
       |> Enum.filter(fn ms -> ms < max_latency end)
       |> Enum.map(fn ms ->
-        %{y: Float.round(normalize_y(ms), 1), label: "#{ms}ms"}
+        %{
+          y:
+            Float.round(
+              ChartUtils.normalize_y(ms, @latency_cap, {@y_bottom, @y_top, @latency_cap}),
+              1
+            ),
+          label: "#{ms}ms"
+        }
       end)
 
     [%{y: (@y_bottom - 6) * 1.0, label: "0ms"}] ++
@@ -125,8 +123,11 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
     "M " <>
       Enum.map_join(logs, " ", fn log ->
-        x = map_x(log.checked_at, min_ts, max_ts)
-        y = normalize_y(log.latency_ms)
+        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
+
+        y =
+          ChartUtils.normalize_y(log.latency_ms, @latency_cap, {@y_bottom, @y_top, @latency_cap})
+
         "#{Float.round(x, 1)},#{Float.round(y, 1)}"
       end)
   end
@@ -138,8 +139,11 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
     points =
       Enum.map(logs, fn log ->
-        x = map_x(log.checked_at, min_ts, max_ts)
-        y = normalize_y(log.latency_ms)
+        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
+
+        y =
+          ChartUtils.normalize_y(log.latency_ms, @latency_cap, {@y_bottom, @y_top, @latency_cap})
+
         {Float.round(x, 1), Float.round(y, 1)}
       end)
 
@@ -158,12 +162,12 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     logs
     |> Enum.with_index()
     |> Enum.map(fn {log, i} ->
-      x = map_x(log.checked_at, min_ts, max_ts)
+      x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
 
       width =
         if i < count - 1 do
           next = Enum.at(logs, i + 1)
-          map_x(next.checked_at, min_ts, max_ts) - x
+          ChartUtils.map_x(next.checked_at, {min_ts, max_ts}, {@label_left, @svg_width}) - x
         else
           @svg_width - x
         end
@@ -183,18 +187,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     max_ts = DateTime.to_unix(last)
     range = max(max_ts - min_ts, 1)
     {min_ts, min_ts + range}
-  end
-
-  defp map_x(dt, min_ts, max_ts) do
-    ts = DateTime.to_unix(dt)
-    @label_left + (ts - min_ts) / (max_ts - min_ts) * (@svg_width - @label_left) * 1.0
-  end
-
-  defp normalize_y(nil), do: @y_bottom * 1.0
-
-  defp normalize_y(latency) do
-    clamped = min(latency, @latency_cap)
-    @y_bottom - clamped / @latency_cap * (@y_bottom - @y_top) * 1.0
   end
 
   defp status_color(:up), do: "var(--color-status-up)"

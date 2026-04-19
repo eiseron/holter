@@ -3,6 +3,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
   use HolterWeb, :component
 
   alias Holter.Monitoring.DailyMetric
+  alias HolterWeb.Components.ChartUtils
 
   @bar_area_height 160
   @latency_cap 5000
@@ -18,7 +19,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
     sorted = Enum.sort_by(assigns.metrics, & &1.date, Date)
     count = length(sorted)
     slot_width = if count > 0, do: @chart_content_width / count, else: @chart_content_width
-    max_latency = derive_max_latency(sorted)
+    max_latency = ChartUtils.derive_max_value(sorted, :avg_latency_ms, @latency_cap)
 
     assigns =
       assigns
@@ -154,28 +155,17 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
       |> Enum.with_index()
       |> Enum.map_join(" ", fn {metric, i} ->
         x = @label_left + i * slot_width + slot_width / 2
-        y = normalize_latency_y(metric.avg_latency_ms, max_latency)
+
+        y =
+          ChartUtils.normalize_y(
+            metric.avg_latency_ms,
+            max_latency,
+            {@bar_area_height, 0, @latency_cap}
+          )
+
         "#{Float.round(x, 1)},#{Float.round(y, 1)}"
       end)
 
     "M " <> coords
-  end
-
-  defp derive_max_latency([]), do: 0
-
-  defp derive_max_latency(metrics) do
-    metrics
-    |> Enum.map(& &1.avg_latency_ms)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.max(fn -> 0 end)
-    |> min(@latency_cap)
-  end
-
-  defp normalize_latency_y(nil, _max), do: @bar_area_height * 1.0
-  defp normalize_latency_y(_latency, 0), do: @bar_area_height * 1.0
-
-  defp normalize_latency_y(latency, max_latency) do
-    clamped = min(latency, max_latency)
-    @bar_area_height - clamped / max_latency * @bar_area_height * 1.0
   end
 end

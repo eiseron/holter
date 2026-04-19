@@ -1,38 +1,36 @@
-<div class="h-monitor-container">
-  <.header>
-    <div class="h-title-row">
-      <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
-      {gettext("Monitor Settings")}
-      <.health_badge status={@monitor.health_status} logical_state={@monitor.logical_state} />
-    </div>
-    <:subtitle>
-      UUID: {@monitor.id}
-    </:subtitle>
-    <:actions>
-      <nav class="h-header-nav-group">
-        <.link
-          navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
-          class="h-btn h-btn-soft"
-        >
-          {gettext("Daily Metrics")}
-        </.link>
-        <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
-          {gettext("Technical Logs")}
-        </.link>
-      </nav>
-      <.button
-        type="button"
-        phx-click="run_now"
-        disabled={@cooldown_remaining > 0}
+<.monitor_page_container>
+  <:title>
+    <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
+    {gettext("Monitor Settings")}
+    <.health_badge status={@monitor.health_status} logical_state={@monitor.logical_state} />
+  </:title>
+  <:subtitle>
+    UUID: {@monitor.id}
+  </:subtitle>
+  <:actions>
+    <nav class="h-header-nav-group">
+      <.link
+        navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
+        class="h-btn h-btn-soft"
       >
-        <%= if @cooldown_remaining > 0 do %>
-          {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
-        <% else %>
-          {gettext("Run Now")}
-        <% end %>
-      </.button>
-    </:actions>
-  </.header>
+        {gettext("Daily Metrics")}
+      </.link>
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+        {gettext("Technical Logs")}
+      </.link>
+    </nav>
+    <.button
+      type="button"
+      phx-click="run_now"
+      disabled={@cooldown_remaining > 0}
+    >
+      <%= if @cooldown_remaining > 0 do %>
+        {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
+      <% else %>
+        {gettext("Run Now")}
+      <% end %>
+    </.button>
+  </:actions>
 
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} />
 
@@ -65,7 +63,7 @@
       </.button>
     </div>
   </.form>
-</div>
+</.monitor_page_container>
 
 <.modal id="delete-modal" title={gettext("Delete Monitor")}>
   <p>

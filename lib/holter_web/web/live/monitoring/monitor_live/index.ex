@@ -2,14 +2,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
   use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring
+  alias HolterWeb.LiveView.PubSubSubscriptions
 
   @impl true
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
-        if connected?(socket) do
-          Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitors")
-        end
+        PubSubSubscriptions.subscribe_to_monitors(socket)
 
         {:ok,
          socket

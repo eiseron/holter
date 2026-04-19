@@ -3,13 +3,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
+  alias HolterWeb.LiveView.PubSubSubscriptions
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:monitor:#{id}")
-    end
-
+    PubSubSubscriptions.subscribe_to_monitor(socket, id)
     monitor = Monitoring.get_monitor!(id)
     workspace = Monitoring.get_workspace!(monitor.workspace_id)
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
