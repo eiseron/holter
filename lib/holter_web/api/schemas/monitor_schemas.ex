@@ -29,7 +29,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
           enum: ["get", "post", "head", "put", "patch", "delete", "options"]
         },
         interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
-        timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 300},
+        timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 30},
         health_status: %Schema{
           type: :string,
           enum: ["up", "down", "degraded", "compromised", "unknown"]
@@ -84,7 +84,7 @@ defmodule HolterWeb.Api.MonitorSchemas do
         enum: ["get", "post", "put", "patch", "delete", "options", "head"]
       },
       interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
-      timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 300},
+      timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 30},
       ssl_ignore: %Schema{type: :boolean, default: false},
       follow_redirects: %Schema{type: :boolean, default: true},
       max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},

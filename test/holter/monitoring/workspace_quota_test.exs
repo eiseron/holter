@@ -124,6 +124,19 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
 
       refute changeset.errors[:timeout_seconds]
     end
+
+    test "reports only one error when timeout exceeds both 30s cap and interval" do
+      changeset =
+        Monitor.changeset(%Monitor{}, %{
+          url: "https://example.com",
+          method: :get,
+          interval_seconds: 600,
+          timeout_seconds: 2_220_000,
+          workspace_id: Ecto.UUID.generate()
+        })
+
+      assert length(Keyword.get_values(changeset.errors, :timeout_seconds)) == 1
+    end
   end
 
   describe "Monitor.changeset — body and HTTP method" do
