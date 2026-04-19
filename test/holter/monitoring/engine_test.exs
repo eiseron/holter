@@ -289,6 +289,24 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "case-insensitive keyword matching" do
+    test "matches positive keyword regardless of case", %{monitor: monitor} do
+      assert {:ok, _} =
+               Engine.process_response(monitor, ok_response("SUCCESS"), %{duration_ms: 100})
+
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+    end
+
+    test "matches forbidden keyword regardless of case", %{monitor: monitor} do
+      assert {:ok, _} =
+               Engine.process_response(monitor, ok_response("success but has ERROR"), %{
+                 duration_ms: 100
+               })
+
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+  end
+
   defp ok_response(body),
     do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
 
