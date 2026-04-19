@@ -11,17 +11,14 @@
     <nav class="h-header-nav-group">
       <.link
         navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"}
-        class="h-btn h-btn-soft"
+        class="h-nav-link"
       >
         {gettext("Daily Metrics")}
       </.link>
-      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-nav-link">
         {gettext("Technical Logs")}
       </.link>
-      <.link
-        navigate={~p"/monitoring/monitor/#{@monitor.id}/incidents"}
-        class="h-btn h-btn-soft"
-      >
+      <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/incidents"} class="h-nav-link">
         {gettext("Incidents")}
       </.link>
     </nav>
