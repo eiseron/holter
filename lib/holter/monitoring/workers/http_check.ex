@@ -11,6 +11,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
 
+  @max_timeout_seconds 30
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
@@ -63,7 +65,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp calculate_remaining_timeout(monitor, start_time) do
     elapsed_ms = calculate_duration(start_time)
-    monitor.timeout_seconds * 1000 - elapsed_ms
+    capped = min(monitor.timeout_seconds, @max_timeout_seconds)
+    capped * 1000 - elapsed_ms
   end
 
   defp execute_request(monitor, state, remaining_timeout) do

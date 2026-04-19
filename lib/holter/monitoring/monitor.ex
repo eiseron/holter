@@ -133,7 +133,7 @@ defmodule Holter.Monitoring.Monitor do
       greater_than_or_equal_to: 1,
       less_than_or_equal_to: 86_400
     )
-    |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 300)
+    |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 30)
     |> validate_number(:max_redirects, greater_than_or_equal_to: 1, less_than_or_equal_to: 20)
     |> validate_length(:url, max: 2048)
     |> validate_length(:raw_headers, max: 4096)
@@ -193,7 +193,11 @@ defmodule Holter.Monitoring.Monitor do
   end
 
   defp validate_timeout_vs_interval(changeset) do
-    if field_changed?(changeset, :timeout_seconds) or field_changed?(changeset, :interval_seconds) do
+    already_invalid = changeset.errors[:timeout_seconds] != nil
+
+    if not already_invalid and
+         (field_changed?(changeset, :timeout_seconds) or
+            field_changed?(changeset, :interval_seconds)) do
       interval = get_field(changeset, :interval_seconds)
       timeout = get_field(changeset, :timeout_seconds)
 
