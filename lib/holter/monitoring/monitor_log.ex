@@ -20,6 +20,7 @@ defmodule Holter.Monitoring.MonitorLog do
     field :monitor_snapshot, :map
 
     belongs_to :monitor, Holter.Monitoring.Monitor
+    belongs_to :incident, Holter.Monitoring.Incident
 
     timestamps(type: :utc_datetime)
   end
@@ -41,7 +42,8 @@ defmodule Holter.Monitoring.MonitorLog do
       :last_redirect_url,
       :redirect_list,
       :checked_at,
-      :monitor_snapshot
+      :monitor_snapshot,
+      :incident_id
     ])
     |> validate_required([:monitor_id, :status, :checked_at])
   end
