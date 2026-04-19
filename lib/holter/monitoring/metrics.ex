@@ -60,5 +60,4 @@ defmodule Holter.Monitoring.Metrics do
         error
     end
   end
-
 end

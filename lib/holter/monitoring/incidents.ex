@@ -70,5 +70,4 @@ defmodule Holter.Monitoring.Incidents do
         error
     end
   end
-
 end
