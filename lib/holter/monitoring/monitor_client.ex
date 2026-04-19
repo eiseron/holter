@@ -17,11 +17,18 @@ defmodule Holter.Monitoring.MonitorClient do
     @impl true
     def request(opts) do
       opts
+      |> Keyword.put_new(:user_agent, build_user_agent())
       |> Keyword.put_new(:retry, fn
         _request, %Req.Response{} -> false
         _request, _exception -> true
       end)
       |> Req.request()
+    end
+
+    defp build_user_agent do
+      version = Application.spec(:holter, :vsn) |> to_string()
+      app_domain = System.get_env("APP_DOMAIN", "holter.dev")
+      "Holter/#{version} (+https://#{app_domain})"
     end
 
     @impl true
