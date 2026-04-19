@@ -11,18 +11,21 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
+  attr :timezone, :string, default: "Etc/UTC"
 
   def monitor_overview_chart(assigns) do
     sorted = Enum.sort_by(assigns.logs, & &1.checked_at, DateTime)
     max_latency = ChartUtils.derive_max_value(sorted, :latency_ms, @latency_cap)
+    max_scale = max(max_latency, 1)
 
     assigns =
       assigns
       |> assign(:sorted_logs, sorted)
-      |> assign(:area_path, build_area_path(sorted))
-      |> assign(:line_path, build_line_path(sorted))
+      |> assign(:area_path, build_area_path(sorted, max_scale))
+      |> assign(:line_path, build_line_path(sorted, max_scale))
       |> assign(:ribbon_rects, build_ribbon_rects(sorted))
-      |> assign(:grid_lines, build_grid_lines(max_latency))
+      |> assign(:grid_lines, build_grid_lines(max_scale))
+      |> assign(:x_axis_labels, build_x_axis_labels(sorted, assigns[:timezone] || "Etc/UTC"))
 
     ~H"""
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
@@ -32,7 +35,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
-        <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
+        <svg class="ovw-area-svg" viewBox="0 0 800 120" preserveAspectRatio="none">
           <defs>
             <linearGradient id={"ovw-grad-#{@monitor_id}"} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="var(--prim-purple-500)" stop-opacity="0.3" />
@@ -44,6 +47,19 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
             <line x1="40" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
             <text x="2" y={grid.y + 3} dominant-baseline="middle" class="chart-scale-label">
               {grid.label}
+            </text>
+          <% end %>
+
+          <%= for label <- @x_axis_labels do %>
+            <line x1={label.x} y1="10" x2={label.x} y2="100" class="chart-grid-line" />
+            <text
+              x={label.x}
+              y="115"
+              text-anchor="middle"
+              class="chart-scale-label"
+              dominant-baseline="middle"
+            >
+              {label.label}
             </text>
           <% end %>
 
@@ -89,36 +105,26 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   defp build_grid_lines(0), do: []
 
   defp build_grid_lines(max_latency) do
-    step =
-      cond do
-        max_latency <= 100 -> 25
-        max_latency <= 500 -> 100
-        max_latency <= 2000 -> 500
-        true -> 1000
-      end
+    num_segments = 4
+    segment_size = max_latency / num_segments
 
-    lines =
-      1..div(max_latency, step)//1
-      |> Enum.map(fn i -> i * step end)
-      |> Enum.filter(fn ms -> ms < max_latency end)
-      |> Enum.map(fn ms ->
-        %{
-          y:
-            Float.round(
-              ChartUtils.normalize_y(ms, @latency_cap, {@y_bottom, @y_top, @latency_cap}),
-              1
-            ),
-          label: "#{ms}ms"
-        }
-      end)
+    for i <- 0..num_segments do
+      ms = i * segment_size
 
-    [%{y: (@y_bottom - 6) * 1.0, label: "0ms"}] ++
-      lines ++ [%{y: @y_top * 1.0, label: "#{max_latency}ms"}]
+      %{
+        y:
+          Float.round(
+            ChartUtils.normalize_y(ms, max_latency, {@y_bottom, @y_top, @latency_cap}),
+            1
+          ),
+        label: "#{round(ms)}ms"
+      }
+    end
   end
 
-  defp build_line_path([]), do: ""
+  defp build_line_path([], _max), do: ""
 
-  defp build_line_path(logs) do
+  defp build_line_path(logs, max_latency) do
     {min_ts, max_ts} = time_range(logs)
 
     "M " <>
@@ -126,15 +132,15 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
 
         y =
-          ChartUtils.normalize_y(log.latency_ms, @latency_cap, {@y_bottom, @y_top, @latency_cap})
+          ChartUtils.normalize_y(log.latency_ms, max_latency, {@y_bottom, @y_top, @latency_cap})
 
         "#{Float.round(x, 1)},#{Float.round(y, 1)}"
       end)
   end
 
-  defp build_area_path([]), do: ""
+  defp build_area_path([], _max), do: ""
 
-  defp build_area_path(logs) do
+  defp build_area_path(logs, max_latency) do
     {min_ts, max_ts} = time_range(logs)
 
     points =
@@ -142,7 +148,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
 
         y =
-          ChartUtils.normalize_y(log.latency_ms, @latency_cap, {@y_bottom, @y_top, @latency_cap})
+          ChartUtils.normalize_y(log.latency_ms, max_latency, {@y_bottom, @y_top, @latency_cap})
 
         {Float.round(x, 1), Float.round(y, 1)}
       end)
