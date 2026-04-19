@@ -51,3 +51,5 @@ Novos resultados de verificação aparecem automaticamente no topo da lista sem 
 Os logs são excluídos automaticamente após o período de retenção configurado para o seu workspace. A exclusão ocorre uma vez por dia, disparada após o job de agregação de métricas diárias. Os logs são removidos em lotes para evitar operações longas no banco de dados, portanto backlogs muito grandes podem levar alguns ciclos para serem totalmente removidos.
 
 Após a exclusão, uma entrada de log não pode ser recuperada. Se precisar preservar evidências além do período de retenção, exporte as páginas de [Detalhe do Log](log-detail.md) relevantes antes que sejam removidas.
+
+Mesmo após a exclusão dos logs, os dados agregados de uptime continuam disponíveis na página de [Métricas Diárias](daily-metrics.md), que oferece um resumo histórico do percentual de uptime, latência média e minutos de indisponibilidade por dia.

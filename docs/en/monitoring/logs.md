@@ -51,3 +51,5 @@ New check results appear automatically at the top of the list without a page rel
 Logs are automatically deleted after the retention period configured for your workspace. Deletion runs once per day, triggered after the daily metrics aggregation job. Logs are removed in chunks to avoid long-running database operations, so very large backlogs may take a few cycles to clear completely.
 
 Once a log entry is deleted it cannot be recovered. If you need to preserve evidence beyond the retention window, export the relevant [Log Detail](log-detail.md) pages before they are purged.
+
+Even after logs are deleted, aggregated uptime data remains available on the [Daily Metrics](daily-metrics.md) page, which provides a historical summary of uptime percentage, average latency, and downtime minutes per day.
