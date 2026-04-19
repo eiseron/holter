@@ -1,0 +1,58 @@
+<.monitor_page_container>
+  <:title>
+    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}/incidents"} />
+    {gettext("Incident Details")}
+  </:title>
+  <:subtitle>
+    <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+  </:subtitle>
+
+  <div class="h-log-detail-content">
+    <div class="h-evidence-grid">
+      <div class="h-evidence-meta">
+        <div class="h-meta-item">
+          <label>{gettext("Type")}</label>
+          <span class="h-badge h-badge-danger">{@incident.type}</span>
+        </div>
+        <div class="h-meta-item">
+          <label>{gettext("State")}</label>
+          <%= if is_nil(@incident.resolved_at) do %>
+            <span class="h-badge h-badge-danger">{gettext("Open")}</span>
+          <% else %>
+            <span class="h-badge h-badge-neutral">{gettext("Resolved")}</span>
+          <% end %>
+        </div>
+        <div class="h-meta-item">
+          <label>{gettext("Started At")}</label>
+          <span data-role="incident-started-at">
+            {format_datetime(@incident.started_at, @timezone)}
+          </span>
+        </div>
+        <%= if @incident.resolved_at do %>
+          <div class="h-meta-item">
+            <label>{gettext("Resolved At")}</label>
+            <span>{format_datetime(@incident.resolved_at, @timezone)}</span>
+          </div>
+          <div class="h-meta-item">
+            <label>{gettext("Duration")}</label>
+            <span>{div(@incident.duration_seconds || 0, 60)} {gettext("min")}</span>
+          </div>
+        <% end %>
+      </div>
+
+      <%= if @incident.root_cause do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Root Cause")}</label>
+          <pre data-role="incident-root-cause">{@incident.root_cause}</pre>
+        </div>
+      <% end %>
+
+      <%= if @incident.monitor_snapshot do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Monitor Snapshot")}</label>
+          <.monitor_snapshot snapshot={@incident.monitor_snapshot} />
+        </div>
+      <% end %>
+    </div>
+  </div>
+</.monitor_page_container>

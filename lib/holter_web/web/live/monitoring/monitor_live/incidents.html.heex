@@ -82,6 +82,14 @@
       <:col :let={incident} label={gettext("Root Cause")}>
         <span class="h-text-truncate">{incident.root_cause}</span>
       </:col>
+      <:col :let={incident} label="">
+        <.link
+          navigate={~p"/monitoring/incidents/#{incident.id}"}
+          class="h-btn h-btn-soft h-text-sm"
+        >
+          {gettext("Details")}
+        </.link>
+      </:col>
     </.table>
 
     <.pagination_nav

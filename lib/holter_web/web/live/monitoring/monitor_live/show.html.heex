@@ -52,6 +52,14 @@
       <:col :let={incident} label={gettext("Root Cause")}>
         {incident.root_cause}
       </:col>
+      <:col :let={incident} label="">
+        <.link
+          navigate={~p"/monitoring/incidents/#{incident.id}"}
+          class="h-btn h-btn-soft h-text-sm"
+        >
+          {gettext("Details")}
+        </.link>
+      </:col>
     </.table>
   </div>
 
