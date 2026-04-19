@@ -1,4 +1,11 @@
 defmodule Mix.Tasks.Holter.GenApiDocs do
+  @moduledoc """
+  Generates OpenAPI YAML specification files for all configured API modules.
+
+  Reads the `:api_specs` config (a list of `{spec_module, output_path}` tuples)
+  and runs `mix openapi.spec.yaml` for each entry.
+  """
+
   use Mix.Task
 
   @shortdoc "Generate OpenAPI YAML docs for all configured API modules"
