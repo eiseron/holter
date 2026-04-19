@@ -2,7 +2,17 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Incidents, Monitor, Pagination, Workspace, Workspaces}
+
+  alias Holter.Monitoring.{
+    Broadcaster,
+    Incident,
+    Incidents,
+    Monitor,
+    Pagination,
+    Workspace,
+    Workspaces
+  }
+
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -34,8 +44,20 @@ defmodule Holter.Monitoring.Monitors do
       |> Enum.group_by(& &1.monitor_id)
       |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
 
+    incident_counts =
+      Incident
+      |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
+      |> group_by([i], i.monitor_id)
+      |> select([i], {i.monitor_id, count(i.id)})
+      |> Repo.all()
+      |> Map.new()
+
     Enum.map(monitors, fn monitor ->
-      %{monitor | logs: Map.get(logs_by_monitor, monitor.id, [])}
+      %{
+        monitor
+        | logs: Map.get(logs_by_monitor, monitor.id, []),
+          open_incidents_count: Map.get(incident_counts, monitor.id, 0)
+      }
     end)
   end
 

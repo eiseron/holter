@@ -19,6 +19,36 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
     )
   end
 
+  describe "list_monitors_with_sparklines/2 open_incidents_count" do
+    test "sets open_incidents_count to 2 for a monitor with 2 open incidents",
+         %{workspace: workspace} do
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+      Monitoring.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+      Monitoring.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
+
+      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      assert result.open_incidents_count == 2
+    end
+
+    test "sets open_incidents_count to 0 for a monitor with no open incidents",
+         %{workspace: workspace} do
+      monitor_fixture(%{workspace_id: workspace.id})
+
+      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      assert result.open_incidents_count == 0
+    end
+
+    test "sets open_incidents_count to 0 for a monitor where all incidents are resolved",
+         %{workspace: workspace} do
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+      {:ok, incident} = Monitoring.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+      Monitoring.resolve_incident(incident, DateTime.utc_now() |> DateTime.truncate(:second))
+
+      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      assert result.open_incidents_count == 0
+    end
+  end
+
   describe "list_monitors_by_workspace/1 tactical ranking by open incident count" do
     test "monitor with 2 open incidents ranks above monitor with 1 open incident at the same health_status",
          %{workspace: workspace} do

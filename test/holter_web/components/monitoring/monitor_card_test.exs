@@ -13,7 +13,8 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
         interval_seconds: 60,
         health_status: :up,
         logical_state: :active,
-        logs: []
+        logs: [],
+        open_incidents_count: 0
       },
       overrides
     )
@@ -45,6 +46,38 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
     test "renders link to detail_url" do
       html = render_component(&monitor_card/1, monitor: monitor_attrs(), detail_url: "/my/detail")
       assert html =~ "/my/detail"
+    end
+  end
+
+  describe "open incidents counter" do
+    test "renders open incidents badge when count is greater than zero" do
+      html =
+        render_component(&monitor_card/1,
+          monitor: monitor_attrs(%{open_incidents_count: 2}),
+          detail_url: "/d"
+        )
+
+      assert html =~ ~s(data-role="open-incidents-count")
+    end
+
+    test "renders the open incident count number in the badge" do
+      html =
+        render_component(&monitor_card/1,
+          monitor: monitor_attrs(%{open_incidents_count: 3}),
+          detail_url: "/d"
+        )
+
+      assert html =~ "3 open"
+    end
+
+    test "does not render open incidents badge when count is zero" do
+      html =
+        render_component(&monitor_card/1,
+          monitor: monitor_attrs(%{open_incidents_count: 0}),
+          detail_url: "/d"
+        )
+
+      refute html =~ ~s(data-role="open-incidents-count")
     end
   end
 
