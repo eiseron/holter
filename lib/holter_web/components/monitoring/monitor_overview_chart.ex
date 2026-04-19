@@ -3,11 +3,11 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
   use HolterWeb, :component
   alias HolterWeb.Components.ChartUtils
 
-  @svg_width 800
   @y_top 10
   @y_bottom 100
   @latency_cap 2000
   @label_left 40
+  @label_right 780
 
   attr :monitor_id, :string, required: true
   attr :logs, :list, default: []
@@ -26,12 +26,13 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
       |> assign(:ribbon_rects, build_ribbon_rects(sorted))
       |> assign(:grid_lines, build_grid_lines(max_scale))
       |> assign(:x_axis_labels, build_x_axis_labels(sorted, assigns[:timezone] || "Etc/UTC"))
+      |> assign(:label_right, @label_right)
 
     ~H"""
     <div class="ovw-chart-container" id={"ovw-chart-#{@monitor_id}"}>
       <%= if @sorted_logs == [] do %>
         <svg class="ovw-area-svg" viewBox="0 0 800 100" preserveAspectRatio="none">
-          <line x1="40" y1="60" x2="800" y2="60" class="chart-empty-line" />
+          <line x1="40" y1="60" x2={@label_right} y2="60" class="chart-empty-line" />
         </svg>
         <p class="ovw-no-data">{gettext("No data for the last 24 hours")}</p>
       <% else %>
@@ -44,7 +45,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
           </defs>
 
           <%= for grid <- @grid_lines do %>
-            <line x1="40" y1={grid.y} x2="800" y2={grid.y} class="chart-grid-line" />
+            <line x1="40" y1={grid.y} x2={@label_right} y2={grid.y} class="chart-grid-line" />
             <text x="2" y={grid.y + 3} dominant-baseline="middle" class="chart-scale-label">
               {grid.label}
             </text>
@@ -63,7 +64,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
             </text>
           <% end %>
 
-          <line x1="40" y1="100" x2="800" y2="100" class="chart-baseline" />
+          <line x1="40" y1="100" x2={@label_right} y2="100" class="chart-baseline" />
 
           <path d={@area_path} fill={"url(#ovw-grad-#{@monitor_id})"} />
           <path d={@line_path} class="ovw-area-line" />
@@ -129,7 +130,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
     "M " <>
       Enum.map_join(logs, " ", fn log ->
-        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
+        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @label_right})
 
         y =
           ChartUtils.normalize_y(log.latency_ms, max_latency, {@y_bottom, @y_top, @latency_cap})
@@ -145,7 +146,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
 
     points =
       Enum.map(logs, fn log ->
-        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
+        x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @label_right})
 
         y =
           ChartUtils.normalize_y(log.latency_ms, max_latency, {@y_bottom, @y_top, @latency_cap})
@@ -168,14 +169,14 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
     logs
     |> Enum.with_index()
     |> Enum.map(fn {log, i} ->
-      x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @svg_width})
+      x = ChartUtils.map_x(log.checked_at, {min_ts, max_ts}, {@label_left, @label_right})
 
       width =
         if i < count - 1 do
           next = Enum.at(logs, i + 1)
-          ChartUtils.map_x(next.checked_at, {min_ts, max_ts}, {@label_left, @svg_width}) - x
+          ChartUtils.map_x(next.checked_at, {min_ts, max_ts}, {@label_left, @label_right}) - x
         else
-          @svg_width - x
+          @label_right - x
         end
 
       %{
@@ -220,7 +221,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorOverviewChart do
         |> HolterWeb.Timezone.shift_or_utc(tz)
 
       %{
-        x: ChartUtils.map_x(dt, {min_ts, max_ts}, {@label_left, @svg_width}),
+        x: ChartUtils.map_x(dt, {min_ts, max_ts}, {@label_left, @label_right}),
         label: Calendar.strftime(dt, "%H:%M")
       }
     end
