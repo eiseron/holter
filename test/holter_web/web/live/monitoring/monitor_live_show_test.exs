@@ -285,7 +285,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       })
 
       {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
-      assert html =~ "ssl_expiry"
+      assert html =~ "SSL EXPIRY"
     end
 
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",

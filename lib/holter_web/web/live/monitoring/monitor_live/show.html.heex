@@ -40,18 +40,18 @@
 
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} timezone={@timezone} />
 
-  <div :if={@active_incidents != []} class="h-active-incidents">
-    <h3 class="h-section-title">{gettext("Active Incidents")}</h3>
+  <div :if={@active_incidents != []} class="h-fieldset-card">
+    <p class="h-fieldset-legend">{gettext("Active Incidents")}</p>
     <.table id="active-incidents-table" rows={@active_incidents}>
       <:col :let={incident} label={gettext("Type")}>
-        <span class="h-badge h-badge-danger">{incident.type}</span>
+        <span class={"h-status-pill h-status-#{incident_type_to_status(incident.type)}"}>
+          {incident.type |> to_string() |> String.replace("_", " ") |> String.upcase()}
+        </span>
       </:col>
       <:col :let={incident} label={gettext("Since")}>
         {format_datetime(incident.started_at, @timezone)}
       </:col>
-      <:col :let={incident} label={gettext("Root Cause")}>
-        {incident.root_cause}
-      </:col>
+      <:col :let={incident} label={gettext("Root Cause")}>{incident.root_cause}</:col>
       <:col :let={incident} label="">
         <.link
           navigate={~p"/monitoring/incidents/#{incident.id}"}
@@ -68,7 +68,7 @@
     id="monitor-form"
     phx-change="validate"
     phx-submit="save"
-    class="h-form-sections"
+    class="h-form-sections h-mt-8"
   >
     <.monitor_form_technical form={@form} />
     <.monitor_form_security form={@form} />

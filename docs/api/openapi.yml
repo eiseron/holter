@@ -1483,6 +1483,128 @@ info:
   version: 1.0.0
 openapi: 3.0.0
 paths:
+  /api/v1/incidents/{id}:
+    get:
+      callbacks: {}
+      description: Retrieve a single incident by its UUID, including root cause and monitor snapshot.
+      operationId: HolterWeb.Api.IncidentController.show
+      parameters:
+        - description: Incident UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+                properties:
+                  duration_seconds:
+                    nullable: true
+                    type: integer
+                    x-struct:
+                    x-validate:
+                  id:
+                    format: uuid
+                    type: string
+                    x-struct:
+                    x-validate:
+                  inserted_at:
+                    format: date-time
+                    type: string
+                    x-struct:
+                    x-validate:
+                  monitor_snapshot:
+                    additionalProperties: true
+                    nullable: true
+                    type: object
+                    x-struct:
+                    x-validate:
+                  resolved_at:
+                    format: date-time
+                    nullable: true
+                    type: string
+                    x-struct:
+                    x-validate:
+                  root_cause:
+                    nullable: true
+                    type: string
+                    x-struct:
+                    x-validate:
+                  started_at:
+                    format: date-time
+                    type: string
+                    x-struct:
+                    x-validate:
+                  type:
+                    enum:
+                      - downtime
+                      - defacement
+                      - ssl_expiry
+                    type: string
+                    x-struct:
+                    x-validate:
+                  updated_at:
+                    format: date-time
+                    type: string
+                    x-struct:
+                    x-validate:
+                required:
+                  - id
+                  - type
+                  - started_at
+                title: Incident
+                type: object
+                x-struct:
+                x-validate:
+          description: Incident details
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Incident not found
+      summary: Get incident details
+      tags:
+        - Incidents
   /api/v1/monitors/{id}:
     delete:
       callbacks: {}
