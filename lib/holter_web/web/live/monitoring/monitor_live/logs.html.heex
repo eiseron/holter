@@ -1,14 +1,11 @@
-<div class="h-monitor-container">
-  <.header>
-    <div class="h-title-row" data-role="page-title">
-      <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
-      {gettext("Technical Logs")}
-    </div>
-
-    <:subtitle>
-      <span class="h-text-muted h-font-mono">{@monitor.url}</span>
-    </:subtitle>
-  </.header>
+<.monitor_page_container>
+  <:title>
+    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
+    {gettext("Technical Logs")}
+  </:title>
+  <:subtitle>
+    <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+  </:subtitle>
 
   <div class="h-logs-filters">
     <.form
@@ -107,4 +104,4 @@
       total_pages={@total_pages}
     />
   </div>
-</div>
+</.monitor_page_container>
