@@ -23,8 +23,7 @@ defmodule Holter.Monitoring.Metrics do
     metrics =
       base_query
       |> apply_sort_order(filters[:sort_by], filters[:sort_dir])
-      |> limit(^page_size)
-      |> offset(^((current_page - 1) * page_size))
+      |> Pagination.paginate_query(current_page, page_size)
       |> Repo.all()
 
     %{

@@ -3,6 +3,7 @@ defmodule Holter.Monitoring.PaginationTest do
 
   import Ecto.Query
   alias Holter.Monitoring.{MonitorLog, Pagination}
+  alias Holter.Repo
 
   describe "calculate/3" do
     test "returns total_pages=1 and current_page=1 when table is empty" do
@@ -54,6 +55,47 @@ defmodule Holter.Monitoring.PaginationTest do
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
       {_total, current} = Pagination.calculate(query, 10, 2)
       assert current == 2
+    end
+  end
+
+  describe "paginate_query/3" do
+    test "limits results to page_size" do
+      monitor = monitor_fixture()
+      for _ <- 1..15, do: log_fixture(monitor_id: monitor.id)
+
+      query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
+      results = query |> Pagination.paginate_query(1, 10) |> Repo.all()
+      assert length(results) == 10
+    end
+
+    test "returns second page of results" do
+      monitor = monitor_fixture()
+      for _ <- 1..15, do: log_fixture(monitor_id: monitor.id)
+
+      query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
+      results = query |> Pagination.paginate_query(2, 10) |> Repo.all()
+      assert length(results) == 5
+    end
+
+    test "returns empty list when page exceeds available records" do
+      monitor = monitor_fixture()
+      for _ <- 1..5, do: log_fixture(monitor_id: monitor.id)
+
+      query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
+      results = query |> Pagination.paginate_query(3, 5) |> Repo.all()
+      assert results == []
+    end
+
+    test "pages are non-overlapping" do
+      monitor = monitor_fixture()
+      for _ <- 1..20, do: log_fixture(monitor_id: monitor.id)
+
+      query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id, order_by: l.inserted_at)
+      page1 = query |> Pagination.paginate_query(1, 10) |> Repo.all()
+      page2 = query |> Pagination.paginate_query(2, 10) |> Repo.all()
+      ids1 = MapSet.new(page1, & &1.id)
+      ids2 = MapSet.new(page2, & &1.id)
+      assert MapSet.disjoint?(ids1, ids2)
     end
   end
 end

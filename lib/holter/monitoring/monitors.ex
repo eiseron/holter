@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Incidents, Monitor, Workspace, Workspaces}
+  alias Holter.Monitoring.{Broadcaster, Incidents, Monitor, Pagination, Workspace, Workspaces}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -79,8 +79,7 @@ defmodule Holter.Monitoring.Monitors do
     monitors =
       filtered_query
       |> tactical_ranking()
-      |> limit(^page_size)
-      |> offset(^((page - 1) * page_size))
+      |> Pagination.paginate_query(page, page_size)
       |> Repo.all()
 
     %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}

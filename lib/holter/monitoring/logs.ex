@@ -44,15 +44,9 @@ defmodule Holter.Monitoring.Logs do
   end
 
   defp fetch_paginated_logs(query, page, params) do
-    page_size = params.page_size
-    sort_by = params.sort_by
-    sort_dir = params.sort_dir
-    offset = (page - 1) * page_size
-
     query
-    |> apply_sort_order(sort_by, sort_dir)
-    |> limit(^page_size)
-    |> offset(^offset)
+    |> apply_sort_order(params.sort_by, params.sort_dir)
+    |> Pagination.paginate_query(page, params.page_size)
     |> Repo.all()
   end
 
