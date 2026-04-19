@@ -109,6 +109,11 @@ defmodule Holter.Monitoring.Monitors do
           ELSE 0
         END
         """),
+      desc:
+        fragment(
+          "(SELECT COUNT(*) FROM incidents WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL)",
+          m.id
+        ),
       desc: m.inserted_at
     )
   end

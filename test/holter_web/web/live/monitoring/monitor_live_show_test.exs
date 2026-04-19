@@ -258,6 +258,36 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       refute html =~ "PAUSED"
     end
 
+    test "Given a monitor with an active downtime incident, when page loads, then active incidents section is visible",
+         %{conn: conn, monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :downtime,
+        started_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "Active Incidents"
+    end
+
+    test "Given a monitor with no active incidents, when page loads, then active incidents section is not rendered",
+         %{conn: conn, monitor: monitor} do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      refute html =~ "Active Incidents"
+    end
+
+    test "Given a monitor with an active incident, when page loads, then incident type is shown",
+         %{conn: conn, monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :ssl_expiry,
+        started_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "ssl_expiry"
+    end
+
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
          %{conn: conn, monitor: monitor} do
       import Mox
