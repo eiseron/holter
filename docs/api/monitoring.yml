@@ -1,0 +1,3928 @@
+---
+components:
+  responses: {}
+  schemas:
+    DailyMetric:
+      additionalProperties: false
+      description: Aggregated daily uptime and performance metrics for a monitor.
+      properties:
+        avg_latency_ms:
+          type: integer
+          x-struct:
+          x-validate:
+        date:
+          format: date
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        total_downtime_minutes:
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        uptime_percent:
+          type: number
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - date
+        - uptime_percent
+        - avg_latency_ms
+        - total_downtime_minutes
+      title: DailyMetric
+      type: object
+      x-struct:
+      x-validate:
+    DailyMetricList:
+      additionalProperties: false
+      description: A paginated list of daily metric entries.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: Aggregated daily uptime and performance metrics for a monitor.
+            properties:
+              avg_latency_ms:
+                type: integer
+                x-struct:
+                x-validate:
+              date:
+                format: date
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              total_downtime_minutes:
+                type: integer
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              uptime_percent:
+                type: number
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - date
+              - uptime_percent
+              - avg_latency_ms
+              - total_downtime_minutes
+            title: DailyMetric
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total_pages:
+              type: integer
+              x-struct:
+              x-validate:
+          required:
+            - page
+            - page_size
+            - total_pages
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+        - meta
+      title: DailyMetricList
+      type: object
+      x-struct:
+      x-validate:
+    Error:
+      additionalProperties: false
+      description: Standard error response.
+      properties:
+        error:
+          properties:
+            code:
+              description: Machine-readable error code (slug).
+              type: string
+              x-struct:
+              x-validate:
+            details:
+              description: Optional additional error details (e.g. validation errors).
+              type: object
+              x-struct:
+              x-validate:
+            message:
+              description: Human-readable error message.
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - code
+            - message
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - error
+      title: Error
+      type: object
+      x-struct:
+      x-validate:
+    Incident:
+      additionalProperties: false
+      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+      properties:
+        duration_seconds:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        resolved_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        root_cause:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        started_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - downtime
+            - defacement
+            - ssl_expiry
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - type
+        - started_at
+      title: Incident
+      type: object
+      x-struct:
+      x-validate:
+    IncidentList:
+      additionalProperties: false
+      description: A list of incidents ordered by start time descending.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+            properties:
+              duration_seconds:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              monitor_snapshot:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              resolved_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              root_cause:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              started_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              type:
+                enum:
+                  - downtime
+                  - defacement
+                  - ssl_expiry
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - type
+              - started_at
+            title: Incident
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      title: IncidentList
+      type: object
+      x-struct:
+      x-validate:
+    Monitor:
+      additionalProperties: false
+      description: A monitoring target for HTTP/HTTPS/SSL checks.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        health_status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        keyword_negative:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        keyword_positive:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        last_checked_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_success_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        logical_state:
+          enum:
+            - active
+            - paused
+            - archived
+          type: string
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - head
+            - put
+            - patch
+            - delete
+            - options
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          description: Raw string of headers
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          description: Comma-separated negative keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          description: Comma-separated positive keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 300
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - url
+        - method
+        - interval_seconds
+        - timeout_seconds
+      title: Monitor
+      type: object
+      x-struct:
+      x-validate:
+    MonitorCreateRequest:
+      description: Parameters for creating a monitor. url, method and interval_seconds are required.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 300
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - url
+        - method
+        - interval_seconds
+      title: MonitorCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    MonitorList:
+      additionalProperties: false
+      description: A list of monitors with metadata.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A monitoring target for HTTP/HTTPS/SSL checks.
+            properties:
+              body:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              follow_redirects:
+                default: true
+                type: boolean
+                x-struct:
+                x-validate:
+              headers:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              health_status:
+                enum:
+                  - up
+                  - down
+                  - degraded
+                  - compromised
+                  - unknown
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              interval_seconds:
+                maximum: 86400
+                minimum: 1
+                type: integer
+                x-struct:
+                x-validate:
+              keyword_negative:
+                items:
+                  type: string
+                  x-struct:
+                  x-validate:
+                type: array
+                x-struct:
+                x-validate:
+              keyword_positive:
+                items:
+                  type: string
+                  x-struct:
+                  x-validate:
+                type: array
+                x-struct:
+                x-validate:
+              last_checked_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_success_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              logical_state:
+                enum:
+                  - active
+                  - paused
+                  - archived
+                type: string
+                x-struct:
+                x-validate:
+              max_redirects:
+                default: 5
+                maximum: 20
+                minimum: 1
+                type: integer
+                x-struct:
+                x-validate:
+              method:
+                enum:
+                  - get
+                  - post
+                  - head
+                  - put
+                  - patch
+                  - delete
+                  - options
+                type: string
+                x-struct:
+                x-validate:
+              raw_headers:
+                description: Raw string of headers
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              raw_keyword_negative:
+                description: Comma-separated negative keywords
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              raw_keyword_positive:
+                description: Comma-separated positive keywords
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              ssl_expires_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              ssl_ignore:
+                default: false
+                type: boolean
+                x-struct:
+                x-validate:
+              timeout_seconds:
+                maximum: 300
+                minimum: 1
+                type: integer
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              url:
+                format: uri
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - url
+              - method
+              - interval_seconds
+              - timeout_seconds
+            title: Monitor
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total:
+              type: integer
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: MonitorList
+      type: object
+      x-struct:
+      x-validate:
+    MonitorLog:
+      additionalProperties: false
+      description: A single check result for a monitor.
+      properties:
+        checked_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        error_message:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_redirect_url:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        latency_ms:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        redirect_count:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        redirect_list:
+          items:
+            additionalProperties: false
+            properties:
+              ip:
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              url:
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - url
+              - ip
+            type: object
+            x-struct:
+            x-validate:
+          nullable: true
+          type: array
+          x-struct:
+          x-validate:
+        region:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        response_ip:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_snippet:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        status_code:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - status
+        - checked_at
+      title: MonitorLog
+      type: object
+      x-struct:
+      x-validate:
+    MonitorLogList:
+      additionalProperties: false
+      description: A paginated list of monitor log entries.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A single check result for a monitor.
+            properties:
+              checked_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              error_message:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_redirect_url:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              latency_ms:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              monitor_snapshot:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              redirect_count:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              redirect_list:
+                items:
+                  additionalProperties: false
+                  properties:
+                    ip:
+                      type: string
+                      x-struct:
+                      x-validate:
+                    status_code:
+                      nullable: true
+                      type: integer
+                      x-struct:
+                      x-validate:
+                    url:
+                      type: string
+                      x-struct:
+                      x-validate:
+                  required:
+                    - url
+                    - ip
+                  type: object
+                  x-struct:
+                  x-validate:
+                nullable: true
+                type: array
+                x-struct:
+                x-validate:
+              region:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              response_headers:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              response_ip:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              response_snippet:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - up
+                  - down
+                  - degraded
+                  - compromised
+                  - unknown
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - status
+              - checked_at
+            title: MonitorLog
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total_pages:
+              type: integer
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: MonitorLogList
+      type: object
+      x-struct:
+      x-validate:
+    MonitorLogResponse:
+      additionalProperties: false
+      description: Response containing a single monitor log entry.
+      properties:
+        data:
+          additionalProperties: false
+          description: A single check result for a monitor.
+          properties:
+            checked_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            error_message:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_redirect_url:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            latency_ms:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            monitor_snapshot:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            redirect_count:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            redirect_list:
+              items:
+                additionalProperties: false
+                properties:
+                  ip:
+                    type: string
+                    x-struct:
+                    x-validate:
+                  status_code:
+                    nullable: true
+                    type: integer
+                    x-struct:
+                    x-validate:
+                  url:
+                    type: string
+                    x-struct:
+                    x-validate:
+                required:
+                  - url
+                  - ip
+                type: object
+                x-struct:
+                x-validate:
+              nullable: true
+              type: array
+              x-struct:
+              x-validate:
+            region:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            response_headers:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            response_ip:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            response_snippet:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            status:
+              enum:
+                - up
+                - down
+                - degraded
+                - compromised
+                - unknown
+              type: string
+              x-struct:
+              x-validate:
+            status_code:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - status
+            - checked_at
+          title: MonitorLog
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: MonitorLogResponse
+      type: object
+      x-struct:
+      x-validate:
+    MonitorResponse:
+      additionalProperties: false
+      description: A single monitor wrapped in a data envelope.
+      properties:
+        data:
+          additionalProperties: false
+          description: A monitoring target for HTTP/HTTPS/SSL checks.
+          properties:
+            body:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            follow_redirects:
+              default: true
+              type: boolean
+              x-struct:
+              x-validate:
+            headers:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            health_status:
+              enum:
+                - up
+                - down
+                - degraded
+                - compromised
+                - unknown
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            interval_seconds:
+              maximum: 86400
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            keyword_negative:
+              items:
+                type: string
+                x-struct:
+                x-validate:
+              type: array
+              x-struct:
+              x-validate:
+            keyword_positive:
+              items:
+                type: string
+                x-struct:
+                x-validate:
+              type: array
+              x-struct:
+              x-validate:
+            last_checked_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_success_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            logical_state:
+              enum:
+                - active
+                - paused
+                - archived
+              type: string
+              x-struct:
+              x-validate:
+            max_redirects:
+              default: 5
+              maximum: 20
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            method:
+              enum:
+                - get
+                - post
+                - head
+                - put
+                - patch
+                - delete
+                - options
+              type: string
+              x-struct:
+              x-validate:
+            raw_headers:
+              description: Raw string of headers
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            raw_keyword_negative:
+              description: Comma-separated negative keywords
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            raw_keyword_positive:
+              description: Comma-separated positive keywords
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            ssl_expires_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            ssl_ignore:
+              default: false
+              type: boolean
+              x-struct:
+              x-validate:
+            timeout_seconds:
+              maximum: 300
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            url:
+              format: uri
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - url
+            - method
+            - interval_seconds
+            - timeout_seconds
+          title: Monitor
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: MonitorResponse
+      type: object
+      x-struct:
+      x-validate:
+    MonitorUpdateRequest:
+      description: Parameters for updating a monitor. All fields are optional.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 300
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      title: MonitorUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    Workspace:
+      additionalProperties: false
+      description: A workspace that groups monitors together.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        max_monitors:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        min_interval_seconds:
+          minimum: 10
+          type: integer
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        retention_days:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        slug:
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - name
+        - slug
+        - retention_days
+        - max_monitors
+        - min_interval_seconds
+      title: Workspace
+      type: object
+      x-struct:
+      x-validate:
+    WorkspaceResponse:
+      additionalProperties: false
+      description: Response containing a single workspace.
+      properties:
+        data:
+          additionalProperties: false
+          description: A workspace that groups monitors together.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            max_monitors:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            min_interval_seconds:
+              minimum: 10
+              type: integer
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            retention_days:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            slug:
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - name
+            - slug
+            - retention_days
+            - max_monitors
+            - min_interval_seconds
+          title: Workspace
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WorkspaceResponse
+      type: object
+      x-struct:
+      x-validate:
+info:
+  description: API for monitor management, logs, daily metrics, and incidents.
+  title: Holter Monitoring API
+  version: 1.0.0
+openapi: 3.0.0
+paths:
+  /api/v1/monitors/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently delete a monitor and all its associated data.
+      operationId: HolterWeb.Api.MonitorController.delete
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Deleted successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+      summary: Delete monitor
+      tags:
+        - Monitors
+    get:
+      callbacks: {}
+      description: Fetch a single monitor by its UUID.
+      operationId: HolterWeb.Api.MonitorController.show
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A single monitor wrapped in a data envelope.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A monitoring target for HTTP/HTTPS/SSL checks.
+                    properties:
+                      body:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      follow_redirects:
+                        default: true
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      headers:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      health_status:
+                        enum:
+                          - up
+                          - down
+                          - degraded
+                          - compromised
+                          - unknown
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      interval_seconds:
+                        maximum: 86400
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      keyword_negative:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      keyword_positive:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_success_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      logical_state:
+                        enum:
+                          - active
+                          - paused
+                          - archived
+                        type: string
+                        x-struct:
+                        x-validate:
+                      max_redirects:
+                        default: 5
+                        maximum: 20
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      method:
+                        enum:
+                          - get
+                          - post
+                          - head
+                          - put
+                          - patch
+                          - delete
+                          - options
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_headers:
+                        description: Raw string of headers
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_negative:
+                        description: Comma-separated negative keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_positive:
+                        description: Comma-separated positive keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      timeout_seconds:
+                        maximum: 300
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      url:
+                        format: uri
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - url
+                      - method
+                      - interval_seconds
+                      - timeout_seconds
+                    title: Monitor
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: MonitorResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor details
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+      summary: Get monitor
+      tags:
+        - Monitors
+    patch:
+      callbacks: {}
+      description: Update an existing monitor's configuration.
+      operationId: HolterWeb.Api.MonitorController.update (2)
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Parameters for updating a monitor. All fields are optional.
+              properties:
+                body:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                follow_redirects:
+                  default: true
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                interval_seconds:
+                  maximum: 86400
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                max_redirects:
+                  default: 5
+                  maximum: 20
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                method:
+                  enum:
+                    - get
+                    - post
+                    - put
+                    - patch
+                    - delete
+                    - options
+                    - head
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_headers:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_negative:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_positive:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                ssl_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                timeout_seconds:
+                  maximum: 300
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                url:
+                  format: uri
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: MonitorUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A single monitor wrapped in a data envelope.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A monitoring target for HTTP/HTTPS/SSL checks.
+                    properties:
+                      body:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      follow_redirects:
+                        default: true
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      headers:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      health_status:
+                        enum:
+                          - up
+                          - down
+                          - degraded
+                          - compromised
+                          - unknown
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      interval_seconds:
+                        maximum: 86400
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      keyword_negative:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      keyword_positive:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_success_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      logical_state:
+                        enum:
+                          - active
+                          - paused
+                          - archived
+                        type: string
+                        x-struct:
+                        x-validate:
+                      max_redirects:
+                        default: 5
+                        maximum: 20
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      method:
+                        enum:
+                          - get
+                          - post
+                          - head
+                          - put
+                          - patch
+                          - delete
+                          - options
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_headers:
+                        description: Raw string of headers
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_negative:
+                        description: Comma-separated negative keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_positive:
+                        description: Comma-separated positive keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      timeout_seconds:
+                        maximum: 300
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      url:
+                        format: uri
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - url
+                      - method
+                      - interval_seconds
+                      - timeout_seconds
+                    title: Monitor
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: MonitorResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated monitor
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+        '422':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update monitor
+      tags:
+        - Monitors
+    put:
+      callbacks: {}
+      description: Update an existing monitor's configuration.
+      operationId: HolterWeb.Api.MonitorController.update
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Parameters for updating a monitor. All fields are optional.
+              properties:
+                body:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                follow_redirects:
+                  default: true
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                interval_seconds:
+                  maximum: 86400
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                max_redirects:
+                  default: 5
+                  maximum: 20
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                method:
+                  enum:
+                    - get
+                    - post
+                    - put
+                    - patch
+                    - delete
+                    - options
+                    - head
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_headers:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_negative:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_positive:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                ssl_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                timeout_seconds:
+                  maximum: 300
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                url:
+                  format: uri
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: MonitorUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A single monitor wrapped in a data envelope.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A monitoring target for HTTP/HTTPS/SSL checks.
+                    properties:
+                      body:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      follow_redirects:
+                        default: true
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      headers:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      health_status:
+                        enum:
+                          - up
+                          - down
+                          - degraded
+                          - compromised
+                          - unknown
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      interval_seconds:
+                        maximum: 86400
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      keyword_negative:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      keyword_positive:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_success_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      logical_state:
+                        enum:
+                          - active
+                          - paused
+                          - archived
+                        type: string
+                        x-struct:
+                        x-validate:
+                      max_redirects:
+                        default: 5
+                        maximum: 20
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      method:
+                        enum:
+                          - get
+                          - post
+                          - head
+                          - put
+                          - patch
+                          - delete
+                          - options
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_headers:
+                        description: Raw string of headers
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_negative:
+                        description: Comma-separated negative keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_positive:
+                        description: Comma-separated positive keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      timeout_seconds:
+                        maximum: 300
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      url:
+                        format: uri
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - url
+                      - method
+                      - interval_seconds
+                      - timeout_seconds
+                    title: Monitor
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: MonitorResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated monitor
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+        '422':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update monitor
+      tags:
+        - Monitors
+  /api/v1/monitors/{monitor_id}/daily_metrics:
+    get:
+      callbacks: {}
+      description: List aggregated daily uptime and performance metrics for a monitor.
+      operationId: HolterWeb.Api.DailyMetricController.index
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: monitor_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 30
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Sort column (date, uptime_percent, avg_latency_ms, total_downtime_minutes)
+          in: query
+          name: sort_by
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: 'Sort direction: asc or desc'
+          in: query
+          name: sort_dir
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A paginated list of daily metric entries.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: Aggregated daily uptime and performance metrics for a monitor.
+                      properties:
+                        avg_latency_ms:
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        date:
+                          format: date
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        total_downtime_minutes:
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        uptime_percent:
+                          type: number
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - date
+                        - uptime_percent
+                        - avg_latency_ms
+                        - total_downtime_minutes
+                      title: DailyMetric
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    additionalProperties: false
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total_pages:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    required:
+                      - page
+                      - page_size
+                      - total_pages
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                  - meta
+                title: DailyMetricList
+                type: object
+                x-struct:
+                x-validate:
+          description: Daily metric list
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+      summary: List daily metrics
+      tags:
+        - Metrics
+  /api/v1/monitors/{monitor_id}/incidents:
+    get:
+      callbacks: {}
+      description: List the history of downtime and alerts for a monitor.
+      operationId: HolterWeb.Api.IncidentController.index
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: monitor_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A list of incidents ordered by start time descending.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+                      properties:
+                        duration_seconds:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        monitor_snapshot:
+                          additionalProperties: true
+                          nullable: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        resolved_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        root_cause:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        started_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type:
+                          enum:
+                            - downtime
+                            - defacement
+                            - ssl_expiry
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - type
+                        - started_at
+                      title: Incident
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                title: IncidentList
+                type: object
+                x-struct:
+                x-validate:
+          description: Incident list
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+      summary: List incidents
+      tags:
+        - Incidents
+  /api/v1/monitors/{monitor_id}/logs:
+    get:
+      callbacks: {}
+      description: List check logs for a monitor with pagination, status filter, and sorting.
+      operationId: HolterWeb.Api.MonitorLogController.index
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: monitor_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 50
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Filter by status (up, down, degraded, compromised, unknown)
+          in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Sort column (checked_at, status, latency_ms)
+          in: query
+          name: sort_by
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: 'Sort direction: asc or desc'
+          in: query
+          name: sort_dir
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A paginated list of monitor log entries.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A single check result for a monitor.
+                      properties:
+                        checked_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        error_message:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_redirect_url:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        latency_ms:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        monitor_snapshot:
+                          additionalProperties: true
+                          nullable: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        redirect_count:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        redirect_list:
+                          items:
+                            additionalProperties: false
+                            properties:
+                              ip:
+                                type: string
+                                x-struct:
+                                x-validate:
+                              status_code:
+                                nullable: true
+                                type: integer
+                                x-struct:
+                                x-validate:
+                              url:
+                                type: string
+                                x-struct:
+                                x-validate:
+                            required:
+                              - url
+                              - ip
+                            type: object
+                            x-struct:
+                            x-validate:
+                          nullable: true
+                          type: array
+                          x-struct:
+                          x-validate:
+                        region:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        response_headers:
+                          additionalProperties: true
+                          nullable: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        response_ip:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        response_snippet:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - up
+                            - down
+                            - degraded
+                            - compromised
+                            - unknown
+                          type: string
+                          x-struct:
+                          x-validate:
+                        status_code:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - status
+                        - checked_at
+                      title: MonitorLog
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    additionalProperties: false
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total_pages:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: MonitorLogList
+                type: object
+                x-struct:
+                x-validate:
+          description: Log list
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor not found
+      summary: List monitor logs
+      tags:
+        - Logs
+  /api/v1/monitors/{monitor_id}/logs/{id}:
+    get:
+      callbacks: {}
+      description: Fetch a single log entry with full evidence (headers, snippet, snapshot).
+      operationId: HolterWeb.Api.MonitorLogController.show
+      parameters:
+        - description: Monitor UUID
+          in: path
+          name: monitor_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Log UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Response containing a single monitor log entry.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A single check result for a monitor.
+                    properties:
+                      checked_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      error_message:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_redirect_url:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      latency_ms:
+                        nullable: true
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      monitor_snapshot:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      redirect_count:
+                        nullable: true
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      redirect_list:
+                        items:
+                          additionalProperties: false
+                          properties:
+                            ip:
+                              type: string
+                              x-struct:
+                              x-validate:
+                            status_code:
+                              nullable: true
+                              type: integer
+                              x-struct:
+                              x-validate:
+                            url:
+                              type: string
+                              x-struct:
+                              x-validate:
+                          required:
+                            - url
+                            - ip
+                          type: object
+                          x-struct:
+                          x-validate:
+                        nullable: true
+                        type: array
+                        x-struct:
+                        x-validate:
+                      region:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      response_headers:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      response_ip:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      response_snippet:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - up
+                          - down
+                          - degraded
+                          - compromised
+                          - unknown
+                        type: string
+                        x-struct:
+                        x-validate:
+                      status_code:
+                        nullable: true
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - status
+                      - checked_at
+                    title: MonitorLog
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: MonitorLogResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Log details
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Log not found
+      summary: Get monitor log
+      tags:
+        - Logs
+  /api/v1/workspaces/{workspace_slug}:
+    get:
+      callbacks: {}
+      description: Fetch a workspace by its slug.
+      operationId: HolterWeb.Api.WorkspaceController.show
+      parameters:
+        - description: Workspace slug
+          example: eiseron
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Response containing a single workspace.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace that groups monitors together.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      max_monitors:
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      min_interval_seconds:
+                        minimum: 10
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      retention_days:
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      slug:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - name
+                      - slug
+                      - retention_days
+                      - max_monitors
+                      - min_interval_seconds
+                    title: Workspace
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: WorkspaceResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace details
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: Get workspace
+      tags:
+        - Workspaces
+  /api/v1/workspaces/{workspace_slug}/monitors:
+    get:
+      callbacks: {}
+      description: List all monitors for a workspace with pagination and filtering.
+      operationId: HolterWeb.Api.MonitorController.index
+      parameters:
+        - description: Workspace slug
+          example: eiseron
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 25
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Filter by health status
+          in: query
+          name: health_status
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Filter by logical state
+          in: query
+          name: logical_state
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A list of monitors with metadata.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A monitoring target for HTTP/HTTPS/SSL checks.
+                      properties:
+                        body:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        follow_redirects:
+                          default: true
+                          type: boolean
+                          x-struct:
+                          x-validate:
+                        headers:
+                          additionalProperties: true
+                          nullable: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        health_status:
+                          enum:
+                            - up
+                            - down
+                            - degraded
+                            - compromised
+                            - unknown
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        interval_seconds:
+                          maximum: 86400
+                          minimum: 1
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        keyword_negative:
+                          items:
+                            type: string
+                            x-struct:
+                            x-validate:
+                          type: array
+                          x-struct:
+                          x-validate:
+                        keyword_positive:
+                          items:
+                            type: string
+                            x-struct:
+                            x-validate:
+                          type: array
+                          x-struct:
+                          x-validate:
+                        last_checked_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_success_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        logical_state:
+                          enum:
+                            - active
+                            - paused
+                            - archived
+                          type: string
+                          x-struct:
+                          x-validate:
+                        max_redirects:
+                          default: 5
+                          maximum: 20
+                          minimum: 1
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        method:
+                          enum:
+                            - get
+                            - post
+                            - head
+                            - put
+                            - patch
+                            - delete
+                            - options
+                          type: string
+                          x-struct:
+                          x-validate:
+                        raw_headers:
+                          description: Raw string of headers
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        raw_keyword_negative:
+                          description: Comma-separated negative keywords
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        raw_keyword_positive:
+                          description: Comma-separated positive keywords
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        ssl_expires_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        ssl_ignore:
+                          default: false
+                          type: boolean
+                          x-struct:
+                          x-validate:
+                        timeout_seconds:
+                          maximum: 300
+                          minimum: 1
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        url:
+                          format: uri
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - url
+                        - method
+                        - interval_seconds
+                        - timeout_seconds
+                      title: Monitor
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    additionalProperties: false
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: MonitorList
+                type: object
+                x-struct:
+                x-validate:
+          description: Monitor list
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: List monitors
+      tags:
+        - Monitors
+    post:
+      callbacks: {}
+      description: Create a new monitor for the specified workspace.
+      operationId: HolterWeb.Api.MonitorController.create
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Parameters for creating a monitor. url, method and interval_seconds are required.
+              properties:
+                body:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                follow_redirects:
+                  default: true
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                interval_seconds:
+                  maximum: 86400
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                max_redirects:
+                  default: 5
+                  maximum: 20
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                method:
+                  enum:
+                    - get
+                    - post
+                    - put
+                    - patch
+                    - delete
+                    - options
+                    - head
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_headers:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_negative:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                raw_keyword_positive:
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+                ssl_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
+                timeout_seconds:
+                  maximum: 300
+                  minimum: 1
+                  type: integer
+                  x-struct:
+                  x-validate:
+                url:
+                  format: uri
+                  type: string
+                  x-struct:
+                  x-validate:
+              required:
+                - url
+                - method
+                - interval_seconds
+              title: MonitorCreateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Monitor parameters
+        required: false
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A single monitor wrapped in a data envelope.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A monitoring target for HTTP/HTTPS/SSL checks.
+                    properties:
+                      body:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      follow_redirects:
+                        default: true
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      headers:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      health_status:
+                        enum:
+                          - up
+                          - down
+                          - degraded
+                          - compromised
+                          - unknown
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      interval_seconds:
+                        maximum: 86400
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      keyword_negative:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      keyword_positive:
+                        items:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type: array
+                        x-struct:
+                        x-validate:
+                      last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_success_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      logical_state:
+                        enum:
+                          - active
+                          - paused
+                          - archived
+                        type: string
+                        x-struct:
+                        x-validate:
+                      max_redirects:
+                        default: 5
+                        maximum: 20
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      method:
+                        enum:
+                          - get
+                          - post
+                          - head
+                          - put
+                          - patch
+                          - delete
+                          - options
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_headers:
+                        description: Raw string of headers
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_negative:
+                        description: Comma-separated negative keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      raw_keyword_positive:
+                        description: Comma-separated positive keywords
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      ssl_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      timeout_seconds:
+                        maximum: 300
+                        minimum: 1
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      url:
+                        format: uri
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - url
+                      - method
+                      - interval_seconds
+                      - timeout_seconds
+                    title: Monitor
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: MonitorResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Created monitor
+        '422':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        description: Machine-readable error code (slug).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      details:
+                        description: Optional additional error details (e.g. validation errors).
+                        type: object
+                        x-struct:
+                        x-validate:
+                      message:
+                        description: Human-readable error message.
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Create monitor
+      tags:
+        - Monitors
+security: []
+servers:
+  - url: /
+    variables: {}
+tags: []

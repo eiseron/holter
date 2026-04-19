@@ -37,6 +37,19 @@ This project is built under the Eiseron Engineering Constitution:
 
 For detailed development guidelines, refer to AGENTS.md and agents/project_specializations.md.
 
+## Documentation
+
+User documentation is available in `docs/` for each supported language:
+
+| Language | Entry Point |
+|----------|-------------|
+| English | [docs/en/index.md](docs/en/index.md) |
+| Português (BR) | [docs/pt_BR/index.md](docs/pt_BR/index.md) |
+
+Start with [Getting Started (EN)](docs/en/getting-started.md) or [Primeiros Passos (PT_BR)](docs/pt_BR/getting-started.md).
+
+The REST API specification is auto-generated during `mix precommit` and lives at `docs/api/monitoring.yml`.
+
 ## Learn More
 
 - [Eiseron Agents Global Standards](https://github.com/eiseron/eiseron-agents)

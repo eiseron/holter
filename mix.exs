@@ -92,12 +92,14 @@ defmodule Holter.MixProject do
         "esbuild holter --minify",
         "phx.digest"
       ],
+      "gen.api.docs": ["holter.gen_api_docs"],
       precommit: [
         "compile --warnings-as-errors",
         "deps.unlock --unused",
         "format",
         "deps.audit",
         "credo --strict",
+        "gen.api.docs",
         "test --cover"
       ],
       mutation: ["muex --fail-at 50 --optimize lib/holter/monitoring"]
