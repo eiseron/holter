@@ -1,3 +1,8 @@
+---
+title: Getting Started
+description: Core concepts, first steps, and how to set up your first monitor in Holter.
+---
+
 # Getting Started with Holter
 
 Holter monitors your URLs on a recurring schedule, tracks uptime history, and opens incidents when problems are detected. This guide walks you through the core concepts and your first monitor.

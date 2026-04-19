@@ -1,3 +1,8 @@
+---
+title: Dashboard
+description: Visão geral de todos os monitores do workspace, ordenados por severidade, com atualizações em tempo real.
+---
+
 # Dashboard
 
 O Dashboard é a tela principal do módulo de monitoramento. Ele exibe todos os monitores de um workspace em uma grade de cards, ordenados para que os problemas mais críticos apareçam primeiro.

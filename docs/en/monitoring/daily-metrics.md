@@ -1,3 +1,8 @@
+---
+title: Daily Metrics
+description: Aggregated uptime percentage, average latency, and downtime minutes broken down by day.
+---
+
 # Daily Metrics
 
 The Daily Metrics page shows an aggregated uptime summary for a monitor, broken down by day.

@@ -1,3 +1,8 @@
+---
+title: Monitor Settings
+description: Edit a monitor, trigger a manual check, view health history, and delete the monitor.
+---
+
 # Monitor Settings
 
 The Monitor Settings page lets you view and edit a monitor's configuration, trigger a manual check, and delete the monitor.

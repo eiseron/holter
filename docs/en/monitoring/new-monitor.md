@@ -1,3 +1,8 @@
+---
+title: New Monitor
+description: Create a monitor and configure its URL, method, keywords, SSL settings, and check schedule.
+---
+
 # New Monitor
 
 The New Monitor form lets you configure a URL to be checked on a recurring schedule.

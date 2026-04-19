@@ -1,3 +1,8 @@
+---
+title: Logs Técnicos
+description: Registro completo de cada verificação com filtros por status e período, e política de retenção de logs.
+---
+
 # Logs Técnicos
 
 A página de Logs Técnicos lista cada verificação executada para um monitor, com opções de filtragem e ordenação.

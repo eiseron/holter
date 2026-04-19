@@ -1,3 +1,8 @@
+---
+title: Dashboard
+description: Overview of all monitors in your workspace, ranked by severity, with real-time status updates.
+---
+
 # Dashboard
 
 The Dashboard is the main view of the monitoring module. It shows all monitors belonging to a workspace in a card grid, ranked so the most critical issues appear at the top.

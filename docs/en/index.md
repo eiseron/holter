@@ -1,3 +1,8 @@
+---
+title: Holter Documentation
+description: User documentation for the Holter monitoring platform.
+---
+
 # Holter Documentation
 
 Welcome to the Holter user documentation.

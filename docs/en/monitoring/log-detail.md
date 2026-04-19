@@ -1,3 +1,8 @@
+---
+title: Log Detail
+description: Full evidence for a single check — redirect chain, response headers, body content, and monitor snapshot.
+---
+
 # Log Detail
 
 The Log Detail page shows the full evidence captured during a single check run.

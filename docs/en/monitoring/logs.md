@@ -1,3 +1,8 @@
+---
+title: Technical Logs
+description: Full log of every check run with filtering by status and date range, and log retention policy.
+---
+
 # Technical Logs
 
 The Technical Logs page lists every check run for a monitor, with filtering and sorting options.

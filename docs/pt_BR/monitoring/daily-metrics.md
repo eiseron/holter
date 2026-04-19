@@ -1,3 +1,8 @@
+---
+title: Métricas Diárias
+description: Percentual de uptime agregado, latência média e minutos de indisponibilidade por dia.
+---
+
 # Métricas Diárias
 
 A página de Métricas Diárias exibe um resumo agregado de uptime para um monitor, dividido por dia.

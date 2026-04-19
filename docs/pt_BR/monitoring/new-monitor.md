@@ -1,3 +1,8 @@
+---
+title: Novo Monitor
+description: Crie um monitor e configure URL, método, palavras-chave, SSL e agendamento de verificações.
+---
+
 # Novo Monitor
 
 O formulário Novo Monitor permite configurar uma URL para ser verificada em um intervalo recorrente.

@@ -1,3 +1,8 @@
+---
+title: Primeiros Passos
+description: Conceitos fundamentais, primeiros passos e como configurar seu primeiro monitor no Holter.
+---
+
 # Primeiros Passos com o Holter
 
 O Holter monitora suas URLs em um intervalo recorrente, rastreia o histórico de uptime e abre incidentes quando problemas são detectados. Este guia apresenta os conceitos fundamentais e o caminho para criar seu primeiro monitor.

@@ -1,3 +1,8 @@
+---
+title: Configurações do Monitor
+description: Edite um monitor, execute uma verificação manual, visualize o histórico de saúde e exclua o monitor.
+---
+
 # Configurações do Monitor
 
 A página de Configurações do Monitor permite visualizar e editar a configuração de um monitor, disparar uma verificação manual e excluir o monitor.

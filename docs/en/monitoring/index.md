@@ -1,3 +1,8 @@
+---
+title: Monitoring
+description: Overview of the Holter monitoring module — pages and concepts.
+---
+
 # Monitoring Module
 
 Holter's monitoring module continuously checks your URLs and alerts you when something goes wrong.

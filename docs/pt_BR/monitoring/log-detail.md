@@ -1,3 +1,8 @@
+---
+title: Detalhe do Log
+description: Evidências completas de uma verificação — cadeia de redirecionamentos, headers, conteúdo e snapshot do monitor.
+---
+
 # Detalhe do Log
 
 A página de Detalhe do Log exibe as evidências completas capturadas durante uma única execução de verificação.

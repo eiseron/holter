@@ -1,3 +1,8 @@
+---
+title: Alerts & Incidents
+description: How health status is calculated, incident types, logical state, and dashboard ranking logic.
+---
+
 # Alerts & Incidents
 
 This document explains how Holter determines the health of a monitor, what incidents are, and how the two interact.
