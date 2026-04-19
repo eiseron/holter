@@ -45,3 +45,9 @@ A tabela exibe 50 entradas por página. Use os controles de paginação para nav
 ## Atualizações em Tempo Real
 
 Novos resultados de verificação aparecem automaticamente no topo da lista sem recarregar a página.
+
+## Retenção de Logs
+
+Os logs são excluídos automaticamente após o período de retenção configurado para o seu workspace. A exclusão ocorre uma vez por dia, disparada após o job de agregação de métricas diárias. Os logs são removidos em lotes para evitar operações longas no banco de dados, portanto backlogs muito grandes podem levar alguns ciclos para serem totalmente removidos.
+
+Após a exclusão, uma entrada de log não pode ser recuperada. Se precisar preservar evidências além do período de retenção, exporte as páginas de [Detalhe do Log](log-detail.md) relevantes antes que sejam removidas.
