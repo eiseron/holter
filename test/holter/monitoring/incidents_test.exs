@@ -19,6 +19,136 @@ defmodule Holter.Monitoring.IncidentsTest do
     )
   end
 
+  describe "get_incident!/1" do
+    test "returns the incident when it exists", %{monitor: monitor} do
+      {:ok, incident} = Incidents.create_incident(incident_attrs(monitor.id))
+      found = Incidents.get_incident!(incident.id)
+      assert found.id == incident.id
+    end
+
+    test "raises when incident does not exist" do
+      assert_raise Ecto.NoResultsError, fn ->
+        Incidents.get_incident!(Ecto.UUID.generate())
+      end
+    end
+  end
+
+  describe "get_incident/1" do
+    test "returns {:ok, incident} when the incident exists", %{monitor: monitor} do
+      {:ok, incident} = Incidents.create_incident(incident_attrs(monitor.id))
+      assert {:ok, found} = Incidents.get_incident(incident.id)
+      assert found.id == incident.id
+    end
+
+    test "returns {:error, :not_found} for an unknown id" do
+      assert {:error, :not_found} = Incidents.get_incident(Ecto.UUID.generate())
+    end
+  end
+
+  describe "list_incidents_filtered/1" do
+    test "returns only incidents belonging to the given monitor", %{monitor: monitor} do
+      other = monitor_fixture()
+      {:ok, _} = Incidents.create_incident(incident_attrs(other.id))
+      {:ok, own} = Incidents.create_incident(incident_attrs(monitor.id))
+      %{data: [result]} = Incidents.list_incidents_filtered(%{monitor_id: monitor.id})
+      assert result.id == own.id
+    end
+
+    test "filtering by type :downtime excludes ssl_expiry incidents", %{monitor: monitor} do
+      {:ok, _ssl} =
+        Incidents.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
+
+      {:ok, down} = Incidents.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, type: :downtime})
+
+      assert length(results) == 1
+      assert hd(results).id == down.id
+    end
+
+    test "filtering by state :open excludes resolved incidents", %{monitor: monitor} do
+      {:ok, resolved} = Incidents.create_incident(incident_attrs(monitor.id))
+      Incidents.resolve_incident(resolved, DateTime.utc_now() |> DateTime.truncate(:second))
+      {:ok, open} = Incidents.create_incident(incident_attrs(monitor.id))
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, state: :open})
+
+      assert length(results) == 1
+      assert hd(results).id == open.id
+    end
+
+    test "filtering by state :resolved excludes open incidents", %{monitor: monitor} do
+      {:ok, to_resolve} = Incidents.create_incident(incident_attrs(monitor.id))
+      Incidents.resolve_incident(to_resolve, DateTime.utc_now() |> DateTime.truncate(:second))
+      {:ok, _open} = Incidents.create_incident(incident_attrs(monitor.id))
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, state: :resolved})
+
+      assert length(results) == 1
+      assert hd(results).id == to_resolve.id
+    end
+
+    test "page 2 of size 1 returns the second most recent incident", %{monitor: monitor} do
+      t1 = ~U[2026-01-01 00:00:00Z]
+      t2 = ~U[2026-01-02 00:00:00Z]
+      {:ok, i1} = Incidents.create_incident(incident_attrs(monitor.id, %{started_at: t1}))
+
+      {:ok, _i2} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: t2, type: :ssl_expiry})
+        )
+
+      %{data: [result]} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, page: 2, page_size: 1})
+
+      assert result.id == i1.id
+    end
+
+    test "meta contains correct total count", %{monitor: monitor} do
+      Incidents.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+      Incidents.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
+
+      %{meta: meta} = Incidents.list_incidents_filtered(%{monitor_id: monitor.id})
+      assert meta.total == 2
+    end
+  end
+
+  describe "incident_to_health/1" do
+    test "maps :downtime incident to :down" do
+      assert Incidents.incident_to_health(%{type: :downtime, root_cause: nil}) == :down
+    end
+
+    test "maps :defacement incident to :compromised" do
+      assert Incidents.incident_to_health(%{type: :defacement, root_cause: nil}) == :compromised
+    end
+
+    test "maps :ssl_expiry with nil root_cause to :degraded" do
+      assert Incidents.incident_to_health(%{type: :ssl_expiry, root_cause: nil}) == :degraded
+    end
+
+    test "maps :ssl_expiry with 'Critical' in root_cause to :compromised" do
+      assert Incidents.incident_to_health(%{
+               type: :ssl_expiry,
+               root_cause: "Certificate expires in 3 days (Critical)"
+             }) == :compromised
+    end
+
+    test "maps :ssl_expiry with 'expired' in root_cause to :compromised" do
+      assert Incidents.incident_to_health(%{type: :ssl_expiry, root_cause: "Certificate expired"}) ==
+               :compromised
+    end
+
+    test "maps :ssl_expiry with warning root_cause to :degraded" do
+      assert Incidents.incident_to_health(%{
+               type: :ssl_expiry,
+               root_cause: "Certificate expires in 10 days (Warning)"
+             }) == :degraded
+    end
+  end
+
   describe "create_incident/1" do
     test "creates an incident with given attrs", %{monitor: monitor} do
       {:ok, incident} = Incidents.create_incident(incident_attrs(monitor.id))

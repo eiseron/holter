@@ -282,20 +282,7 @@ defmodule Holter.Monitoring.Monitors do
     |> Enum.max_by(&status_severity/1, fn -> :up end)
   end
 
-  defp incident_to_health(%{type: :downtime}), do: :down
-  defp incident_to_health(%{type: :defacement}), do: :compromised
-
-  defp incident_to_health(%{type: :ssl_expiry, root_cause: rc}) do
-    cond do
-      is_nil(rc) -> :degraded
-      String.contains?(rc, "Critical") -> :compromised
-      String.contains?(rc, "expired") -> :compromised
-      String.contains?(rc, "SSL Error") -> :compromised
-      true -> :degraded
-    end
-  end
-
-  defp incident_to_health(_), do: :unknown
+  defp incident_to_health(incident), do: Incidents.incident_to_health(incident)
 
   defp status_from_latest_log(monitor_id) do
     log =

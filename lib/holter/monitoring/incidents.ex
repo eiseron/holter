@@ -2,8 +2,66 @@ defmodule Holter.Monitoring.Incidents do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Incident}
+  alias Holter.Monitoring.{Broadcaster, Incident, Pagination}
   alias Holter.Repo
+
+  def get_incident!(id), do: Repo.get!(Incident, id)
+
+  def get_incident(id) do
+    case Repo.get(Incident, id) do
+      nil -> {:error, :not_found}
+      incident -> {:ok, incident}
+    end
+  end
+
+  @max_page_size 100
+  @default_page_size 25
+
+  def list_incidents_filtered(params) do
+    monitor_id = Map.fetch!(params, :monitor_id)
+    page = Map.get(params, :page, 1) |> max(1)
+    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+
+    base =
+      Incident
+      |> where([i], i.monitor_id == ^monitor_id)
+      |> maybe_filter_by(:type, params)
+      |> maybe_filter_by(:state, params)
+      |> order_by([i], desc: i.started_at)
+
+    total = Repo.aggregate(base, :count, :id)
+    incidents = base |> Pagination.paginate_query(page, page_size) |> Repo.all()
+    %{data: incidents, meta: %{page: page, page_size: page_size, total: total}}
+  end
+
+  defp maybe_filter_by(query, :type, %{type: type}) when not is_nil(type) do
+    where(query, [i], i.type == ^type)
+  end
+
+  defp maybe_filter_by(query, :state, %{state: :open}) do
+    where(query, [i], is_nil(i.resolved_at))
+  end
+
+  defp maybe_filter_by(query, :state, %{state: :resolved}) do
+    where(query, [i], not is_nil(i.resolved_at))
+  end
+
+  defp maybe_filter_by(query, _, _), do: query
+
+  def incident_to_health(%{type: :downtime}), do: :down
+  def incident_to_health(%{type: :defacement}), do: :compromised
+
+  def incident_to_health(%{type: :ssl_expiry, root_cause: rc}) do
+    cond do
+      is_nil(rc) -> :degraded
+      String.contains?(rc, "Critical") -> :compromised
+      String.contains?(rc, "expired") -> :compromised
+      String.contains?(rc, "SSL Error") -> :compromised
+      true -> :degraded
+    end
+  end
+
+  def incident_to_health(_), do: :unknown
 
   def list_incidents(monitor_id) do
     Incident
