@@ -13,7 +13,18 @@
       phx-change="filter_updated"
       class="h-form-row"
     >
-      <input type="hidden" name="filters[page_size]" value={@filters.page_size} />
+      <div class="h-form-item">
+        <.input
+          field={@form[:page_size]}
+          type="select"
+          label={gettext("Results")}
+          options={[
+            {gettext("25 results"), "25"},
+            {gettext("50 results"), "50"},
+            {gettext("100 results"), "100"}
+          ]}
+        />
+      </div>
 
       <div class="h-form-item">
         <.input
@@ -57,7 +68,7 @@
     timezone={@timezone}
   />
 
-  <div class="h-mt-6">
+  <div class="h-mt-6 h-logs-table-container">
     <.table id="logs-table" rows={@logs}>
       <:col
         :let={log}

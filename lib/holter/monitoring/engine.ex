@@ -106,9 +106,11 @@ defmodule Holter.Monitoring.Engine do
   defp normalize_body(_), do: ""
 
   defp validate_keywords(body, monitor) do
+    downcase_body = String.downcase(body)
+
     {
-      validate_positive(body, monitor.keyword_positive),
-      validate_negative(body, monitor.keyword_negative)
+      validate_positive(downcase_body, monitor.keyword_positive),
+      validate_negative(downcase_body, monitor.keyword_negative)
     }
   end
 
@@ -212,10 +214,20 @@ defmodule Holter.Monitoring.Engine do
   defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
 
   defp validate_positive(_body, empty) when empty in [nil, []], do: true
-  defp validate_positive(body, keywords), do: Enum.all?(keywords, &String.contains?(body, &1))
+
+  defp validate_positive(body, keywords) do
+    Enum.all?(keywords, fn kw ->
+      String.contains?(body, String.downcase(kw))
+    end)
+  end
 
   defp validate_negative(_body, empty) when empty in [nil, []], do: true
-  defp validate_negative(body, keywords), do: not Enum.any?(keywords, &String.contains?(body, &1))
+
+  defp validate_negative(body, keywords) do
+    not Enum.any?(keywords, fn kw ->
+      String.contains?(body, String.downcase(kw))
+    end)
+  end
 
   defp restricted_ip?(nil), do: false
 
