@@ -702,7 +702,7 @@ msgstr "Incidentes Ativos"
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:31
 #, elixir-autogen, elixir-format, fuzzy
 msgid "All States"
-msgstr "Todos os Status"
+msgstr "Todos os Estados"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:17
 #, elixir-autogen, elixir-format
@@ -737,7 +737,7 @@ msgstr "Incidentes"
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:52
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Monitor Snapshot"
-msgstr "Estado do Monitor"
+msgstr "Snapshot do Monitor"
 
 #: lib/holter_web/components/monitoring/daily_metrics_chart.ex:38
 #, elixir-autogen, elixir-format
@@ -817,7 +817,7 @@ msgstr "Iniciado Em"
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:66
 #, elixir-autogen, elixir-format, fuzzy
 msgid "State"
-msgstr "Status"
+msgstr "Estado"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:14
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:16
