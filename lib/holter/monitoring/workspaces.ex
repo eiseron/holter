@@ -17,6 +17,13 @@ defmodule Holter.Monitoring.Workspaces do
     end
   end
 
+  def get_workspace(id) do
+    case Repo.get(Workspace, id) do
+      nil -> {:error, :not_found}
+      workspace -> {:ok, workspace}
+    end
+  end
+
   def get_workspace!(id), do: Repo.get!(Workspace, id)
 
   def get_workspace_by_slug!(slug) do

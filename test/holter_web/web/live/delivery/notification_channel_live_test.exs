@@ -5,7 +5,6 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
   import Phoenix.LiveViewTest
 
   alias Holter.Delivery
-  alias Holter.Monitoring
 
   setup do
     workspace = workspace_fixture()
@@ -29,44 +28,6 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
     channel
   end
 
-  describe "Index" do
-    test "lists channels for workspace", %{conn: conn, workspace: workspace} do
-      channel_fixture(workspace.id)
-
-      {:ok, _view, html} =
-        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels")
-
-      assert html =~ "Test Hook"
-    end
-
-    test "shows empty state when no channels", %{conn: conn, workspace: workspace} do
-      {:ok, _view, html} =
-        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels")
-
-      assert html =~ "No notification channels yet"
-    end
-
-    test "deletes a channel on delete event", %{conn: conn, workspace: workspace} do
-      channel = channel_fixture(workspace.id)
-
-      {:ok, view, _html} =
-        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels")
-
-      view
-      |> element("button[phx-click='delete'][phx-value-id='#{channel.id}']")
-      |> render_click()
-
-      assert {:error, :not_found} = Delivery.get_channel(channel.id)
-    end
-
-    test "shows link to create new channel", %{conn: conn, workspace: workspace} do
-      {:ok, _view, html} =
-        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels")
-
-      assert html =~ "New Channel"
-    end
-  end
-
   describe "New" do
     test "renders creation form", %{conn: conn, workspace: workspace} do
       {:ok, _view, html} =
@@ -88,7 +49,10 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert html =~ "notification-channel-form"
     end
 
-    test "creates channel and redirects on valid submit", %{conn: conn, workspace: workspace} do
+    test "creates channel and redirects to workspace channels on valid submit", %{
+      conn: conn,
+      workspace: workspace
+    } do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
 
@@ -102,10 +66,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       )
       |> render_submit()
 
-      assert_redirect(
-        view,
-        "/delivery/workspaces/#{workspace.slug}/notification-channels"
-      )
+      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
     end
   end
 
@@ -114,10 +75,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       channel = channel_fixture(workspace.id)
 
       {:ok, _view, html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       assert html =~ channel.name
       assert html =~ "notification-channel-form"
@@ -127,10 +85,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       channel = channel_fixture(workspace.id)
 
       {:ok, view, _html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       view
       |> form("#notification-channel-form", notification_channel: %{name: "Renamed"})
@@ -144,10 +99,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       channel = channel_fixture(workspace.id)
 
       {:ok, view, _html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       view
       |> element("button[phx-click='test']")
@@ -164,10 +116,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
       {:ok, view, _html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       view
       |> form("#notification-channel-form", notification_channel: %{name: channel.name})
@@ -185,10 +134,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       Delivery.link_monitor(monitor.id, channel.id)
 
       {:ok, view, _html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       view
       |> form("#notification-channel-form", notification_channel: %{name: channel.name})
@@ -203,10 +149,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       Delivery.link_monitor(monitor.id, channel.id)
 
       {:ok, _view, html} =
-        live(
-          conn,
-          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
-        )
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       assert html =~ "value=\"#{monitor.id}\" checked"
     end

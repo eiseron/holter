@@ -57,8 +57,12 @@ defmodule HolterWeb.Router do
   scope "/delivery/workspaces/:workspace_slug", HolterWeb.Web.Delivery do
     pipe_through :browser
 
-    live "/notification-channels", NotificationChannelLive.Index, :index
     live "/notification-channels/new", NotificationChannelLive.New, :new
+  end
+
+  scope "/delivery", HolterWeb.Web.Delivery do
+    pipe_through :browser
+
     live "/notification-channels/:id", NotificationChannelLive.Show, :show
   end
 

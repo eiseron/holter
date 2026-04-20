@@ -6,9 +6,9 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   alias Holter.Monitoring
 
   @impl true
-  def mount(%{"workspace_slug" => slug, "id" => id}, _session, socket) do
-    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(slug),
-         {:ok, channel} <- Delivery.get_channel(id) do
+  def mount(%{"id" => id}, _session, socket) do
+    with {:ok, channel} <- Delivery.get_channel(id),
+         {:ok, workspace} <- Monitoring.get_workspace(channel.workspace_id) do
       changeset = Delivery.change_channel(channel)
       available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
       linked_monitor_ids = Delivery.list_monitor_ids_for_channel(id)

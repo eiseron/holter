@@ -20,9 +20,7 @@
       <.table id="channels-table" rows={@channels}>
         <:col :let={channel} label={gettext("Name")}>
           <.link
-            navigate={
-              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
-            }
+            navigate={~p"/delivery/notification-channels/#{channel.id}"}
             class="h-link"
           >
             {channel.name}
@@ -36,9 +34,7 @@
         </:col>
         <:col :let={channel} label="">
           <.link
-            navigate={
-              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
-            }
+            navigate={~p"/delivery/notification-channels/#{channel.id}"}
             class="h-btn h-btn-soft h-text-sm"
           >
             {gettext("Edit")}

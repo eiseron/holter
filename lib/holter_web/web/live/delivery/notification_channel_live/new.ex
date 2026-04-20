@@ -45,7 +45,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
         {:noreply,
          socket
          |> put_flash(:info, gettext("Channel created successfully"))
-         |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/notification-channels")}
+         |> push_navigate(to: ~p"/workspaces/#{workspace.slug}/channels")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
