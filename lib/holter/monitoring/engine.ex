@@ -51,9 +51,20 @@ defmodule Holter.Monitoring.Engine do
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)
 
-    {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+    {positive_ok, negative_ok, missing_keywords, matched_forbidden} =
+      validate_keywords(search_body, monitor)
+
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
-    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+
+    error_msg =
+      determine_error_message(%{
+        status: response.status,
+        positive_ok: positive_ok,
+        negative_ok: negative_ok,
+        missing_keywords: missing_keywords,
+        matched_forbidden: matched_forbidden
+      })
+
     defacement_in_body = detect_defacement_indicators(search_body)
 
     response_data = %{body: body, content_type: content_type, headers: response.headers}
@@ -111,11 +122,9 @@ defmodule Holter.Monitoring.Engine do
 
   defp validate_keywords(body, monitor) do
     downcase_body = String.downcase(body)
-
-    {
-      validate_positive(downcase_body, monitor.keyword_positive),
-      validate_negative(downcase_body, monitor.keyword_negative)
-    }
+    {positive_ok, missing} = validate_positive(downcase_body, monitor.keyword_positive)
+    {negative_ok, matched} = validate_negative(downcase_body, monitor.keyword_negative)
+    {positive_ok, negative_ok, missing, matched}
   end
 
   defp determine_check_status(status, positive_ok, _negative_ok)
@@ -125,12 +134,20 @@ defmodule Holter.Monitoring.Engine do
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_error_message(status, _, _) when status < 200 or status >= 300,
-    do: gettext("HTTP Error: %{status}", status: status)
+  defp determine_error_message(%{status: s}) when s < 200 or s >= 300,
+    do: gettext("HTTP Error: %{status}", status: s)
 
-  defp determine_error_message(_, false, _), do: gettext("Missing required keywords")
-  defp determine_error_message(_, _, false), do: gettext("Found forbidden keywords")
-  defp determine_error_message(_, _, _), do: nil
+  defp determine_error_message(%{positive_ok: false, missing_keywords: missing}) do
+    keywords = Enum.map_join(missing, ", ", &~s("#{&1}"))
+    gettext("Missing required keywords: %{keywords}", keywords: keywords)
+  end
+
+  defp determine_error_message(%{negative_ok: false, matched_forbidden: matched}) do
+    keywords = Enum.map_join(matched, ", ", &~s("#{&1}"))
+    gettext("Found forbidden keywords: %{keywords}", keywords: keywords)
+  end
+
+  defp determine_error_message(_), do: nil
 
   defp finalize_check(monitor, params) do
     now = DateTime.utc_now()
@@ -256,20 +273,18 @@ defmodule Holter.Monitoring.Engine do
 
   defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
 
-  defp validate_positive(_body, empty) when empty in [nil, []], do: true
+  defp validate_positive(_body, empty) when empty in [nil, []], do: {true, []}
 
   defp validate_positive(body, keywords) do
-    Enum.all?(keywords, fn kw ->
-      String.contains?(body, String.downcase(kw))
-    end)
+    missing = Enum.reject(keywords, &String.contains?(body, String.downcase(&1)))
+    {missing == [], missing}
   end
 
-  defp validate_negative(_body, empty) when empty in [nil, []], do: true
+  defp validate_negative(_body, empty) when empty in [nil, []], do: {true, []}
 
   defp validate_negative(body, keywords) do
-    not Enum.any?(keywords, fn kw ->
-      String.contains?(body, String.downcase(kw))
-    end)
+    matched = Enum.filter(keywords, &String.contains?(body, String.downcase(&1)))
+    {matched == [], matched}
   end
 
   defp restricted_ip?(nil), do: false

@@ -75,8 +75,10 @@ defmodule Holter.Monitoring.EngineTest do
       assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
     end
 
-    test "sets root_cause to missing keywords message", %{monitor: monitor} do
-      assert %{root_cause: "Missing required keywords"} =
+    test "sets root_cause to missing keywords message including the keyword name", %{
+      monitor: monitor
+    } do
+      assert %{root_cause: "Missing required keywords: \"success\""} =
                Monitoring.get_open_incident(monitor.id, :downtime)
     end
   end
@@ -99,8 +101,10 @@ defmodule Holter.Monitoring.EngineTest do
       assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
     end
 
-    test "sets root_cause to found forbidden keywords message", %{monitor: monitor} do
-      assert %{root_cause: "Found forbidden keywords"} =
+    test "sets root_cause to found forbidden keywords message including the keyword name", %{
+      monitor: monitor
+    } do
+      assert %{root_cause: "Found forbidden keywords: \"error\""} =
                Monitoring.get_open_incident(monitor.id, :defacement)
     end
   end
@@ -309,7 +313,7 @@ defmodule Holter.Monitoring.EngineTest do
       assert %{health_status: :compromised} = updated_monitor
 
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
-      assert %{status: :compromised, error_message: "Found forbidden keywords"} = log
+      assert %{status: :compromised, error_message: "Found forbidden keywords: \"error\""} = log
 
       assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
     end
