@@ -6,10 +6,10 @@ defmodule Holter.Monitoring.SecurityScanner do
   use Gettext, backend: HolterWeb.Gettext
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.{Incidents, Monitor}
 
   def process_ssl(monitor, expiration_date) do
-    now = DateTime.utc_now()
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     {:ok, updated_monitor} =
       Monitoring.update_monitor(monitor, %{ssl_expires_at: expiration_date})
@@ -23,7 +23,7 @@ defmodule Holter.Monitoring.SecurityScanner do
   end
 
   def handle_ssl_error(monitor, reason) do
-    now = DateTime.utc_now()
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     cause = gettext("SSL Error: %{reason}", reason: inspect(reason))
     open_or_update_ssl_incident(monitor, %{type: :ssl_expiry, now: now, cause: cause})
     Monitoring.recalculate_health_status(monitor)
@@ -52,31 +52,61 @@ defmodule Holter.Monitoring.SecurityScanner do
 
   defp do_resolve_ssl_incident(monitor, now) do
     case Monitoring.get_open_incident(monitor.id, :ssl_expiry) do
-      nil -> :ok
-      incident -> {:ok, _} = Monitoring.resolve_incident(incident, now)
+      nil ->
+        :ok
+
+      incident ->
+        {:ok, _} = Monitoring.resolve_incident(incident, now)
+
+        Monitoring.create_monitor_log(%{
+          monitor_id: monitor.id,
+          status: :up,
+          checked_at: now,
+          monitor_snapshot: Monitor.capture_snapshot(monitor)
+        })
     end
   end
 
   defp open_or_update_ssl_incident(monitor, params) do
     case Monitoring.get_open_incident(monitor.id, params.type) do
       nil -> create_ssl_incident(monitor, params)
-      incident -> update_ssl_incident(incident, params.cause)
+      incident -> update_ssl_incident(monitor, incident, params)
     end
   end
 
   defp create_ssl_incident(monitor, params) do
-    Monitoring.create_incident(%{
-      monitor_id: monitor.id,
-      type: params.type,
-      started_at: params.now,
-      root_cause: params.cause,
-      monitor_snapshot: Monitor.capture_snapshot(monitor)
-    })
+    case Monitoring.create_incident(%{
+           monitor_id: monitor.id,
+           type: params.type,
+           started_at: params.now,
+           root_cause: params.cause,
+           monitor_snapshot: Monitor.capture_snapshot(monitor)
+         }) do
+      {:ok, incident} ->
+        create_ssl_log(monitor, incident, params.now)
+        {:ok, incident}
+
+      error ->
+        error
+    end
   end
 
-  defp update_ssl_incident(incident, cause) do
-    if incident.root_cause != cause do
-      Monitoring.update_incident(incident, %{root_cause: cause})
+  defp update_ssl_incident(monitor, incident, params) do
+    if incident.root_cause != params.cause do
+      {:ok, updated} = Monitoring.update_incident(incident, %{root_cause: params.cause})
+      create_ssl_log(monitor, updated, params.now)
+      {:ok, updated}
     end
+  end
+
+  defp create_ssl_log(monitor, incident, now) do
+    Monitoring.create_monitor_log(%{
+      monitor_id: monitor.id,
+      incident_id: incident.id,
+      status: Incidents.incident_to_health(incident),
+      checked_at: now,
+      error_message: incident.root_cause,
+      monitor_snapshot: Monitor.capture_snapshot(monitor)
+    })
   end
 end
