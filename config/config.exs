@@ -80,6 +80,6 @@ config :holter, Oban,
         Holter.Monitoring.Workers.DailyMetricsAggregator}
      ]}
   ],
-  queues: [dispatchers: 1, checks: 50, metrics: 5]
+  queues: [dispatchers: 1, checks: 50, metrics: 5, notifications: 10]
 
 import_config "#{config_env()}.exs"

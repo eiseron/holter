@@ -52,6 +52,7 @@ config :holter, dev_routes: true
 config :holter, :sql_sandbox, true
 
 config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
+config :holter, delivery_http_client: Holter.Delivery.HttpClientMock
 
 # Set default locale to English for tests
 config :holter, HolterWeb.Gettext, default_locale: "en"

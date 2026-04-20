@@ -16,6 +16,10 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
     {subject, body}
   end
 
+  defp build_email_subject(%{event: "test_ping", channel: %{name: name}}) do
+    "Test notification from #{name}"
+  end
+
   defp build_email_subject(%{event: "monitor_down", monitor: %{url: url}}) do
     "Alert: #{url} is down"
   end
@@ -26,6 +30,10 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
 
   defp build_email_subject(%{event: event, monitor: %{url: url}}) do
     "#{event} — #{url}"
+  end
+
+  defp build_email_body(%{event: "test_ping", channel: %{name: name}} = payload) do
+    "This is a test notification from channel: #{name}\nTimestamp: #{payload.timestamp}"
   end
 
   defp build_email_body(payload) do

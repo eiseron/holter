@@ -1,0 +1,23 @@
+defmodule Holter.Delivery.HttpClient do
+  @moduledoc """
+  Behaviour for the HTTP client used by the delivery engine.
+  """
+
+  def impl, do: Application.get_env(:holter, :delivery_http_client, HTTP)
+
+  @callback post(url :: String.t(), body :: String.t(), headers :: list()) ::
+              {:ok, %{status: integer()}} | {:error, Exception.t()}
+
+  defmodule HTTP do
+    @moduledoc false
+    @behaviour Holter.Delivery.HttpClient
+
+    @impl true
+    def post(url, body, headers) do
+      case Req.post(url, body: body, headers: Map.new(headers)) do
+        {:ok, %Req.Response{status: status}} -> {:ok, %{status: status}}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+end
