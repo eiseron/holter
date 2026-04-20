@@ -33,7 +33,7 @@ defmodule HolterWeb.Api.IncidentControllerTest do
   end
 
   describe "GET /api/v1/monitors/:monitor_id/incidents" do
-    test "Lists incidents for the monitor and matches schema", %{
+    test "returns incidents with pagination meta and matches schema", %{
       conn: conn,
       monitor: monitor,
       api_spec: spec
@@ -43,11 +43,11 @@ defmodule HolterWeb.Api.IncidentControllerTest do
       conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents")
       body = json_response(conn, 200)
 
-      assert %{"data" => [_]} = body
+      assert %{"data" => [_], "meta" => %{"page" => 1, "page_size" => 25, "total" => 1}} = body
       assert_schema(body, "IncidentList", spec)
     end
 
-    test "returns empty list when monitor has no incidents", %{
+    test "returns empty data with meta when monitor has no incidents", %{
       conn: conn,
       monitor: monitor,
       api_spec: spec
@@ -55,8 +55,64 @@ defmodule HolterWeb.Api.IncidentControllerTest do
       conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents")
       body = json_response(conn, 200)
 
-      assert %{"data" => []} = body
+      assert %{"data" => [], "meta" => %{"total" => 0}} = body
       assert_schema(body, "IncidentList", spec)
+    end
+
+    test "filters by type=downtime excludes ssl_expiry incidents", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      incident_fixture(%{monitor_id: monitor.id, type: :downtime})
+      incident_fixture(%{monitor_id: monitor.id, type: :ssl_expiry})
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?type=downtime")
+      body = json_response(conn, 200)
+
+      assert %{"data" => [%{"type" => "downtime"}], "meta" => %{"total" => 1}} = body
+    end
+
+    test "filters by state=open excludes resolved incidents", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      {:ok, incident} =
+        Holter.Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :downtime,
+          started_at: DateTime.utc_now()
+        })
+
+      Holter.Monitoring.resolve_incident(incident, DateTime.utc_now())
+      incident_fixture(%{monitor_id: monitor.id, type: :ssl_expiry})
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?state=open")
+      body = json_response(conn, 200)
+
+      assert %{"meta" => %{"total" => 1}} = body
+    end
+
+    test "paginates results with page and page_size params", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      incident_fixture(%{monitor_id: monitor.id, type: :downtime})
+      incident_fixture(%{monitor_id: monitor.id, type: :defacement})
+      incident_fixture(%{monitor_id: monitor.id, type: :ssl_expiry})
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?page=1&page_size=2")
+      body = json_response(conn, 200)
+
+      assert %{"data" => [_, _], "meta" => %{"page" => 1, "page_size" => 2, "total" => 3}} = body
+    end
+
+    test "ignores unknown type filter values", %{conn: conn, monitor: monitor} do
+      incident_fixture(%{monitor_id: monitor.id})
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?type=invalid")
+      body = json_response(conn, 200)
+
+      assert %{"meta" => %{"total" => 1}} = body
     end
   end
 

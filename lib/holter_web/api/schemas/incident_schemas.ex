@@ -49,12 +49,23 @@ defmodule HolterWeb.Api.IncidentSchemas do
   def incident_list do
     %Schema{
       title: "IncidentList",
-      description: "A list of incidents ordered by start time descending.",
+      description: "A paginated list of incidents ordered by start time descending.",
       type: :object,
       additionalProperties: false,
       properties: %{
-        data: %Schema{type: :array, items: incident()}
-      }
+        data: %Schema{type: :array, items: incident()},
+        meta: %Schema{
+          type: :object,
+          additionalProperties: false,
+          properties: %{
+            page: %Schema{type: :integer},
+            page_size: %Schema{type: :integer},
+            total: %Schema{type: :integer}
+          },
+          required: [:page, :page_size, :total]
+        }
+      },
+      required: [:data, :meta]
     }
   end
 

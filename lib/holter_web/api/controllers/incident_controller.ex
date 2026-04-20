@@ -6,6 +6,8 @@ defmodule HolterWeb.Api.IncidentController do
   use HolterWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import HolterWeb.Api.ParamHelpers
+
   alias Holter.Monitoring
   alias HolterWeb.Api.IncidentSchemas
 
@@ -15,12 +17,33 @@ defmodule HolterWeb.Api.IncidentController do
 
   operation(:index,
     summary: "List incidents",
-    description: "List the history of downtime and alerts for a monitor.",
+    description:
+      "List the history of downtime and alerts for a monitor with filtering and pagination.",
     parameters: [
       monitor_id: [
         in: :path,
         description: "Monitor UUID",
         schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
+      ],
+      page: [
+        in: :query,
+        description: "Page number",
+        schema: %OpenApiSpex.Schema{type: :integer, default: 1}
+      ],
+      page_size: [
+        in: :query,
+        description: "Items per page (max 100)",
+        schema: %OpenApiSpex.Schema{type: :integer, default: 25}
+      ],
+      type: [
+        in: :query,
+        description: "Filter by incident type (downtime, defacement, ssl_expiry)",
+        schema: %OpenApiSpex.Schema{type: :string}
+      ],
+      state: [
+        in: :query,
+        description: "Filter by state (open, resolved)",
+        schema: %OpenApiSpex.Schema{type: :string}
       ]
     ],
     responses: [
@@ -29,10 +52,20 @@ defmodule HolterWeb.Api.IncidentController do
     ]
   )
 
-  def index(conn, %{"monitor_id" => monitor_id}) do
+  def index(conn, %{"monitor_id" => monitor_id} = params) do
     with {:ok, monitor} <- Monitoring.get_monitor(monitor_id) do
-      incidents = Monitoring.list_incidents(monitor.id)
-      render(conn, :index, incidents: incidents)
+      filters = sanitize_filters(params)
+
+      result =
+        Monitoring.list_incidents_filtered(%{
+          monitor_id: monitor.id,
+          page: filters[:page] || 1,
+          page_size: filters[:page_size] || 25,
+          type: filters[:type],
+          state: filters[:state]
+        })
+
+      render(conn, :index, result: result)
     end
   end
 
@@ -57,5 +90,16 @@ defmodule HolterWeb.Api.IncidentController do
     with {:ok, incident} <- Monitoring.get_incident(id) do
       render(conn, :show, incident: incident)
     end
+  end
+
+  @valid_types ~w(downtime defacement ssl_expiry)
+  @valid_states ~w(open resolved)
+
+  defp sanitize_filters(params) do
+    %{}
+    |> maybe_put_integer(params, {"page", :page})
+    |> maybe_put_integer(params, {"page_size", :page_size})
+    |> maybe_put_atom(params, {"type", :type, @valid_types})
+    |> maybe_put_atom(params, {"state", :state, @valid_states})
   end
 end

@@ -228,7 +228,7 @@ components:
       x-validate:
     IncidentList:
       additionalProperties: false
-      description: A list of incidents ordered by start time descending.
+      description: A paginated list of incidents ordered by start time descending.
       properties:
         data:
           items:
@@ -296,6 +296,31 @@ components:
           type: array
           x-struct:
           x-validate:
+        meta:
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total:
+              type: integer
+              x-struct:
+              x-validate:
+          required:
+            - page
+            - page_size
+            - total
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+        - meta
       title: IncidentList
       type: object
       x-struct:
@@ -2820,7 +2845,7 @@ paths:
   /api/v1/monitors/{monitor_id}/incidents:
     get:
       callbacks: {}
-      description: List the history of downtime and alerts for a monitor.
+      description: List the history of downtime and alerts for a monitor with filtering and pagination.
       operationId: HolterWeb.Api.IncidentController.index
       parameters:
         - description: Monitor UUID
@@ -2832,13 +2857,47 @@ paths:
             type: string
             x-struct:
             x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page (max 100)
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 25
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Filter by incident type (downtime, defacement, ssl_expiry)
+          in: query
+          name: type
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Filter by state (open, resolved)
+          in: query
+          name: state
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
       responses:
         '200':
           content:
             application/json:
               schema:
                 additionalProperties: false
-                description: A list of incidents ordered by start time descending.
+                description: A paginated list of incidents ordered by start time descending.
                 properties:
                   data:
                     items:
@@ -2906,6 +2965,31 @@ paths:
                     type: array
                     x-struct:
                     x-validate:
+                  meta:
+                    additionalProperties: false
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    required:
+                      - page
+                      - page_size
+                      - total
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                  - meta
                 title: IncidentList
                 type: object
                 x-struct:
