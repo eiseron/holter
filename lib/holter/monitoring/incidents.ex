@@ -14,13 +14,10 @@ defmodule Holter.Monitoring.Incidents do
     end
   end
 
-  @max_page_size 100
-  @default_page_size 25
-
   def list_incidents_filtered(params) do
     monitor_id = Map.fetch!(params, :monitor_id)
     page = Map.get(params, :page, 1) |> max(1)
-    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
 
     base =
       Incident
@@ -35,30 +32,6 @@ defmodule Holter.Monitoring.Incidents do
     incidents = base |> Pagination.paginate_query(page, page_size) |> Repo.all()
     %{data: incidents, meta: %{page: page, page_size: page_size, total: total}}
   end
-
-  defp maybe_filter_by(query, :type, %{type: type}) when not is_nil(type) do
-    where(query, [i], i.type == ^type)
-  end
-
-  defp maybe_filter_by(query, :state, %{state: :open}) do
-    where(query, [i], is_nil(i.resolved_at))
-  end
-
-  defp maybe_filter_by(query, :state, %{state: :resolved}) do
-    where(query, [i], not is_nil(i.resolved_at))
-  end
-
-  defp maybe_filter_by(query, :date_from, %{date_from: date}) when not is_nil(date) do
-    dt = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
-    where(query, [i], i.started_at >= ^dt)
-  end
-
-  defp maybe_filter_by(query, :date_to, %{date_to: date}) when not is_nil(date) do
-    dt = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
-    where(query, [i], i.started_at <= ^dt)
-  end
-
-  defp maybe_filter_by(query, _, _), do: query
 
   def incident_to_health(%{type: :downtime}), do: :down
   def incident_to_health(%{type: :defacement}), do: :compromised
@@ -151,4 +124,28 @@ defmodule Holter.Monitoring.Incidents do
       {:ok, incident}
     end
   end
+
+  defp maybe_filter_by(query, :type, %{type: type}) when not is_nil(type) do
+    where(query, [i], i.type == ^type)
+  end
+
+  defp maybe_filter_by(query, :state, %{state: :open}) do
+    where(query, [i], is_nil(i.resolved_at))
+  end
+
+  defp maybe_filter_by(query, :state, %{state: :resolved}) do
+    where(query, [i], not is_nil(i.resolved_at))
+  end
+
+  defp maybe_filter_by(query, :date_from, %{date_from: date}) when not is_nil(date) do
+    dt = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+    where(query, [i], i.started_at >= ^dt)
+  end
+
+  defp maybe_filter_by(query, :date_to, %{date_to: date}) when not is_nil(date) do
+    dt = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+    where(query, [i], i.started_at <= ^dt)
+  end
+
+  defp maybe_filter_by(query, _, _), do: query
 end

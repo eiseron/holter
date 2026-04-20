@@ -2,6 +2,8 @@ defmodule Holter.Monitoring.SecurityScannerTest do
   use Holter.DataCase, async: true
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Engine
+  alias Holter.Monitoring.Logs
   alias Holter.Monitoring.SecurityScanner
 
   setup do
@@ -151,6 +153,102 @@ defmodule Holter.Monitoring.SecurityScannerTest do
 
     test "sets health_status to :compromised", %{monitor: monitor} do
       assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
+  end
+
+  describe "SSL log linkage: process_ssl opens warning incident" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(10, :day)
+      SecurityScanner.process_ssl(monitor, expiry)
+      %{incident: Monitoring.get_open_incident(monitor.id, :ssl_expiry)}
+    end
+
+    test "ssl_expiry incident has at least one linked log immediately", %{incident: incident} do
+      assert Logs.list_logs_by_incident(incident.id) != []
+    end
+
+    test "linked log has status :degraded", %{incident: incident} do
+      log = Logs.list_logs_by_incident(incident.id) |> List.first()
+      assert log.status == :degraded
+    end
+
+    test "linked log incident_id matches the ssl incident", %{incident: incident} do
+      log = Logs.list_logs_by_incident(incident.id) |> List.first()
+      assert log.incident_id == incident.id
+    end
+  end
+
+  describe "SSL log linkage: process_ssl opens critical incident" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(5, :day)
+      SecurityScanner.process_ssl(monitor, expiry)
+      %{incident: Monitoring.get_open_incident(monitor.id, :ssl_expiry)}
+    end
+
+    test "linked log has status :compromised", %{incident: incident} do
+      log = Logs.list_logs_by_incident(incident.id) |> List.first()
+      assert log.status == :compromised
+    end
+  end
+
+  describe "SSL log linkage: handle_ssl_error" do
+    setup %{monitor: monitor} do
+      SecurityScanner.handle_ssl_error(monitor, :nxdomain)
+      %{incident: Monitoring.get_open_incident(monitor.id, :ssl_expiry)}
+    end
+
+    test "ssl error incident has at least one linked log", %{incident: incident} do
+      assert Logs.list_logs_by_incident(incident.id) != []
+    end
+
+    test "ssl error log has status :compromised", %{incident: incident} do
+      log = Logs.list_logs_by_incident(incident.id) |> List.first()
+      assert log.status == :compromised
+    end
+  end
+
+  describe "SSL log linkage: warning to critical escalation" do
+    setup %{monitor: monitor} do
+      expiry_warning = DateTime.utc_now() |> DateTime.add(10, :day)
+      SecurityScanner.process_ssl(monitor, expiry_warning)
+
+      expiry_critical = DateTime.utc_now() |> DateTime.add(5, :day)
+      SecurityScanner.process_ssl(monitor, expiry_critical)
+
+      %{incident: Monitoring.get_open_incident(monitor.id, :ssl_expiry)}
+    end
+
+    test "escalation produces a second log entry", %{incident: incident} do
+      assert match?([_, _ | _], Logs.list_logs_by_incident(incident.id))
+    end
+
+    test "most recent log has status :compromised after escalation", %{incident: incident} do
+      log = Logs.list_logs_by_incident(incident.id) |> List.first()
+      assert log.status == :compromised
+    end
+  end
+
+  describe "SSL log linkage: coexistence with downtime incident" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(10, :day)
+      SecurityScanner.process_ssl(monitor, expiry)
+      ssl_incident = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
+
+      response = %Req.Response{
+        status: 500,
+        body: "Error",
+        headers: [{"content-type", "text/plain"}]
+      }
+
+      Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      %{ssl_incident: ssl_incident}
+    end
+
+    test "ssl incident retains its log when a downtime incident opens later", %{
+      ssl_incident: ssl_incident
+    } do
+      assert Logs.list_logs_by_incident(ssl_incident.id) != []
     end
   end
 end

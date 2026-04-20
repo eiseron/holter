@@ -47,13 +47,4 @@ defmodule Holter.Monitoring.MonitorLog do
     ])
     |> validate_required([:monitor_id, :status, :checked_at])
   end
-
-  @doc """
-  Returns the available status values for form selects.
-  """
-  def status_options do
-    [:up, :down, :degraded, :compromised, :unknown]
-    |> Enum.map(&to_string/1)
-    |> Enum.map(fn status -> {String.capitalize(status), status} end)
-  end
 end

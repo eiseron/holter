@@ -5,6 +5,8 @@ defmodule HolterWeb.LiveView.SortPagination do
 
   import Phoenix.Component, only: [assign: 3]
 
+  @non_url_params [:id, :workspace_slug, :timezone, "id", "workspace_slug", "timezone"]
+
   def assign_sort_info(socket, params) do
     path = params.path
     sortable_cols = params.sortable_cols
@@ -45,8 +47,6 @@ defmodule HolterWeb.LiveView.SortPagination do
       for(p <- max(1, page - 2)..min(total, page + 2), do: {p, page_url.(p)})
     )
   end
-
-  @non_url_params [:id, :workspace_slug, :timezone, "id", "workspace_slug", "timezone"]
 
   def encode_filters(filters) do
     filters

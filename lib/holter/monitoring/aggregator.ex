@@ -8,10 +8,12 @@ defmodule Holter.Monitoring.Aggregator do
 
   def aggregate_monitor_date(monitor_id, date) do
     monitor = Holter.Monitoring.get_monitor!(monitor_id)
-    time_range = build_day_range(date, monitor)
+    now = DateTime.utc_now()
+    time_range = build_day_range(date, monitor, now)
 
     if has_activity?(monitor_id, time_range) do
-      build_metrics(monitor, date, time_range)
+      data = fetch_aggregation_data(monitor_id, time_range, now)
+      build_metrics(monitor, date, data)
     else
       build_empty_metrics(monitor_id, date)
     end
@@ -22,13 +24,24 @@ defmodule Holter.Monitoring.Aggregator do
     count_logs(monitor_id, time_range) > 0 or incidents_exist?(monitor_id, time_range)
   end
 
-  defp build_metrics(monitor, date, time_range) do
+  defp fetch_aggregation_data(monitor_id, {start_at, end_at} = time_range, now) do
+    %{
+      time_range: time_range,
+      now: now,
+      avg_latency_ms: fetch_avg_latency(monitor_id, time_range),
+      incidents: fetch_overlapping_incidents(monitor_id, start_at, end_at)
+    }
+  end
+
+  defp build_metrics(monitor, date, data) do
+    downtime_seconds = calculate_downtime_seconds_from(data.incidents, data.time_range, data.now)
+
     %{
       monitor_id: monitor.id,
       date: date,
-      avg_latency_ms: fetch_avg_latency(monitor.id, time_range),
-      total_downtime_minutes: calculate_total_downtime_minutes(monitor.id, time_range),
-      uptime_percent: calculate_uptime_percent(monitor, time_range)
+      avg_latency_ms: data.avg_latency_ms,
+      total_downtime_minutes: seconds_to_minutes(downtime_seconds),
+      uptime_percent: compute_uptime(downtime_seconds, data.time_range)
     }
   end
 
@@ -42,10 +55,9 @@ defmodule Holter.Monitoring.Aggregator do
     }
   end
 
-  defp build_day_range(date, monitor) do
+  defp build_day_range(date, monitor, now) do
     day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
     day_end = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
-    now = DateTime.utc_now()
 
     start_at = max_datetime(day_start, monitor.inserted_at)
     end_at = min_datetime(day_end, now)
@@ -81,22 +93,29 @@ defmodule Holter.Monitoring.Aggregator do
   defp normalize_latency(nil), do: 0
   defp normalize_latency(val), do: val |> Decimal.round(0) |> Decimal.to_integer()
 
-  defp calculate_total_downtime_minutes(monitor_id, time_range) do
-    monitor_id
-    |> calculate_downtime_seconds(time_range)
-    |> seconds_to_minutes()
+  defp fetch_overlapping_incidents(monitor_id, start_at, end_at) do
+    Incident
+    |> where([i], i.monitor_id == ^monitor_id)
+    |> where([i], i.started_at < ^end_at)
+    |> where([i], is_nil(i.resolved_at) or i.resolved_at > ^start_at)
+    |> Repo.all()
   end
 
-  defp seconds_to_minutes(seconds), do: round(seconds / 60)
+  defp calculate_downtime_seconds_from(incidents, {_start_at, _end_at} = time_range, now) do
+    incidents
+    |> Enum.map(&calculate_incident_overlap_seconds(&1, time_range, now))
+    |> Enum.sum()
+  end
 
-  defp calculate_uptime_percent(monitor, {start_at, end_at} = time_range) do
-    downtime_seconds = calculate_downtime_seconds(monitor.id, time_range)
+  defp compute_uptime(downtime_seconds, {start_at, end_at}) do
     total_seconds = DateTime.diff(end_at, start_at)
 
     downtime_seconds
     |> compute_uptime_ratio(total_seconds)
     |> to_percentage_decimal()
   end
+
+  defp seconds_to_minutes(seconds), do: round(seconds / 60)
 
   defp compute_uptime_ratio(downtime, total) when downtime >= total, do: 0.0
   defp compute_uptime_ratio(downtime, total), do: (total - downtime) / total
@@ -107,24 +126,9 @@ defmodule Holter.Monitoring.Aggregator do
     |> Decimal.from_float()
   end
 
-  defp calculate_downtime_seconds(monitor_id, {start_at, end_at}) do
-    monitor_id
-    |> fetch_overlapping_incidents(start_at, end_at)
-    |> Enum.map(&calculate_incident_overlap_seconds(&1, start_at, end_at))
-    |> Enum.sum()
-  end
-
-  defp fetch_overlapping_incidents(monitor_id, start_at, end_at) do
-    Incident
-    |> where([i], i.monitor_id == ^monitor_id)
-    |> where([i], i.started_at < ^end_at)
-    |> where([i], is_nil(i.resolved_at) or i.resolved_at > ^start_at)
-    |> Repo.all()
-  end
-
-  defp calculate_incident_overlap_seconds(incident, range_start, range_end) do
+  defp calculate_incident_overlap_seconds(incident, {range_start, range_end}, now) do
     overlap_start = max_datetime(incident.started_at, range_start)
-    overlap_end = min_datetime(incident.resolved_at || DateTime.utc_now(), range_end)
+    overlap_end = min_datetime(incident.resolved_at || now, range_end)
 
     overlap_end
     |> DateTime.diff(overlap_start)

@@ -7,6 +7,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
   alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @sortable_cols ~w(checked_at status latency_ms)
+  @valid_filter_keys ~w(status start_date end_date page page_size sort_by sort_dir)
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -77,8 +78,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Logs do
 
   defp empty_to_nil(""), do: nil
   defp empty_to_nil(value), do: value
-
-  @valid_filter_keys ~w(status start_date end_date page page_size sort_by sort_dir)
 
   defp parse_filters(params, timezone) do
     %{

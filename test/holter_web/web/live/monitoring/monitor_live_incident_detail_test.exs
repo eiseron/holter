@@ -1,7 +1,9 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLiveIncidentDetailTest do
   use HolterWeb.ConnCase
-  import Phoenix.LiveViewTest
   use Gettext, backend: HolterWeb.Gettext
+
+  import Phoenix.LiveViewTest
+
   alias Holter.Monitoring
 
   setup do

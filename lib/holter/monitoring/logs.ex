@@ -10,9 +10,11 @@ defmodule Holter.Monitoring.Logs do
     "status" => :status,
     "latency_ms" => :latency_ms
   }
+  @valid_statuses MapSet.new(["up", "down", "degraded", "compromised", "unknown"])
+  @incident_logs_preview_limit 10
 
   def list_monitor_logs(monitor, filters) do
-    page_size = filters[:page_size] || 50
+    page_size = Pagination.resolve_page_size(filters[:page_size])
     base_query = build_base_query(monitor.id, filters)
 
     {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
@@ -32,76 +34,6 @@ defmodule Holter.Monitoring.Logs do
     }
   end
 
-  defp build_base_query(monitor_id, filters) do
-    timezone = filters[:timezone] || "Etc/UTC"
-
-    from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
-    |> apply_status_filter(filters[:status])
-    |> apply_date_range_filter(
-      %{start_date: filters[:start_date], end_date: filters[:end_date]},
-      timezone
-    )
-  end
-
-  defp fetch_paginated_logs(query, page, params) do
-    query
-    |> apply_sort_order(params.sort_by, params.sort_dir)
-    |> Pagination.paginate_query(page, params.page_size)
-    |> Repo.all()
-  end
-
-  defp apply_sort_order(query, sort_by, sort_dir) do
-    field = Map.get(@sortable_columns, to_string(sort_by), :checked_at)
-    dir = if sort_dir == "asc", do: :asc, else: :desc
-    order_by(query, [l], [{^dir, field(l, ^field)}, desc: l.inserted_at])
-  end
-
-  @valid_statuses MapSet.new(["up", "down", "degraded", "compromised", "unknown"])
-
-  defp apply_status_filter(query, nil), do: query
-  defp apply_status_filter(query, ""), do: query
-
-  defp apply_status_filter(query, status) do
-    if MapSet.member?(@valid_statuses, status) do
-      where(query, [l], l.status == ^String.to_existing_atom(status))
-    else
-      query
-    end
-  end
-
-  defp apply_date_range_filter(query, %{start_date: nil, end_date: nil}, _timezone), do: query
-
-  defp apply_date_range_filter(query, %{start_date: start_date, end_date: nil}, timezone) do
-    case DateFilter.parse_to_datetime(start_date, :start, timezone) do
-      {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
-      _ -> query
-    end
-  end
-
-  defp apply_date_range_filter(query, %{start_date: nil, end_date: end_date}, timezone) do
-    case DateFilter.parse_to_datetime(end_date, :end, timezone) do
-      {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
-      _ -> query
-    end
-  end
-
-  defp apply_date_range_filter(query, %{start_date: start_date, end_date: end_date}, timezone) do
-    case {DateFilter.parse_to_datetime(start_date, :start, timezone),
-          DateFilter.parse_to_datetime(end_date, :end, timezone)} do
-      {{:ok, start_dt}, {:ok, end_dt}} ->
-        where(query, [l], l.checked_at >= ^start_dt and l.checked_at <= ^end_dt)
-
-      {{:ok, start_dt}, _} ->
-        where(query, [l], l.checked_at >= ^start_dt)
-
-      {_, {:ok, end_dt}} ->
-        where(query, [l], l.checked_at <= ^end_dt)
-
-      _ ->
-        query
-    end
-  end
-
   def list_recent_logs_for_chart(monitor_id, hours \\ 24) do
     cutoff = DateTime.add(DateTime.utc_now(), -hours * 3600, :second)
 
@@ -112,8 +44,6 @@ defmodule Holter.Monitoring.Logs do
   end
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
-
-  @incident_logs_preview_limit 10
 
   def list_logs_by_incident(incident_id) do
     MonitorLog
@@ -177,5 +107,73 @@ defmodule Holter.Monitoring.Logs do
 
     {deleted_count, _} = Repo.delete_all(delete_query)
     deleted_count
+  end
+
+  defp build_base_query(monitor_id, filters) do
+    timezone = filters[:timezone] || "Etc/UTC"
+
+    from(l in MonitorLog, where: l.monitor_id == ^monitor_id)
+    |> apply_status_filter(filters[:status])
+    |> apply_date_range_filter(
+      %{start_date: filters[:start_date], end_date: filters[:end_date]},
+      timezone
+    )
+  end
+
+  defp fetch_paginated_logs(query, page, params) do
+    query
+    |> apply_sort_order(params.sort_by, params.sort_dir)
+    |> Pagination.paginate_query(page, params.page_size)
+    |> Repo.all()
+  end
+
+  defp apply_sort_order(query, sort_by, sort_dir) do
+    field = Map.get(@sortable_columns, to_string(sort_by), :checked_at)
+    dir = if sort_dir == "asc", do: :asc, else: :desc
+    order_by(query, [l], [{^dir, field(l, ^field)}, desc: l.inserted_at])
+  end
+
+  defp apply_status_filter(query, nil), do: query
+  defp apply_status_filter(query, ""), do: query
+
+  defp apply_status_filter(query, status) do
+    if MapSet.member?(@valid_statuses, status) do
+      where(query, [l], l.status == ^String.to_existing_atom(status))
+    else
+      query
+    end
+  end
+
+  defp apply_date_range_filter(query, %{start_date: nil, end_date: nil}, _timezone), do: query
+
+  defp apply_date_range_filter(query, %{start_date: start_date, end_date: nil}, timezone) do
+    case DateFilter.parse_to_datetime(start_date, :start, timezone) do
+      {:ok, start_dt} -> where(query, [l], l.checked_at >= ^start_dt)
+      _ -> query
+    end
+  end
+
+  defp apply_date_range_filter(query, %{start_date: nil, end_date: end_date}, timezone) do
+    case DateFilter.parse_to_datetime(end_date, :end, timezone) do
+      {:ok, end_dt} -> where(query, [l], l.checked_at <= ^end_dt)
+      _ -> query
+    end
+  end
+
+  defp apply_date_range_filter(query, %{start_date: start_date, end_date: end_date}, timezone) do
+    case {DateFilter.parse_to_datetime(start_date, :start, timezone),
+          DateFilter.parse_to_datetime(end_date, :end, timezone)} do
+      {{:ok, start_dt}, {:ok, end_dt}} ->
+        where(query, [l], l.checked_at >= ^start_dt and l.checked_at <= ^end_dt)
+
+      {{:ok, start_dt}, _} ->
+        where(query, [l], l.checked_at >= ^start_dt)
+
+      {_, {:ok, end_dt}} ->
+        where(query, [l], l.checked_at <= ^end_dt)
+
+      _ ->
+        query
+    end
   end
 end

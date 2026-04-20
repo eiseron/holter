@@ -26,6 +26,9 @@ defmodule Holter.Monitoring.CertificateParser do
     end
   end
 
+  def decode_asn1_time({:utcTime, time}), do: parse_time(:short, List.to_string(time))
+  def decode_asn1_time({:generalTime, time}), do: parse_time(:long, List.to_string(time))
+
   defp maybe_decode_time(nil), do: nil
   defp maybe_decode_time(time), do: decode_asn1_time(time)
 
@@ -42,9 +45,6 @@ defmodule Holter.Monitoring.CertificateParser do
 
   defp extract_not_after({:Validity, _not_before, not_after}), do: not_after
   defp extract_not_after(_), do: nil
-
-  def decode_asn1_time({:utcTime, time}), do: parse_time(:short, List.to_string(time))
-  def decode_asn1_time({:generalTime, time}), do: parse_time(:long, List.to_string(time))
 
   defp parse_time(:short, <<y::binary-2, rest::binary>>) do
     prefix = if String.to_integer(y) >= 50, do: "19", else: "20"

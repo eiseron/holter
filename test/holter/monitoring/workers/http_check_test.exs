@@ -295,6 +295,18 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
     test "hop 3 ip is a string", %{hop3: hop3} do
       assert is_binary(hop3["ip"])
     end
+
+    test "hop 1 latency_ms is an integer", %{hop1: hop1} do
+      assert is_integer(hop1["latency_ms"])
+    end
+
+    test "hop 2 latency_ms is an integer", %{hop2: hop2} do
+      assert is_integer(hop2["latency_ms"])
+    end
+
+    test "hop 3 latency_ms is an integer", %{hop3: hop3} do
+      assert is_integer(hop3["latency_ms"])
+    end
   end
 
   describe "redirect_list when no redirects occur" do
@@ -322,6 +334,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "origin hop ip is a string", %{hop: hop} do
       assert is_binary(hop["ip"])
+    end
+
+    test "origin hop latency_ms is an integer", %{hop: hop} do
+      assert is_integer(hop["latency_ms"])
     end
   end
 

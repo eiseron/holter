@@ -79,13 +79,10 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  @max_page_size 100
-  @default_page_size 25
-
   def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
     page = Map.get(params, :page, 1) |> max(1)
-    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
 
     base_query =
       Monitor
@@ -107,89 +104,19 @@ defmodule Holter.Monitoring.Monitors do
     %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
   end
 
-  defp maybe_filter_by(query, :logical_state, %{logical_state: state}) when not is_nil(state) do
-    where(query, [m], m.logical_state == ^state)
-  end
-
-  defp maybe_filter_by(query, :health_status, %{health_status: status}) when not is_nil(status) do
-    where(query, [m], m.health_status == ^status)
-  end
-
-  defp maybe_filter_by(query, _, _), do: query
-
-  defp tactical_ranking(query) do
-    query
-    |> order_by([m],
-      desc: fragment("CASE WHEN logical_state = 'paused' THEN 0 ELSE 1 END"),
-      desc:
-        fragment("""
-        CASE
-          WHEN health_status = 'down' THEN 4
-          WHEN health_status = 'compromised' THEN 3
-          WHEN health_status = 'degraded' THEN 2
-          WHEN health_status = 'up' THEN 1
-          ELSE 0
-        END
-        """),
-      desc:
-        fragment(
-          "(SELECT COUNT(*) FROM incidents WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL)",
-          m.id
-        ),
-      desc: m.inserted_at
-    )
-  end
-
   def create_monitor(attrs \\ %{}) do
     workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
     logical_state = attrs[:logical_state] || attrs["logical_state"] || :active
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
-         {:ok, {monitor, should_enqueue}} <- create_monitor_transactionally(attrs, workspace) do
+         {:ok, changeset} <- build_valid_changeset(attrs, workspace),
+         :ok <- check_create_rate_limit(workspace, logical_state),
+         {:ok, monitor} <- Repo.insert(changeset),
+         {:ok, should_enqueue} <- check_trigger_budget(monitor, workspace) do
       if should_enqueue, do: enqueue_checks(monitor)
       Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
       {:ok, monitor}
-    end
-  end
-
-  defp create_monitor_transactionally(attrs, workspace) do
-    Repo.transaction(fn ->
-      changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
-
-      case Repo.insert(changeset) do
-        {:error, cs} -> Repo.rollback(cs)
-        {:ok, monitor} -> after_insert(monitor, workspace)
-      end
-    end)
-  end
-
-  defp after_insert(monitor, workspace) do
-    case consume_create_budget_for(monitor, workspace) do
-      :ok -> maybe_enqueue_on_creation(monitor, workspace)
-      {:error, reason} -> Repo.rollback(reason)
-    end
-  end
-
-  defp consume_create_budget_for(monitor, workspace) do
-    if monitor.logical_state == :active do
-      case Workspaces.consume_create_budget(workspace) do
-        {:ok, _} -> :ok
-        error -> error
-      end
-    else
-      :ok
-    end
-  end
-
-  defp maybe_enqueue_on_creation(monitor, workspace) do
-    if monitor.logical_state == :active do
-      case Workspaces.consume_trigger_budget(workspace) do
-        {:ok, _} -> {monitor, true}
-        {:error, _} -> {monitor, false}
-      end
-    else
-      {monitor, false}
     end
   end
 
@@ -225,15 +152,6 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp fetch_workspace_for_quota(nil), do: {:error, :not_found}
-
-  defp fetch_workspace_for_quota(id) do
-    case Repo.get(Workspace, id) do
-      nil -> {:error, :not_found}
-      ws -> {:ok, ws}
-    end
-  end
-
   def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
     query =
       Monitor
@@ -251,31 +169,12 @@ defmodule Holter.Monitoring.Monitors do
     count >= max
   end
 
-  defp check_monitor_quota(workspace, logical_state) do
-    if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
-      {:error, :quota_reached}
-    else
-      :ok
-    end
-  end
-
   def mark_manual_check_triggered(%Monitor{} = monitor) do
     workspace = Repo.get!(Workspace, monitor.workspace_id)
 
     with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
       system_update_monitor(monitor, %{last_manual_check_at: now})
-    end
-  end
-
-  defp system_update_monitor(%Monitor{} = monitor, attrs) do
-    case monitor |> Monitor.changeset(attrs) |> Repo.update() do
-      {:ok, updated} ->
-        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
-        {:ok, updated}
-
-      error ->
-        error
     end
   end
 
@@ -308,27 +207,6 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp determine_incident_status([]), do: :unknown
-
-  defp determine_incident_status(incidents) do
-    incidents
-    |> Enum.map(&incident_to_health/1)
-    |> Enum.max_by(&status_severity/1, fn -> :up end)
-  end
-
-  defp incident_to_health(incident), do: Incidents.incident_to_health(incident)
-
-  defp status_from_latest_log(monitor_id) do
-    log =
-      Holter.Monitoring.MonitorLog
-      |> where([l], l.monitor_id == ^monitor_id)
-      |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
-      |> limit(1)
-      |> Repo.one()
-
-    if log, do: log.status, else: :unknown
-  end
-
   def status_severity(:down), do: 4
   def status_severity(:compromised), do: 3
   def status_severity(:degraded), do: 2
@@ -351,5 +229,114 @@ defmodule Holter.Monitoring.Monitors do
         )
     )
     |> Repo.all()
+  end
+
+  defp maybe_filter_by(query, :logical_state, %{logical_state: state}) when not is_nil(state) do
+    where(query, [m], m.logical_state == ^state)
+  end
+
+  defp maybe_filter_by(query, :health_status, %{health_status: status}) when not is_nil(status) do
+    where(query, [m], m.health_status == ^status)
+  end
+
+  defp maybe_filter_by(query, _, _), do: query
+
+  defp tactical_ranking(query) do
+    query
+    |> order_by([m],
+      desc: fragment("CASE WHEN logical_state = 'paused' THEN 0 ELSE 1 END"),
+      desc:
+        fragment("""
+        CASE
+          WHEN health_status = 'down' THEN 4
+          WHEN health_status = 'compromised' THEN 3
+          WHEN health_status = 'degraded' THEN 2
+          WHEN health_status = 'up' THEN 1
+          ELSE 0
+        END
+        """),
+      desc:
+        fragment(
+          "(SELECT COUNT(*) FROM incidents WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL)",
+          m.id
+        ),
+      desc: m.inserted_at
+    )
+  end
+
+  defp check_create_rate_limit(_workspace, logical_state)
+       when logical_state in [:archived, "archived"],
+       do: :ok
+
+  defp check_create_rate_limit(workspace, _logical_state) do
+    case Workspaces.consume_create_budget(workspace) do
+      {:ok, _} -> :ok
+      error -> error
+    end
+  end
+
+  defp build_valid_changeset(attrs, workspace) do
+    changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
+    if changeset.valid?, do: {:ok, changeset}, else: {:error, changeset}
+  end
+
+  defp check_trigger_budget(monitor, workspace) do
+    if monitor.logical_state == :active do
+      case Workspaces.consume_trigger_budget(workspace) do
+        {:ok, _} -> {:ok, true}
+        {:error, _} -> {:ok, false}
+      end
+    else
+      {:ok, false}
+    end
+  end
+
+  defp fetch_workspace_for_quota(nil), do: {:error, :not_found}
+
+  defp fetch_workspace_for_quota(id) do
+    case Repo.get(Workspace, id) do
+      nil -> {:error, :not_found}
+      ws -> {:ok, ws}
+    end
+  end
+
+  defp check_monitor_quota(workspace, logical_state) do
+    if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
+      {:error, :quota_reached}
+    else
+      :ok
+    end
+  end
+
+  defp system_update_monitor(%Monitor{} = monitor, attrs) do
+    case monitor |> Monitor.changeset(attrs) |> Repo.update() do
+      {:ok, updated} ->
+        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
+        {:ok, updated}
+
+      error ->
+        error
+    end
+  end
+
+  defp determine_incident_status([]), do: :unknown
+
+  defp determine_incident_status(incidents) do
+    incidents
+    |> Enum.map(&incident_to_health/1)
+    |> Enum.max_by(&status_severity/1, fn -> :up end)
+  end
+
+  defp incident_to_health(incident), do: Incidents.incident_to_health(incident)
+
+  defp status_from_latest_log(monitor_id) do
+    log =
+      Holter.Monitoring.MonitorLog
+      |> where([l], l.monitor_id == ^monitor_id)
+      |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
+      |> limit(1)
+      |> Repo.one()
+
+    if log, do: log.status, else: :unknown
   end
 end

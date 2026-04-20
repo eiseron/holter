@@ -4,13 +4,13 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregator do
   """
   use Oban.Worker, queue: :metrics, max_attempts: 3
 
+  import Ecto.Query
+
   alias Holter.Monitoring
   alias Holter.Monitoring.Aggregator
   alias Holter.Monitoring.DailyMetric
   alias Holter.Monitoring.Workers.LogsPruner
   alias Holter.Repo
-
-  import Ecto.Query
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"monitor_id" => monitor_id, "date" => date_str}}) do

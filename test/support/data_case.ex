@@ -1,6 +1,4 @@
 defmodule Holter.DataCase do
-  alias Ecto.Adapters.SQL.Sandbox
-
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -17,6 +15,8 @@ defmodule Holter.DataCase do
   """
 
   use ExUnit.CaseTemplate
+
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do

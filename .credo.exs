@@ -43,7 +43,8 @@
       requires: [
         "credo_checks/readability/no_comments.ex",
         "credo_checks/testing/one_assert_per_test.ex",
-        "credo_checks/refactor/strict_function_arity.ex"
+        "credo_checks/refactor/strict_function_arity.ex",
+        "credo_checks/design/no_side_effects_in_transformer.ex"
       ],
       #
       # If you want to enforce a style guide and need a more traditional linting
@@ -72,6 +73,7 @@
           # Custom Eiseron Checks
           {Holter.Credo.Check.Readability.NoComments, []},
           {Holter.Credo.Check.Testing.OneAssertPerTest, []},
+          {Holter.Credo.Check.Design.NoSideEffectsInTransformer, []},
 
           # Consistency Checks
           {Credo.Check.Consistency.ExceptionNames, []},
@@ -109,6 +111,12 @@
           {Credo.Check.Readability.UnnecessaryAliasExpansion, []},
           {Credo.Check.Readability.VariableNames, []},
           {Credo.Check.Readability.WithSingleClause, []},
+          {Credo.Check.Readability.StrictModuleLayout,
+           [
+             order:
+               ~w/moduledoc shortdoc behaviour use import alias require module_attribute public_fun callback_impl private_fun/a,
+             ignore_module_attributes: ~w/doc tag moduletag/a
+           ]},
 
           # Refactoring Opportunities
           {Credo.Check.Refactor.Apply, []},
@@ -171,7 +179,6 @@
           {Credo.Check.Readability.SingleFunctionToBlockPipe, []},
           {Credo.Check.Readability.SinglePipe, []},
           {Credo.Check.Readability.Specs, []},
-          {Credo.Check.Readability.StrictModuleLayout, []},
           {Credo.Check.Readability.WithCustomTaggedTuple, []},
           {Credo.Check.Refactor.ABCSize, []},
           {Credo.Check.Refactor.AppendSingleItem, []},

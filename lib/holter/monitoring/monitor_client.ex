@@ -25,12 +25,6 @@ defmodule Holter.Monitoring.MonitorClient do
       |> Req.request()
     end
 
-    defp build_user_agent do
-      version = Application.spec(:holter, :vsn) |> to_string()
-      app_domain = System.get_env("APP_DOMAIN", "holter.dev")
-      "Holter/#{version} (+https://#{app_domain})"
-    end
-
     @impl true
     def get_ssl_expiration(url) do
       uri = URI.parse(url)
@@ -46,6 +40,12 @@ defmodule Holter.Monitoring.MonitorClient do
         {:error, reason} ->
           {:error, reason}
       end
+    end
+
+    defp build_user_agent do
+      version = Application.spec(:holter, :vsn) |> to_string()
+      app_domain = System.get_env("APP_DOMAIN", "holter.dev")
+      "Holter/#{version} (+https://#{app_domain})"
     end
 
     defp fetch_expiration_from_socket(socket) do

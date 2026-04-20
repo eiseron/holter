@@ -12,10 +12,8 @@ defmodule Holter.Monitoring.Metrics do
     "total_downtime_minutes" => :total_downtime_minutes
   }
 
-  @default_page_size 30
-
   def list_daily_metrics(monitor_id, filters \\ %{}) do
-    page_size = filters[:page_size] || @default_page_size
+    page_size = Pagination.resolve_page_size(filters[:page_size], default: 30)
     base_query = from(m in DailyMetric, where: m.monitor_id == ^monitor_id)
 
     {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
@@ -32,12 +30,6 @@ defmodule Holter.Monitoring.Metrics do
       total_pages: total_pages,
       page_size: page_size
     }
-  end
-
-  defp apply_sort_order(query, sort_by, sort_dir) do
-    field = Map.get(@sortable_columns, to_string(sort_by || "date"), :date)
-    dir = if sort_dir == "asc", do: :asc, else: :desc
-    order_by(query, [m], [{^dir, field(m, ^field)}, desc: m.inserted_at])
   end
 
   def get_daily_metric(monitor_id, date) do
@@ -58,5 +50,11 @@ defmodule Holter.Monitoring.Metrics do
       error ->
         error
     end
+  end
+
+  defp apply_sort_order(query, sort_by, sort_dir) do
+    field = Map.get(@sortable_columns, to_string(sort_by || "date"), :date)
+    dir = if sort_dir == "asc", do: :asc, else: :desc
+    order_by(query, [m], [{^dir, field(m, ^field)}, desc: m.inserted_at])
   end
 end

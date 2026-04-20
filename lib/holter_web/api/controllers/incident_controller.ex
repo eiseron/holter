@@ -13,6 +13,9 @@ defmodule HolterWeb.Api.IncidentController do
 
   action_fallback HolterWeb.Api.FallbackController
 
+  @valid_types ~w(downtime defacement ssl_expiry)
+  @valid_states ~w(open resolved)
+
   tags(["Incidents"])
 
   operation(:index,
@@ -104,9 +107,6 @@ defmodule HolterWeb.Api.IncidentController do
       render(conn, :show, incident: incident)
     end
   end
-
-  @valid_types ~w(downtime defacement ssl_expiry)
-  @valid_states ~w(open resolved)
 
   defp sanitize_filters(params) do
     %{}

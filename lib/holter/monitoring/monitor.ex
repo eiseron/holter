@@ -1,26 +1,38 @@
 defmodule Holter.Monitoring.Monitor do
   use Ecto.Schema
-  import Ecto.Changeset
   use Gettext, backend: HolterWeb.Gettext
+  import Ecto.Changeset
+
+  alias Holter.Monitoring.Engine.NetworkGuard
 
   @manual_check_cooldown 60
-  def manual_check_cooldown, do: @manual_check_cooldown
-
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
-  def http_methods, do: @http_methods
-
   @interval_min_seconds 60
   @interval_max_seconds 7200
-  @interval_default_seconds 5400
-  def interval_min_seconds, do: @interval_min_seconds
-  def interval_max_seconds, do: @interval_max_seconds
-  def interval_default_seconds, do: @interval_default_seconds
 
   @bodyless_methods [:get, :head]
-  def bodyless_methods, do: @bodyless_methods
-
   @body_methods [:post, :put, :patch, :delete, :options]
   @max_keywords 20
+  @allowed_fields [
+    :logical_state,
+    :health_status,
+    :url,
+    :method,
+    :interval_seconds,
+    :timeout_seconds,
+    :headers,
+    :raw_headers,
+    :body,
+    :ssl_ignore,
+    :follow_redirects,
+    :max_redirects,
+    :raw_keyword_positive,
+    :raw_keyword_negative,
+    :last_checked_at,
+    :last_success_at,
+    :last_manual_check_at,
+    :ssl_expires_at
+  ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -76,15 +88,11 @@ defmodule Holter.Monitoring.Monitor do
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
-  def changeset(monitor, attrs, workspace \\ nil) do
-    monitor
-    |> cast_fields(attrs)
-    |> validate_core_fields()
-    |> validate_url_field()
-    |> validate_http_semantics(workspace)
-    |> process_virtual_fields()
-  end
+  def manual_check_cooldown, do: @manual_check_cooldown
+  def http_methods, do: @http_methods
+  def interval_min_seconds, do: @interval_min_seconds
+  def interval_max_seconds, do: @interval_max_seconds
+  def bodyless_methods, do: @bodyless_methods
 
   def capture_snapshot(%__MODULE__{} = monitor) do
     %{
@@ -102,26 +110,15 @@ defmodule Holter.Monitoring.Monitor do
     }
   end
 
-  @allowed_fields [
-    :logical_state,
-    :health_status,
-    :url,
-    :method,
-    :interval_seconds,
-    :timeout_seconds,
-    :headers,
-    :raw_headers,
-    :body,
-    :ssl_ignore,
-    :follow_redirects,
-    :max_redirects,
-    :raw_keyword_positive,
-    :raw_keyword_negative,
-    :last_checked_at,
-    :last_success_at,
-    :last_manual_check_at,
-    :ssl_expires_at
-  ]
+  @doc false
+  def changeset(monitor, attrs, workspace \\ nil) do
+    monitor
+    |> cast_fields(attrs)
+    |> validate_core_fields()
+    |> validate_url_field()
+    |> validate_http_semantics(workspace)
+    |> process_virtual_fields()
+  end
 
   defp cast_fields(monitor, attrs) do
     allowed = if is_nil(monitor.id), do: [:workspace_id | @allowed_fields], else: @allowed_fields
@@ -362,55 +359,12 @@ defmodule Holter.Monitoring.Monitor do
     validate_change(changeset, :url, fn :url, url ->
       host = URI.parse(url).host
 
-      if restricted_host?(host) do
+      if NetworkGuard.restricted_host?(host) do
         [url: gettext("is a restricted internal address")]
       else
         []
       end
     end)
-  end
-
-  defp restricted_host?(nil), do: true
-
-  defp restricted_host?(host) do
-    host = host |> String.downcase() |> String.replace("[", "") |> String.replace("]", "")
-    trusted = get_trusted_hosts()
-
-    (localhost?(host) or private_ip?(host) or single_token_host?(host)) and host not in trusted
-  end
-
-  defp single_token_host?(host) do
-    not String.contains?(host, ".")
-  end
-
-  defp get_trusted_hosts do
-    :holter
-    |> Application.get_env(:monitoring, [])
-    |> Keyword.get(:trusted_hosts, [])
-  end
-
-  defp localhost?(host) do
-    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"] or
-      String.starts_with?(host, "127.") or
-      String.starts_with?(host, "::ffff:127.")
-  end
-
-  defp private_ip?(host) do
-    case :inet.parse_address(to_charlist(host)) do
-      {:ok, {127, _, _, _}} -> true
-      {:ok, {10, _, _, _}} -> true
-      {:ok, {172, second, _, _}} when second >= 16 and second <= 31 -> true
-      {:ok, {192, 168, _, _}} -> true
-      {:ok, {169, 254, _, _}} -> true
-      _ -> encoded_ip?(host)
-    end
-  end
-
-  defp encoded_ip?(host) do
-    is_numeric = Regex.match?(~r/^(0x[0-9a-f]+|[0-9]+)$/i, host)
-    is_short_ip = Regex.match?(~r/^[0-9]+\.[0-9]+(\.[0-9]+)?$/, host)
-
-    is_numeric or is_short_ip
   end
 
   defp parse_url(url) do

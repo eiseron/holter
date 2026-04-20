@@ -6,6 +6,8 @@ defmodule HolterWeb.ObservabilityHook do
   import Phoenix.Component
   require Logger
 
+  @max_timezone_length 64
+
   def on_mount(:default, _params, session, socket) do
     session_id = extract_from_params(socket, "session_id") || Map.get(session, "session_id")
     request_id = extract_from_params(socket, "request_id") || Map.get(session, "request_id")
@@ -47,8 +49,6 @@ defmodule HolterWeb.ObservabilityHook do
       nil
     end
   end
-
-  @max_timezone_length 64
 
   defp sanitize_timezone(raw) when is_binary(raw) and byte_size(raw) <= @max_timezone_length do
     if HolterWeb.Timezone.valid_timezone?(raw), do: raw, else: "Etc/UTC"

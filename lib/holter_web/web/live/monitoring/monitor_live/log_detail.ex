@@ -3,6 +3,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
 
   alias Holter.Monitoring
 
+  @snippet_format_threshold 100_000
+
   @impl true
   def mount(%{"log_id" => log_id}, _session, socket) do
     log = Monitoring.get_monitor_log!(log_id)
@@ -53,8 +55,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
   defp has_content?(_), do: true
 
   defp format_evidence_snippet(nil), do: nil
-
-  @snippet_format_threshold 100_000
 
   defp format_evidence_snippet(snippet) do
     if byte_size(snippet) > @snippet_format_threshold do

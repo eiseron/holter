@@ -1,10 +1,12 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
   use HolterWeb.ConnCase
+  use Oban.Testing, repo: Holter.Repo
+
   import Phoenix.LiveViewTest
   import Mox
+
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
-  use Oban.Testing, repo: Holter.Repo
 
   setup :verify_on_exit!
 
