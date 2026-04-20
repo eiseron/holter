@@ -407,7 +407,9 @@ defmodule Holter.Monitoring.EngineTest do
   describe "Unit-level Bug Simulation: Compromised -> Down transition" do
     test "defacement incident SHOULD resolve when monitor goes down (fails if bug exists)",
          %{monitor: monitor} do
-      {:ok, monitor} = Engine.process_response(monitor, ok_response("success error"), %{duration_ms: 100})
+      {:ok, monitor} =
+        Engine.process_response(monitor, ok_response("success error"), %{duration_ms: 100})
+
       assert length(Monitoring.list_open_incidents(monitor.id)) == 1
 
       {:ok, _} = Engine.process_response(monitor, error_response(500, ""), %{duration_ms: 100})
@@ -453,6 +455,38 @@ defmodule Holter.Monitoring.EngineTest do
 
       assert length(Monitoring.list_open_incidents(monitor.id)) == 1
       assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
+    end
+  end
+
+  describe "Bug simulation: Stale State Update (Race Condition)" do
+    test "older check results SHOULD NOT overwrite newer ones (fails if bug exists)",
+         %{monitor: monitor} do
+      t2 = DateTime.utc_now() |> DateTime.truncate(:second)
+      {:ok, monitor} = Engine.handle_failure(monitor, %RuntimeError{message: "fail"}, 100)
+      assert monitor.health_status == :down
+
+      _response = %Req.Response{status: 200, body: "success", headers: []}
+
+      {:ok, stale_monitor} =
+        Monitoring.update_monitor(monitor, %{
+          health_status: :up,
+          last_checked_at: DateTime.add(t2, -60, :second)
+        })
+
+      assert stale_monitor.health_status == :down
+    end
+  end
+
+  describe "Bug simulation: Downtime Masking Defacement" do
+    test "when site is DOWN and has HACKED keywords, it SHOULD prioritize :down but NOT lose defacement context",
+         %{monitor: monitor} do
+      response = %Req.Response{status: 500, body: "Site HACKED", headers: []}
+      {:ok, monitor} = Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      assert monitor.health_status == :down
+
+      open_incidents = Monitoring.list_open_incidents(monitor.id)
+      assert Enum.any?(open_incidents, &(&1.type == :defacement))
     end
   end
 
