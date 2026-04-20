@@ -60,6 +60,8 @@
     </.form>
   </section>
 
+  <.incident_gantt_chart monitor_id={@monitor.id} gantt_data={@gantt_data} />
+
   <section class="h-mt-6" aria-label={gettext("Incident list")}>
     <.empty_state :if={Enum.empty?(@incidents)} class="h-empty-state">
       <p>{gettext("No incidents found for the selected filters.")}</p>
