@@ -1,25 +1,25 @@
-<section>
-  <header class="h-page-header">
+<.page_container>
+  <:title>
     <.back_link navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels"} />
-    <h1>{@channel.name}</h1>
-    <button phx-click="test">
+    {@channel.name}
+  </:title>
+  <:subtitle>
+    {gettext("Type: %{type}", type: @channel.type)}
+  </:subtitle>
+  <:actions>
+    <.button type="button" phx-click="test">
       {gettext("Send Test")}
-    </button>
-  </header>
+    </.button>
+  </:actions>
 
   <.form
     for={@form}
     id="notification-channel-form"
     phx-change="validate"
     phx-submit="save"
-    class="h-form-sections"
+    class="h-form-sections h-mt-8"
   >
-    <fieldset>
-      <legend>{gettext("Channel Details")}</legend>
-
-      <.input field={@form[:name]} label={gettext("Name")} required />
-      <.input field={@form[:target]} label={gettext("Target")} required />
-    </fieldset>
+    <.notification_channel_form_fields form={@form} locked_type={true} />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
@@ -27,4 +27,4 @@
       </.button>
     </div>
   </.form>
-</section>
+</.page_container>

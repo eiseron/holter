@@ -1,8 +1,13 @@
-<section>
-  <header class="h-page-header">
+<.page_container>
+  <:title>
     <.back_link navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels"} />
-    <h1>{gettext("New Notification Channel")}</h1>
-  </header>
+    {gettext("New Notification Channel")}
+  </:title>
+  <:actions>
+    <p class="h-text-muted">
+      {gettext("Configure the delivery destination for monitoring alerts.")}
+    </p>
+  </:actions>
 
   <.form
     for={@form}
@@ -11,24 +16,7 @@
     phx-submit="save"
     class="h-form-sections"
   >
-    <fieldset>
-      <legend>{gettext("Channel Details")}</legend>
-
-      <.input field={@form[:name]} label={gettext("Name")} required />
-      <.input
-        field={@form[:type]}
-        type="select"
-        label={gettext("Type")}
-        options={[
-          {gettext("Webhook"), "webhook"},
-          {gettext("Email"), "email"},
-          {gettext("Slack"), "slack"},
-          {gettext("Discord"), "discord"}
-        ]}
-        required
-      />
-      <.input field={@form[:target]} label={gettext("Target")} required />
-    </fieldset>
+    <.notification_channel_form_fields form={@form} />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
@@ -36,4 +24,4 @@
       </.button>
     </div>
   </.form>
-</section>
+</.page_container>

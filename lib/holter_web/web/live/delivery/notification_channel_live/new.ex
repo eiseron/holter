@@ -1,5 +1,5 @@
 defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
-  use HolterWeb, :live_view
+  use HolterWeb, :delivery_live_view
 
   alias Holter.Delivery
   alias Holter.Delivery.NotificationChannel

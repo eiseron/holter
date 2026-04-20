@@ -1,26 +1,26 @@
-defmodule HolterWeb.Components.Monitoring.MonitorPageContainerTest do
+defmodule HolterWeb.Components.PageContainerTest do
   use HolterWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
   import Phoenix.Component
-  import HolterWeb.Components.Monitoring.MonitorPageContainer
+  import HolterWeb.Components.PageContainer
 
   defp render_container(assigns) do
     ~H"""
-    <.monitor_page_container>
+    <.page_container>
       <:title>{@title}</:title>
       <:subtitle>{@subtitle}</:subtitle>
       <:actions>{@actions}</:actions>
       {@content}
-    </.monitor_page_container>
+    </.page_container>
     """
   end
 
-  test "renders h-monitor-container wrapper" do
+  test "renders h-page-container wrapper" do
     html =
       render_component(&render_container/1, %{title: "", subtitle: "", actions: "", content: ""})
 
-    assert html =~ "h-monitor-container"
+    assert html =~ "h-page-container"
   end
 
   test "renders data-role=page-title on the title row" do

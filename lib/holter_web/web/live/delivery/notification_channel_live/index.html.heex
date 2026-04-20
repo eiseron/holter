@@ -1,40 +1,48 @@
-<section>
-  <header class="h-page-header">
-    <h1>{gettext("Notification Channels")}</h1>
+<.page_container>
+  <:title>
+    {gettext("Notification Channels")}
+  </:title>
+  <:actions>
     <.link
       navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/new"}
       class="h-btn h-btn-primary"
     >
       {gettext("New Channel")}
     </.link>
-  </header>
+  </:actions>
 
   <%= if Enum.empty?(@channels) do %>
     <.empty_state>
       <p>{gettext("No notification channels yet. Create one to receive alerts.")}</p>
     </.empty_state>
   <% else %>
-    <ul>
-      <%= for channel <- @channels do %>
-        <li>
-          <article>
-            <.link navigate={
-              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
-            }>
-              <strong>{channel.name}</strong>
-            </.link>
-            <span>{channel.type}</span>
-            <span>{channel.target}</span>
-            <button
-              phx-click="delete"
-              phx-value-id={channel.id}
-              data-confirm={gettext("Delete this channel?")}
-            >
-              {gettext("Delete")}
-            </button>
-          </article>
-        </li>
-      <% end %>
-    </ul>
+    <.table id="notification-channels-table" rows={@channels}>
+      <:col :let={channel} label={gettext("Name")}>
+        <.link
+          navigate={
+            ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
+          }
+          class="h-btn h-btn-soft h-text-sm"
+        >
+          {channel.name}
+        </.link>
+      </:col>
+      <:col :let={channel} label={gettext("Type")}>
+        {channel.type}
+      </:col>
+      <:col :let={channel} label={gettext("Target")}>
+        {channel.target}
+      </:col>
+      <:col :let={channel} label="">
+        <button
+          phx-click="delete"
+          phx-value-id={channel.id}
+          data-confirm={gettext("Delete this channel?")}
+          class="h-btn h-btn-danger h-text-sm"
+        >
+          {gettext("Delete")}
+        </button>
+      </:col>
+    </.table>
   <% end %>
-</section>
+</.page_container>

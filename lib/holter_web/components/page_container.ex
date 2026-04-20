@@ -1,4 +1,4 @@
-defmodule HolterWeb.Components.Monitoring.MonitorPageContainer do
+defmodule HolterWeb.Components.PageContainer do
   @moduledoc false
   use HolterWeb, :component
   import HolterWeb.Components.Header
@@ -8,9 +8,9 @@ defmodule HolterWeb.Components.Monitoring.MonitorPageContainer do
   slot :actions
   slot :inner_block, required: true
 
-  def monitor_page_container(assigns) do
+  def page_container(assigns) do
     ~H"""
-    <div class="h-monitor-container">
+    <div class="h-page-container">
       <.header>
         <div class="h-title-row" data-role="page-title">
           {render_slot(@title)}

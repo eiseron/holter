@@ -1,4 +1,4 @@
-<.monitor_page_container>
+<.page_container>
   <:title>
     <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
     {gettext("Monitor Settings")}
@@ -96,7 +96,7 @@
       </.button>
     </div>
   </.form>
-</.monitor_page_container>
+</.page_container>
 
 <.modal id="delete-modal" title={gettext("Delete Monitor")}>
   <p>

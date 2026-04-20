@@ -71,8 +71,8 @@ msgstr "Monitor criado com sucesso"
 msgid "Must Not Contain (Defacement)"
 msgstr "Não Deve Conter (Desfigurações)"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:34
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:25
+#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:22
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:27
 #: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:40
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:94
 #, elixir-autogen, elixir-format
@@ -225,7 +225,7 @@ msgstr "Monitor excluído com sucesso"
 msgid "Monitor updated successfully"
 msgstr "Monitor atualizado com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:26
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:28
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Save Changes"
@@ -810,7 +810,8 @@ msgstr "Iniciado Em"
 msgid "State"
 msgstr "Estado"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:21
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:31
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:20
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:22
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:76
@@ -871,8 +872,7 @@ msgstr "Ver incidente"
 msgid "View log"
 msgstr "Ver log"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:15
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:18
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:20
 #, elixir-autogen, elixir-format
 msgid "Channel Details"
 msgstr "Detalhes do Canal"
@@ -892,27 +892,27 @@ msgstr "Canal não encontrado"
 msgid "Channel updated successfully"
 msgstr "Canal atualizado com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:35
+#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "Create Channel"
 msgstr "Criar Canal"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:33
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Delete"
 msgstr "Excluir"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:31
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:40
 #, elixir-autogen, elixir-format
 msgid "Delete this channel?"
 msgstr "Excluir este canal?"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:26
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:58
 #, elixir-autogen, elixir-format
 msgid "Discord"
 msgstr "Discord"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:24
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:56
 #, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "E-mail"
@@ -937,13 +937,13 @@ msgstr "Lista de incidentes"
 msgid "Incident timeline"
 msgstr "Linha do tempo de incidentes"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:17
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:20
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:23
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr "Nome"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:8
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:10
 #, elixir-autogen, elixir-format
 msgid "New Channel"
 msgstr "Novo Canal"
@@ -954,7 +954,7 @@ msgstr "Novo Canal"
 msgid "New Notification Channel"
 msgstr "Novo Canal de Notificação"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:14
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "No notification channels yet. Create one to receive alerts."
 msgstr "Nenhum canal de notificação ainda. Crie um para receber alertas."
@@ -977,18 +977,18 @@ msgstr "Canais de Notificação"
 msgid "Ongoing"
 msgstr "Em andamento"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:6
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:13
 #, elixir-autogen, elixir-format
 msgid "Send Test"
 msgstr "Enviar Teste"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:25
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:57
 #, elixir-autogen, elixir-format
 msgid "Slack"
 msgstr "Slack"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:30
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:21
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:42
+#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:33
 #, elixir-autogen, elixir-format
 msgid "Target"
 msgstr "Destino"
@@ -998,7 +998,32 @@ msgstr "Destino"
 msgid "Test notification enqueued"
 msgstr "Notificação de teste enfileirada"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:23
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:55
 #, elixir-autogen, elixir-format
 msgid "Webhook"
 msgstr "Webhook"
+
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:24
+#, elixir-autogen, elixir-format
+msgid "A label to identify this channel in your workspace."
+msgstr "Um rótulo para identificar este canal no seu workspace."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Configure the delivery destination for monitoring alerts."
+msgstr "Configure o destino de entrega para alertas de monitoramento."
+
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:37
+#, elixir-autogen, elixir-format
+msgid "Delivery method. Cannot be changed after creation."
+msgstr "Método de entrega. Não pode ser alterado após a criação."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Type: %{type}"
+msgstr "Tipo: %{type}"
+
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:66
+#, elixir-autogen, elixir-format
+msgid "URL for webhook, Slack, and Discord channels. Email address for email channels."
+msgstr "URL para canais webhook, Slack e Discord. Endereço de e-mail para canais de e-mail."
