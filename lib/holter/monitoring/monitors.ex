@@ -110,7 +110,9 @@ defmodule Holter.Monitoring.Monitors do
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
-         {:ok, {monitor, should_enqueue}} <- insert_with_budget(attrs, workspace) do
+         :ok <- check_create_rate_limit(workspace, logical_state),
+         {:ok, monitor} <- insert_monitor(attrs, workspace),
+         {:ok, should_enqueue} <- check_trigger_budget(monitor, workspace) do
       if should_enqueue, do: enqueue_checks(monitor)
       Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
       {:ok, monitor}
@@ -261,31 +263,24 @@ defmodule Holter.Monitoring.Monitors do
     )
   end
 
-  defp insert_with_budget(attrs, workspace) do
-    Repo.transaction(fn ->
-      with changeset <- %Monitor{} |> Monitor.changeset(attrs, workspace),
-           {:ok, monitor} <- Repo.insert(changeset),
-           :ok <- maybe_consume_create_budget(monitor, workspace),
-           {:ok, should_enqueue} <- maybe_consume_trigger_budget(monitor, workspace) do
-        {monitor, should_enqueue}
-      else
-        {:error, reason} -> Repo.rollback(reason)
-      end
-    end)
-  end
+  defp check_create_rate_limit(_workspace, logical_state)
+       when logical_state in [:archived, "archived"],
+       do: :ok
 
-  defp maybe_consume_create_budget(monitor, workspace) do
-    if monitor.logical_state == :active do
-      case Workspaces.consume_create_budget(workspace) do
-        {:ok, _} -> :ok
-        error -> error
-      end
-    else
-      :ok
+  defp check_create_rate_limit(workspace, _logical_state) do
+    case Workspaces.consume_create_budget(workspace) do
+      {:ok, _} -> :ok
+      error -> error
     end
   end
 
-  defp maybe_consume_trigger_budget(monitor, workspace) do
+  defp insert_monitor(attrs, workspace) do
+    %Monitor{}
+    |> Monitor.changeset(attrs, workspace)
+    |> Repo.insert()
+  end
+
+  defp check_trigger_budget(monitor, workspace) do
     if monitor.logical_state == :active do
       case Workspaces.consume_trigger_budget(workspace) do
         {:ok, _} -> {:ok, true}
