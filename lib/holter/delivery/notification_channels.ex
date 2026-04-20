@@ -13,6 +13,12 @@ defmodule Holter.Delivery.NotificationChannels do
     |> Repo.all()
   end
 
+  def count_channels(workspace_id) do
+    NotificationChannel
+    |> where([c], c.workspace_id == ^workspace_id)
+    |> Repo.aggregate(:count)
+  end
+
   def get_channel!(id), do: Repo.get!(NotificationChannel, id)
 
   def get_channel(id) do

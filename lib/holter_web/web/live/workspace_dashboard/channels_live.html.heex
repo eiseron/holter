@@ -1,0 +1,50 @@
+<div class="h-workspace-content">
+  <.page_container>
+    <:title>
+      {gettext("Notification Channels")}
+    </:title>
+    <:actions>
+      <.link
+        navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/new"}
+        class="h-btn h-btn-primary"
+      >
+        {gettext("New Channel")}
+      </.link>
+    </:actions>
+
+    <%= if Enum.empty?(@channels) do %>
+      <.empty_state>
+        <p>{gettext("No notification channels yet. Create one to start receiving alerts.")}</p>
+      </.empty_state>
+    <% else %>
+      <.table id="channels-table" rows={@channels}>
+        <:col :let={channel} label={gettext("Name")}>
+          <.link
+            navigate={
+              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
+            }
+            class="h-link"
+          >
+            {channel.name}
+          </.link>
+        </:col>
+        <:col :let={channel} label={gettext("Type")}>
+          {channel.type}
+        </:col>
+        <:col :let={channel} label={gettext("Target")}>
+          {channel.target}
+        </:col>
+        <:col :let={channel} label="">
+          <.link
+            navigate={
+              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
+            }
+            class="h-btn h-btn-soft h-text-sm"
+          >
+            {gettext("Edit")}
+          </.link>
+        </:col>
+      </.table>
+    <% end %>
+  </.page_container>
+</div>

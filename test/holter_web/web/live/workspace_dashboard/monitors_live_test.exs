@@ -1,4 +1,4 @@
-defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
+defmodule HolterWeb.Web.WorkspaceDashboard.MonitorsLiveTest do
   use HolterWeb.ConnCase
 
   import Phoenix.LiveViewTest
@@ -13,7 +13,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
 
     test "Given a valid workspace slug, when mounted, then the page renders",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "Dashboard"
     end
@@ -21,12 +21,12 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
     test "Given an invalid workspace slug, when mounted, then it redirects with an error",
          %{conn: conn} do
       assert {:error, {:live_redirect, %{to: "/"}}} =
-               live(conn, ~p"/workspaces/nonexistent-slug/dashboard")
+               live(conn, ~p"/workspaces/nonexistent-slug/monitors")
     end
 
     test "Given a workspace with no monitors, when mounted, then the empty state is shown",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "No assets monitored"
     end
@@ -35,14 +35,14 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
          %{conn: conn, workspace: workspace} do
       monitor_fixture(%{workspace_id: workspace.id, url: "https://listed.local"})
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "https://listed.local"
     end
 
     test "Given a workspace below quota, when mounted, then the new monitor button is enabled",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       refute html =~ "disabled"
     end
@@ -53,7 +53,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
         monitor_fixture(%{workspace_id: workspace.id})
       end
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "disabled"
     end
@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
          %{conn: conn, workspace: workspace} do
       monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 900})
 
-      {:ok, _view, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _view, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "900s"
       refute html =~ "600s"
@@ -85,7 +85,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
         health_status: :down
       })
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       pos_down = :binary.match(html, "https://down.local") |> elem(0)
       pos_up = :binary.match(html, "https://up.local") |> elem(0)
@@ -106,7 +106,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
         logical_state: :active
       })
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       pos_active = :binary.match(html, "https://active.local") |> elem(0)
       pos_paused = :binary.match(html, "https://paused.local") |> elem(0)
@@ -119,7 +119,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
          %{conn: conn} do
       workspace = workspace_fixture()
 
-      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       monitor_fixture(%{workspace_id: workspace.id, url: "https://realtime.local"})
 
@@ -137,7 +137,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
       workspace = workspace_fixture()
       monitor = monitor_fixture(%{workspace_id: workspace.id, url: "https://gone.local"})
 
-      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert has_element?(lv, "[data-role='monitor-url']", "https://gone.local")
 
@@ -164,7 +164,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id, open_incidents_count: 1})
       incident_fixture(%{monitor_id: monitor.id})
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "1 incident"
     end
@@ -175,7 +175,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.IndexLiveTest do
       incident_fixture(%{monitor_id: monitor.id})
       incident_fixture(%{monitor_id: monitor.id, type: :ssl_expiry})
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/dashboard")
+      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "2 incidents"
     end

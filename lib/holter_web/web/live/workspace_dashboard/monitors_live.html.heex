@@ -1,18 +1,9 @@
-<div class="monitor-dashboard-premium">
+<div class="h-workspace-content">
   <.dashboard_header
     new_monitor_url={~p"/monitoring/workspaces/#{@workspace.slug}/monitor/new"}
     at_quota={@at_quota}
     max_monitors={@workspace.max_monitors}
   />
-
-  <nav class="h-module-nav">
-    <.link
-      navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels"}
-      class="h-module-nav-link"
-    >
-      {gettext("Notification Channels")}
-    </.link>
-  </nav>
 
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>

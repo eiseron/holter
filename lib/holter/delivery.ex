@@ -6,6 +6,7 @@ defmodule Holter.Delivery do
   alias Holter.Delivery.NotificationChannels
 
   defdelegate list_channels(workspace_id), to: NotificationChannels
+  defdelegate count_channels(workspace_id), to: NotificationChannels
   defdelegate get_channel!(id), to: NotificationChannels
   defdelegate get_channel(id), to: NotificationChannels
   defdelegate create_channel(attrs), to: NotificationChannels

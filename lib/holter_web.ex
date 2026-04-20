@@ -115,6 +115,17 @@ defmodule HolterWeb do
     end
   end
 
+  def workspace_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :workspace}
+
+      on_mount HolterWeb.ObservabilityHook
+
+      unquote(html_helpers())
+    end
+  end
+
   def delivery_live_view do
     quote do
       use Phoenix.LiveView,

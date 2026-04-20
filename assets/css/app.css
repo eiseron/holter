@@ -24,6 +24,7 @@
 @import "./components/table.css";
 @import "./components/page_container.css";
 @import "./components/tooltip.css";
+@import "./components/workspace_layout.css";
 
 @import "./components/monitoring/dashboard_header.css";
 @import "./components/monitoring/monitor_card.css";

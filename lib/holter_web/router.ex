@@ -65,7 +65,8 @@ defmodule HolterWeb.Router do
   scope "/workspaces/:workspace_slug", HolterWeb.Web.WorkspaceDashboard do
     pipe_through :browser
 
-    live "/dashboard", IndexLive, :index
+    live "/monitors", MonitorsLive, :index
+    live "/channels", ChannelsLive, :index
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
