@@ -46,7 +46,9 @@
       <:col :let={incident} label={gettext("Since")}>
         {format_datetime(incident.started_at, @timezone)}
       </:col>
-      <:col :let={incident} label={gettext("Root Cause")}>{incident.root_cause}</:col>
+      <:col :let={incident} label={gettext("Root Cause")}>
+        {short_cause(incident.root_cause)}
+      </:col>
       <:col :let={incident} label="">
         <.link
           navigate={~p"/monitoring/incidents/#{incident.id}"}

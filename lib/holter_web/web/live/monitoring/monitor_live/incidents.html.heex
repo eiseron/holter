@@ -80,7 +80,7 @@
         <% end %>
       </:col>
       <:col :let={incident} label={gettext("Root Cause")}>
-        <span class="h-text-truncate">{incident.root_cause}</span>
+        <span class="h-text-truncate">{short_cause(incident.root_cause)}</span>
       </:col>
       <:col :let={incident} label="">
         <.link
