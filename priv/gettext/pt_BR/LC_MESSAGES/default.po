@@ -629,6 +629,16 @@ msgstr "Ver Detalhes"
 msgid "View original log"
 msgstr "Ver log original"
 
+#: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex
+#, elixir-autogen, elixir-format
+msgid "Associated Logs"
+msgstr "Logs Associados"
+
+#: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex
+#, elixir-autogen, elixir-format
+msgid "View log"
+msgstr "Ver log"
+
 #: lib/holter_web/components/monitoring/monitor_snapshot.ex:39
 #, elixir-autogen, elixir-format
 msgid "Yes"

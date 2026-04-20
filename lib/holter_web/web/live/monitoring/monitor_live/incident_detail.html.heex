@@ -53,6 +53,21 @@
           <.monitor_snapshot snapshot={@incident.monitor_snapshot} />
         </div>
       <% end %>
+
+      <%= if @logs != [] do %>
+        <div class="h-evidence-block">
+          <label>{gettext("Associated Logs")}</label>
+          <ul class="h-incident-logs-list">
+            <%= for log <- @logs do %>
+              <li>
+                <.link href={~p"/monitoring/logs/#{log.id}"} class="h-link">
+                  {gettext("View log")}
+                </.link>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
     </div>
   </div>
 </.monitor_page_container>

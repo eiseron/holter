@@ -11,10 +11,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail do
 
     PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
 
+    logs = Monitoring.list_logs_by_incident(incident.id)
+
     {:ok,
      socket
      |> assign(:incident, incident)
      |> assign(:monitor, monitor)
+     |> assign(:logs, logs)
      |> assign(:page_title, gettext("Incident Details"))}
   end
 

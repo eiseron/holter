@@ -27,6 +27,7 @@ defmodule Holter.Monitoring do
   defdelegate list_recent_logs_for_chart(monitor_id, hours \\ 24), to: Logs
   defdelegate get_monitor_log!(id), to: Logs
   defdelegate find_nearest_technical_log(monitor_id, log), to: Logs
+  defdelegate list_logs_by_incident(incident_id), to: Logs
   defdelegate create_monitor_log(attrs \\ %{}), to: Logs
 
   defdelegate get_incident!(id), to: Incidents
