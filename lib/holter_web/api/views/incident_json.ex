@@ -9,7 +9,7 @@ defmodule HolterWeb.Api.IncidentJSON do
   end
 
   def show(%{incident: incident}) do
-    %{data: data(incident)}
+    data(incident)
   end
 
   defp data(%Incident{} = incident) do

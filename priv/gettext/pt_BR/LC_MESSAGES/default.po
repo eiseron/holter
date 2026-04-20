@@ -523,17 +523,17 @@ msgstr "Certificado expira em %{days} dias (Crítico)"
 msgid "Certificate expires in %{days} days (Warning)"
 msgstr "Certificado expira em %{days} dias (Aviso)"
 
-#: lib/holter/monitoring/engine.ex:128
+#: lib/holter/monitoring/engine.ex:132
 #, elixir-autogen, elixir-format
 msgid "Found forbidden keywords"
 msgstr "Palavras-chave proibidas encontradas"
 
-#: lib/holter/monitoring/engine.ex:125
+#: lib/holter/monitoring/engine.ex:129
 #, elixir-autogen, elixir-format
 msgid "HTTP Error: %{status}"
 msgstr "Erro HTTP: %{status}"
 
-#: lib/holter/monitoring/engine.ex:127
+#: lib/holter/monitoring/engine.ex:131
 #, elixir-autogen, elixir-format
 msgid "Missing required keywords"
 msgstr "Palavras-chave obrigatórias ausentes"
@@ -673,11 +673,6 @@ msgstr "Muitas verificações no último minuto. Por favor, aguarde."
 #, elixir-autogen, elixir-format
 msgid "Too many monitors created recently. Please wait before creating another."
 msgstr "Muitos monitores criados recentemente. Aguarde antes de criar outro."
-
-#: lib/holter_web/components/monitoring/monitor_card.ex:40
-#, elixir-autogen, elixir-format
-msgid "%{count} open"
-msgstr "%{count} aberto(s)"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:24
 #, elixir-autogen, elixir-format
@@ -836,3 +831,10 @@ msgstr "Tempo de Atividade (%)"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Uptime ≥ 99%"
 msgstr "Tempo de Atividade (%)"
+
+#: lib/holter_web/components/monitoring/monitor_card.ex:40
+#, elixir-autogen, elixir-format
+msgid "1 incident"
+msgid_plural "%{count} incidents"
+msgstr[0] "1 incidente"
+msgstr[1] "%{count} incidentes"

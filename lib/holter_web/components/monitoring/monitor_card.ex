@@ -37,7 +37,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCard do
           class="h-badge h-badge-danger h-text-xs"
           data-role="open-incidents-count"
         >
-          {gettext("%{count} open", count: @monitor.open_incidents_count)}
+          {ngettext("1 incident", "%{count} incidents", @monitor.open_incidents_count)}
         </span>
         <.link
           navigate={@detail_url}

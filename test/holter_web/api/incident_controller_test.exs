@@ -67,7 +67,7 @@ defmodule HolterWeb.Api.IncidentControllerTest do
 
       conn = get(conn, ~p"/api/v1/incidents/#{incident.id}")
 
-      assert %{"data" => %{"type" => "downtime"}} = json_response(conn, 200)
+      assert %{"type" => "downtime"} = json_response(conn, 200)
     end
 
     test "returns the incident started_at timestamp in the response",
@@ -76,7 +76,7 @@ defmodule HolterWeb.Api.IncidentControllerTest do
 
       conn = get(conn, ~p"/api/v1/incidents/#{incident.id}")
 
-      assert %{"data" => %{"started_at" => _}} = json_response(conn, 200)
+      assert %{"started_at" => _} = json_response(conn, 200)
     end
 
     test "returns the incident root_cause in the response when set",
@@ -89,7 +89,7 @@ defmodule HolterWeb.Api.IncidentControllerTest do
 
       conn = get(conn, ~p"/api/v1/incidents/#{incident.id}")
 
-      assert %{"data" => %{"root_cause" => "Certificate expired"}} = json_response(conn, 200)
+      assert %{"root_cause" => "Certificate expired"} = json_response(conn, 200)
     end
 
     test "returns 404 for an unknown incident UUID", %{conn: conn, api_spec: spec} do

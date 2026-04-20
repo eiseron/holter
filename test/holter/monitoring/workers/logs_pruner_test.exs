@@ -22,7 +22,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
   describe "when pruning based on workspace retention days" do
     setup %{monitor: monitor} do
-      old_date = DateTime.utc_now() |> DateTime.add(-4, :day) |> DateTime.truncate(:second)
+      old_date = DateTime.utc_now() |> DateTime.add(-4, :day) |> DateTime.truncate(:microsecond)
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
@@ -32,7 +32,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
         updated_at: old_date
       })
 
-      new_date = DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:second)
+      new_date = DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:microsecond)
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
@@ -60,8 +60,8 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
     setup %{monitor: monitor, workspace: workspace} do
       {:ok, _} = Holter.Monitoring.update_workspace(workspace, %{retention_days: 10})
 
-      old_date = DateTime.utc_now() |> DateTime.add(-11, :day) |> DateTime.truncate(:second)
-      mid_date = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:second)
+      old_date = DateTime.utc_now() |> DateTime.add(-11, :day) |> DateTime.truncate(:microsecond)
+      mid_date = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:microsecond)
 
       Repo.insert!(%MonitorLog{
         monitor_id: monitor.id,
@@ -95,7 +95,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
 
   describe "when deleted count hits chunk size" do
     setup %{monitor: monitor} do
-      now = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:second)
+      now = DateTime.utc_now() |> DateTime.add(-5, :day) |> DateTime.truncate(:microsecond)
 
       entries =
         for _ <- 1..501 do

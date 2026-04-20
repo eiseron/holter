@@ -40,7 +40,8 @@ defmodule Holter.Monitoring.Engine do
         ip: metadata.ip,
         redirect_count: Map.get(metadata, :redirects, 0),
         last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, [])
+        redirect_list: Map.get(metadata, :redirect_list, []),
+        defacement_in_body: false
       }
     )
   end
@@ -53,6 +54,7 @@ defmodule Holter.Monitoring.Engine do
     {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
     error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+    defacement_in_body = detect_defacement_indicators(search_body)
 
     response_data = %{body: body, content_type: content_type, headers: response.headers}
     {headers, snippet} = maybe_collect_evidence(monitor, check_status, response_data)
@@ -70,7 +72,8 @@ defmodule Holter.Monitoring.Engine do
         ip: metadata.ip,
         redirect_count: Map.get(metadata, :redirects, 0),
         last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, [])
+        redirect_list: Map.get(metadata, :redirect_list, []),
+        defacement_in_body: defacement_in_body
       }
     )
   end
@@ -97,7 +100,8 @@ defmodule Holter.Monitoring.Engine do
       error_msg: Exception.message(error),
       snippet: nil,
       headers: nil,
-      ip: nil
+      ip: nil,
+      defacement_in_body: false
     })
   end
 
@@ -132,6 +136,14 @@ defmodule Holter.Monitoring.Engine do
     now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
 
+    handle_incident_logic(monitor, %{
+      check_status: params.check_status,
+      error_msg: params.error_msg,
+      snapshot: snapshot,
+      now: now,
+      defacement_in_body: Map.get(params, :defacement_in_body, false)
+    })
+
     open_incidents = Monitoring.list_open_incidents(monitor.id)
     {active_incident_id, incident_status} = pick_active_incident(open_incidents)
 
@@ -158,13 +170,6 @@ defmodule Holter.Monitoring.Engine do
       monitor_snapshot: snapshot
     })
 
-    handle_incident_logic(monitor, %{
-      check_status: params.check_status,
-      error_msg: params.error_msg,
-      snapshot: snapshot,
-      now: now
-    })
-
     updated_monitor = update_monitor_state(monitor, params.check_status, now)
 
     {:ok, updated_monitor}
@@ -187,7 +192,9 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp handle_incident_logic(monitor, %{check_status: :down} = metadata) do
+    resolve_if_open(monitor, :defacement, metadata.now)
     open_if_missing(monitor, :downtime, metadata)
+    if Map.get(metadata, :defacement_in_body), do: open_if_missing(monitor, :defacement, metadata)
   end
 
   defp handle_incident_logic(monitor, %{check_status: :compromised} = metadata) do
@@ -230,6 +237,13 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp record_monitor_log(attrs), do: Monitoring.create_monitor_log(attrs)
+
+  @defacement_indicators ["hacked", "defaced", "owned by", "you've been pwned"]
+
+  defp detect_defacement_indicators(body) do
+    lower = String.downcase(body)
+    Enum.any?(@defacement_indicators, &String.contains?(lower, &1))
+  end
 
   defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
 

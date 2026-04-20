@@ -204,17 +204,24 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
-    workspace = Repo.get!(Workspace, monitor.workspace_id)
+    proposed_checked_at = Map.get(attrs, :last_checked_at)
 
-    case monitor
-         |> Monitor.changeset(attrs, workspace)
-         |> Repo.update() do
-      {:ok, updated} ->
-        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
-        {:ok, updated}
+    if proposed_checked_at && monitor.last_checked_at &&
+         DateTime.compare(monitor.last_checked_at, proposed_checked_at) == :gt do
+      {:ok, monitor}
+    else
+      workspace = Repo.get!(Workspace, monitor.workspace_id)
 
-      error ->
-        error
+      case monitor
+           |> Monitor.changeset(attrs, workspace)
+           |> Repo.update() do
+        {:ok, updated} ->
+          Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
+          {:ok, updated}
+
+        error ->
+          error
+      end
     end
   end
 
