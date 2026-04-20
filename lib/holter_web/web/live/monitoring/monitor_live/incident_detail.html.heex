@@ -59,8 +59,15 @@
           <label>{gettext("Associated Logs")}</label>
           <ul class="h-incident-logs-list">
             <%= for log <- @logs do %>
-              <li>
-                <.link href={~p"/monitoring/logs/#{log.id}"} class="h-link">
+              <li class="h-incident-log-row">
+                <.status_pill status={log.status} status_code={log.status_code} />
+                <span class="h-incident-log-date h-font-mono h-text-sm h-text-muted">
+                  {format_datetime(log.checked_at, @timezone)}
+                </span>
+                <%= if log.latency_ms do %>
+                  <span class="h-text-sm h-text-muted">{log.latency_ms}ms</span>
+                <% end %>
+                <.link href={~p"/monitoring/logs/#{log.id}"} class="h-link h-text-sm">
                   {gettext("View log")}
                 </.link>
               </li>
