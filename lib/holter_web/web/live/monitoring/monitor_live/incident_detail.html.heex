@@ -57,6 +57,11 @@
       <%= if @logs != [] do %>
         <div class="h-evidence-block">
           <label>{gettext("Associated Logs")}</label>
+          <%= if @logs_total > length(@logs) do %>
+            <p class="h-text-muted h-text-sm h-mb-2">
+              {gettext("Showing last 10 of %{total} associated logs.", total: @logs_total)}
+            </p>
+          <% end %>
           <ul class="h-incident-logs-list">
             <%= for log <- @logs do %>
               <li class="h-incident-log-row">

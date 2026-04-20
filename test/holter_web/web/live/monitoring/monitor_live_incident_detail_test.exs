@@ -53,6 +53,42 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIncidentDetailTest do
 
       refute html =~ gettext("View log")
     end
+
+    test "does not show truncation notice when logs count is within the limit",
+         %{conn: conn, monitor: monitor, incident: incident} do
+      log_fixture(%{monitor_id: monitor.id, status: :down, incident_id: incident.id})
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/incidents/#{incident.id}")
+
+      refute html =~ "of 1 associated logs"
+    end
+
+    test "shows truncation notice when there are more than 10 associated logs",
+         %{conn: conn, monitor: monitor, incident: incident} do
+      for _ <- 1..11 do
+        log_fixture(%{monitor_id: monitor.id, status: :down, incident_id: incident.id})
+      end
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/incidents/#{incident.id}")
+
+      assert html =~ gettext("Showing last 10 of %{total} associated logs.", total: 11)
+    end
+
+    test "renders at most 10 log links when there are more than 10 associated logs",
+         %{conn: conn, monitor: monitor, incident: incident} do
+      for _ <- 1..11 do
+        log_fixture(%{monitor_id: monitor.id, status: :down, incident_id: incident.id})
+      end
+
+      {:ok, lv, _html} = live(conn, ~p"/monitoring/incidents/#{incident.id}")
+
+      assert lv
+             |> element(".h-incident-logs-list")
+             |> render()
+             |> then(fn html ->
+               length(Regex.scan(~r/h-link/, html))
+             end) == 10
+    end
   end
 
   describe "incident detail page" do

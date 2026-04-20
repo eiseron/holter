@@ -27,6 +27,7 @@
 /* ── Espaçamento ─────────────────────────────────── */
 .h-mt-1 { margin-top: var(--space-1); }
 .h-mt-2 { margin-top: var(--space-2); }
+.h-mb-2 { margin-bottom: var(--space-2); }
 .h-mt-4 { margin-top: var(--space-4); }
 .h-mt-6 { margin-top: var(--space-6); }
 .h-mt-8 { margin-top: var(--space-8); }

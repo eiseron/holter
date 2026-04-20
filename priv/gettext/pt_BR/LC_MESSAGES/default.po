@@ -636,6 +636,11 @@ msgstr "Logs Associados"
 
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex
 #, elixir-autogen, elixir-format
+msgid "Showing last 10 of %{total} associated logs."
+msgstr "Exibindo os últimos 10 de %{total} logs associados."
+
+#: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex
+#, elixir-autogen, elixir-format
 msgid "View log"
 msgstr "Ver log"
 
