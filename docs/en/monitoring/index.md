@@ -17,6 +17,8 @@ Holter's monitoring module continuously checks your URLs and alerts you when som
 | [Daily Metrics](daily-metrics.md) | Uptime percentages, average latency, and downtime minutes per day |
 | [Technical Logs](logs.md) | Full log of every check run, with filtering by status and date range |
 | [Log Detail](log-detail.md) | Evidence for a single check: redirect chain, headers, response body |
+| [Incident History](incidents.md) | Full incident history for a monitor, with filtering by type, state, and date range |
+| [Incident Detail](incident-detail.md) | Root cause and monitor snapshot for a single incident |
 
 ## Concepts
 

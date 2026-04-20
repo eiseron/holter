@@ -52,9 +52,11 @@ Aberto quando uma verificação de certificado SSL detecta um problema:
 | Causa Raiz | Saúde Resultante |
 |------------|-----------------|
 | Certificado expirado | COMPROMISED |
-| Alerta crítico de expiração | COMPROMISED |
+| Vencimento em até 7 dias (Crítico) | COMPROMISED |
 | Erro de conexão SSL | COMPROMISED |
-| Outro (ex.: expiração iminente) | DEGRADED |
+| Vencimento em até 15 dias (Aviso) | DEGRADED |
+
+Incidentes de expiração SSL são suprimidos quando o campo **Ignorar Erros de SSL** está habilitado no monitor. Qualquer incidente de expiração SSL aberto é resolvido na próxima verificação após salvar a configuração. Veja [Configurações do Monitor](monitor-settings.md#ssl-ignore).
 
 ## Recálculo de Saúde
 
@@ -70,6 +72,9 @@ O `health_status` final é o que tiver maior severidade entre esses dois sinais.
 Os monitores são classificados no Dashboard para que os itens mais acionáveis apareçam primeiro:
 
 1. Monitores ativos ordenados por severidade (DOWN → COMPROMISED → DEGRADED → UP → UNKNOWN)
-2. Monitores pausados (sempre por último, independentemente do status de saúde)
+2. Dentro do mesmo grupo de severidade, monitores com mais incidentes abertos aparecem primeiro
+3. Monitores pausados (sempre por último, independentemente do status de saúde)
 
-Dentro do mesmo grupo de severidade, monitores criados mais recentemente aparecem acima dos mais antigos.
+## Histórico de Incidentes
+
+Todos os incidentes são registrados permanentemente e acessíveis na página de [Histórico de Incidentes](incidents.md). O histórico pode ser filtrado por tipo, estado (aberto ou resolvido) e período. Cada entrada vincula a uma página de [Detalhe do Incidente](incident-detail.md) que exibe a causa raiz completa e o snapshot do monitor capturado quando o incidente foi aberto.

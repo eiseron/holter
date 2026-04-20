@@ -11,6 +11,15 @@ A página de Configurações do Monitor permite visualizar e editar a configura�
 
 Clique em **Detalhes** em um card do Dashboard ou navegue para `/monitoring/monitor/{monitor_id}`.
 
+## Barra de Navegação
+
+Uma barra de sub-navegação abaixo do cabeçalho vincula a todas as páginas relacionadas ao monitor. A página atual é omitida da barra:
+
+- **Detalhes do Monitor** — esta página
+- **Métricas Diárias** — histórico de uptime
+- **Logs Técnicos** — lista de logs de verificação
+- **Incidentes** — histórico de incidentes
+
 ## Cabeçalho
 
 O cabeçalho da página exibe:
@@ -18,9 +27,13 @@ O cabeçalho da página exibe:
 - **URL do Monitor** — o endereço monitorado
 - **UUID** — o identificador único do monitor (útil para chamadas de API)
 - **Badge de saúde** — saúde e estado lógico atuais (veja [Alertas & Incidentes](alert-incidents.md))
-- **Métricas Diárias** — link para a página de histórico de uptime
-- **Logs Técnicos** — link para a lista de logs de verificação
 - **Botão Executar Agora** — dispara uma verificação imediata (veja abaixo)
+
+## Painel de Incidentes Ativos
+
+Se o monitor tiver incidentes abertos, um painel é exibido abaixo da barra de navegação listando cada um com seu tipo, quando foi aberto e uma causa raiz resumida. Clique na linha do incidente para abrir a página de [Detalhe do Incidente](incident-detail.md).
+
+O painel desaparece automaticamente quando todos os incidentes são resolvidos.
 
 ## Gráfico de Visão Geral
 
@@ -35,6 +48,16 @@ O formulário possui os mesmos campos do [Novo Monitor](new-monitor.md). As alte
 Clicar em **Executar Agora** enfileira uma verificação HTTP imediata fora do agendamento normal. Após disparar, o botão exibe uma contagem regressiva **Aguarde 60s** — verificações manuais são limitadas a uma por minuto por monitor.
 
 A página atualiza automaticamente quando a verificação é concluída: o badge de saúde e o gráfico se atualizam sem recarregar a página.
+
+## Ignorar SSL
+
+O campo **Ignorar Erros de SSL** no formulário instrui o Holter a pular as verificações de certificado SSL para este monitor. Quando habilitado:
+
+- Nenhum incidente de expiração SSL é aberto.
+- Qualquer incidente de expiração SSL aberto é resolvido na próxima vez que **Executar Agora** for clicado ou uma verificação agendada for executada.
+- As verificações HTTP continuam sendo executadas normalmente.
+
+Útil para monitores de serviços internos que intencionalmente usam certificados autoassinados.
 
 ## Pausar e Retomar
 
