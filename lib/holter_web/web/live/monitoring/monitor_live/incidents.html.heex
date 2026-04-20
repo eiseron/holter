@@ -8,7 +8,7 @@
 
   <.monitor_subnav monitor_id={@monitor.id} current_page={:incidents} />
 
-  <div class="h-logs-filters">
+  <section aria-label={gettext("Filters")} class="h-logs-filters">
     <.form for={@form} phx-change="filter_updated" class="h-form-row">
       <div class="h-form-item">
         <.input
@@ -53,16 +53,18 @@
         />
       </div>
     </.form>
-  </div>
+  </section>
 
-  <div class="h-mt-6">
+  <section class="h-mt-6" aria-label={gettext("Incident list")}>
     <.empty_state :if={Enum.empty?(@incidents)} class="h-empty-state">
       <p>{gettext("No incidents found for the selected filters.")}</p>
     </.empty_state>
 
     <.table :if={not Enum.empty?(@incidents)} id="incidents-table" rows={@incidents}>
       <:col :let={incident} label={gettext("Since")}>
-        {format_datetime(incident.started_at, @timezone)}
+        <time datetime={DateTime.to_iso8601(incident.started_at)}>
+          {format_datetime(incident.started_at, @timezone)}
+        </time>
       </:col>
       <:col :let={incident} label={gettext("Type")}>
         <span
@@ -91,9 +93,11 @@
       </:col>
       <:col :let={incident} label={gettext("Duration")}>
         <%= if incident.duration_seconds do %>
-          {div(incident.duration_seconds, 60)} {gettext("min")}
+          <time datetime={"PT#{div(incident.duration_seconds, 60)}M"}>
+            {div(incident.duration_seconds, 60)} {gettext("min")}
+          </time>
         <% else %>
-          —
+          <span aria-label={gettext("Ongoing")}>—</span>
         <% end %>
       </:col>
       <:col :let={incident} label={gettext("Root Cause")}>
@@ -116,5 +120,5 @@
       page_number={@page_number}
       total_pages={@total_pages}
     />
-  </div>
+  </section>
 </.monitor_page_container>
