@@ -23,16 +23,18 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
      |> assign(:filters, %{})
      |> assign(:page_number, 1)
      |> assign(:total_pages, 1)
-     |> assign(:form, to_form(%{}, as: "filters"))}
+     |> assign(:form, to_form(%{}, as: "filters"))
+     |> assign(:gantt_data, %{bars: [], x_labels: [], has_incidents: false})}
   end
 
   @impl true
   def handle_params(params, _uri, socket) do
     filters = parse_filters(params)
+    monitor_id = socket.assigns.monitor.id
 
     %{data: incidents, meta: meta} =
       Monitoring.list_incidents_filtered(%{
-        monitor_id: socket.assigns.monitor.id,
+        monitor_id: monitor_id,
         page: filters.page,
         page_size: filters.page_size,
         type: filters.type,
@@ -41,8 +43,31 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
         date_to: filters.date_to
       })
 
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    range_start =
+      if filters.date_from,
+        do: DateTime.new!(filters.date_from, ~T[00:00:00], "Etc/UTC"),
+        else: DateTime.add(now, -30, :day)
+
+    range_end =
+      if filters.date_to,
+        do: DateTime.new!(filters.date_to, ~T[23:59:59], "Etc/UTC"),
+        else: now
+
+    gantt_incidents =
+      Monitoring.list_incidents_for_gantt(%{
+        monitor_id: monitor_id,
+        type: filters.type,
+        state: filters.state,
+        range_start: range_start,
+        range_end: range_end
+      })
+
+    gantt_data = Monitoring.build_gantt_chart_data(gantt_incidents, now)
+
     total_pages = ceil(meta.total / meta.page_size) |> max(1)
-    path = ~p"/monitoring/monitor/#{socket.assigns.monitor.id}/incidents"
+    path = ~p"/monitoring/monitor/#{monitor_id}/incidents"
     form = to_form(Map.new(filters, fn {k, v} -> {Atom.to_string(k), v} end), as: "filters")
 
     {:noreply,
@@ -53,6 +78,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
      |> assign(:total_pages, total_pages)
      |> assign(:form, form)
      |> assign(:patch_path, path)
+     |> assign(:gantt_data, gantt_data)
      |> assign_page_links(path, filters)}
   end
 
