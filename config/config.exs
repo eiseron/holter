@@ -66,6 +66,7 @@ config :phoenix, :json_library, Jason
 
 config :holter, :api_specs, [
   {HolterWeb.Api.MonitoringApiSpec, "docs/api/monitoring.yml"},
+  {HolterWeb.Api.DeliveryApiSpec, "docs/api/delivery.yml"},
   {HolterWeb.Api.ApiSpec, "docs/api/openapi.yml"}
 ]
 
