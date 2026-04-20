@@ -19,34 +19,34 @@ defmodule Holter.Monitoring.Engine do
     ip = extract_ip(response)
     metadata = Map.put(metadata, :ip, ip)
 
-    if restricted_ip?(ip) do
-      handle_restricted_ip(monitor, response, metadata)
-    else
-      perform_full_validation(monitor, response, metadata)
-    end
+    params =
+      if restricted_ip?(ip) do
+        build_restricted_params(response, metadata)
+      else
+        validate_response(monitor, response, metadata)
+      end
+
+    finalize_check(monitor, params)
   end
 
-  defp handle_restricted_ip(monitor, response, metadata) do
-    finalize_check(
-      monitor,
-      %{
-        check_status: :down,
-        log_status: :down,
-        status_code: response.status,
-        duration_ms: metadata.duration_ms,
-        error_msg: gettext("Access to restricted internal address blocked"),
-        snippet: nil,
-        headers: nil,
-        ip: metadata.ip,
-        redirect_count: Map.get(metadata, :redirects, 0),
-        last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, []),
-        defacement_in_body: false
-      }
-    )
+  defp build_restricted_params(response, metadata) do
+    %{
+      check_status: :down,
+      log_status: :down,
+      status_code: response.status,
+      duration_ms: metadata.duration_ms,
+      error_msg: gettext("Access to restricted internal address blocked"),
+      snippet: nil,
+      headers: nil,
+      ip: metadata.ip,
+      redirect_count: Map.get(metadata, :redirects, 0),
+      last_redirect_url: Map.get(metadata, :last_url),
+      redirect_list: Map.get(metadata, :redirect_list, []),
+      defacement_in_body: false
+    }
   end
 
-  defp perform_full_validation(monitor, response, metadata) do
+  defp validate_response(monitor, response, metadata) do
     content_type = get_header(response.headers, "content-type")
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)
@@ -69,26 +69,23 @@ defmodule Holter.Monitoring.Engine do
     response_data = %{body: body, content_type: content_type, headers: response.headers}
     {headers, snippet} = maybe_collect_evidence(monitor, check_status, response_data)
 
-    finalize_check(
-      monitor,
-      %{
-        check_status: check_status,
-        log_status: check_status,
-        status_code: response.status,
-        duration_ms: metadata.duration_ms,
-        error_msg: error_msg,
-        positive_ok: positive_ok,
-        downtime_error_msg: downtime_error_msg,
-        defacement_error_msg: defacement_error_msg,
-        snippet: snippet,
-        headers: headers,
-        ip: metadata.ip,
-        redirect_count: Map.get(metadata, :redirects, 0),
-        last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, []),
-        defacement_in_body: defacement_in_body
-      }
-    )
+    %{
+      check_status: check_status,
+      log_status: check_status,
+      status_code: response.status,
+      duration_ms: metadata.duration_ms,
+      error_msg: error_msg,
+      positive_ok: positive_ok,
+      downtime_error_msg: downtime_error_msg,
+      defacement_error_msg: defacement_error_msg,
+      snippet: snippet,
+      headers: headers,
+      ip: metadata.ip,
+      redirect_count: Map.get(metadata, :redirects, 0),
+      last_redirect_url: Map.get(metadata, :last_url),
+      redirect_list: Map.get(metadata, :redirect_list, []),
+      defacement_in_body: defacement_in_body
+    }
   end
 
   defp prepare_search_body(body, content_type) do
@@ -105,7 +102,12 @@ defmodule Holter.Monitoring.Engine do
   end
 
   def handle_failure(monitor, error, duration_ms) do
-    finalize_check(monitor, %{
+    params = build_failure_params(error, duration_ms)
+    finalize_check(monitor, params)
+  end
+
+  defp build_failure_params(error, duration_ms) do
+    %{
       check_status: :down,
       log_status: :down,
       status_code: nil,
@@ -115,7 +117,7 @@ defmodule Holter.Monitoring.Engine do
       headers: nil,
       ip: nil,
       defacement_in_body: false
-    })
+    }
   end
 
   defp normalize_body(body) when is_binary(body), do: body
