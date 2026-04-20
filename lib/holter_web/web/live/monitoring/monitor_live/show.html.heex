@@ -21,17 +21,7 @@
     </.button>
   </:actions>
 
-  <nav class="h-page-nav">
-    <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/daily_metrics"} class="h-nav-link">
-      {gettext("Daily Metrics")}
-    </.link>
-    <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-nav-link">
-      {gettext("Technical Logs")}
-    </.link>
-    <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/incidents"} class="h-nav-link">
-      {gettext("Incidents")}
-    </.link>
-  </nav>
+  <.monitor_subnav monitor_id={@monitor.id} current_page={:show} />
 
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} timezone={@timezone} />
 
