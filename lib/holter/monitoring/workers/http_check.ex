@@ -22,7 +22,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       safe_ip: nil,
       redirects: 0,
       redirect_list: [],
-      start_time: System.monotonic_time()
+      start_time: nil
     }
 
     check_url(monitor, state)
@@ -37,14 +37,17 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         fetch_response(monitor, %{
           state
           | safe_ip: safe_ip,
+            start_time: state.start_time || System.monotonic_time(),
             redirect_list: state.redirect_list ++ [hop]
         })
 
       {:error, reason} ->
+        start_time = state.start_time || System.monotonic_time()
+
         Engine.handle_failure(
           monitor,
           %RuntimeError{message: reason},
-          calculate_duration(state.start_time)
+          calculate_duration(start_time)
         )
     end
   end
