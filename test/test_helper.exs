@@ -6,3 +6,5 @@ Application.put_env(:holter, :dummy_port, 4001)
 
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(Holter.Repo, :manual)
+
+:logger.set_application_level(:db_connection, :critical)
