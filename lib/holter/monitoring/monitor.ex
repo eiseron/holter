@@ -7,7 +7,7 @@ defmodule Holter.Monitoring.Monitor do
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
   @interval_min_seconds 60
   @interval_max_seconds 7200
-  @interval_default_seconds 5400
+
   @bodyless_methods [:get, :head]
   @body_methods [:post, :put, :patch, :delete, :options]
   @max_keywords 20
@@ -90,7 +90,6 @@ defmodule Holter.Monitoring.Monitor do
   def http_methods, do: @http_methods
   def interval_min_seconds, do: @interval_min_seconds
   def interval_max_seconds, do: @interval_max_seconds
-  def interval_default_seconds, do: @interval_default_seconds
   def bodyless_methods, do: @bodyless_methods
 
   def capture_snapshot(%__MODULE__{} = monitor) do

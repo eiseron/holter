@@ -25,15 +25,6 @@ defmodule Holter.Monitoring.MonitorLog do
     timestamps(type: :utc_datetime_usec)
   end
 
-  @doc """
-  Returns the available status values for form selects.
-  """
-  def status_options do
-    [:up, :down, :degraded, :compromised, :unknown]
-    |> Enum.map(&to_string/1)
-    |> Enum.map(fn status -> {String.capitalize(status), status} end)
-  end
-
   @doc false
   def changeset(monitor_log, attrs) do
     monitor_log
