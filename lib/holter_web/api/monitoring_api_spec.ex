@@ -9,6 +9,7 @@ defmodule HolterWeb.Api.MonitoringApiSpec do
     IncidentSchemas,
     MonitorLogSchemas,
     MonitorSchemas,
+    NotificationChannelSchemas,
     WorkspaceSchemas
   }
 
@@ -34,6 +35,7 @@ defmodule HolterWeb.Api.MonitoringApiSpec do
           |> Map.merge(MonitorLogSchemas.all())
           |> Map.merge(DailyMetricSchemas.all())
           |> Map.merge(IncidentSchemas.all())
+          |> Map.merge(NotificationChannelSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()
