@@ -9,6 +9,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
+  alias Holter.Monitoring.Engine.NetworkGuard
   alias Holter.Monitoring.MonitorClient.HTTP
 
   @max_timeout_seconds 30
@@ -155,29 +156,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     end
   end
 
-  defp restricted_ip?(ip) do
-    trusted = get_trusted_hosts()
-
-    case :inet.parse_address(to_charlist(ip)) do
-      {:ok, addr} -> private_network_address?(addr) and ip not in trusted
-      _ -> false
-    end
-  end
-
-  defp get_trusted_hosts do
-    :holter
-    |> Application.get_env(:monitoring, [])
-    |> Keyword.get(:trusted_hosts, [])
-  end
-
-  defp private_network_address?({127, _, _, _}), do: true
-  defp private_network_address?({10, _, _, _}), do: true
-  defp private_network_address?({172, s, _, _}) when s >= 16 and s <= 31, do: true
-  defp private_network_address?({192, 168, _, _}), do: true
-  defp private_network_address?({169, 254, _, _}), do: true
-  defp private_network_address?({0, 0, 0, 0}), do: true
-  defp private_network_address?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
-  defp private_network_address?(_), do: false
+  defp restricted_ip?(ip), do: NetworkGuard.restricted_ip?(ip)
 
   defp build_opts(monitor, params) do
     url = params.url
