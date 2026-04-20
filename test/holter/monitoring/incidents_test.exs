@@ -507,13 +507,11 @@ defmodule Holter.Monitoring.IncidentsTest do
     end
   end
 
-  describe "build_gantt_chart_data/3" do
-    @range_start ~U[2026-01-01 00:00:00Z]
-    @range_end ~U[2026-01-31 23:59:59Z]
+  describe "build_gantt_chart_data/2" do
     @now ~U[2026-01-31 12:00:00Z]
 
     test "returns has_incidents: false for empty list" do
-      result = Incidents.build_gantt_chart_data([], {@range_start, @range_end}, @now)
+      result = Incidents.build_gantt_chart_data([], @now)
       assert result.has_incidents == false
     end
 
@@ -525,7 +523,7 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      result = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      result = Incidents.build_gantt_chart_data([inc], @now)
       assert result.has_incidents == true
     end
 
@@ -537,7 +535,7 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.lane == 0
     end
 
@@ -549,7 +547,7 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.lane == 1
     end
 
@@ -561,13 +559,13 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.lane == 2
     end
 
     test "open incident sets open?: true" do
       inc = %{id: "d", type: :downtime, started_at: ~U[2026-01-10 00:00:00Z], resolved_at: nil}
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.open? == true
     end
 
@@ -579,7 +577,7 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.open? == false
     end
 
@@ -591,21 +589,66 @@ defmodule Holter.Monitoring.IncidentsTest do
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.width > 0
     end
 
-    test "x_labels contains approximately 6 entries for a 30-day range" do
-      inc = %{
-        id: "g",
+    test "range spans from earliest started_at to latest end time" do
+      early = %{
+        id: "h1",
+        type: :downtime,
+        started_at: ~U[2026-01-01 00:00:00Z],
+        resolved_at: ~U[2026-01-02 00:00:00Z]
+      }
+
+      late = %{
+        id: "h2",
+        type: :ssl_expiry,
+        started_at: ~U[2026-01-20 00:00:00Z],
+        resolved_at: ~U[2026-01-21 00:00:00Z]
+      }
+
+      %{bars: [bar_early, bar_late]} = Incidents.build_gantt_chart_data([early, late], @now)
+      assert bar_early.x < bar_late.x
+    end
+
+    test "open incident bar end is driven by now, not resolved_at" do
+      inc_resolved = %{
+        id: "i1",
         type: :downtime,
         started_at: ~U[2026-01-10 00:00:00Z],
         resolved_at: ~U[2026-01-11 00:00:00Z]
       }
 
-      %{x_labels: labels} =
-        Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      inc_open = %{
+        id: "i2",
+        type: :ssl_expiry,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: nil
+      }
 
+      %{bars: [bar_resolved, bar_open]} =
+        Incidents.build_gantt_chart_data([inc_resolved, inc_open], ~U[2026-01-20 00:00:00Z])
+
+      assert bar_open.width > bar_resolved.width
+    end
+
+    test "x_labels contains approximately 6 entries for a 30-day spread" do
+      early = %{
+        id: "g1",
+        type: :downtime,
+        started_at: ~U[2026-01-01 00:00:00Z],
+        resolved_at: ~U[2026-01-02 00:00:00Z]
+      }
+
+      late = %{
+        id: "g2",
+        type: :ssl_expiry,
+        started_at: ~U[2026-01-30 00:00:00Z],
+        resolved_at: ~U[2026-01-31 00:00:00Z]
+      }
+
+      %{x_labels: labels} = Incidents.build_gantt_chart_data([early, late], @now)
       assert length(labels) >= 5 and length(labels) <= 7
     end
   end

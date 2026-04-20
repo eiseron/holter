@@ -64,7 +64,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
         range_end: range_end
       })
 
-    gantt_data = Monitoring.build_gantt_chart_data(gantt_incidents, {range_start, range_end}, now)
+    gantt_data = Monitoring.build_gantt_chart_data(gantt_incidents, now)
 
     total_pages = ceil(meta.total / meta.page_size) |> max(1)
     path = ~p"/monitoring/monitor/#{monitor_id}/incidents"

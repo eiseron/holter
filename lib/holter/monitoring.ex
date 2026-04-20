@@ -44,7 +44,7 @@ defmodule Holter.Monitoring do
   defdelegate incident_to_health(incident), to: Incidents
   defdelegate open_incident_already_exists?(result), to: Incidents
   defdelegate list_incidents_for_gantt(params), to: Incidents
-  defdelegate build_gantt_chart_data(incidents, range, now), to: Incidents
+  defdelegate build_gantt_chart_data(incidents, now), to: Incidents
 
   defdelegate list_daily_metrics(monitor_id, filters \\ %{}), to: Metrics
   defdelegate get_daily_metric(monitor_id, date), to: Metrics

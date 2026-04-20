@@ -142,13 +142,19 @@ defmodule Holter.Monitoring.Incidents do
     |> Repo.all()
   end
 
-  def build_gantt_chart_data([], _range, _now) do
+  def build_gantt_chart_data([], _now) do
     %{bars: [], x_labels: [], has_incidents: false}
   end
 
-  def build_gantt_chart_data(incidents, {range_start, range_end}, now) do
+  def build_gantt_chart_data(incidents, now) do
+    range_start =
+      incidents |> Enum.min_by(&DateTime.to_unix(&1.started_at)) |> Map.get(:started_at)
+
+    range_end =
+      incidents |> Enum.map(fn i -> i.resolved_at || now end) |> Enum.max_by(&DateTime.to_unix/1)
+
     min_ts = DateTime.to_unix(range_start)
-    max_ts = DateTime.to_unix(range_end)
+    max_ts = max(DateTime.to_unix(range_end), min_ts + 1)
     coord = {@label_left, @chart_right}
 
     bars =
@@ -170,8 +176,8 @@ defmodule Holter.Monitoring.Incidents do
         }
       end)
 
-    total_seconds = DateTime.diff(range_end, range_start)
-    total_days = div(total_seconds, 86_400)
+    total_seconds = max(DateTime.diff(range_end, range_start), 1)
+    total_days = max(div(total_seconds, 86_400), 1)
     step_days = max(1, div(total_days, 6))
 
     x_labels =
