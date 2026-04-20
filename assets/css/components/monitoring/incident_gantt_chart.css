@@ -1,0 +1,37 @@
+.incident-gantt-container {
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.incident-gantt-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gantt-bar {
+  transition: opacity 0.15s ease;
+}
+
+.gantt-bar:hover {
+  opacity: 1;
+}
+
+.gantt-bar-open-edge {
+  stroke: currentColor;
+  stroke-dasharray: 3 3;
+  stroke-width: 1.5;
+  opacity: 0.6;
+}
+
+.gantt-lane-separator {
+  stroke: var(--color-border);
+  stroke-width: 0.5;
+  opacity: 0.5;
+}
+
+.chart-legend-dash {
+  width: 16px;
+  flex-shrink: 0;
+  color: color-mix(in srgb, var(--color-monitor-text) 60%, transparent);
+}
