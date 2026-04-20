@@ -57,6 +57,25 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
   end
 
   defp active?(current_view, views), do: current_view in views
-  defp monitors_views, do: [HolterWeb.Web.WorkspaceDashboard.MonitorsLive]
-  defp channels_views, do: [HolterWeb.Web.WorkspaceDashboard.ChannelsLive]
+
+  defp monitors_views do
+    [
+      HolterWeb.Web.WorkspaceDashboard.MonitorsLive,
+      HolterWeb.Web.Monitoring.MonitorLive.New,
+      HolterWeb.Web.Monitoring.MonitorLive.Show,
+      HolterWeb.Web.Monitoring.MonitorLive.Logs,
+      HolterWeb.Web.Monitoring.MonitorLive.Incidents,
+      HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics,
+      HolterWeb.Web.Monitoring.MonitorLive.LogDetail,
+      HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail
+    ]
+  end
+
+  defp channels_views do
+    [
+      HolterWeb.Web.WorkspaceDashboard.ChannelsLive,
+      HolterWeb.Web.Delivery.NotificationChannelLive.New,
+      HolterWeb.Web.Delivery.NotificationChannelLive.Show
+    ]
+  end
 end

@@ -92,9 +92,10 @@ defmodule HolterWeb do
   def monitoring_live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {HolterWeb.Layouts, :app}
+        layout: {HolterWeb.Layouts, :workspace}
 
       on_mount HolterWeb.ObservabilityHook
+      on_mount HolterWeb.Hooks.MonitoringWorkspaceHook
 
       unquote(html_helpers())
 
@@ -129,9 +130,10 @@ defmodule HolterWeb do
   def delivery_live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {HolterWeb.Layouts, :app}
+        layout: {HolterWeb.Layouts, :workspace}
 
       on_mount HolterWeb.ObservabilityHook
+      on_mount HolterWeb.Hooks.DeliveryWorkspaceHook
 
       unquote(html_helpers())
 
