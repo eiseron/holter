@@ -1,0 +1,11 @@
+.h-text-accent  { color: var(--color-accent); }
+.h-text-sky-400 { color: var(--color-accent); } /* alias semântico de h-text-accent */
+.h-text-muted   { color: var(--color-text-muted); }
+.h-text-success { color: var(--color-status-up); font-weight: bold; }
+.h-text-error   { color: var(--color-error); font-weight: bold; }
+
+.h-text-status-up          { color: var(--color-status-up-text); }
+.h-text-status-down        { color: var(--color-status-down-text); }
+.h-text-status-degraded    { color: var(--color-status-degraded-text); }
+.h-text-status-compromised { color: var(--color-status-compromised-text); }
+.h-text-status-unknown     { color: var(--color-status-unknown-text); }

@@ -1,0 +1,11 @@
+.h-opacity-20 { opacity: 0.2; }
+.h-opacity-40 { opacity: 0.4; }
+.h-opacity-50 { opacity: 0.5; }
+.h-opacity-60 { opacity: 0.6; }
+
+.h-cursor-pointer          { cursor: pointer; }
+.h-hover-underline:hover   { text-decoration: underline; }
+.h-link { color: var(--color-accent); text-decoration: underline; cursor: pointer; }
+.h-link:hover { opacity: 0.8; }
+
+.h-group:hover .h-group-hover-opacity-70 { opacity: 0.7; }

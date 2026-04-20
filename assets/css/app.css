@@ -2,7 +2,6 @@
 @import "./variables.css";
 @import "./base.css";
 @import "./utilities.css";
-@import "./print.css";
 
 /* Global components */
 @import "./components/back_link.css";
