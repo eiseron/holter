@@ -16,9 +16,6 @@ defmodule Holter.Monitoring.Monitors do
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
-  @max_page_size 100
-  @default_page_size 25
-
   def list_monitors do
     Repo.all(Monitor)
   end
@@ -85,7 +82,7 @@ defmodule Holter.Monitoring.Monitors do
   def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
     page = Map.get(params, :page, 1) |> max(1)
-    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
 
     base_query =
       Monitor

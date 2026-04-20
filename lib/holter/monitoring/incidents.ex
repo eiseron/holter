@@ -5,9 +5,6 @@ defmodule Holter.Monitoring.Incidents do
   alias Holter.Monitoring.{Broadcaster, Incident, Pagination}
   alias Holter.Repo
 
-  @max_page_size 100
-  @default_page_size 25
-
   def get_incident!(id), do: Repo.get!(Incident, id)
 
   def get_incident(id) do
@@ -20,7 +17,7 @@ defmodule Holter.Monitoring.Incidents do
   def list_incidents_filtered(params) do
     monitor_id = Map.fetch!(params, :monitor_id)
     page = Map.get(params, :page, 1) |> max(1)
-    page_size = Map.get(params, :page_size, @default_page_size) |> min(@max_page_size) |> max(1)
+    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
 
     base =
       Incident

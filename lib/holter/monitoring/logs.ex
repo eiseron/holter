@@ -14,7 +14,7 @@ defmodule Holter.Monitoring.Logs do
   @incident_logs_preview_limit 10
 
   def list_monitor_logs(monitor, filters) do
-    page_size = filters[:page_size] || 50
+    page_size = Pagination.resolve_page_size(filters[:page_size])
     base_query = build_base_query(monitor.id, filters)
 
     {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
