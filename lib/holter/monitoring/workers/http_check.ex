@@ -16,63 +16,46 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
-
-    state = %{
-      url: monitor.url,
-      safe_ip: nil,
-      redirects: 0,
-      redirect_list: [],
-      start_time: nil
-    }
-
-    fetch_hop(monitor, state)
+    state = %{url: monitor.url, safe_ip: nil, redirects: 0, redirect_list: [], start_time: nil}
+    run_hops(monitor, state)
     :ok
   end
 
-  defp fetch_hop(monitor, %{url: url} = state) do
-    case validate_destination(url) do
-      {:ok, safe_ip} ->
-        hop = %{"url" => url, "ip" => safe_ip}
+  defp run_hops(monitor, state) do
+    case do_one_hop(monitor, state) do
+      {:redirect, new_state} ->
+        run_hops(monitor, new_state)
 
-        fetch_response(monitor, %{
-          state
-          | safe_ip: safe_ip,
-            start_time: state.start_time || System.monotonic_time(),
-            redirect_list: state.redirect_list ++ [hop]
-        })
+      {:done, {response, meta}} ->
+        Engine.process_response(monitor, response, meta)
 
+      {:failure, {error, start_time}} ->
+        Engine.handle_failure(monitor, error, calculate_duration(start_time))
+    end
+  end
+
+  defp do_one_hop(monitor, state) do
+    start_time = state.start_time || System.monotonic_time()
+    state = %{state | start_time: start_time}
+
+    case validate_destination(state.url) do
       {:error, reason} ->
-        start_time = state.start_time || System.monotonic_time()
+        {:failure, {%RuntimeError{message: reason}, start_time}}
 
-        Engine.handle_failure(
-          monitor,
-          %RuntimeError{message: reason},
-          calculate_duration(start_time)
-        )
+      {:ok, safe_ip} ->
+        hop = %{"url" => state.url, "ip" => safe_ip}
+        state = %{state | safe_ip: safe_ip, redirect_list: state.redirect_list ++ [hop]}
+        remaining_timeout = calculate_remaining_timeout(monitor, start_time)
+
+        if remaining_timeout <= 0 do
+          {:failure, {%RuntimeError{message: "Global timeout exceeded"}, start_time}}
+        else
+          do_request(monitor, state, remaining_timeout)
+        end
     end
   end
 
-  defp fetch_response(monitor, state) do
-    remaining_timeout = calculate_remaining_timeout(monitor, state.start_time)
-
-    if remaining_timeout <= 0 do
-      Engine.handle_failure(
-        monitor,
-        %RuntimeError{message: "Global timeout exceeded"},
-        calculate_duration(state.start_time)
-      )
-    else
-      execute_request(monitor, state, remaining_timeout)
-    end
-  end
-
-  defp calculate_remaining_timeout(monitor, start_time) do
-    elapsed_ms = calculate_duration(start_time)
-    capped = min(monitor.timeout_seconds, @max_timeout_seconds)
-    capped * 1000 - elapsed_ms
-  end
-
-  defp execute_request(monitor, state, remaining_timeout) do
+  defp do_request(monitor, state, remaining_timeout) do
     client = Application.get_env(:holter, :monitor_client, HTTP)
 
     opts =
@@ -80,58 +63,53 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
     case client.request(opts) do
       {:ok, response} ->
-        handle_response(monitor, response, %{
-          state: state,
-          duration: calculate_duration(state.start_time)
-        })
+        state = %{
+          state
+          | redirect_list:
+              List.update_at(
+                state.redirect_list,
+                -1,
+                &Map.put(&1, "status_code", response.status)
+              )
+        }
+
+        decide_after_response(monitor, state, response)
 
       {:error, error} ->
-        Engine.handle_failure(monitor, error, calculate_duration(state.start_time))
+        {:failure, {error, state.start_time}}
     end
   end
 
-  defp handle_response(monitor, response, params) do
-    state = params.state
-    current_duration = params.duration
-
-    state = %{
-      state
-      | redirect_list:
-          List.update_at(state.redirect_list, -1, &Map.put(&1, "status_code", response.status))
-    }
-
+  defp decide_after_response(monitor, state, response) do
     should_follow =
       response.status in 301..308 and monitor.follow_redirects and
         state.redirects < monitor.max_redirects
 
     if should_follow do
-      follow_redirect(monitor, response, state)
+      case get_header(response.headers, "location") do
+        nil ->
+          {:done, {response, build_meta(state)}}
+
+        location ->
+          next_url = URI.merge(state.url, normalize_location(location)) |> to_string()
+          {:redirect, %{state | url: next_url, redirects: state.redirects + 1}}
+      end
     else
-      Engine.process_response(monitor, response, %{
-        duration_ms: current_duration,
-        redirects: state.redirects,
-        last_url: state.url,
-        redirect_list: state.redirect_list
-      })
+      {:done, {response, build_meta(state)}}
     end
   end
 
-  defp follow_redirect(monitor, response, state) do
-    case get_header(response.headers, "location") do
-      nil ->
-        Engine.process_response(monitor, response, %{
-          duration_ms: calculate_duration(state.start_time),
-          redirects: state.redirects,
-          last_url: state.url,
-          redirect_list: state.redirect_list
-        })
-
-      location ->
-        location = if is_list(location), do: List.first(location), else: location
-        next_url = URI.merge(state.url, location) |> to_string()
-        fetch_hop(monitor, %{state | url: next_url, redirects: state.redirects + 1})
-    end
+  defp build_meta(state) do
+    %{
+      duration_ms: calculate_duration(state.start_time),
+      redirects: state.redirects,
+      last_url: state.url,
+      redirect_list: state.redirect_list
+    }
   end
+
+  defp normalize_location(l) when is_list(l), do: List.first(l)
+  defp normalize_location(l), do: l
 
   defp get_header(headers, key) do
     headers |> Enum.find_value(fn {k, v} -> if String.downcase(k) == key, do: v end)
@@ -229,6 +207,12 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       end
 
     Keyword.put(opts, :connect_options, transport_opts: transport_opts)
+  end
+
+  defp calculate_remaining_timeout(monitor, start_time) do
+    elapsed_ms = calculate_duration(start_time)
+    capped = min(monitor.timeout_seconds, @max_timeout_seconds)
+    capped * 1000 - elapsed_ms
   end
 
   defp calculate_duration(start_time) do
