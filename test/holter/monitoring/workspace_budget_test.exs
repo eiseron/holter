@@ -164,6 +164,20 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
                })
     end
 
+    test "does not persist the monitor when minute cap is reached" do
+      workspace = exhausted_short_create_workspace()
+
+      {:error, :create_rate_limited} =
+        Monitoring.create_monitor(%{
+          url: "https://rate-limited-no-persist.example.com",
+          method: :get,
+          interval_seconds: 60,
+          workspace_id: workspace.id
+        })
+
+      assert Monitoring.list_monitors_by_workspace(workspace.id) == []
+    end
+
     test "bypasses create budget for archived monitors" do
       workspace = exhausted_short_create_workspace()
 

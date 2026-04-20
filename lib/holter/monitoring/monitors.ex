@@ -146,32 +146,27 @@ defmodule Holter.Monitoring.Monitors do
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
-         {:ok, {monitor, should_enqueue}} <- create_monitor_transactionally(attrs, workspace) do
+         {:ok, {monitor, should_enqueue}} <- insert_with_budget(attrs, workspace) do
       if should_enqueue, do: enqueue_checks(monitor)
       Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
       {:ok, monitor}
     end
   end
 
-  defp create_monitor_transactionally(attrs, workspace) do
+  defp insert_with_budget(attrs, workspace) do
     Repo.transaction(fn ->
-      changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
-
-      case Repo.insert(changeset) do
-        {:error, cs} -> Repo.rollback(cs)
-        {:ok, monitor} -> after_insert(monitor, workspace)
+      with changeset <- %Monitor{} |> Monitor.changeset(attrs, workspace),
+           {:ok, monitor} <- Repo.insert(changeset),
+           :ok <- maybe_consume_create_budget(monitor, workspace),
+           {:ok, should_enqueue} <- maybe_consume_trigger_budget(monitor, workspace) do
+        {monitor, should_enqueue}
+      else
+        {:error, reason} -> Repo.rollback(reason)
       end
     end)
   end
 
-  defp after_insert(monitor, workspace) do
-    case consume_create_budget_for(monitor, workspace) do
-      :ok -> maybe_enqueue_on_creation(monitor, workspace)
-      {:error, reason} -> Repo.rollback(reason)
-    end
-  end
-
-  defp consume_create_budget_for(monitor, workspace) do
+  defp maybe_consume_create_budget(monitor, workspace) do
     if monitor.logical_state == :active do
       case Workspaces.consume_create_budget(workspace) do
         {:ok, _} -> :ok
@@ -182,14 +177,14 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp maybe_enqueue_on_creation(monitor, workspace) do
+  defp maybe_consume_trigger_budget(monitor, workspace) do
     if monitor.logical_state == :active do
       case Workspaces.consume_trigger_budget(workspace) do
-        {:ok, _} -> {monitor, true}
-        {:error, _} -> {monitor, false}
+        {:ok, _} -> {:ok, true}
+        {:error, _} -> {:ok, false}
       end
     else
-      {monitor, false}
+      {:ok, false}
     end
   end
 
