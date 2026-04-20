@@ -27,6 +27,8 @@ defmodule Holter.Monitoring.Incidents do
       |> where([i], i.monitor_id == ^monitor_id)
       |> maybe_filter_by(:type, params)
       |> maybe_filter_by(:state, params)
+      |> maybe_filter_by(:date_from, params)
+      |> maybe_filter_by(:date_to, params)
       |> order_by([i], desc: i.started_at)
 
     total = Repo.aggregate(base, :count, :id)
@@ -44,6 +46,16 @@ defmodule Holter.Monitoring.Incidents do
 
   defp maybe_filter_by(query, :state, %{state: :resolved}) do
     where(query, [i], not is_nil(i.resolved_at))
+  end
+
+  defp maybe_filter_by(query, :date_from, %{date_from: date}) when not is_nil(date) do
+    dt = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+    where(query, [i], i.started_at >= ^dt)
+  end
+
+  defp maybe_filter_by(query, :date_to, %{date_to: date}) when not is_nil(date) do
+    dt = DateTime.new!(date, ~T[23:59:59], "Etc/UTC")
+    where(query, [i], i.started_at <= ^dt)
   end
 
   defp maybe_filter_by(query, _, _), do: query

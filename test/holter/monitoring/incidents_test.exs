@@ -107,6 +107,67 @@ defmodule Holter.Monitoring.IncidentsTest do
       assert result.id == i1.id
     end
 
+    test "filtering by date_from excludes incidents before that date", %{monitor: monitor} do
+      old = ~U[2026-01-01 12:00:00Z]
+      new = ~U[2026-02-01 12:00:00Z]
+      {:ok, _} = Incidents.create_incident(incident_attrs(monitor.id, %{started_at: old}))
+
+      {:ok, recent} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: new, type: :ssl_expiry})
+        )
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, date_from: ~D[2026-01-15]})
+
+      assert length(results) == 1
+      assert hd(results).id == recent.id
+    end
+
+    test "filtering by date_to excludes incidents after that date", %{monitor: monitor} do
+      old = ~U[2026-01-01 12:00:00Z]
+      new = ~U[2026-02-01 12:00:00Z]
+      {:ok, early} = Incidents.create_incident(incident_attrs(monitor.id, %{started_at: old}))
+
+      {:ok, _} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: new, type: :ssl_expiry})
+        )
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{monitor_id: monitor.id, date_to: ~D[2026-01-15]})
+
+      assert length(results) == 1
+      assert hd(results).id == early.id
+    end
+
+    test "combining date_from and date_to returns only incidents in range", %{monitor: monitor} do
+      t_before = ~U[2025-12-31 12:00:00Z]
+      t_inside = ~U[2026-01-10 12:00:00Z]
+      t_after = ~U[2026-01-20 12:00:00Z]
+      {:ok, _} = Incidents.create_incident(incident_attrs(monitor.id, %{started_at: t_before}))
+
+      {:ok, inside} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: t_inside, type: :ssl_expiry})
+        )
+
+      {:ok, _} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: t_after, type: :defacement})
+        )
+
+      %{data: results} =
+        Incidents.list_incidents_filtered(%{
+          monitor_id: monitor.id,
+          date_from: ~D[2026-01-05],
+          date_to: ~D[2026-01-15]
+        })
+
+      assert length(results) == 1
+      assert hd(results).id == inside.id
+    end
+
     test "meta contains correct total count", %{monitor: monitor} do
       Incidents.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
       Incidents.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))

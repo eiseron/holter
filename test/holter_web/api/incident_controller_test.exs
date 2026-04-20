@@ -106,6 +106,46 @@ defmodule HolterWeb.Api.IncidentControllerTest do
       assert %{"data" => [_, _], "meta" => %{"page" => 1, "page_size" => 2, "total" => 3}} = body
     end
 
+    test "filters by date_from excludes incidents before that date", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      incident_fixture(%{monitor_id: monitor.id, started_at: ~U[2026-01-01 12:00:00Z]})
+
+      recent =
+        incident_fixture(%{
+          monitor_id: monitor.id,
+          started_at: ~U[2026-02-01 12:00:00Z],
+          type: :ssl_expiry
+        })
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?date_from=2026-01-15")
+      body = json_response(conn, 200)
+
+      assert %{"data" => [result], "meta" => %{"total" => 1}} = body
+      assert result["id"] == recent.id
+    end
+
+    test "filters by date_to excludes incidents after that date", %{
+      conn: conn,
+      monitor: monitor
+    } do
+      early =
+        incident_fixture(%{monitor_id: monitor.id, started_at: ~U[2026-01-01 12:00:00Z]})
+
+      incident_fixture(%{
+        monitor_id: monitor.id,
+        started_at: ~U[2026-02-01 12:00:00Z],
+        type: :ssl_expiry
+      })
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}/incidents?date_to=2026-01-15")
+      body = json_response(conn, 200)
+
+      assert %{"data" => [result], "meta" => %{"total" => 1}} = body
+      assert result["id"] == early.id
+    end
+
     test "ignores unknown type filter values", %{conn: conn, monitor: monitor} do
       incident_fixture(%{monitor_id: monitor.id})
 

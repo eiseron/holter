@@ -44,6 +44,17 @@ defmodule HolterWeb.Api.IncidentController do
         in: :query,
         description: "Filter by state (open, resolved)",
         schema: %OpenApiSpex.Schema{type: :string}
+      ],
+      date_from: [
+        in: :query,
+        description: "Return incidents started on or after this date (ISO 8601, e.g. 2026-01-01)",
+        schema: %OpenApiSpex.Schema{type: :string, format: "date"}
+      ],
+      date_to: [
+        in: :query,
+        description:
+          "Return incidents started on or before this date (ISO 8601, e.g. 2026-12-31)",
+        schema: %OpenApiSpex.Schema{type: :string, format: "date"}
       ]
     ],
     responses: [
@@ -62,7 +73,9 @@ defmodule HolterWeb.Api.IncidentController do
           page: filters[:page] || 1,
           page_size: filters[:page_size] || 25,
           type: filters[:type],
-          state: filters[:state]
+          state: filters[:state],
+          date_from: filters[:date_from],
+          date_to: filters[:date_to]
         })
 
       render(conn, :index, result: result)
@@ -101,5 +114,7 @@ defmodule HolterWeb.Api.IncidentController do
     |> maybe_put_integer(params, {"page_size", :page_size})
     |> maybe_put_atom(params, {"type", :type, @valid_types})
     |> maybe_put_atom(params, {"state", :state, @valid_states})
+    |> maybe_put_date(params, {"date_from", :date_from})
+    |> maybe_put_date(params, {"date_to", :date_to})
   end
 end

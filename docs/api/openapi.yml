@@ -2891,6 +2891,24 @@ paths:
             type: string
             x-struct:
             x-validate:
+        - description: Return incidents started on or after this date (ISO 8601, e.g. 2026-01-01)
+          in: query
+          name: date_from
+          required: false
+          schema:
+            format: date
+            type: string
+            x-struct:
+            x-validate:
+        - description: Return incidents started on or before this date (ISO 8601, e.g. 2026-12-31)
+          in: query
+          name: date_to
+          required: false
+          schema:
+            format: date
+            type: string
+            x-struct:
+            x-validate:
       responses:
         '200':
           content:
