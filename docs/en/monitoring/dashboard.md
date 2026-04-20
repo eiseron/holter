@@ -1,15 +1,15 @@
 ---
-title: Dashboard
+title: Monitors
 description: Overview of all monitors in your workspace, ranked by severity, with real-time status updates.
 ---
 
-# Dashboard
+# Monitors
 
-The Dashboard is the main view of the monitoring module. It shows all monitors belonging to a workspace in a card grid, ranked so the most critical issues appear at the top.
+The Monitors page is the main view of the monitoring module. It shows all monitors belonging to a workspace in a card grid, ranked so the most critical issues appear at the top.
 
-## Accessing the Dashboard
+## Accessing the Page
 
-Navigate to `/monitoring/workspaces/{workspace_slug}/dashboard`. The workspace slug appears in the dashboard and new-monitor URLs; individual monitor, log, and metrics pages use the monitor or log ID instead.
+Click **Monitors** in the left sidebar, or navigate directly to `/workspaces/{workspace_slug}/monitors`.
 
 ## Monitor Cards
 
@@ -57,7 +57,7 @@ Click **New Monitor** in the top-right corner to open the creation form. See [Ne
 
 ## Empty State
 
-If no monitors have been created yet, the dashboard shows a prompt to create the first one.
+If no monitors have been created yet, the page shows a prompt to create the first one.
 
 ## Real-Time Updates
 

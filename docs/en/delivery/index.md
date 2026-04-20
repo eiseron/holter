@@ -16,7 +16,7 @@ The delivery module lets you receive alerts when monitors go down or recover. Yo
 ## How It Works
 
 1. Create a notification channel (webhook, email, Slack, or Discord).
-2. Link the channel to one or more monitors — either in the monitor settings or via the channel list.
+2. Link the channel to one or more monitors from the channel settings page (Linked Monitors section).
 3. When a monitor detects a failure, Holter enqueues a notification job and delivers the alert.
 4. When the monitor recovers, Holter sends a recovery alert automatically.
 

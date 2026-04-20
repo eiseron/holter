@@ -9,7 +9,7 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 ## Criando um Canal
 
-1. Acesse **Entrega → Canais de Notificação** do seu workspace.
+1. Clique em **Canais** na barra lateral esquerda.
 2. Clique em **Novo Canal**.
 3. Preencha os campos abaixo e clique em **Criar Canal**.
 
@@ -32,7 +32,7 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 ## Editando um Canal
 
-Clique no nome do canal na lista para abrir sua página de configurações. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
+Clique no nome do canal na lista de Canais (`/workspaces/{workspace_slug}/channels`) para abrir sua página de configurações em `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
 
 ## Enviando uma Notificação de Teste
 
@@ -44,10 +44,15 @@ Na página de lista de canais, clique em **Excluir** ao lado do canal. Isso remo
 
 ## Vinculando Canais a Monitores
 
-Os canais podem ser vinculados a monitores de duas formas:
+Os canais gerenciam o vínculo com os monitores. Para conectar um canal a um ou mais monitores:
 
-- **No formulário do monitor** — ao criar ou editar um monitor, uma lista de canais disponíveis aparece no final do formulário. Marque os canais que devem receber alertas daquele monitor.
-- **Via API** — inclua um array `notification_channel_ids` no corpo da requisição de criação ou atualização do monitor.
+1. Abra a página de configurações do canal.
+2. Na seção **Monitores Vinculados**, marque cada monitor que deve disparar notificações por este canal.
+3. Clique em **Salvar Alterações**.
+
+Desmarcar um monitor e salvar interrompe imediatamente as notificações futuras daquele monitor por este canal.
+
+Você também pode gerenciar os vínculos via API — inclua um array `notification_channel_ids` no corpo da requisição de criação ou atualização do monitor.
 
 ## Formato do Payload
 

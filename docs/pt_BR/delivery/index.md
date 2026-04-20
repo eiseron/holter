@@ -16,7 +16,7 @@ O módulo de entrega permite que você receba alertas quando monitores caem ou s
 ## Como Funciona
 
 1. Crie um canal de notificação (webhook, e-mail, Slack ou Discord).
-2. Vincule o canal a um ou mais monitores — nas configurações do monitor ou via lista de canais.
+2. Vincule o canal a um ou mais monitores pela página de configurações do canal (seção Monitores Vinculados).
 3. Quando um monitor detecta uma falha, o Holter enfileira um job de notificação e entrega o alerta.
 4. Quando o monitor se recupera, o Holter envia automaticamente um alerta de recuperação.
 

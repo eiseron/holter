@@ -9,7 +9,7 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 ## Creating a Channel
 
-1. Go to **Delivery → Notification Channels** for your workspace.
+1. Click **Channels** in the left sidebar.
 2. Click **New Channel**.
 3. Fill in the fields below and click **Create Channel**.
 
@@ -32,7 +32,7 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 ## Editing a Channel
 
-Click the channel name in the list to open its settings page. You can update the name and target. The channel type cannot be changed after creation.
+Click the channel name in the Channels list (`/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. You can update the name and target. The channel type cannot be changed after creation.
 
 ## Sending a Test Notification
 
@@ -44,10 +44,15 @@ On the channel list page, click **Delete** next to the channel. This removes the
 
 ## Linking Channels to Monitors
 
-Channels can be linked to monitors in two ways:
+Channels own the link to monitors. To connect a channel to one or more monitors:
 
-- **From the monitor form** — when creating or editing a monitor, a list of available channels appears at the bottom of the form. Check the channels you want to receive alerts from this monitor.
-- **Via the API** — include a `notification_channel_ids` array in the monitor create or update request body.
+1. Open the channel settings page.
+2. In the **Linked Monitors** section, check each monitor that should trigger notifications through this channel.
+3. Click **Save Changes**.
+
+Unchecking a monitor and saving immediately stops future notifications for that monitor through this channel.
+
+You can also manage links via the API — include a `notification_channel_ids` array in the monitor create or update request body.
 
 ## Payload Shape
 
