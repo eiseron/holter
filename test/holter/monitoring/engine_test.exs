@@ -560,6 +560,33 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "finalize_check pipeline: defacement_in_body defaults to false on handle_failure" do
+    test "network failure does not open a defacement incident", %{monitor: monitor} do
+      {:ok, _} = Engine.handle_failure(monitor, %RuntimeError{message: "timeout"}, 100)
+
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :defacement))
+    end
+  end
+
+  describe "finalize_check pipeline: effective status computation" do
+    test "log inherits ssl_expiry incident status even when HTTP check returns 200", %{
+      monitor: monitor
+    } do
+      {:ok, _} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :ssl_expiry,
+          started_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          root_cause: "Certificate expires in 3 days (Critical)"
+        })
+
+      {:ok, _} = Engine.process_response(monitor, ok_response("success"), %{duration_ms: 100})
+
+      log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
+      assert log.status == :compromised
+    end
+  end
+
   describe "open_incident_already_exists?/1" do
     test "returns true for a unique constraint changeset error", %{monitor: monitor} do
       Monitoring.create_incident(%{

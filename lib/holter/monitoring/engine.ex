@@ -159,7 +159,32 @@ defmodule Holter.Monitoring.Engine do
     now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
 
-    handle_incident_logic(monitor, %{
+    handle_incident_logic(monitor, build_incident_context(params, snapshot, now))
+
+    {active_incident_id, effective_log_status} =
+      compute_effective_status(monitor.id, params.log_status)
+
+    log_ctx = %{
+      snapshot: snapshot,
+      now: now,
+      incident_id: active_incident_id,
+      status: effective_log_status
+    }
+
+    record_monitor_log(build_log_attrs(monitor, params, log_ctx))
+
+    updated_monitor =
+      update_monitor_state(monitor, %{
+        check_status: params.check_status,
+        effective_status: effective_log_status,
+        now: now
+      })
+
+    {:ok, updated_monitor}
+  end
+
+  defp build_incident_context(params, snapshot, now) do
+    %{
       check_status: params.check_status,
       error_msg: params.error_msg,
       positive_ok: Map.get(params, :positive_ok, true),
@@ -168,20 +193,26 @@ defmodule Holter.Monitoring.Engine do
       snapshot: snapshot,
       now: now,
       defacement_in_body: Map.get(params, :defacement_in_body, false)
-    })
+    }
+  end
 
-    open_incidents = Monitoring.list_open_incidents(monitor.id)
+  defp compute_effective_status(monitor_id, log_status) do
+    open_incidents = Monitoring.list_open_incidents(monitor_id)
     {active_incident_id, incident_status} = pick_active_incident(open_incidents)
 
-    effective_log_status =
-      if Monitors.status_severity(incident_status) > Monitors.status_severity(params.log_status),
+    effective =
+      if Monitors.status_severity(incident_status) > Monitors.status_severity(log_status),
         do: incident_status,
-        else: params.log_status
+        else: log_status
 
-    record_monitor_log(%{
+    {active_incident_id, effective}
+  end
+
+  defp build_log_attrs(monitor, params, ctx) do
+    %{
       monitor_id: monitor.id,
-      status: effective_log_status,
-      incident_id: active_incident_id,
+      status: ctx.status,
+      incident_id: ctx.incident_id,
       status_code: params.status_code,
       latency_ms: params.duration_ms,
       error_message: params.error_msg,
@@ -192,18 +223,9 @@ defmodule Holter.Monitoring.Engine do
       redirect_count: params[:redirect_count],
       last_redirect_url: params[:last_redirect_url],
       redirect_list: params[:redirect_list] || [],
-      checked_at: now,
-      monitor_snapshot: snapshot
-    })
-
-    updated_monitor =
-      update_monitor_state(monitor, %{
-        check_status: params.check_status,
-        effective_status: effective_log_status,
-        now: now
-      })
-
-    {:ok, updated_monitor}
+      checked_at: ctx.now,
+      monitor_snapshot: ctx.snapshot
+    }
   end
 
   defp pick_active_incident([]), do: {nil, :unknown}
