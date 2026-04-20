@@ -5,6 +5,15 @@
     max_monitors={@workspace.max_monitors}
   />
 
+  <nav class="h-module-nav">
+    <.link
+      navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels"}
+      class="h-module-nav-link"
+    >
+      {gettext("Notification Channels")}
+    </.link>
+  </nav>
+
   <div class="pulse-grid">
     <%= if Enum.empty?(@monitors) do %>
       <.empty_state class="h-empty-state-dark">
