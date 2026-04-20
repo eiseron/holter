@@ -1,6 +1,6 @@
 .incident-gantt-container {
   width: 100%;
-  margin-bottom: var(--space-6);
+  margin: 0 0 var(--space-6);
 }
 
 .incident-gantt-svg {
@@ -28,6 +28,11 @@
   stroke: var(--color-border);
   stroke-width: 0.5;
   opacity: 0.5;
+}
+
+.incident-gantt-container .chart-legend {
+  list-style: none;
+  padding: 0;
 }
 
 .chart-legend-dash {

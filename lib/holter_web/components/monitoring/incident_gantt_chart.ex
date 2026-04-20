@@ -11,12 +11,18 @@ defmodule HolterWeb.Components.Monitoring.IncidentGanttChart do
 
   def incident_gantt_chart(assigns) do
     ~H"""
-    <div
+    <figure
       :if={@gantt_data.has_incidents}
       class="incident-gantt-container"
       id={"incident-gantt-#{@monitor_id}"}
+      aria-label={gettext("Incident timeline")}
     >
-      <svg class="incident-gantt-svg" viewBox="0 0 800 210" preserveAspectRatio="none">
+      <svg
+        class="incident-gantt-svg"
+        viewBox="0 0 800 210"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <%= for sep <- lane_separators() do %>
           <line x1="40" y1={sep} x2="760" y2={sep} class="gantt-lane-separator" />
         <% end %>
@@ -65,26 +71,28 @@ defmodule HolterWeb.Components.Monitoring.IncidentGanttChart do
         <% end %>
       </svg>
 
-      <div class="chart-legend">
-        <span class="chart-legend-item">
-          <span class="chart-legend-dot" style="background: var(--color-status-down)"></span>
-          {gettext("Downtime")}
-        </span>
-        <span class="chart-legend-item">
-          <span class="chart-legend-dot" style="background: var(--color-status-compromised)"></span>
-          {gettext("Defacement")}
-        </span>
-        <span class="chart-legend-item">
-          <span class="chart-legend-dot" style="background: var(--color-status-degraded)"></span>
-          {gettext("SSL Expiry")}
-        </span>
-        <span class="chart-legend-item">
-          <span class="chart-legend-dash" style="border-top: 2px dashed currentColor; opacity: 0.6">
-          </span>
-          {gettext("Open")}
-        </span>
-      </div>
-    </div>
+      <figcaption>
+        <ul class="chart-legend">
+          <li class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-down)"></span>
+            {gettext("Downtime")}
+          </li>
+          <li class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-compromised)"></span>
+            {gettext("Defacement")}
+          </li>
+          <li class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-degraded)"></span>
+            {gettext("SSL Expiry")}
+          </li>
+          <li class="chart-legend-item">
+            <span class="chart-legend-dash" style="border-top: 2px dashed currentColor; opacity: 0.6">
+            </span>
+            {gettext("Open")}
+          </li>
+        </ul>
+      </figcaption>
+    </figure>
     """
   end
 
