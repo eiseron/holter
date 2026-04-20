@@ -370,6 +370,246 @@ defmodule Holter.Monitoring.IncidentsTest do
     end
   end
 
+  describe "list_incidents_for_gantt/1" do
+    test "returns incidents that started before range_end", %{monitor: monitor} do
+      range_start = ~U[2026-01-01 00:00:00Z]
+      range_end = ~U[2026-01-31 23:59:59Z]
+
+      {:ok, inc} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-15 00:00:00Z]})
+        )
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end
+        })
+
+      assert Enum.any?(results, &(&1.id == inc.id))
+    end
+
+    test "excludes incidents that ended before range_start", %{monitor: monitor} do
+      range_start = ~U[2026-02-01 00:00:00Z]
+      range_end = ~U[2026-02-28 23:59:59Z]
+
+      {:ok, inc} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-01 00:00:00Z]})
+        )
+
+      Incidents.resolve_incident(inc, ~U[2026-01-10 00:00:00Z])
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end
+        })
+
+      refute Enum.any?(results, &(&1.id == inc.id))
+    end
+
+    test "excludes incidents from other monitors", %{monitor: monitor} do
+      other = monitor_fixture()
+      range_start = ~U[2026-01-01 00:00:00Z]
+      range_end = ~U[2026-01-31 23:59:59Z]
+
+      {:ok, other_inc} =
+        Incidents.create_incident(
+          incident_attrs(other.id, %{started_at: ~U[2026-01-15 00:00:00Z]})
+        )
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end
+        })
+
+      refute Enum.any?(results, &(&1.id == other_inc.id))
+    end
+
+    test "includes open incidents (resolved_at IS NULL) started before range_end", %{
+      monitor: monitor
+    } do
+      range_start = ~U[2026-01-01 00:00:00Z]
+      range_end = ~U[2026-01-31 23:59:59Z]
+
+      {:ok, inc} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-20 00:00:00Z]})
+        )
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end
+        })
+
+      assert Enum.any?(results, &(&1.id == inc.id and is_nil(&1.resolved_at)))
+    end
+
+    test "respects type filter", %{monitor: monitor} do
+      range_start = ~U[2026-01-01 00:00:00Z]
+      range_end = ~U[2026-01-31 23:59:59Z]
+
+      {:ok, down} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-05 00:00:00Z], type: :downtime})
+        )
+
+      {:ok, ssl} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-06 00:00:00Z], type: :ssl_expiry})
+        )
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end,
+          type: :downtime
+        })
+
+      assert Enum.any?(results, &(&1.id == down.id))
+      refute Enum.any?(results, &(&1.id == ssl.id))
+    end
+
+    test "respects state filter", %{monitor: monitor} do
+      range_start = ~U[2026-01-01 00:00:00Z]
+      range_end = ~U[2026-01-31 23:59:59Z]
+
+      {:ok, open} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-05 00:00:00Z]})
+        )
+
+      {:ok, resolved} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{started_at: ~U[2026-01-06 00:00:00Z], type: :ssl_expiry})
+        )
+
+      Incidents.resolve_incident(resolved, ~U[2026-01-07 00:00:00Z])
+
+      results =
+        Incidents.list_incidents_for_gantt(%{
+          monitor_id: monitor.id,
+          range_start: range_start,
+          range_end: range_end,
+          state: :open
+        })
+
+      assert Enum.any?(results, &(&1.id == open.id))
+      refute Enum.any?(results, &(&1.id == resolved.id))
+    end
+  end
+
+  describe "build_gantt_chart_data/3" do
+    @range_start ~U[2026-01-01 00:00:00Z]
+    @range_end ~U[2026-01-31 23:59:59Z]
+    @now ~U[2026-01-31 12:00:00Z]
+
+    test "returns has_incidents: false for empty list" do
+      result = Incidents.build_gantt_chart_data([], {@range_start, @range_end}, @now)
+      assert result.has_incidents == false
+    end
+
+    test "returns has_incidents: true for non-empty list" do
+      inc = %{
+        id: "abc",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      result = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert result.has_incidents == true
+    end
+
+    test "downtime incident lands in lane 0" do
+      inc = %{
+        id: "a",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.lane == 0
+    end
+
+    test "defacement incident lands in lane 1" do
+      inc = %{
+        id: "b",
+        type: :defacement,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.lane == 1
+    end
+
+    test "ssl_expiry incident lands in lane 2" do
+      inc = %{
+        id: "c",
+        type: :ssl_expiry,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.lane == 2
+    end
+
+    test "open incident sets open?: true" do
+      inc = %{id: "d", type: :downtime, started_at: ~U[2026-01-10 00:00:00Z], resolved_at: nil}
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.open? == true
+    end
+
+    test "resolved incident sets open?: false" do
+      inc = %{
+        id: "e",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.open? == false
+    end
+
+    test "bar has positive width" do
+      inc = %{
+        id: "f",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+      assert bar.width > 0
+    end
+
+    test "x_labels contains approximately 6 entries for a 30-day range" do
+      inc = %{
+        id: "g",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{x_labels: labels} =
+        Incidents.build_gantt_chart_data([inc], {@range_start, @range_end}, @now)
+
+      assert length(labels) >= 5 and length(labels) <= 7
+    end
+  end
+
   describe "create_incident/1 concurrent safety" do
     test "creating a duplicate open incident of the same type returns a changeset error", %{
       monitor: monitor

@@ -5,6 +5,9 @@ defmodule Holter.Monitoring.Incidents do
   alias Holter.Monitoring.{Broadcaster, Incident, Pagination}
   alias Holter.Repo
 
+  @label_left 40
+  @chart_right 760
+
   def get_incident!(id), do: Repo.get!(Incident, id)
 
   def get_incident(id) do
@@ -125,6 +128,63 @@ defmodule Holter.Monitoring.Incidents do
     end
   end
 
+  def list_incidents_for_gantt(%{monitor_id: monitor_id} = params) do
+    range_start = Map.fetch!(params, :range_start)
+    range_end = Map.fetch!(params, :range_end)
+
+    Incident
+    |> where([i], i.monitor_id == ^monitor_id)
+    |> maybe_filter_by(:type, params)
+    |> maybe_filter_by(:state, params)
+    |> where([i], i.started_at <= ^range_end)
+    |> where([i], is_nil(i.resolved_at) or i.resolved_at >= ^range_start)
+    |> order_by([i], asc: i.started_at)
+    |> Repo.all()
+  end
+
+  def build_gantt_chart_data([], _range, _now) do
+    %{bars: [], x_labels: [], has_incidents: false}
+  end
+
+  def build_gantt_chart_data(incidents, {range_start, range_end}, now) do
+    min_ts = DateTime.to_unix(range_start)
+    max_ts = DateTime.to_unix(range_end)
+    coord = {@label_left, @chart_right}
+
+    bars =
+      Enum.map(incidents, fn inc ->
+        end_dt = inc.resolved_at || now
+
+        x_start =
+          inc.started_at |> map_x({min_ts, max_ts}, coord) |> clamp(@label_left, @chart_right)
+
+        x_end = end_dt |> map_x({min_ts, max_ts}, coord) |> clamp(@label_left, @chart_right)
+
+        %{
+          id: inc.id,
+          x: Float.round(x_start, 1),
+          width: Float.round(max(x_end - x_start, 2.0), 1),
+          lane: lane_for(inc.type),
+          fill: fill_for(inc.type),
+          open?: is_nil(inc.resolved_at)
+        }
+      end)
+
+    total_seconds = DateTime.diff(range_end, range_start)
+    total_days = div(total_seconds, 86_400)
+    step_days = max(1, div(total_days, 6))
+
+    x_labels =
+      0..total_days//step_days
+      |> Enum.map(fn offset ->
+        dt = DateTime.add(range_start, offset * 86_400, :second)
+        x = dt |> map_x({min_ts, max_ts}, coord) |> clamp(@label_left, @chart_right)
+        %{x: Float.round(x, 1), label: Calendar.strftime(DateTime.to_date(dt), "%m/%d")}
+      end)
+
+    %{bars: bars, x_labels: x_labels, has_incidents: true}
+  end
+
   defp maybe_filter_by(query, :type, %{type: type}) when not is_nil(type) do
     where(query, [i], i.type == ^type)
   end
@@ -148,4 +208,19 @@ defmodule Holter.Monitoring.Incidents do
   end
 
   defp maybe_filter_by(query, _, _), do: query
+
+  defp map_x(dt, {min_ts, max_ts}, {label_left, svg_right}) do
+    ts = DateTime.to_unix(dt)
+    label_left + (ts - min_ts) / (max_ts - min_ts) * (svg_right - label_left) * 1.0
+  end
+
+  defp clamp(value, min, max), do: value |> max(min * 1.0) |> min(max * 1.0)
+
+  defp lane_for(:downtime), do: 0
+  defp lane_for(:defacement), do: 1
+  defp lane_for(:ssl_expiry), do: 2
+
+  defp fill_for(:downtime), do: "var(--color-status-down)"
+  defp fill_for(:defacement), do: "var(--color-status-compromised)"
+  defp fill_for(:ssl_expiry), do: "var(--color-status-degraded)"
 end
