@@ -19,9 +19,10 @@
   background: var(--color-bg-subtle);
   padding: var(--space-4);
   border-radius: var(--radius-field);
+  margin: 0;
 }
 
-.h-meta-item label {
+.h-meta-item dt {
   display: block;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -29,8 +30,9 @@
   font-weight: bold;
 }
 
-.h-meta-item span {
+.h-meta-item dd {
   font-size: var(--font-size-base);
+  margin: 0;
 }
 
 .h-evidence-block label {
