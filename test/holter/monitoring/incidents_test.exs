@@ -281,5 +281,51 @@ defmodule Holter.Monitoring.IncidentsTest do
 
       assert Incidents.get_open_incident(monitor.id) == nil
     end
+
+    test "resolving an already-resolved incident is a safe no-op", %{monitor: monitor} do
+      {:ok, incident} = Incidents.create_incident(incident_attrs(monitor.id))
+      t1 = ~U[2026-01-01 00:05:00Z]
+      t2 = ~U[2026-01-01 00:10:00Z]
+
+      {:ok, _} = Incidents.resolve_incident(incident, t1)
+      {:ok, _} = Incidents.resolve_incident(incident, t2)
+
+      reloaded = Incidents.get_incident!(incident.id)
+      assert DateTime.compare(reloaded.resolved_at, t1) == :eq
+    end
+
+    test "resolving an already-resolved incident does not broadcast a second event", %{
+      monitor: monitor
+    } do
+      {:ok, incident} = Incidents.create_incident(incident_attrs(monitor.id))
+      topic = "monitoring:monitor:#{monitor.id}"
+      Phoenix.PubSub.subscribe(Holter.PubSub, topic)
+
+      Incidents.resolve_incident(incident, ~U[2026-01-01 00:05:00Z])
+      Incidents.resolve_incident(incident, ~U[2026-01-01 00:10:00Z])
+
+      assert_receive {:incident_resolved, _}
+      refute_receive {:incident_resolved, _}, 100
+    end
+  end
+
+  describe "create_incident/1 concurrent safety" do
+    test "creating a duplicate open incident of the same type returns a changeset error", %{
+      monitor: monitor
+    } do
+      {:ok, _} = Incidents.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+
+      assert {:error, %Ecto.Changeset{}} =
+               Incidents.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
+    end
+
+    test "creating a duplicate open incident does not raise an unhandled exception", %{
+      monitor: monitor
+    } do
+      {:ok, _} = Incidents.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
+
+      result = Incidents.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
+      assert match?({:error, %Ecto.Changeset{}}, result)
+    end
   end
 end

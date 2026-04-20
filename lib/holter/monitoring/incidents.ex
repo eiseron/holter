@@ -117,15 +117,18 @@ defmodule Holter.Monitoring.Incidents do
   def resolve_incident(%Incident{} = incident, resolved_at) do
     duration = DateTime.diff(resolved_at, incident.started_at)
 
-    case incident
-         |> Incident.changeset(%{resolved_at: resolved_at, duration_seconds: duration})
-         |> Repo.update() do
-      {:ok, updated} ->
-        Broadcaster.broadcast({:ok, updated}, :incident_resolved, updated.monitor_id)
-        {:ok, updated}
+    {count, _} =
+      Repo.update_all(
+        from(i in Incident, where: i.id == ^incident.id and is_nil(i.resolved_at)),
+        set: [resolved_at: resolved_at, duration_seconds: duration]
+      )
 
-      error ->
-        error
+    if count == 1 do
+      updated = %{incident | resolved_at: resolved_at, duration_seconds: duration}
+      Broadcaster.broadcast({:ok, updated}, :incident_resolved, updated.monitor_id)
+      {:ok, updated}
+    else
+      {:ok, incident}
     end
   end
 end
