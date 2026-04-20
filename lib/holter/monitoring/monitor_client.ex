@@ -14,15 +14,26 @@ defmodule Holter.Monitoring.MonitorClient do
 
     alias Holter.Monitoring.CertificateParser
 
+    @max_body_bytes 5 * 1024 * 1024
+
+    def body_within_limit?(body, limit \\ @max_body_bytes)
+
+    def body_within_limit?(body, limit) when is_binary(body),
+      do: byte_size(body) <= limit
+
+    def body_within_limit?(_body, _limit), do: true
+
     @impl true
     def request(opts) do
       opts
       |> Keyword.put_new(:user_agent, build_user_agent())
+      |> Keyword.put_new(:compressed, false)
       |> Keyword.put_new(:retry, fn
         _request, %Req.Response{} -> false
         _request, _exception -> true
       end)
       |> Req.request()
+      |> check_body_size()
     end
 
     @impl true
@@ -41,6 +52,21 @@ defmodule Holter.Monitoring.MonitorClient do
           {:error, reason}
       end
     end
+
+    defp check_body_size({:ok, response}) do
+      if body_within_limit?(response.body) do
+        {:ok, response}
+      else
+        size = byte_size(response.body)
+
+        {:error,
+         %RuntimeError{
+           message: "Response body too large (#{size} bytes, limit #{@max_body_bytes})"
+         }}
+      end
+    end
+
+    defp check_body_size(error), do: error
 
     defp build_user_agent do
       version = Application.spec(:holter, :vsn) |> to_string()
