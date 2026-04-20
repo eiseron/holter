@@ -44,6 +44,60 @@ defmodule Holter.Monitoring.MonitorClientTest do
     end
   end
 
+  describe "body_within_limit?/2" do
+    @max_body_bytes 5 * 1024 * 1024
+
+    test "returns true for a small binary body" do
+      assert HTTP.body_within_limit?("small body")
+    end
+
+    test "returns true for a body exactly at the limit" do
+      assert HTTP.body_within_limit?(String.duplicate("x", @max_body_bytes))
+    end
+
+    test "returns false when body exceeds limit by one byte" do
+      refute HTTP.body_within_limit?(String.duplicate("x", @max_body_bytes + 1))
+    end
+
+    test "returns true for non-binary value (decoded JSON map)" do
+      assert HTTP.body_within_limit?(%{"key" => "value"})
+    end
+
+    test "returns true for empty binary" do
+      assert HTTP.body_within_limit?("")
+    end
+
+    test "uses custom limit when provided" do
+      refute HTTP.body_within_limit?("hello", 3)
+    end
+  end
+
+  describe "request/1 body size enforcement" do
+    @max_body_bytes 5 * 1024 * 1024
+
+    test "returns {:error, RuntimeError} when response body exceeds max bytes", %{
+      base_url: base_url
+    } do
+      DummyService.enqueue("body-size-exceed", body: String.duplicate("a", @max_body_bytes + 1))
+
+      result = HTTP.request(url: "#{base_url}/body-size-exceed")
+      assert {:error, %RuntimeError{}} = result
+    end
+
+    test "error message mentions body is too large", %{base_url: base_url} do
+      DummyService.enqueue("body-size-msg", body: String.duplicate("a", @max_body_bytes + 1))
+
+      {:error, error} = HTTP.request(url: "#{base_url}/body-size-msg")
+      assert error.message =~ "too large"
+    end
+
+    test "returns {:ok, response} when body is within limit", %{base_url: base_url} do
+      DummyService.enqueue("body-size-ok", status: 200, body: "small response")
+
+      assert {:ok, _response} = HTTP.request(url: "#{base_url}/body-size-ok")
+    end
+  end
+
   describe "get_ssl_expiration/1" do
     @tag :external
     test "fetches expiration from a real domain" do
