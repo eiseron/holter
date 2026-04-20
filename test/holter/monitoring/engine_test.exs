@@ -504,6 +504,64 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "concurrent safety: open_if_missing" do
+    test "processing a down response twice does not crash when incident already exists",
+         %{monitor: monitor} do
+      response = error_response(503, "down")
+
+      {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 50})
+      {:ok, updated} = Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      assert updated.health_status == :down
+    end
+
+    test "only one open downtime incident exists after two down responses for the same monitor",
+         %{monitor: monitor} do
+      response = error_response(503, "down")
+
+      Engine.process_response(monitor, response, %{duration_ms: 50})
+      Engine.process_response(monitor, response, %{duration_ms: 50})
+
+      open = Monitoring.list_open_incidents(monitor.id)
+      assert length(Enum.filter(open, &(&1.type == :downtime))) == 1
+    end
+  end
+
+  describe "open_incident_already_exists?/1" do
+    test "returns true for a unique constraint changeset error", %{monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :downtime,
+        started_at: DateTime.utc_now()
+      })
+
+      result =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :downtime,
+          started_at: DateTime.utc_now()
+        })
+
+      assert Monitoring.open_incident_already_exists?(result)
+    end
+
+    test "returns false for a missing required field validation error" do
+      result = Monitoring.create_incident(%{})
+      refute Monitoring.open_incident_already_exists?(result)
+    end
+
+    test "returns false for a successful create", %{monitor: monitor} do
+      result =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :downtime,
+          started_at: DateTime.utc_now()
+        })
+
+      refute Monitoring.open_incident_already_exists?(result)
+    end
+  end
+
   defp ok_response(body),
     do: %Req.Response{status: 200, body: body, headers: [{"content-type", "text/plain"}]}
 

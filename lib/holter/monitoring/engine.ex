@@ -233,21 +233,22 @@ defmodule Holter.Monitoring.Engine do
 
   defp open_if_missing(monitor, type, metadata) do
     case Monitoring.get_open_incident(monitor.id, type) do
-      nil ->
-        case Monitoring.create_incident(%{
-               monitor_id: monitor.id,
-               type: type,
-               started_at: metadata.now,
-               root_cause: metadata.error_msg,
-               monitor_snapshot: metadata.snapshot
-             }) do
-          {:ok, _} -> :ok
-          {:error, %Ecto.Changeset{}} -> :ok
-        end
-
-      _ ->
-        :ok
+      nil -> create_incident_idempotent(monitor, type, metadata)
+      _ -> :ok
     end
+  end
+
+  defp create_incident_idempotent(monitor, type, metadata) do
+    result =
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: type,
+        started_at: metadata.now,
+        root_cause: metadata.error_msg,
+        monitor_snapshot: metadata.snapshot
+      })
+
+    if Monitoring.open_incident_already_exists?(result), do: :ok, else: result
   end
 
   defp update_monitor_state(monitor, %{

@@ -101,6 +101,14 @@ defmodule Holter.Monitoring.Incidents do
     end
   end
 
+  def open_incident_already_exists?({:error, %Ecto.Changeset{} = cs}) do
+    cs.errors
+    |> Keyword.get_values(:monitor_id)
+    |> Enum.any?(fn {_msg, opts} -> opts[:constraint] == :unique end)
+  end
+
+  def open_incident_already_exists?(_), do: false
+
   def update_incident(%Incident{} = incident, attrs) do
     case incident
          |> Incident.changeset(attrs)
