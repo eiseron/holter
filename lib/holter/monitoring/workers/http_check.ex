@@ -25,11 +25,11 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       start_time: nil
     }
 
-    check_url(monitor, state)
+    fetch_hop(monitor, state)
     :ok
   end
 
-  defp check_url(monitor, %{url: url} = state) do
+  defp fetch_hop(monitor, %{url: url} = state) do
     case validate_destination(url) do
       {:ok, safe_ip} ->
         hop = %{"url" => url, "ip" => safe_ip}
@@ -129,7 +129,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       location ->
         location = if is_list(location), do: List.first(location), else: location
         next_url = URI.merge(state.url, location) |> to_string()
-        check_url(monitor, %{state | url: next_url, redirects: state.redirects + 1})
+        fetch_hop(monitor, %{state | url: next_url, redirects: state.redirects + 1})
     end
   end
 
