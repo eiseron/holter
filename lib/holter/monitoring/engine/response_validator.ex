@@ -10,10 +10,15 @@ defmodule Holter.Monitoring.Engine.ResponseValidator do
   def validate_response(monitor, response, metadata) do
     content_type = get_header(response.headers, "content-type")
     body = normalize_body(response.body)
-    search_body = prepare_search_body(body, content_type)
+    is_binary_body = binary_content?(body)
+
+    search_body =
+      if is_binary_body, do: "", else: prepare_search_body(body, content_type)
 
     {positive_ok, negative_ok, missing_keywords, matched_forbidden} =
-      validate_keywords(search_body, monitor)
+      if is_binary_body,
+        do: {true, true, [], []},
+        else: validate_keywords(search_body, monitor)
 
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
 
@@ -104,6 +109,12 @@ defmodule Holter.Monitoring.Engine.ResponseValidator do
   def prepare_search_body(body, content_type) do
     if html?(content_type), do: ResponseSanitizer.strip_html_tags(body), else: body
   end
+
+  def binary_content?(body) when is_binary(body) do
+    not String.valid?(body) or String.contains?(body, "\0")
+  end
+
+  def binary_content?(_), do: false
 
   def normalize_body(body) when is_binary(body), do: body
   def normalize_body(body) when is_map(body), do: Jason.encode!(body)

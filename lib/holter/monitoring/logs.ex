@@ -48,7 +48,7 @@ defmodule Holter.Monitoring.Logs do
   def list_logs_by_incident(incident_id) do
     MonitorLog
     |> where([l], l.incident_id == ^incident_id)
-    |> order_by([l], desc: l.checked_at)
+    |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
     |> limit(@incident_logs_preview_limit)
     |> Repo.all()
   end
