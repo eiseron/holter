@@ -1,9 +1,16 @@
 /* Main application CSS */
 @import "./variables.css";
 @import "./base.css";
-@import "./utilities.css";
 
-/* Global components */
+@import "utilities/layout.css";
+@import "utilities/spacing.css";
+@import "utilities/typography.css";
+@import "utilities/colors.css";
+@import "utilities/interaction.css";
+@import "utilities/transitions.css";
+@import "utilities/accessibility.css";
+@import "utilities/print.css";
+
 @import "./components/back_link.css";
 @import "./components/button.css";
 @import "./components/empty_state.css";
@@ -17,7 +24,6 @@
 @import "./components/table.css";
 @import "./components/tooltip.css";
 
-/* Monitoring components */
 @import "./components/monitoring/dashboard_header.css";
 @import "./components/monitoring/monitor_card.css";
 @import "./components/monitoring/sparkline.css";
@@ -32,5 +38,4 @@
 @import "./components/monitoring/daily_metrics_chart.css";
 
 
-/* Global overrides for structural components */
 .hidden { display: none !important; }
