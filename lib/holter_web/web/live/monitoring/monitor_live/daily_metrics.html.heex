@@ -12,7 +12,11 @@
     </.link>
   </:actions>
 
-  <.daily_metrics_chart monitor_id={@monitor.id} metrics={@metrics} />
+  <.daily_metrics_chart
+    :if={not Enum.empty?(@metrics)}
+    monitor_id={@monitor.id}
+    metrics={@metrics}
+  />
 
   <div class="h-mt-6">
     <.empty_state :if={Enum.empty?(@metrics)} class="h-empty-state">

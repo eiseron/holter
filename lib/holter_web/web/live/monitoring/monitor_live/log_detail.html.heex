@@ -34,7 +34,7 @@
 
       <%= if (@log.redirect_count || 0) > 0 do %>
         <div class="h-evidence-block">
-          <label>{gettext("Redirect Chain")}</label>
+          <h3 class="h-evidence-block-title">{gettext("Redirect Chain")}</h3>
           <ol class="h-redirect-chain">
             <%= for {hop, index} <- Enum.with_index(@log.redirect_list || [], 1) do %>
               <li class="h-redirect-hop">
@@ -78,14 +78,14 @@
       <%= if @log.error_message do %>
         <div class="h-evidence-block h-evidence-error">
           <%= if is_nil(@log.status_code) do %>
-            <label>{gettext("Network Error")}</label>
+            <h3 class="h-evidence-block-title">{gettext("Network Error")}</h3>
             <p class="h-text-muted h-text-sm">
               {gettext(
                 "The connection failed before a response was received (no HTTP status code)."
               )}
             </p>
           <% else %>
-            <label>{gettext("Error Message")}</label>
+            <h3 class="h-evidence-block-title">{gettext("Error Message")}</h3>
           <% end %>
           <pre>{@log.error_message}</pre>
         </div>
@@ -93,21 +93,21 @@
 
       <%= if @formatted_headers do %>
         <div class="h-evidence-block">
-          <label>{gettext("Response Headers")}</label>
+          <h3 class="h-evidence-block-title">{gettext("Response Headers")}</h3>
           <pre>{@formatted_headers}</pre>
         </div>
       <% end %>
 
       <%= if @formatted_snippet do %>
         <div class="h-evidence-block">
-          <label>{gettext("Content Snippet")}</label>
+          <h3 class="h-evidence-block-title">{gettext("Content Snippet")}</h3>
           <pre class="h-snippet-content">{@formatted_snippet}</pre>
         </div>
       <% end %>
 
       <%= if @log.monitor_snapshot do %>
         <div class="h-evidence-block">
-          <label>{gettext("Monitor Configuration")}</label>
+          <h3 class="h-evidence-block-title">{gettext("Monitor Configuration")}</h3>
           <.monitor_snapshot snapshot={@log.monitor_snapshot} />
         </div>
       <% end %>

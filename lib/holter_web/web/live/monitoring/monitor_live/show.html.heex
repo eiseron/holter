@@ -36,7 +36,7 @@
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} timezone={@timezone} />
 
   <div :if={@active_incidents != []} class="h-fieldset-card">
-    <p class="h-fieldset-legend">{gettext("Active Incidents")}</p>
+    <h3 class="h-fieldset-legend">{gettext("Active Incidents")}</h3>
     <.table id="active-incidents-table" rows={@active_incidents}>
       <:col :let={incident} label={gettext("Type")}>
         <span class={"h-status-pill h-status-#{incident_type_to_status(incident.type)}"}>

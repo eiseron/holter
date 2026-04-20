@@ -9,8 +9,7 @@ defmodule HolterWeb.Web.Monitoring.DailyMetricsChartTest do
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/daily_metrics")
 
-      assert has_element?(lv, "#metrics-chart-#{monitor.id}")
-      assert has_element?(lv, ".metrics-no-data")
+      assert has_element?(lv, ".h-empty-state")
     end
 
     test "renders metrics SVG when metrics exist", %{conn: conn} do
@@ -88,7 +87,7 @@ defmodule HolterWeb.Web.Monitoring.DailyMetricsChartTest do
       monitor = monitor_fixture()
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/daily_metrics")
-      assert has_element?(lv, ".metrics-no-data")
+      assert has_element?(lv, ".h-empty-state")
 
       daily_metric_fixture(%{
         monitor_id: monitor.id,
