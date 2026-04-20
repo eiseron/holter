@@ -504,6 +504,39 @@ defmodule Holter.Monitoring.EngineTest do
     end
   end
 
+  describe "Bug simulation: forbidden keyword found AND required keyword missing simultaneously" do
+    setup %{monitor: monitor} do
+      {:ok, updated} =
+        Engine.process_response(
+          monitor,
+          ok_response("this page has an error but nothing good"),
+          %{duration_ms: 100}
+        )
+
+      %{updated: updated}
+    end
+
+    test "a defacement incident SHOULD be opened for the forbidden keyword (fails because bug exists)",
+         %{monitor: monitor} do
+      assert %{type: :defacement} = Monitoring.get_open_incident(monitor.id, :defacement)
+    end
+
+    test "a downtime incident SHOULD be opened for the missing required keyword (fails because bug exists)",
+         %{monitor: monitor} do
+      assert %{type: :downtime} = Monitoring.get_open_incident(monitor.id, :downtime)
+    end
+
+    test "health_status SHOULD be :down because :down has higher severity than :compromised in this system (fails because bug exists)",
+         %{updated: updated} do
+      assert updated.health_status == :down
+    end
+
+    test "two open incidents SHOULD exist — one per independent condition (fails because bug exists)",
+         %{monitor: monitor} do
+      assert length(Monitoring.list_open_incidents(monitor.id)) == 2
+    end
+  end
+
   describe "concurrent safety: open_if_missing" do
     test "processing a down response twice does not crash when incident already exists",
          %{monitor: monitor} do

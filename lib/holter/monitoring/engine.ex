@@ -56,14 +56,13 @@ defmodule Holter.Monitoring.Engine do
 
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
 
+    downtime_error_msg =
+      determine_downtime_error_msg(response.status, positive_ok, missing_keywords)
+
+    defacement_error_msg = determine_defacement_error_msg(negative_ok, matched_forbidden)
+
     error_msg =
-      determine_error_message(%{
-        status: response.status,
-        positive_ok: positive_ok,
-        negative_ok: negative_ok,
-        missing_keywords: missing_keywords,
-        matched_forbidden: matched_forbidden
-      })
+      if check_status == :compromised, do: defacement_error_msg, else: downtime_error_msg
 
     defacement_in_body = detect_defacement_indicators(search_body)
 
@@ -78,6 +77,9 @@ defmodule Holter.Monitoring.Engine do
         status_code: response.status,
         duration_ms: metadata.duration_ms,
         error_msg: error_msg,
+        positive_ok: positive_ok,
+        downtime_error_msg: downtime_error_msg,
+        defacement_error_msg: defacement_error_msg,
         snippet: snippet,
         headers: headers,
         ip: metadata.ip,
@@ -127,27 +129,31 @@ defmodule Holter.Monitoring.Engine do
     {positive_ok, negative_ok, missing, matched}
   end
 
-  defp determine_check_status(status, positive_ok, _negative_ok)
-       when status < 200 or status >= 300 or not positive_ok,
+  defp determine_check_status(status, _positive_ok, _negative_ok)
+       when status < 200 or status >= 300,
        do: :down
 
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
+  defp determine_check_status(_status, false, _negative_ok), do: :down
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_error_message(%{status: s}) when s < 200 or s >= 300,
-    do: gettext("HTTP Error: %{status}", status: s)
+  defp determine_downtime_error_msg(status, _positive_ok, _missing)
+       when status < 200 or status >= 300,
+       do: gettext("HTTP Error: %{status}", status: status)
 
-  defp determine_error_message(%{positive_ok: false, missing_keywords: missing}) do
+  defp determine_downtime_error_msg(_status, false, missing) do
     keywords = Enum.map_join(missing, ", ", &~s("#{&1}"))
     gettext("Missing required keywords: %{keywords}", keywords: keywords)
   end
 
-  defp determine_error_message(%{negative_ok: false, matched_forbidden: matched}) do
+  defp determine_downtime_error_msg(_status, _positive_ok, _missing), do: nil
+
+  defp determine_defacement_error_msg(false, matched) do
     keywords = Enum.map_join(matched, ", ", &~s("#{&1}"))
     gettext("Found forbidden keywords: %{keywords}", keywords: keywords)
   end
 
-  defp determine_error_message(_), do: nil
+  defp determine_defacement_error_msg(_negative_ok, _matched), do: nil
 
   defp finalize_check(monitor, params) do
     now = DateTime.utc_now()
@@ -156,6 +162,9 @@ defmodule Holter.Monitoring.Engine do
     handle_incident_logic(monitor, %{
       check_status: params.check_status,
       error_msg: params.error_msg,
+      positive_ok: Map.get(params, :positive_ok, true),
+      downtime_error_msg: Map.get(params, :downtime_error_msg, params.error_msg),
+      defacement_error_msg: Map.get(params, :defacement_error_msg, params.error_msg),
       snapshot: snapshot,
       now: now,
       defacement_in_body: Map.get(params, :defacement_in_body, false)
@@ -217,6 +226,14 @@ defmodule Holter.Monitoring.Engine do
     resolve_if_open(monitor, :defacement, metadata.now)
     open_if_missing(monitor, :downtime, metadata)
     if Map.get(metadata, :defacement_in_body), do: open_if_missing(monitor, :defacement, metadata)
+  end
+
+  defp handle_incident_logic(
+         monitor,
+         %{check_status: :compromised, positive_ok: false} = metadata
+       ) do
+    open_if_missing(monitor, :downtime, %{metadata | error_msg: metadata.downtime_error_msg})
+    open_if_missing(monitor, :defacement, %{metadata | error_msg: metadata.defacement_error_msg})
   end
 
   defp handle_incident_logic(monitor, %{check_status: :compromised} = metadata) do
