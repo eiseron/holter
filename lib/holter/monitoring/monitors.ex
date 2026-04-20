@@ -196,7 +196,7 @@ defmodule Holter.Monitoring.Monitors do
   def enqueue_checks(%Monitor{} = monitor) do
     HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
 
-    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
+    if String.starts_with?(monitor.url, "https") do
       SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
     end
 
