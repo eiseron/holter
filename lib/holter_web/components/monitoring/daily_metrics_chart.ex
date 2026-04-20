@@ -35,7 +35,6 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
         <svg class="metrics-svg" viewBox="0 0 800 210" preserveAspectRatio="none">
           <line x1="40" y1="80" x2="760" y2="80" class="chart-empty-line" />
         </svg>
-        <p class="metrics-no-data">{gettext("No daily metrics recorded yet")}</p>
       <% else %>
         <svg class="metrics-svg" viewBox="0 0 800 210" preserveAspectRatio="none">
           <line x1="40" y1="160" x2="760" y2="160" class="chart-baseline" />

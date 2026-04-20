@@ -17,6 +17,8 @@ O módulo de monitoramento do Holter verifica continuamente suas URLs e avisa qu
 | [Métricas Diárias](daily-metrics.md) | Percentuais de uptime, latência média e minutos de indisponibilidade por dia |
 | [Logs Técnicos](logs.md) | Registro completo de cada verificação executada, com filtros por status e período |
 | [Detalhe do Log](log-detail.md) | Evidências de uma verificação: cadeia de redirecionamentos, headers e corpo da resposta |
+| [Histórico de Incidentes](incidents.md) | Histórico completo de incidentes de um monitor, com filtros por tipo, estado e período |
+| [Detalhe do Incidente](incident-detail.md) | Causa raiz e snapshot do monitor para um único incidente |
 
 ## Conceitos
 

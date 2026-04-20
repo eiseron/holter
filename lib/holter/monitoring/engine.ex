@@ -6,7 +6,7 @@ defmodule Holter.Monitoring.Engine do
   """
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.{Incidents, Monitor, Monitors}
   use Gettext, backend: HolterWeb.Gettext
 
   def process_response(monitor, response, metadata) do
@@ -40,7 +40,8 @@ defmodule Holter.Monitoring.Engine do
         ip: metadata.ip,
         redirect_count: Map.get(metadata, :redirects, 0),
         last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, [])
+        redirect_list: Map.get(metadata, :redirect_list, []),
+        defacement_in_body: false
       }
     )
   end
@@ -50,9 +51,20 @@ defmodule Holter.Monitoring.Engine do
     body = normalize_body(response.body)
     search_body = prepare_search_body(body, content_type)
 
-    {positive_ok, negative_ok} = validate_keywords(search_body, monitor)
+    {positive_ok, negative_ok, missing_keywords, matched_forbidden} =
+      validate_keywords(search_body, monitor)
+
     check_status = determine_check_status(response.status, positive_ok, negative_ok)
-    error_msg = determine_error_message(response.status, positive_ok, negative_ok)
+
+    downtime_error_msg =
+      determine_downtime_error_msg(response.status, positive_ok, missing_keywords)
+
+    defacement_error_msg = determine_defacement_error_msg(negative_ok, matched_forbidden)
+
+    error_msg =
+      if check_status == :compromised, do: defacement_error_msg, else: downtime_error_msg
+
+    defacement_in_body = detect_defacement_indicators(search_body)
 
     response_data = %{body: body, content_type: content_type, headers: response.headers}
     {headers, snippet} = maybe_collect_evidence(monitor, check_status, response_data)
@@ -65,12 +77,16 @@ defmodule Holter.Monitoring.Engine do
         status_code: response.status,
         duration_ms: metadata.duration_ms,
         error_msg: error_msg,
+        positive_ok: positive_ok,
+        downtime_error_msg: downtime_error_msg,
+        defacement_error_msg: defacement_error_msg,
         snippet: snippet,
         headers: headers,
         ip: metadata.ip,
         redirect_count: Map.get(metadata, :redirects, 0),
         last_redirect_url: Map.get(metadata, :last_url),
-        redirect_list: Map.get(metadata, :redirect_list, [])
+        redirect_list: Map.get(metadata, :redirect_list, []),
+        defacement_in_body: defacement_in_body
       }
     )
   end
@@ -97,7 +113,8 @@ defmodule Holter.Monitoring.Engine do
       error_msg: Exception.message(error),
       snippet: nil,
       headers: nil,
-      ip: nil
+      ip: nil,
+      defacement_in_body: false
     })
   end
 
@@ -107,34 +124,64 @@ defmodule Holter.Monitoring.Engine do
 
   defp validate_keywords(body, monitor) do
     downcase_body = String.downcase(body)
-
-    {
-      validate_positive(downcase_body, monitor.keyword_positive),
-      validate_negative(downcase_body, monitor.keyword_negative)
-    }
+    {positive_ok, missing} = validate_positive(downcase_body, monitor.keyword_positive)
+    {negative_ok, matched} = validate_negative(downcase_body, monitor.keyword_negative)
+    {positive_ok, negative_ok, missing, matched}
   end
 
-  defp determine_check_status(status, positive_ok, _negative_ok)
-       when status < 200 or status >= 300 or not positive_ok,
+  defp determine_check_status(status, _positive_ok, _negative_ok)
+       when status < 200 or status >= 300,
        do: :down
 
   defp determine_check_status(_status, _positive_ok, false), do: :compromised
+  defp determine_check_status(_status, false, _negative_ok), do: :down
   defp determine_check_status(_status, _positive_ok, _negative_ok), do: :up
 
-  defp determine_error_message(status, _, _) when status < 200 or status >= 300,
-    do: gettext("HTTP Error: %{status}", status: status)
+  defp determine_downtime_error_msg(status, _positive_ok, _missing)
+       when status < 200 or status >= 300,
+       do: gettext("HTTP Error: %{status}", status: status)
 
-  defp determine_error_message(_, false, _), do: gettext("Missing required keywords")
-  defp determine_error_message(_, _, false), do: gettext("Found forbidden keywords")
-  defp determine_error_message(_, _, _), do: nil
+  defp determine_downtime_error_msg(_status, false, missing) do
+    keywords = Enum.map_join(missing, ", ", &~s("#{&1}"))
+    gettext("Missing required keywords: %{keywords}", keywords: keywords)
+  end
+
+  defp determine_downtime_error_msg(_status, _positive_ok, _missing), do: nil
+
+  defp determine_defacement_error_msg(false, matched) do
+    keywords = Enum.map_join(matched, ", ", &~s("#{&1}"))
+    gettext("Found forbidden keywords: %{keywords}", keywords: keywords)
+  end
+
+  defp determine_defacement_error_msg(_negative_ok, _matched), do: nil
 
   defp finalize_check(monitor, params) do
     now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
 
+    handle_incident_logic(monitor, %{
+      check_status: params.check_status,
+      error_msg: params.error_msg,
+      positive_ok: Map.get(params, :positive_ok, true),
+      downtime_error_msg: Map.get(params, :downtime_error_msg, params.error_msg),
+      defacement_error_msg: Map.get(params, :defacement_error_msg, params.error_msg),
+      snapshot: snapshot,
+      now: now,
+      defacement_in_body: Map.get(params, :defacement_in_body, false)
+    })
+
+    open_incidents = Monitoring.list_open_incidents(monitor.id)
+    {active_incident_id, incident_status} = pick_active_incident(open_incidents)
+
+    effective_log_status =
+      if Monitors.status_severity(incident_status) > Monitors.status_severity(params.log_status),
+        do: incident_status,
+        else: params.log_status
+
     record_monitor_log(%{
       monitor_id: monitor.id,
-      status: params.log_status,
+      status: effective_log_status,
+      incident_id: active_incident_id,
       status_code: params.status_code,
       latency_ms: params.duration_ms,
       error_message: params.error_msg,
@@ -149,16 +196,25 @@ defmodule Holter.Monitoring.Engine do
       monitor_snapshot: snapshot
     })
 
-    handle_incident_logic(monitor, %{
-      check_status: params.check_status,
-      error_msg: params.error_msg,
-      snapshot: snapshot,
-      now: now
-    })
-
-    updated_monitor = update_monitor_state(monitor, params.check_status, now)
+    updated_monitor =
+      update_monitor_state(monitor, %{
+        check_status: params.check_status,
+        effective_status: effective_log_status,
+        now: now
+      })
 
     {:ok, updated_monitor}
+  end
+
+  defp pick_active_incident([]), do: {nil, :unknown}
+
+  defp pick_active_incident(incidents) do
+    incident =
+      Enum.max_by(incidents, fn i ->
+        Monitors.status_severity(Incidents.incident_to_health(i))
+      end)
+
+    {incident.id, Incidents.incident_to_health(incident)}
   end
 
   defp handle_incident_logic(monitor, %{check_status: :up, now: now}) do
@@ -167,7 +223,17 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp handle_incident_logic(monitor, %{check_status: :down} = metadata) do
+    resolve_if_open(monitor, :defacement, metadata.now)
     open_if_missing(monitor, :downtime, metadata)
+    if Map.get(metadata, :defacement_in_body), do: open_if_missing(monitor, :defacement, metadata)
+  end
+
+  defp handle_incident_logic(
+         monitor,
+         %{check_status: :compromised, positive_ok: false} = metadata
+       ) do
+    open_if_missing(monitor, :downtime, %{metadata | error_msg: metadata.downtime_error_msg})
+    open_if_missing(monitor, :defacement, %{metadata | error_msg: metadata.defacement_error_msg})
   end
 
   defp handle_incident_logic(monitor, %{check_status: :compromised} = metadata) do
@@ -184,24 +250,32 @@ defmodule Holter.Monitoring.Engine do
 
   defp open_if_missing(monitor, type, metadata) do
     case Monitoring.get_open_incident(monitor.id, type) do
-      nil ->
-        Monitoring.create_incident(%{
-          monitor_id: monitor.id,
-          type: type,
-          started_at: metadata.now,
-          root_cause: metadata.error_msg,
-          monitor_snapshot: metadata.snapshot
-        })
-
-      _ ->
-        :ok
+      nil -> create_incident_idempotent(monitor, type, metadata)
+      _ -> :ok
     end
   end
 
-  defp update_monitor_state(monitor, check_status, now) do
+  defp create_incident_idempotent(monitor, type, metadata) do
+    result =
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: type,
+        started_at: metadata.now,
+        root_cause: metadata.error_msg,
+        monitor_snapshot: metadata.snapshot
+      })
+
+    if Monitoring.open_incident_already_exists?(result), do: :ok, else: result
+  end
+
+  defp update_monitor_state(monitor, %{
+         check_status: check_status,
+         effective_status: effective_status,
+         now: now
+       }) do
     {:ok, updated_monitor} =
       Monitoring.update_monitor(monitor, %{
-        health_status: check_status,
+        health_status: effective_status,
         last_checked_at: now,
         last_success_at: if(check_status == :up, do: now, else: monitor.last_success_at)
       })
@@ -211,22 +285,27 @@ defmodule Holter.Monitoring.Engine do
 
   defp record_monitor_log(attrs), do: Monitoring.create_monitor_log(attrs)
 
-  defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
+  @defacement_indicators ["hacked", "defaced", "owned by", "you've been pwned"]
 
-  defp validate_positive(_body, empty) when empty in [nil, []], do: true
-
-  defp validate_positive(body, keywords) do
-    Enum.all?(keywords, fn kw ->
-      String.contains?(body, String.downcase(kw))
-    end)
+  defp detect_defacement_indicators(body) do
+    lower = String.downcase(body)
+    Enum.any?(@defacement_indicators, &String.contains?(lower, &1))
   end
 
-  defp validate_negative(_body, empty) when empty in [nil, []], do: true
+  defp get_region, do: System.get_env("MONITOR_REGION", "br-sp-1")
+
+  defp validate_positive(_body, empty) when empty in [nil, []], do: {true, []}
+
+  defp validate_positive(body, keywords) do
+    missing = Enum.reject(keywords, &String.contains?(body, String.downcase(&1)))
+    {missing == [], missing}
+  end
+
+  defp validate_negative(_body, empty) when empty in [nil, []], do: {true, []}
 
   defp validate_negative(body, keywords) do
-    not Enum.any?(keywords, fn kw ->
-      String.contains?(body, String.downcase(kw))
-    end)
+    matched = Enum.filter(keywords, &String.contains?(body, String.downcase(&1)))
+    {matched == [], matched}
   end
 
   defp restricted_ip?(nil), do: false

@@ -1,0 +1,111 @@
+<.monitor_page_container>
+  <:title>
+    {gettext("Incident Details")}
+  </:title>
+  <:subtitle>
+    <span class="h-text-muted h-font-mono">{@monitor.url}</span>
+  </:subtitle>
+
+  <.monitor_subnav monitor_id={@monitor.id} current_page={:incident_detail} />
+
+  <article class="h-log-detail-content">
+    <div class="h-evidence-grid">
+      <dl class="h-evidence-meta">
+        <div class="h-meta-item">
+          <dt>{gettext("Type")}</dt>
+          <dd>
+            <span class="h-badge h-badge-danger">
+              <%= case @incident.type do %>
+                <% :downtime -> %>
+                  {gettext("Downtime")}
+                <% :defacement -> %>
+                  {gettext("Defacement")}
+                <% :ssl_expiry -> %>
+                  {gettext("SSL Expiry")}
+              <% end %>
+            </span>
+          </dd>
+        </div>
+        <div class="h-meta-item">
+          <dt>{gettext("State")}</dt>
+          <dd>
+            <%= if is_nil(@incident.resolved_at) do %>
+              <span class="h-badge h-badge-danger">{gettext("Open")}</span>
+            <% else %>
+              <span class="h-badge h-badge-neutral">{gettext("Resolved")}</span>
+            <% end %>
+          </dd>
+        </div>
+        <div class="h-meta-item">
+          <dt>{gettext("Started At")}</dt>
+          <dd>
+            <time
+              datetime={DateTime.to_iso8601(@incident.started_at)}
+              data-role="incident-started-at"
+            >
+              {format_datetime(@incident.started_at, @timezone)}
+            </time>
+          </dd>
+        </div>
+        <%= if @incident.resolved_at do %>
+          <div class="h-meta-item">
+            <dt>{gettext("Resolved At")}</dt>
+            <dd>
+              <time datetime={DateTime.to_iso8601(@incident.resolved_at)}>
+                {format_datetime(@incident.resolved_at, @timezone)}
+              </time>
+            </dd>
+          </div>
+          <div class="h-meta-item">
+            <dt>{gettext("Duration")}</dt>
+            <dd>{div(@incident.duration_seconds || 0, 60)} {gettext("min")}</dd>
+          </div>
+        <% end %>
+      </dl>
+
+      <%= if @incident.root_cause do %>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Root Cause")}</h3>
+          <pre data-role="incident-root-cause">{@incident.root_cause}</pre>
+        </section>
+      <% end %>
+
+      <%= if @incident.monitor_snapshot do %>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Monitor Snapshot")}</h3>
+          <.monitor_snapshot snapshot={@incident.monitor_snapshot} />
+        </section>
+      <% end %>
+
+      <%= if @logs != [] do %>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Associated Logs")}</h3>
+          <%= if @logs_total > length(@logs) do %>
+            <p class="h-text-muted h-text-sm h-mb-2">
+              {gettext("Showing last 10 of %{total} associated logs.", total: @logs_total)}
+            </p>
+          <% end %>
+          <ul class="h-incident-logs-list">
+            <%= for log <- @logs do %>
+              <li class="h-incident-log-row">
+                <.status_pill status={log.status} status_code={log.status_code} />
+                <time
+                  datetime={DateTime.to_iso8601(log.checked_at)}
+                  class="h-incident-log-date h-font-mono h-text-sm h-text-muted"
+                >
+                  {format_datetime(log.checked_at, @timezone)}
+                </time>
+                <%= if log.latency_ms do %>
+                  <span class="h-text-sm h-text-muted">{log.latency_ms}ms</span>
+                <% end %>
+                <.link href={~p"/monitoring/logs/#{log.id}"} class="h-link h-text-sm">
+                  {gettext("View log")}
+                </.link>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+    </div>
+  </article>
+</.monitor_page_container>

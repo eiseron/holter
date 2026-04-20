@@ -1,32 +1,43 @@
 <.monitor_page_container>
   <:title>
-    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} />
     {gettext("Log Details")}
   </:title>
   <:subtitle>
     <span class="h-text-muted h-font-mono">{@monitor.url}</span>
   </:subtitle>
 
-  <div class="h-log-detail-content">
+  <.monitor_subnav monitor_id={@monitor.id} current_page={:log_detail} />
+
+  <article class="h-log-detail-content">
     <div class="h-evidence-grid">
-      <div class="h-evidence-meta">
+      <dl class="h-evidence-meta">
         <div class="h-meta-item">
-          <label>{gettext("Status")}</label>
-          <.status_pill status={@log.status} status_code={@log.status_code} />
+          <dt>{gettext("Status")}</dt>
+          <dd><.status_pill status={@log.status} status_code={@log.status_code} /></dd>
         </div>
         <div class="h-meta-item">
-          <label>{gettext("Latency")}</label>
-          <span>{@log.latency_ms}ms</span>
+          <dt>{gettext("Latency")}</dt>
+          <dd>{@log.latency_ms}ms</dd>
         </div>
         <div class="h-meta-item">
-          <label>{gettext("Region")}</label>
-          <span>{@log.region}</span>
+          <dt>{gettext("Region")}</dt>
+          <dd>{@log.region}</dd>
         </div>
-      </div>
+        <%= if @log.incident_id do %>
+          <div class="h-meta-item">
+            <dt>{gettext("Incident")}</dt>
+            <dd>
+              <.link href={~p"/monitoring/incidents/#{@log.incident_id}"} class="h-link">
+                {gettext("View incident")}
+              </.link>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
 
       <%= if (@log.redirect_count || 0) > 0 do %>
-        <div class="h-evidence-block">
-          <label>{gettext("Redirect Chain")}</label>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Redirect Chain")}</h3>
           <ol class="h-redirect-chain">
             <%= for {hop, index} <- Enum.with_index(@log.redirect_list || [], 1) do %>
               <li class="h-redirect-hop">
@@ -43,7 +54,7 @@
               </li>
             <% end %>
           </ol>
-        </div>
+        </section>
       <% end %>
 
       <%= if @evidence_inherited do %>
@@ -68,41 +79,41 @@
       <% end %>
 
       <%= if @log.error_message do %>
-        <div class="h-evidence-block h-evidence-error">
+        <section class="h-evidence-block h-evidence-error">
           <%= if is_nil(@log.status_code) do %>
-            <label>{gettext("Network Error")}</label>
+            <h3 class="h-evidence-block-title">{gettext("Network Error")}</h3>
             <p class="h-text-muted h-text-sm">
               {gettext(
                 "The connection failed before a response was received (no HTTP status code)."
               )}
             </p>
           <% else %>
-            <label>{gettext("Error Message")}</label>
+            <h3 class="h-evidence-block-title">{gettext("Error Message")}</h3>
           <% end %>
           <pre>{@log.error_message}</pre>
-        </div>
+        </section>
       <% end %>
 
       <%= if @formatted_headers do %>
-        <div class="h-evidence-block">
-          <label>{gettext("Response Headers")}</label>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Response Headers")}</h3>
           <pre>{@formatted_headers}</pre>
-        </div>
+        </section>
       <% end %>
 
       <%= if @formatted_snippet do %>
-        <div class="h-evidence-block">
-          <label>{gettext("Content Snippet")}</label>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Content Snippet")}</h3>
           <pre class="h-snippet-content">{@formatted_snippet}</pre>
-        </div>
+        </section>
       <% end %>
 
       <%= if @log.monitor_snapshot do %>
-        <div class="h-evidence-block">
-          <label>{gettext("Monitor Configuration")}</label>
+        <section class="h-evidence-block">
+          <h3 class="h-evidence-block-title">{gettext("Monitor Configuration")}</h3>
           <.monitor_snapshot snapshot={@log.monitor_snapshot} />
-        </div>
+        </section>
       <% end %>
     </div>
-  </div>
+  </article>
 </.monitor_page_container>

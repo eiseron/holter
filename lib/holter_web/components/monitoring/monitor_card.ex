@@ -32,6 +32,13 @@ defmodule HolterWeb.Components.Monitoring.MonitorCard do
         <span class="h-text-xs h-font-mono h-opacity-40">
           {@monitor.id |> String.slice(0..7)}
         </span>
+        <span
+          :if={@monitor.open_incidents_count > 0}
+          class={"h-text-xs h-font-mono h-text-status-#{@monitor.health_status}"}
+          data-role="open-incidents-count"
+        >
+          {ngettext("1 incident", "%{count} incidents", @monitor.open_incidents_count)}
+        </span>
         <.link
           navigate={@detail_url}
           class="h-text-sky-400 h-text-sm h-font-semibold h-hover-underline"

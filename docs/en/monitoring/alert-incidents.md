@@ -52,9 +52,11 @@ Opened when an SSL certificate check detects a problem:
 | Root Cause | Resulting Health |
 |------------|-----------------|
 | Certificate expired | COMPROMISED |
-| Critical expiry warning | COMPROMISED |
+| Expiry within 7 days (Critical) | COMPROMISED |
 | SSL connection error | COMPROMISED |
-| Other (e.g. approaching expiry) | DEGRADED |
+| Expiry within 15 days (Warning) | DEGRADED |
+
+SSL expiry incidents are suppressed entirely when the **Ignore SSL Errors** toggle is enabled on the monitor. Any open SSL expiry incident is resolved the next time a check runs after the toggle is saved. See [Monitor Settings](monitor-settings.md#ssl-ignore).
 
 ## Health Recalculation
 
@@ -70,6 +72,9 @@ The final `health_status` is whichever of these two signals has the higher sever
 Monitors are ranked on the Dashboard so the most actionable items appear first:
 
 1. Active monitors ordered by severity (DOWN → COMPROMISED → DEGRADED → UP → UNKNOWN)
-2. Paused monitors (always last, regardless of their health status)
+2. Within the same severity tier, monitors with more open incidents rank higher
+3. Paused monitors (always last, regardless of their health status)
 
-Within the same severity tier, more recently created monitors appear above older ones.
+## Incident History
+
+Every incident is permanently recorded and accessible from the [Incident History](incidents.md) page. The history can be filtered by type, state (open or resolved), and date range. Each entry links to an [Incident Detail](incident-detail.md) page that shows the full root cause and the monitor snapshot captured when the incident was opened.

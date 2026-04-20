@@ -31,7 +31,16 @@ defmodule HolterWeb.ConnCase do
   end
 
   setup tags do
-    Holter.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    alias Phoenix.Ecto.SQL.Sandbox, as: SqlSandbox
+
+    pid = Holter.DataCase.setup_sandbox(tags)
+    metadata = SqlSandbox.metadata_for(Holter.Repo, pid)
+    encoded = SqlSandbox.encode_metadata(metadata)
+
+    conn =
+      Phoenix.ConnTest.build_conn()
+      |> Plug.Conn.put_req_header("user-agent", encoded)
+
+    {:ok, conn: conn}
   end
 end

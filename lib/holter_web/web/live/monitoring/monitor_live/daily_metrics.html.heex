@@ -1,18 +1,18 @@
 <.monitor_page_container>
   <:title>
-    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
     {gettext("Daily Uptime History")}
   </:title>
   <:subtitle>
     <span class="h-text-muted h-font-mono">{@monitor.url}</span>
   </:subtitle>
-  <:actions>
-    <.link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} class="h-btn h-btn-soft">
-      {gettext("View Technical Logs")}
-    </.link>
-  </:actions>
 
-  <.daily_metrics_chart monitor_id={@monitor.id} metrics={@metrics} />
+  <.monitor_subnav monitor_id={@monitor.id} current_page={:daily_metrics} />
+
+  <.daily_metrics_chart
+    :if={not Enum.empty?(@metrics)}
+    monitor_id={@monitor.id}
+    metrics={@metrics}
+  />
 
   <div class="h-mt-6">
     <.empty_state :if={Enum.empty?(@metrics)} class="h-empty-state">

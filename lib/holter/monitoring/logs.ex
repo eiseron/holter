@@ -113,6 +113,22 @@ defmodule Holter.Monitoring.Logs do
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
+  @incident_logs_preview_limit 10
+
+  def list_logs_by_incident(incident_id) do
+    MonitorLog
+    |> where([l], l.incident_id == ^incident_id)
+    |> order_by([l], desc: l.checked_at)
+    |> limit(@incident_logs_preview_limit)
+    |> Repo.all()
+  end
+
+  def count_logs_by_incident(incident_id) do
+    MonitorLog
+    |> where([l], l.incident_id == ^incident_id)
+    |> Repo.aggregate(:count, :id)
+  end
+
   def find_nearest_technical_log(monitor_id, log) do
     from(l in MonitorLog,
       where: l.monitor_id == ^monitor_id,

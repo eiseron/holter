@@ -98,7 +98,7 @@ defmodule HolterWeb do
 
       unquote(html_helpers())
 
-      import HolterWeb.Timezone, only: [format_datetime: 2]
+      import HolterWeb.Timezone, only: [format_datetime: 2, short_cause: 1]
       import HolterWeb.Components.Monitoring.MonitorPageContainer
       import HolterWeb.Components.Monitoring.DashboardHeader
       import HolterWeb.Components.Monitoring.MonitorCard
@@ -111,6 +111,7 @@ defmodule HolterWeb do
       import HolterWeb.Components.Monitoring.MonitorOverviewChart
       import HolterWeb.Components.Monitoring.LogsScatterChart
       import HolterWeb.Components.Monitoring.DailyMetricsChart
+      import HolterWeb.Components.Monitoring.MonitorSubnav
     end
   end
 

@@ -2,6 +2,45 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
   use Holter.DataCase, async: true
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Monitors
+
+  describe "status_severity/1" do
+    test ":down has severity 4" do
+      assert Monitors.status_severity(:down) == 4
+    end
+
+    test ":compromised has severity 3" do
+      assert Monitors.status_severity(:compromised) == 3
+    end
+
+    test ":degraded has severity 2" do
+      assert Monitors.status_severity(:degraded) == 2
+    end
+
+    test ":up has severity 1" do
+      assert Monitors.status_severity(:up) == 1
+    end
+
+    test ":unknown has severity 0" do
+      assert Monitors.status_severity(:unknown) == 0
+    end
+
+    test ":down outranks :compromised" do
+      assert Monitors.status_severity(:down) > Monitors.status_severity(:compromised)
+    end
+
+    test ":compromised outranks :degraded" do
+      assert Monitors.status_severity(:compromised) > Monitors.status_severity(:degraded)
+    end
+
+    test ":degraded outranks :up" do
+      assert Monitors.status_severity(:degraded) > Monitors.status_severity(:up)
+    end
+
+    test ":up outranks :unknown" do
+      assert Monitors.status_severity(:up) > Monitors.status_severity(:unknown)
+    end
+  end
 
   setup do
     monitor =

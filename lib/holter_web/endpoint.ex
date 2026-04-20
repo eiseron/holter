@@ -24,6 +24,10 @@ defmodule HolterWeb.Endpoint do
     only: HolterWeb.static_paths(),
     raise_on_missing_only: code_reloading?
 
+  if Application.compile_env(:holter, :sql_sandbox) do
+    plug Phoenix.Ecto.SQL.Sandbox
+  end
+
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader

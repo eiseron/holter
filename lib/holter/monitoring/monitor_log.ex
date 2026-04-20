@@ -16,12 +16,13 @@ defmodule Holter.Monitoring.MonitorLog do
     field :redirect_count, :integer
     field :last_redirect_url, :string
     field :redirect_list, {:array, :map}, default: []
-    field :checked_at, :utc_datetime
+    field :checked_at, :utc_datetime_usec
     field :monitor_snapshot, :map
 
     belongs_to :monitor, Holter.Monitoring.Monitor
+    belongs_to :incident, Holter.Monitoring.Incident
 
-    timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
@@ -41,7 +42,8 @@ defmodule Holter.Monitoring.MonitorLog do
       :last_redirect_url,
       :redirect_list,
       :checked_at,
-      :monitor_snapshot
+      :monitor_snapshot,
+      :incident_id
     ])
     |> validate_required([:monitor_id, :status, :checked_at])
   end

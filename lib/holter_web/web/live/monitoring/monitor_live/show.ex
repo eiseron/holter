@@ -19,6 +19,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       |> assign(:workspace, workspace)
       |> assign(:monitor, hydrated_monitor)
       |> assign(:chart_logs, Monitoring.list_recent_logs_for_chart(id))
+      |> assign(:active_incidents, Monitoring.list_open_incidents(id))
       |> assign(:page_title, gettext("Monitor Details"))
       |> assign(:form, to_form(changeset))
       |> assign_cooldown(monitor.last_manual_check_at)
@@ -100,6 +101,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
      socket
      |> assign(:monitor, hydrated_monitor)
      |> assign(:chart_logs, Monitoring.list_recent_logs_for_chart(monitor.id))
+     |> assign(:active_incidents, Monitoring.list_open_incidents(monitor.id))
      |> assign_cooldown(monitor.last_manual_check_at)}
   end
 
@@ -130,6 +132,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     assign(socket, :cooldown_remaining, remaining)
   end
+
+  def incident_type_to_status(:downtime), do: :down
+  def incident_type_to_status(:defacement), do: :compromised
+  def incident_type_to_status(:ssl_expiry), do: :degraded
+  def incident_type_to_status(_), do: :unknown
 
   defp hydrate_virtual_array_fields(%Monitor{} = monitor) do
     %{

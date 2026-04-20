@@ -1,0 +1,9 @@
+.h-font-bold     { font-weight: 700; }
+.h-font-semibold { font-weight: 600; }
+.h-font-mono     { font-family: var(--font-mono); }
+.h-text-xs       { font-size: var(--font-size-xs); }
+.h-text-sm       { font-size: var(--font-size-sm); }
+.h-text-lg       { font-size: var(--font-size-lg); }
+
+.h-truncate  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-max-w-xs  { max-width: 20rem; }

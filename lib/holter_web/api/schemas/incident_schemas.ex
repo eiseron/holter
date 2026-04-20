@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.IncidentSchemas do
   def all do
     %{
       "Incident" => incident(),
+      "IncidentResponse" => incident_response(),
       "IncidentList" => incident_list(),
       "Error" => error()
     }
@@ -33,15 +34,38 @@ defmodule HolterWeb.Api.IncidentSchemas do
     }
   end
 
-  def incident_list do
+  def incident_response do
     %Schema{
-      title: "IncidentList",
-      description: "A list of incidents ordered by start time descending.",
+      title: "IncidentResponse",
+      description: "Response body for a single incident.",
       type: :object,
       additionalProperties: false,
       properties: %{
-        data: %Schema{type: :array, items: incident()}
+        data: incident()
       }
+    }
+  end
+
+  def incident_list do
+    %Schema{
+      title: "IncidentList",
+      description: "A paginated list of incidents ordered by start time descending.",
+      type: :object,
+      additionalProperties: false,
+      properties: %{
+        data: %Schema{type: :array, items: incident()},
+        meta: %Schema{
+          type: :object,
+          additionalProperties: false,
+          properties: %{
+            page: %Schema{type: :integer},
+            page_size: %Schema{type: :integer},
+            total: %Schema{type: :integer}
+          },
+          required: [:page, :page_size, :total]
+        }
+      },
+      required: [:data, :meta]
     }
   end
 

@@ -30,5 +30,9 @@ defmodule Holter.Monitoring.Incident do
       :monitor_snapshot
     ])
     |> validate_required([:monitor_id, :type, :started_at])
+    |> unique_constraint([:monitor_id, :type],
+      where: "resolved_at IS NULL",
+      name: :unique_open_incident_per_type
+    )
   end
 end

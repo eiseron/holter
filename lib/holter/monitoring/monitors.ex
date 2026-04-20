@@ -2,7 +2,17 @@ defmodule Holter.Monitoring.Monitors do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Incidents, Monitor, Pagination, Workspace, Workspaces}
+
+  alias Holter.Monitoring.{
+    Broadcaster,
+    Incident,
+    Incidents,
+    Monitor,
+    Pagination,
+    Workspace,
+    Workspaces
+  }
+
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -34,8 +44,20 @@ defmodule Holter.Monitoring.Monitors do
       |> Enum.group_by(& &1.monitor_id)
       |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
 
+    incident_counts =
+      Incident
+      |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
+      |> group_by([i], i.monitor_id)
+      |> select([i], {i.monitor_id, count(i.id)})
+      |> Repo.all()
+      |> Map.new()
+
     Enum.map(monitors, fn monitor ->
-      %{monitor | logs: Map.get(logs_by_monitor, monitor.id, [])}
+      %{
+        monitor
+        | logs: Map.get(logs_by_monitor, monitor.id, []),
+          open_incidents_count: Map.get(incident_counts, monitor.id, 0)
+      }
     end)
   end
 
@@ -109,6 +131,11 @@ defmodule Holter.Monitoring.Monitors do
           ELSE 0
         END
         """),
+      desc:
+        fragment(
+          "(SELECT COUNT(*) FROM incidents WHERE incidents.monitor_id = ? AND incidents.resolved_at IS NULL)",
+          m.id
+        ),
       desc: m.inserted_at
     )
   end
@@ -169,7 +196,7 @@ defmodule Holter.Monitoring.Monitors do
   def enqueue_checks(%Monitor{} = monitor) do
     HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
 
-    if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
+    if String.starts_with?(monitor.url, "https") do
       SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
     end
 
@@ -177,17 +204,24 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
-    workspace = Repo.get!(Workspace, monitor.workspace_id)
+    proposed_checked_at = Map.get(attrs, :last_checked_at)
 
-    case monitor
-         |> Monitor.changeset(attrs, workspace)
-         |> Repo.update() do
-      {:ok, updated} ->
-        Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
-        {:ok, updated}
+    if proposed_checked_at && monitor.last_checked_at &&
+         DateTime.compare(monitor.last_checked_at, proposed_checked_at) == :gt do
+      {:ok, monitor}
+    else
+      workspace = Repo.get!(Workspace, monitor.workspace_id)
 
-      error ->
-        error
+      case monitor
+           |> Monitor.changeset(attrs, workspace)
+           |> Repo.update() do
+        {:ok, updated} ->
+          Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
+          {:ok, updated}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -282,20 +316,7 @@ defmodule Holter.Monitoring.Monitors do
     |> Enum.max_by(&status_severity/1, fn -> :up end)
   end
 
-  defp incident_to_health(%{type: :downtime}), do: :down
-  defp incident_to_health(%{type: :defacement}), do: :compromised
-
-  defp incident_to_health(%{type: :ssl_expiry, root_cause: rc}) do
-    cond do
-      is_nil(rc) -> :degraded
-      String.contains?(rc, "Critical") -> :compromised
-      String.contains?(rc, "expired") -> :compromised
-      String.contains?(rc, "SSL Error") -> :compromised
-      true -> :degraded
-    end
-  end
-
-  defp incident_to_health(_), do: :unknown
+  defp incident_to_health(incident), do: Incidents.incident_to_health(incident)
 
   defp status_from_latest_log(monitor_id) do
     log =

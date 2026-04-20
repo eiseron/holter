@@ -1,8 +1,12 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
   use HolterWeb.ConnCase
   import Phoenix.LiveViewTest
+  import Mox
   alias Holter.Monitoring
+  alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   use Oban.Testing, repo: Holter.Repo
+
+  setup :verify_on_exit!
 
   describe "Monitor LiveView Show/Edit User Flow" do
     @valid_attrs %{
@@ -258,11 +262,107 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       refute html =~ "PAUSED"
     end
 
+    test "Given a monitor with an active downtime incident, when page loads, then active incidents section is visible",
+         %{conn: conn, monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :downtime,
+        started_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "Active Incidents"
+    end
+
+    test "Given a monitor with no active incidents, when page loads, then active incidents section is not rendered",
+         %{conn: conn, monitor: monitor} do
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      refute html =~ "Active Incidents"
+    end
+
+    test "Given a monitor with an active incident, when page loads, then incident type is shown",
+         %{conn: conn, monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :ssl_expiry,
+        started_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+      assert html =~ "SSL EXPIRY"
+    end
+  end
+
+  describe "ssl_ignore: user disables SSL checks on a degraded monitor and triggers Run Now" do
+    setup %{conn: conn} do
+      monitor =
+        monitor_fixture(%{
+          url: "https://secure-service.local",
+          method: "get",
+          interval_seconds: 60,
+          logical_state: :active
+        })
+
+      {:ok, _} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :ssl_expiry,
+          started_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          root_cause: "Certificate expires in 8 days (Warning)"
+        })
+
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :degraded})
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      view
+      |> form("#monitor-form", monitor: %{ssl_ignore: true})
+      |> render_submit()
+
+      view |> element("button[phx-click=\"run_now\"]") |> render_click()
+
+      stub(Holter.Monitoring.MonitorClientMock, :request, fn _opts ->
+        {:ok, %Req.Response{status: 200, body: "ok", headers: []}}
+      end)
+
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(HTTPCheck, %{"id" => monitor.id})
+
+      %{monitor: monitor, view: view}
+    end
+
+    test "the ssl_expiry incident is resolved", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :ssl_expiry))
+    end
+
+    test "the monitor health_status is restored to :up", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+    end
+
+    test "the UI reflects the restored status", %{view: view} do
+      assert render(view) =~ "status-up"
+    end
+  end
+
+  describe "Monitor LiveView Show/Edit User Flow (continued)" do
+    @valid_attrs_2 %{
+      url: "https://example.local",
+      method: :get,
+      interval_seconds: 300,
+      timeout_seconds: 10,
+      ssl_ignore: false,
+      raw_keyword_positive: "success",
+      raw_keyword_negative: "hacked"
+    }
+
+    setup do
+      monitor = monitor_fixture(@valid_attrs_2)
+      workspace = Monitoring.get_workspace!(monitor.workspace_id)
+      %{monitor: monitor, workspace: workspace}
+    end
+
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
          %{conn: conn, monitor: monitor} do
-      import Mox
-      alias Holter.Monitoring.Workers.HTTPCheck
-
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :down})
 
       {:ok, view, _html} =

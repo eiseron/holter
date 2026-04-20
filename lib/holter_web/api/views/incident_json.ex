@@ -4,8 +4,15 @@ defmodule HolterWeb.Api.IncidentJSON do
   """
   alias Holter.Monitoring.Incident
 
-  def index(%{incidents: incidents}) do
-    %{data: for(incident <- incidents, do: data(incident))}
+  def index(%{result: %{data: incidents, meta: meta}}) do
+    %{
+      data: for(incident <- incidents, do: data(incident)),
+      meta: %{page: meta.page, page_size: meta.page_size, total: meta.total}
+    }
+  end
+
+  def show(%{incident: incident}) do
+    data(incident)
   end
 
   defp data(%Incident{} = incident) do

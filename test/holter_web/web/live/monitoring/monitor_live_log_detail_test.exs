@@ -139,6 +139,31 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogDetailTest do
     end
   end
 
+  describe "Log Detail incident link" do
+    setup do
+      %{monitor: monitor_fixture(%{url: "https://incident-link.local"})}
+    end
+
+    test "Given a log linked to an incident, when mounted, then a link to the incident detail is shown",
+         %{conn: conn, monitor: monitor} do
+      incident = incident_fixture(%{monitor_id: monitor.id, type: :downtime})
+      log = log_fixture(%{monitor_id: monitor.id, status: :down, incident_id: incident.id})
+
+      {:ok, lv, _html} = live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      assert has_element?(lv, "a[href='/monitoring/incidents/#{incident.id}']")
+    end
+
+    test "Given a log with no incident, when mounted, then no incident link is rendered",
+         %{conn: conn, monitor: monitor} do
+      log = log_fixture(%{monitor_id: monitor.id, status: :up, incident_id: nil})
+
+      {:ok, _lv, html} = live(conn, ~p"/monitoring/logs/#{log.id}")
+
+      refute html =~ "/monitoring/incidents/"
+    end
+  end
+
   describe "Log Detail inherited evidence" do
     test "Given a UP log with no payload and a prior log with payload, when mounted, then the inherited notice is shown",
          %{conn: conn} do

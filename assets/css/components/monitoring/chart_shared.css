@@ -1,5 +1,3 @@
-/* ── Shared SVG primitives ── */
-
 .chart-empty-line {
   fill: none;
   stroke: var(--color-monitor-border);
@@ -25,8 +23,6 @@
   font-size: 8px;
   fill: color-mix(in srgb, var(--color-monitor-text) 50%, transparent);
 }
-
-/* ── Chart Legend ── */
 
 .chart-legend {
   display: flex;

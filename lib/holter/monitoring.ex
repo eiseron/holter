@@ -27,15 +27,22 @@ defmodule Holter.Monitoring do
   defdelegate list_recent_logs_for_chart(monitor_id, hours \\ 24), to: Logs
   defdelegate get_monitor_log!(id), to: Logs
   defdelegate find_nearest_technical_log(monitor_id, log), to: Logs
+  defdelegate list_logs_by_incident(incident_id), to: Logs
+  defdelegate count_logs_by_incident(incident_id), to: Logs
   defdelegate create_monitor_log(attrs \\ %{}), to: Logs
 
+  defdelegate get_incident!(id), to: Incidents
+  defdelegate get_incident(id), to: Incidents
   defdelegate list_incidents(monitor_id), to: Incidents
+  defdelegate list_incidents_filtered(params), to: Incidents
   defdelegate get_open_incident(monitor_id), to: Incidents
   defdelegate get_open_incident(monitor_id, type), to: Incidents
   defdelegate list_open_incidents(monitor_id), to: Incidents
   defdelegate create_incident(attrs \\ %{}), to: Incidents
   defdelegate update_incident(incident, attrs), to: Incidents
   defdelegate resolve_incident(incident, resolved_at), to: Incidents
+  defdelegate incident_to_health(incident), to: Incidents
+  defdelegate open_incident_already_exists?(result), to: Incidents
 
   defdelegate list_daily_metrics(monitor_id, filters \\ %{}), to: Metrics
   defdelegate get_daily_metric(monitor_id, date), to: Metrics

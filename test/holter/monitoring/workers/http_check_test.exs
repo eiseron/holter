@@ -76,8 +76,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
-    test "records keyword validation error message", %{monitor: monitor} do
-      assert [%{error_message: "Missing required keywords"}] =
+    test "records keyword validation error message including the missing keyword name", %{
+      monitor: monitor
+    } do
+      assert [%{error_message: "Missing required keywords: \"success\""}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end
@@ -88,8 +90,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       :ok = perform_job(HTTPCheck, job_args(monitor))
     end
 
-    test "records forbidden keyword error message", %{monitor: monitor} do
-      assert [%{error_message: "Found forbidden keywords"}] =
+    test "records forbidden keyword error message including the matched keyword name", %{
+      monitor: monitor
+    } do
+      assert [%{error_message: "Found forbidden keywords: \"error\""}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
     end
   end

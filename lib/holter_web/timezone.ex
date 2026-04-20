@@ -33,4 +33,13 @@ defmodule HolterWeb.Timezone do
   def valid_timezone?(tz) do
     match?({:ok, _}, DateTime.shift_zone(DateTime.utc_now(), tz))
   end
+
+  def short_cause(nil), do: nil
+
+  def short_cause(cause) do
+    case String.split(cause, ": ", parts: 2) do
+      [prefix, _detail] -> prefix
+      _ -> cause
+    end
+  end
 end

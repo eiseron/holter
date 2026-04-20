@@ -67,6 +67,8 @@ defmodule Holter.Monitoring.Monitor do
     field :last_manual_check_at, :utc_datetime
     field :ssl_expires_at, :utc_datetime
 
+    field :open_incidents_count, :integer, virtual: true, default: 0
+
     belongs_to :workspace, Holter.Monitoring.Workspace
     has_many :daily_metrics, Holter.Monitoring.DailyMetric
     has_many :logs, Holter.Monitoring.MonitorLog
