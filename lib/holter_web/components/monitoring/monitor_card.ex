@@ -34,7 +34,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCard do
         </span>
         <span
           :if={@monitor.open_incidents_count > 0}
-          class="h-badge h-badge-danger h-text-xs"
+          class="h-text-xs h-font-mono h-opacity-40"
           data-role="open-incidents-count"
         >
           {ngettext("1 incident", "%{count} incidents", @monitor.open_incidents_count)}
