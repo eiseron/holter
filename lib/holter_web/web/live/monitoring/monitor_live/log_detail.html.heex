@@ -22,6 +22,14 @@
           <label>{gettext("Region")}</label>
           <span>{@log.region}</span>
         </div>
+        <%= if @log.incident_id do %>
+          <div class="h-meta-item">
+            <label>{gettext("Incident")}</label>
+            <.link href={~p"/monitoring/incidents/#{@log.incident_id}"} class="h-link">
+              {gettext("View incident")}
+            </.link>
+          </div>
+        <% end %>
       </div>
 
       <%= if (@log.redirect_count || 0) > 0 do %>
