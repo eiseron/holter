@@ -24,24 +24,38 @@ defmodule Holter.Delivery.NotificationChannelTest do
 
     test "is invalid without name" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{name: nil}))
+
+      changeset =
+        NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{name: nil}))
+
       assert "can't be blank" in errors_on(changeset).name
     end
 
     test "is invalid without type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: nil}))
+
+      changeset =
+        NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: nil}))
+
       assert "can't be blank" in errors_on(changeset).type
     end
 
     test "is invalid without target" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{target: nil}))
+
+      changeset =
+        NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{target: nil}))
+
       assert "can't be blank" in errors_on(changeset).target
     end
 
     test "is invalid without workspace_id" do
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(nil, %{workspace_id: nil}))
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(nil, %{workspace_id: nil})
+        )
+
       assert "can't be blank" in errors_on(changeset).workspace_id
     end
   end
@@ -52,14 +66,24 @@ defmodule Holter.Delivery.NotificationChannelTest do
 
       for type <- [:email, :webhook, :slack, :discord] do
         target = if type == :email, do: "user@example.com", else: "https://example.com/hook"
-        changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: type, target: target}))
-        assert changeset.valid?, "expected type #{type} to be valid, got: #{inspect(changeset.errors)}"
+
+        changeset =
+          NotificationChannel.changeset(
+            %NotificationChannel{},
+            valid_attrs(ws.id, %{type: type, target: target})
+          )
+
+        assert changeset.valid?,
+               "expected type #{type} to be valid, got: #{inspect(changeset.errors)}"
       end
     end
 
     test "rejects unknown channel type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :sms}))
+
+      changeset =
+        NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :sms}))
+
       assert "is invalid" in errors_on(changeset).type
     end
   end
@@ -67,25 +91,49 @@ defmodule Holter.Delivery.NotificationChannelTest do
   describe "changeset/2 — target URL validation for webhook/slack/discord" do
     test "rejects non-URL target for webhook type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :webhook, target: "not-a-url"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :webhook, target: "not-a-url"})
+        )
+
       assert "must be a valid http or https URL" in errors_on(changeset).target
     end
 
     test "rejects non-URL target for slack type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :slack, target: "plaintext"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :slack, target: "plaintext"})
+        )
+
       assert "must be a valid http or https URL" in errors_on(changeset).target
     end
 
     test "rejects non-URL target for discord type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :discord, target: "ftp://wrong.com"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :discord, target: "ftp://wrong.com"})
+        )
+
       assert "must be a valid http or https URL" in errors_on(changeset).target
     end
 
     test "accepts https URL for webhook type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :webhook, target: "https://example.com/webhook"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :webhook, target: "https://example.com/webhook"})
+        )
+
       assert changeset.valid?
     end
   end
@@ -93,19 +141,37 @@ defmodule Holter.Delivery.NotificationChannelTest do
   describe "changeset/2 — target email validation" do
     test "accepts valid email for email type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :email, target: "ops@example.com"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :email, target: "ops@example.com"})
+        )
+
       assert changeset.valid?
     end
 
     test "rejects invalid email for email type" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :email, target: "not-an-email"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :email, target: "not-an-email"})
+        )
+
       assert "must be a valid email address" in errors_on(changeset).target
     end
 
     test "rejects URL as email target" do
       ws = workspace_fixture()
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{type: :email, target: "https://example.com"}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{type: :email, target: "https://example.com"})
+        )
+
       assert "must be a valid email address" in errors_on(changeset).target
     end
   end
@@ -114,7 +180,13 @@ defmodule Holter.Delivery.NotificationChannelTest do
     test "rejects name longer than 255 characters" do
       ws = workspace_fixture()
       long_name = String.duplicate("a", 256)
-      changeset = NotificationChannel.changeset(%NotificationChannel{}, valid_attrs(ws.id, %{name: long_name}))
+
+      changeset =
+        NotificationChannel.changeset(
+          %NotificationChannel{},
+          valid_attrs(ws.id, %{name: long_name})
+        )
+
       assert "should be at most 255 character(s)" in errors_on(changeset).name
     end
   end

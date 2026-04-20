@@ -3,7 +3,8 @@ defmodule Holter.Repo.Migrations.CreateMonitorNotifications do
 
   def change do
     create table(:monitor_notifications, primary_key: false) do
-      add :monitor_id, references(:monitors, type: :binary_id, on_delete: :delete_all), null: false
+      add :monitor_id, references(:monitors, type: :binary_id, on_delete: :delete_all),
+        null: false
 
       add :notification_channel_id,
           references(:notification_channels, type: :binary_id, on_delete: :delete_all),

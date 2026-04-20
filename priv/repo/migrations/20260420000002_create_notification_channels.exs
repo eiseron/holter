@@ -4,7 +4,9 @@ defmodule Holter.Repo.Migrations.CreateNotificationChannels do
   def change do
     create table(:notification_channels, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :workspace_id, references(:workspaces, type: :binary_id, on_delete: :delete_all), null: false
+
+      add :workspace_id, references(:workspaces, type: :binary_id, on_delete: :delete_all),
+        null: false
 
       add :name, :string, null: false
       add :type, :string, null: false
