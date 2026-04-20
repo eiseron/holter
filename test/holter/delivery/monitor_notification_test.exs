@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.MonitorNotificationTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery.MonitorNotification
+  alias Holter.Delivery.{MonitorNotification, NotificationChannel}
 
   defp valid_attrs(monitor_id, channel_id, overrides \\ %{}) do
     Map.merge(%{monitor_id: monitor_id, notification_channel_id: channel_id}, overrides)
@@ -9,16 +9,13 @@ defmodule Holter.Delivery.MonitorNotificationTest do
 
   defp channel_fixture(workspace_id) do
     {:ok, channel} =
-      Holter.Delivery.NotificationChannel.changeset(
-        %Holter.Delivery.NotificationChannel{},
-        %{
-          workspace_id: workspace_id,
-          name: "Test Webhook",
-          type: :webhook,
-          target: "https://example.com/hook"
-        }
-      )
-      |> Holter.Repo.insert()
+      NotificationChannel.changeset(%NotificationChannel{}, %{
+        workspace_id: workspace_id,
+        name: "Test Webhook",
+        type: :webhook,
+        target: "https://example.com/hook"
+      })
+      |> Repo.insert()
 
     channel
   end
@@ -28,20 +25,29 @@ defmodule Holter.Delivery.MonitorNotificationTest do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       channel = channel_fixture(ws.id)
-      changeset = MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, channel.id))
+
+      changeset =
+        MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, channel.id))
+
       assert changeset.valid?
     end
 
     test "is invalid without monitor_id" do
       ws = workspace_fixture()
       channel = channel_fixture(ws.id)
-      changeset = MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(nil, channel.id))
+
+      changeset =
+        MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(nil, channel.id))
+
       assert "can't be blank" in errors_on(changeset).monitor_id
     end
 
     test "is invalid without notification_channel_id" do
       monitor = monitor_fixture()
-      changeset = MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, nil))
+
+      changeset =
+        MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, nil))
+
       assert "can't be blank" in errors_on(changeset).notification_channel_id
     end
   end
@@ -51,7 +57,10 @@ defmodule Holter.Delivery.MonitorNotificationTest do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       channel = channel_fixture(ws.id)
-      changeset = MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, channel.id))
+
+      changeset =
+        MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, channel.id))
+
       assert get_field(changeset, :is_active) == true
     end
 
@@ -59,7 +68,13 @@ defmodule Holter.Delivery.MonitorNotificationTest do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       channel = channel_fixture(ws.id)
-      changeset = MonitorNotification.changeset(%MonitorNotification{}, valid_attrs(monitor.id, channel.id, %{is_active: false}))
+
+      changeset =
+        MonitorNotification.changeset(
+          %MonitorNotification{},
+          valid_attrs(monitor.id, channel.id, %{is_active: false})
+        )
+
       assert get_field(changeset, :is_active) == false
     end
   end

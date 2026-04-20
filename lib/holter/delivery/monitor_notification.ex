@@ -15,10 +15,19 @@ defmodule Holter.Delivery.MonitorNotification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [:monitor_id, :notification_channel_id, :is_active])
+    |> cast(attrs, [:monitor_id, :notification_channel_id, :is_active, :inserted_at])
     |> validate_required([:monitor_id, :notification_channel_id])
+    |> put_inserted_at()
     |> foreign_key_constraint(:monitor_id)
     |> foreign_key_constraint(:notification_channel_id)
     |> unique_constraint([:monitor_id, :notification_channel_id])
+  end
+
+  defp put_inserted_at(changeset) do
+    if get_field(changeset, :inserted_at) do
+      changeset
+    else
+      put_change(changeset, :inserted_at, DateTime.utc_now() |> DateTime.truncate(:second))
+    end
   end
 end

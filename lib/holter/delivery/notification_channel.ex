@@ -36,29 +36,33 @@ defmodule Holter.Delivery.NotificationChannel do
 
   defp validate_target_format(changeset) do
     case get_field(changeset, :type) do
-      type when type in [:webhook, :slack, :discord] ->
-        validate_change(changeset, :target, fn :target, target ->
-          case URI.parse(target) do
-            %URI{scheme: scheme, host: host}
-            when scheme in ["http", "https"] and not is_nil(host) ->
-              []
+      type when type in [:webhook, :slack, :discord] -> validate_target_url(changeset)
+      :email -> validate_target_email(changeset)
+      _ -> changeset
+    end
+  end
 
-            _ ->
-              [target: "must be a valid http or https URL"]
-          end
-        end)
+  defp validate_target_url(changeset) do
+    validate_change(changeset, :target, fn :target, target ->
+      if valid_http_url?(target), do: [], else: [target: "must be a valid http or https URL"]
+    end)
+  end
 
-      :email ->
-        validate_change(changeset, :target, fn :target, target ->
-          if String.match?(target, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/) do
-            []
-          else
-            [target: "must be a valid email address"]
-          end
-        end)
+  defp validate_target_email(changeset) do
+    validate_change(changeset, :target, fn :target, target ->
+      if String.match?(target, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+        do: [],
+        else: [target: "must be a valid email address"]
+    end)
+  end
+
+  defp valid_http_url?(target) do
+    case URI.parse(target) do
+      %URI{scheme: scheme, host: host} when scheme in ["http", "https"] and not is_nil(host) ->
+        true
 
       _ ->
-        changeset
+        false
     end
   end
 end
