@@ -144,4 +144,88 @@ defmodule Holter.Monitoring.AggregatorTest do
       assert Decimal.to_float(metric.uptime_percent) == 0.0
     end
   end
+
+  describe "fetch_aggregation_data/2 (via aggregate_monitor_date)" do
+    setup do
+      workspace = workspace_fixture()
+
+      {:ok, monitor} =
+        Monitoring.create_monitor(%{
+          url: "https://example.com",
+          method: :get,
+          interval_seconds: 60,
+          timeout_seconds: 30,
+          workspace_id: workspace.id
+        })
+
+      Repo.query!("UPDATE monitors SET inserted_at = $1 WHERE id = $2", [
+        DateTime.new!(~D[2026-01-01], ~T[00:00:00], "Etc/UTC"),
+        Ecto.UUID.dump!(monitor.id)
+      ])
+
+      %{monitor: Monitoring.get_monitor!(monitor.id)}
+    end
+
+    test "incidents list is shared — single DB fetch covers both downtime fields", %{
+      monitor: monitor
+    } do
+      date = ~D[2026-04-01]
+      incident_start = DateTime.new!(date, ~T[12:00:00], "Etc/UTC")
+
+      {:ok, incident} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :downtime,
+          started_at: incident_start
+        })
+
+      Monitoring.resolve_incident(incident, DateTime.add(incident_start, 600))
+
+      {:ok, metric} = Aggregator.aggregate_monitor_date(monitor.id, date)
+
+      assert metric.total_downtime_minutes == 10
+    end
+  end
+
+  describe "downtime boundary capping" do
+    setup do
+      workspace = workspace_fixture()
+
+      {:ok, monitor} =
+        Monitoring.create_monitor(%{
+          url: "https://example.com",
+          method: :get,
+          interval_seconds: 60,
+          timeout_seconds: 30,
+          workspace_id: workspace.id
+        })
+
+      Repo.query!("UPDATE monitors SET inserted_at = $1 WHERE id = $2", [
+        DateTime.new!(~D[2026-01-01], ~T[00:00:00], "Etc/UTC"),
+        Ecto.UUID.dump!(monitor.id)
+      ])
+
+      %{monitor: Monitoring.get_monitor!(monitor.id)}
+    end
+
+    test "counts only the overlap within the window for incidents starting before day start", %{
+      monitor: monitor
+    } do
+      date = ~D[2026-04-02]
+      incident_start = DateTime.new!(~D[2026-04-01], ~T[23:30:00], "Etc/UTC")
+
+      {:ok, incident} =
+        Monitoring.create_incident(%{
+          monitor_id: monitor.id,
+          type: :downtime,
+          started_at: incident_start
+        })
+
+      Monitoring.resolve_incident(incident, DateTime.new!(date, ~T[00:30:00], "Etc/UTC"))
+
+      {:ok, metric} = Aggregator.aggregate_monitor_date(monitor.id, date)
+
+      assert metric.total_downtime_minutes == 30
+    end
+  end
 end
