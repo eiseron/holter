@@ -37,15 +37,13 @@ defmodule HolterWeb.Router do
       resources "/monitors", MonitorController, only: [:index, :create]
     end
 
-    resources "/monitors", MonitorController, except: [:index, :create, :new, :edit]
-
-    resources "/incidents", IncidentController, only: [:show]
-
-    scope "/monitors/:monitor_id" do
+    resources "/monitors", MonitorController, except: [:index, :create, :new, :edit] do
       resources "/logs", MonitorLogController, only: [:index, :show]
       resources "/daily_metrics", DailyMetricController, only: [:index]
       resources "/incidents", IncidentController, only: [:index]
     end
+
+    resources "/incidents", IncidentController, only: [:show]
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
@@ -58,10 +56,13 @@ defmodule HolterWeb.Router do
   scope "/monitoring", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
-    live "/monitor/:id", MonitorLive.Show, :show
-    live "/monitor/:id/logs", MonitorLive.Logs, :index
-    live "/monitor/:id/daily_metrics", MonitorLive.DailyMetrics, :index
-    live "/monitor/:id/incidents", MonitorLive.Incidents, :index
+    scope "/monitor/:id" do
+      live "/", MonitorLive.Show, :show
+      live "/logs", MonitorLive.Logs, :index
+      live "/daily_metrics", MonitorLive.DailyMetrics, :index
+      live "/incidents", MonitorLive.Incidents, :index
+    end
+
     live "/incidents/:incident_id", MonitorLive.IncidentDetail, :show
     live "/logs/:log_id", MonitorLive.LogDetail, :show
   end
