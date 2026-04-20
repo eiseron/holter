@@ -226,6 +226,96 @@ defmodule Holter.Monitoring.Engine.ResponseValidatorTest do
     end
   end
 
+  describe "binary_content?/1" do
+    test "returns true for body containing a null byte" do
+      assert ResponseValidator.binary_content?("\0hello")
+    end
+
+    test "returns true for invalid UTF-8 bytes" do
+      assert ResponseValidator.binary_content?(<<195, 40>>)
+    end
+
+    test "returns false for a valid UTF-8 string" do
+      refute ResponseValidator.binary_content?("hello world")
+    end
+
+    test "returns false for an empty string" do
+      refute ResponseValidator.binary_content?("")
+    end
+
+    test "returns false for non-binary value" do
+      refute ResponseValidator.binary_content?(nil)
+    end
+  end
+
+  describe "validate_response/3 with liar content-type (binary body)" do
+    defp binary_monitor(overrides \\ %{}) do
+      Map.merge(
+        %{
+          health_status: :up,
+          keyword_positive: ["expected"],
+          keyword_negative: ["hacked"],
+          body: nil,
+          method: "get",
+          headers: %{}
+        },
+        overrides
+      )
+    end
+
+    defp binary_response(body, content_type) do
+      %{
+        status: 200,
+        headers: [{"content-type", content_type}],
+        body: body
+      }
+    end
+
+    defp binary_meta, do: %{duration_ms: 50, ip: "1.2.3.4"}
+
+    test "positive_ok is true for binary body declared as text/html (no false :down)" do
+      monitor = binary_monitor()
+      response = binary_response(<<0, 1, 2, 3>>, "text/html")
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      assert result.check_status == :up
+    end
+
+    test "negative_ok is true for binary body declared as text/html (no false :compromised)" do
+      monitor = binary_monitor(%{keyword_positive: nil})
+      response = binary_response(<<0, 1, 2, 3>>, "text/html")
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      refute result.check_status == :compromised
+    end
+
+    test "defacement_in_body is false for binary body" do
+      monitor = binary_monitor(%{keyword_positive: nil, keyword_negative: nil})
+      response = binary_response(<<0, 1, 2, 3>>, "text/html")
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      refute result.defacement_in_body
+    end
+
+    test "binary body declared as application/json skips keyword validation" do
+      monitor = binary_monitor()
+      response = binary_response(<<0, 1, 2>>, "application/json")
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      assert result.check_status == :up
+    end
+
+    test "null-byte body declared as text/plain skips keyword validation" do
+      monitor = binary_monitor()
+      response = binary_response("hello\0world", "text/plain")
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      assert result.check_status == :up
+    end
+
+    test "HTTP status still determines check_status for binary body (500 → :down)" do
+      monitor = binary_monitor(%{keyword_positive: nil, keyword_negative: nil})
+      response = binary_response(<<0, 1, 2>>, "text/html") |> Map.put(:status, 500)
+      result = ResponseValidator.validate_response(monitor, response, binary_meta())
+      assert result.check_status == :down
+    end
+  end
+
   describe "maybe_collect_evidence/3" do
     test "returns nil snippet when check status equals monitor health_status" do
       monitor = %{health_status: :up}
