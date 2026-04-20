@@ -233,13 +233,20 @@ defmodule Holter.Monitoring.SecurityScannerTest do
       SecurityScanner.process_ssl(monitor, expiry)
       ssl_incident = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
 
-      response = %Req.Response{status: 500, body: "Error", headers: [{"content-type", "text/plain"}]}
+      response = %Req.Response{
+        status: 500,
+        body: "Error",
+        headers: [{"content-type", "text/plain"}]
+      }
+
       Holter.Monitoring.Engine.process_response(monitor, response, %{duration_ms: 50})
 
       %{ssl_incident: ssl_incident}
     end
 
-    test "ssl incident retains its log when a downtime incident opens later", %{ssl_incident: ssl_incident} do
+    test "ssl incident retains its log when a downtime incident opens later", %{
+      ssl_incident: ssl_incident
+    } do
       assert length(Logs.list_logs_by_incident(ssl_incident.id)) >= 1
     end
   end
