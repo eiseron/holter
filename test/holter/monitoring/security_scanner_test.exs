@@ -2,6 +2,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
   use Holter.DataCase, async: true
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Engine
   alias Holter.Monitoring.Logs
   alias Holter.Monitoring.SecurityScanner
 
@@ -163,7 +164,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "ssl_expiry incident has at least one linked log immediately", %{incident: incident} do
-      assert length(Logs.list_logs_by_incident(incident.id)) >= 1
+      assert Logs.list_logs_by_incident(incident.id) != []
     end
 
     test "linked log has status :degraded", %{incident: incident} do
@@ -197,7 +198,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "ssl error incident has at least one linked log", %{incident: incident} do
-      assert length(Logs.list_logs_by_incident(incident.id)) >= 1
+      assert Logs.list_logs_by_incident(incident.id) != []
     end
 
     test "ssl error log has status :compromised", %{incident: incident} do
@@ -218,7 +219,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "escalation produces a second log entry", %{incident: incident} do
-      assert length(Logs.list_logs_by_incident(incident.id)) >= 2
+      assert match?([_, _ | _], Logs.list_logs_by_incident(incident.id))
     end
 
     test "most recent log has status :compromised after escalation", %{incident: incident} do
@@ -239,7 +240,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
         headers: [{"content-type", "text/plain"}]
       }
 
-      Holter.Monitoring.Engine.process_response(monitor, response, %{duration_ms: 50})
+      Engine.process_response(monitor, response, %{duration_ms: 50})
 
       %{ssl_incident: ssl_incident}
     end
@@ -247,7 +248,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     test "ssl incident retains its log when a downtime incident opens later", %{
       ssl_incident: ssl_incident
     } do
-      assert length(Logs.list_logs_by_incident(ssl_incident.id)) >= 1
+      assert Logs.list_logs_by_incident(ssl_incident.id) != []
     end
   end
 end
