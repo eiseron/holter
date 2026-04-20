@@ -109,6 +109,48 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
   end
 
+  describe "when certificate expires in 7 days (Warning)" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(8, :day) |> DateTime.truncate(:second)
+      expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok
+    end
+
+    test "opens an ssl_expiry incident", %{monitor: monitor} do
+      assert %{type: :ssl_expiry} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
+    end
+
+    test "sets the root cause to Warning", %{monitor: monitor} do
+      assert %{root_cause: cause} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
+      assert cause =~ "Warning"
+    end
+
+    test "sets health_status to :degraded", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
+    end
+  end
+
+  describe "when user sets ssl_ignore after a 7-day warning incident" do
+    setup %{monitor: monitor} do
+      expiry = DateTime.utc_now() |> DateTime.add(8, :day) |> DateTime.truncate(:second)
+      expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+
+      {:ok, _} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok
+    end
+
+    test "the ssl_expiry incident is resolved", %{monitor: monitor} do
+      assert is_nil(Monitoring.get_open_incident(monitor.id, :ssl_expiry))
+    end
+
+    test "health_status is restored to :up", %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+    end
+  end
+
   describe "when a certificate is fixed after a failure" do
     setup %{monitor: monitor} do
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ ->
