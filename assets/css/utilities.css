@@ -63,6 +63,13 @@
 .h-link { color: var(--color-accent); text-decoration: underline; cursor: pointer; }
 .h-link:hover { opacity: 0.8; }
 
+/* ── Status text colors ──────────────────────────────── */
+.h-text-status-up          { color: var(--color-status-up-text); }
+.h-text-status-down        { color: var(--color-status-down-text); }
+.h-text-status-degraded    { color: var(--color-status-degraded-text); }
+.h-text-status-compromised { color: var(--color-status-compromised-text); }
+.h-text-status-unknown     { color: var(--color-status-unknown-text); }
+
 /* ── Grupo (hover em filho) ──────────────────────── */
 .h-group:hover .h-group-hover-opacity-70 { opacity: 0.7; }
 
