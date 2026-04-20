@@ -2,6 +2,7 @@
 @import "./variables.css";
 @import "./base.css";
 @import "./utilities.css";
+@import "./print.css";
 
 /* Global components */
 @import "./components/back_link.css";
@@ -34,55 +35,3 @@
 
 /* Global overrides for structural components */
 .hidden { display: none !important; }
-
-/* Print Optimization */
-@media print {
-  .h-header,
-  .h-header-nav-group,
-  .h-btn-back,
-  .h-actions-row,
-  .h-pagination,
-  .h-logs-filters,
-  button,
-  .h-btn:not(.h-btn-print-visible) {
-    display: none !important;
-  }
-
-  body {
-    background: var(--color-bg) !important;
-    color: var(--color-text) !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  .h-monitor-page-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-  }
-
-  .ovw-chart-container,
-  .h-table-container {
-    page-break-inside: avoid;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  svg {
-    max-width: 100% !important;
-  }
-
-  .h-text-muted {
-    color: var(--color-text-muted) !important;
-  }
-
-  .h-logs-table-container th:last-child,
-  .h-logs-table-container td:last-child {
-    display: none !important;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: transparent !important;
-  }
-}
