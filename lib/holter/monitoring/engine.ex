@@ -5,9 +5,12 @@ defmodule Holter.Monitoring.Engine do
   incident lifecycle, and monitor log creation.
   """
 
+  use Gettext, backend: HolterWeb.Gettext
+
   alias Holter.Monitoring
   alias Holter.Monitoring.{Incidents, Monitor, Monitors}
-  use Gettext, backend: HolterWeb.Gettext
+
+  @defacement_indicators ["hacked", "defaced", "owned by", "you've been pwned"]
 
   def process_response(monitor, response, metadata) do
     Logger.metadata(
@@ -26,6 +29,11 @@ defmodule Holter.Monitoring.Engine do
         validate_response(monitor, response, metadata)
       end
 
+    finalize_check(monitor, params)
+  end
+
+  def handle_failure(monitor, error, duration_ms) do
+    params = build_failure_params(error, duration_ms)
     finalize_check(monitor, params)
   end
 
@@ -99,11 +107,6 @@ defmodule Holter.Monitoring.Engine do
     else
       {nil, nil}
     end
-  end
-
-  def handle_failure(monitor, error, duration_ms) do
-    params = build_failure_params(error, duration_ms)
-    finalize_check(monitor, params)
   end
 
   defp build_failure_params(error, duration_ms) do
@@ -318,8 +321,6 @@ defmodule Holter.Monitoring.Engine do
   end
 
   defp record_monitor_log(attrs), do: Monitoring.create_monitor_log(attrs)
-
-  @defacement_indicators ["hacked", "defaced", "owned by", "you've been pwned"]
 
   defp detect_defacement_indicators(body) do
     lower = String.downcase(body)

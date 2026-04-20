@@ -6,9 +6,9 @@ defmodule Mix.Tasks.Holter.GenApiDocs do
   and runs `mix openapi.spec.yaml` for each entry.
   """
 
-  use Mix.Task
-
   @shortdoc "Generate OpenAPI YAML docs for all configured API modules"
+
+  use Mix.Task
 
   @impl Mix.Task
   def run(_args) do

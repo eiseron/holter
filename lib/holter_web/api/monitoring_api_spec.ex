@@ -2,6 +2,8 @@ defmodule HolterWeb.Api.MonitoringApiSpec do
   @moduledoc """
   OpenAPI 3.0 specification scoped to the Monitoring module.
   """
+  @behaviour OpenApiSpex.OpenApi
+
   alias HolterWeb.Api.{
     DailyMetricSchemas,
     IncidentSchemas,
@@ -12,8 +14,6 @@ defmodule HolterWeb.Api.MonitoringApiSpec do
 
   alias HolterWeb.Router
   alias OpenApiSpex.{Info, OpenApi, Paths, Server}
-
-  @behaviour OpenApi
 
   @impl OpenApi
   def spec do

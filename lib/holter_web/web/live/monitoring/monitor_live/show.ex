@@ -5,6 +5,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   alias Holter.Monitoring.Monitor
   alias HolterWeb.LiveView.PubSubSubscriptions
 
+  def incident_type_to_status(:downtime), do: :down
+  def incident_type_to_status(:defacement), do: :compromised
+  def incident_type_to_status(:ssl_expiry), do: :degraded
+  def incident_type_to_status(_), do: :unknown
+
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     PubSubSubscriptions.subscribe_to_monitor(socket, id)
@@ -132,11 +137,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     assign(socket, :cooldown_remaining, remaining)
   end
-
-  def incident_type_to_status(:downtime), do: :down
-  def incident_type_to_status(:defacement), do: :compromised
-  def incident_type_to_status(:ssl_expiry), do: :degraded
-  def incident_type_to_status(_), do: :unknown
 
   defp hydrate_virtual_array_fields(%Monitor{} = monitor) do
     %{

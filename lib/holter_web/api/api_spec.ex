@@ -5,6 +5,8 @@ defmodule HolterWeb.Api.ApiSpec do
   Aggregates all module specs and serves the development Swagger UI.
   For per-module specs see e.g. `HolterWeb.Api.MonitoringApiSpec`.
   """
+  @behaviour OpenApiSpex.OpenApi
+
   alias HolterWeb.Api.{
     DailyMetricSchemas,
     IncidentSchemas,
@@ -15,8 +17,6 @@ defmodule HolterWeb.Api.ApiSpec do
 
   alias HolterWeb.Router
   alias OpenApiSpex.{Info, OpenApi, Paths, Server}
-
-  @behaviour OpenApi
 
   @impl OpenApi
   def spec do

@@ -76,25 +76,6 @@ defmodule HolterWeb.Api.MonitorSchemas do
     }
   end
 
-  defp monitor_fields do
-    %{
-      url: %Schema{type: :string, format: :uri},
-      method: %Schema{
-        type: :string,
-        enum: ["get", "post", "put", "patch", "delete", "options", "head"]
-      },
-      interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
-      timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 30},
-      ssl_ignore: %Schema{type: :boolean, default: false},
-      follow_redirects: %Schema{type: :boolean, default: true},
-      max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},
-      raw_headers: %Schema{type: :string, nullable: true},
-      raw_keyword_positive: %Schema{type: :string, nullable: true},
-      raw_keyword_negative: %Schema{type: :string, nullable: true},
-      body: %Schema{type: :string, nullable: true}
-    }
-  end
-
   def monitor_create_request do
     %Schema{
       title: "MonitorCreateRequest",
@@ -157,6 +138,25 @@ defmodule HolterWeb.Api.MonitorSchemas do
       },
       required: [:error],
       additionalProperties: false
+    }
+  end
+
+  defp monitor_fields do
+    %{
+      url: %Schema{type: :string, format: :uri},
+      method: %Schema{
+        type: :string,
+        enum: ["get", "post", "put", "patch", "delete", "options", "head"]
+      },
+      interval_seconds: %Schema{type: :integer, minimum: 1, maximum: 86_400},
+      timeout_seconds: %Schema{type: :integer, minimum: 1, maximum: 30},
+      ssl_ignore: %Schema{type: :boolean, default: false},
+      follow_redirects: %Schema{type: :boolean, default: true},
+      max_redirects: %Schema{type: :integer, minimum: 1, maximum: 20, default: 5},
+      raw_headers: %Schema{type: :string, nullable: true},
+      raw_keyword_positive: %Schema{type: :string, nullable: true},
+      raw_keyword_negative: %Schema{type: :string, nullable: true},
+      body: %Schema{type: :string, nullable: true}
     }
   end
 end

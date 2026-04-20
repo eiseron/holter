@@ -34,12 +34,6 @@ defmodule Holter.Monitoring.Metrics do
     }
   end
 
-  defp apply_sort_order(query, sort_by, sort_dir) do
-    field = Map.get(@sortable_columns, to_string(sort_by || "date"), :date)
-    dir = if sort_dir == "asc", do: :asc, else: :desc
-    order_by(query, [m], [{^dir, field(m, ^field)}, desc: m.inserted_at])
-  end
-
   def get_daily_metric(monitor_id, date) do
     Repo.get_by(DailyMetric, monitor_id: monitor_id, date: date)
   end
@@ -58,5 +52,11 @@ defmodule Holter.Monitoring.Metrics do
       error ->
         error
     end
+  end
+
+  defp apply_sort_order(query, sort_by, sort_dir) do
+    field = Map.get(@sortable_columns, to_string(sort_by || "date"), :date)
+    dir = if sort_dir == "asc", do: :asc, else: :desc
+    order_by(query, [m], [{^dir, field(m, ^field)}, desc: m.inserted_at])
   end
 end

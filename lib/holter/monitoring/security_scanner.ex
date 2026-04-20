@@ -3,9 +3,10 @@ defmodule Holter.Monitoring.SecurityScanner do
   Logic for processing security-related checks like SSL expiration.
   """
 
+  use Gettext, backend: HolterWeb.Gettext
+
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
-  use Gettext, backend: HolterWeb.Gettext
 
   def process_ssl(monitor, expiration_date) do
     now = DateTime.utc_now()

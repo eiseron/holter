@@ -115,6 +115,15 @@ defmodule HolterWeb do
     end
   end
 
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: HolterWeb.Endpoint,
+        router: HolterWeb.Router,
+        statics: HolterWeb.static_paths()
+    end
+  end
+
   defp html_helpers do
     quote do
       import Phoenix.HTML
@@ -139,15 +148,6 @@ defmodule HolterWeb do
       alias Phoenix.LiveView.JS
 
       unquote(verified_routes())
-    end
-  end
-
-  def verified_routes do
-    quote do
-      use Phoenix.VerifiedRoutes,
-        endpoint: HolterWeb.Endpoint,
-        router: HolterWeb.Router,
-        statics: HolterWeb.static_paths()
     end
   end
 

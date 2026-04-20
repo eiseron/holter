@@ -1,12 +1,12 @@
 defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
   use HolterWeb.ConnCase
-  import Phoenix.LiveViewTest
   use Oban.Testing, repo: Holter.Repo
+  use Gettext, backend: HolterWeb.Gettext
+
+  import Phoenix.LiveViewTest
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
-
-  use Gettext, backend: HolterWeb.Gettext
 
   setup do
     monitor =

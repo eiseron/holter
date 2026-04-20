@@ -16,6 +16,9 @@ defmodule Holter.Monitoring.Monitors do
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
+  @max_page_size 100
+  @default_page_size 25
+
   def list_monitors do
     Repo.all(Monitor)
   end
@@ -79,9 +82,6 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  @max_page_size 100
-  @default_page_size 25
-
   def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
     page = Map.get(params, :page, 1) |> max(1)
@@ -105,6 +105,130 @@ defmodule Holter.Monitoring.Monitors do
       |> Repo.all()
 
     %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
+  end
+
+  def create_monitor(attrs \\ %{}) do
+    workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
+    logical_state = attrs[:logical_state] || attrs["logical_state"] || :active
+
+    with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
+         :ok <- check_monitor_quota(workspace, logical_state),
+         {:ok, {monitor, should_enqueue}} <- insert_with_budget(attrs, workspace) do
+      if should_enqueue, do: enqueue_checks(monitor)
+      Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
+      {:ok, monitor}
+    end
+  end
+
+  def enqueue_checks(%Monitor{} = monitor) do
+    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+
+    if String.starts_with?(monitor.url, "https") do
+      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+    end
+
+    :ok
+  end
+
+  def update_monitor(%Monitor{} = monitor, attrs) do
+    proposed_checked_at = Map.get(attrs, :last_checked_at)
+
+    if proposed_checked_at && monitor.last_checked_at &&
+         DateTime.compare(monitor.last_checked_at, proposed_checked_at) == :gt do
+      {:ok, monitor}
+    else
+      workspace = Repo.get!(Workspace, monitor.workspace_id)
+
+      case monitor
+           |> Monitor.changeset(attrs, workspace)
+           |> Repo.update() do
+        {:ok, updated} ->
+          Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
+          {:ok, updated}
+
+        error ->
+          error
+      end
+    end
+  end
+
+  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
+    query =
+      Monitor
+      |> where([m], m.workspace_id == ^ws_id)
+      |> where([m], m.logical_state != :archived)
+
+    query =
+      if exclude_monitor_id do
+        where(query, [m], m.id != ^exclude_monitor_id)
+      else
+        query
+      end
+
+    count = Repo.aggregate(query, :count, :id)
+    count >= max
+  end
+
+  def mark_manual_check_triggered(%Monitor{} = monitor) do
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
+
+    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      system_update_monitor(monitor, %{last_manual_check_at: now})
+    end
+  end
+
+  def delete_monitor(%Monitor{} = monitor) do
+    Repo.delete(monitor)
+  end
+
+  def change_monitor(%Monitor{} = monitor, attrs \\ %{}) do
+    Monitor.changeset(monitor, attrs)
+  end
+
+  def change_monitor(%Monitor{} = monitor, attrs, workspace) do
+    Monitor.changeset(monitor, attrs, workspace)
+  end
+
+  def recalculate_health_status(%Monitor{id: id}) do
+    monitor = get_monitor!(id)
+    log_status = status_from_latest_log(monitor.id)
+    open_incidents = Incidents.list_open_incidents(monitor.id)
+    incident_status = determine_incident_status(open_incidents)
+
+    new_status =
+      [log_status, incident_status]
+      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
+
+    if monitor.health_status != new_status do
+      system_update_monitor(monitor, %{health_status: new_status})
+    else
+      {:ok, monitor}
+    end
+  end
+
+  def status_severity(:down), do: 4
+  def status_severity(:compromised), do: 3
+  def status_severity(:degraded), do: 2
+  def status_severity(:up), do: 1
+  def status_severity(_), do: 0
+
+  def list_monitors_for_dispatch do
+    now = DateTime.utc_now()
+
+    Monitor
+    |> where([m], m.logical_state == :active)
+    |> where(
+      [m],
+      is_nil(m.last_checked_at) or
+        fragment(
+          "? + (? * interval '1 second') <= ?",
+          m.last_checked_at,
+          m.interval_seconds,
+          ^now
+        )
+    )
+    |> Repo.all()
   end
 
   defp maybe_filter_by(query, :logical_state, %{logical_state: state}) when not is_nil(state) do
@@ -138,19 +262,6 @@ defmodule Holter.Monitoring.Monitors do
         ),
       desc: m.inserted_at
     )
-  end
-
-  def create_monitor(attrs \\ %{}) do
-    workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
-    logical_state = attrs[:logical_state] || attrs["logical_state"] || :active
-
-    with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
-         :ok <- check_monitor_quota(workspace, logical_state),
-         {:ok, {monitor, should_enqueue}} <- insert_with_budget(attrs, workspace) do
-      if should_enqueue, do: enqueue_checks(monitor)
-      Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
-      {:ok, monitor}
-    end
   end
 
   defp insert_with_budget(attrs, workspace) do
@@ -188,38 +299,6 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  def enqueue_checks(%Monitor{} = monitor) do
-    HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
-
-    if String.starts_with?(monitor.url, "https") do
-      SSLCheck.new(%{"id" => monitor.id}) |> Oban.insert()
-    end
-
-    :ok
-  end
-
-  def update_monitor(%Monitor{} = monitor, attrs) do
-    proposed_checked_at = Map.get(attrs, :last_checked_at)
-
-    if proposed_checked_at && monitor.last_checked_at &&
-         DateTime.compare(monitor.last_checked_at, proposed_checked_at) == :gt do
-      {:ok, monitor}
-    else
-      workspace = Repo.get!(Workspace, monitor.workspace_id)
-
-      case monitor
-           |> Monitor.changeset(attrs, workspace)
-           |> Repo.update() do
-        {:ok, updated} ->
-          Broadcaster.broadcast({:ok, updated}, :monitor_updated, updated.id)
-          {:ok, updated}
-
-        error ->
-          error
-      end
-    end
-  end
-
   defp fetch_workspace_for_quota(nil), do: {:error, :not_found}
 
   defp fetch_workspace_for_quota(id) do
@@ -229,37 +308,11 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
-    query =
-      Monitor
-      |> where([m], m.workspace_id == ^ws_id)
-      |> where([m], m.logical_state != :archived)
-
-    query =
-      if exclude_monitor_id do
-        where(query, [m], m.id != ^exclude_monitor_id)
-      else
-        query
-      end
-
-    count = Repo.aggregate(query, :count, :id)
-    count >= max
-  end
-
   defp check_monitor_quota(workspace, logical_state) do
     if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
       {:error, :quota_reached}
     else
       :ok
-    end
-  end
-
-  def mark_manual_check_triggered(%Monitor{} = monitor) do
-    workspace = Repo.get!(Workspace, monitor.workspace_id)
-
-    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-      system_update_monitor(monitor, %{last_manual_check_at: now})
     end
   end
 
@@ -271,35 +324,6 @@ defmodule Holter.Monitoring.Monitors do
 
       error ->
         error
-    end
-  end
-
-  def delete_monitor(%Monitor{} = monitor) do
-    Repo.delete(monitor)
-  end
-
-  def change_monitor(%Monitor{} = monitor, attrs \\ %{}) do
-    Monitor.changeset(monitor, attrs)
-  end
-
-  def change_monitor(%Monitor{} = monitor, attrs, workspace) do
-    Monitor.changeset(monitor, attrs, workspace)
-  end
-
-  def recalculate_health_status(%Monitor{id: id}) do
-    monitor = get_monitor!(id)
-    log_status = status_from_latest_log(monitor.id)
-    open_incidents = Incidents.list_open_incidents(monitor.id)
-    incident_status = determine_incident_status(open_incidents)
-
-    new_status =
-      [log_status, incident_status]
-      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
-
-    if monitor.health_status != new_status do
-      system_update_monitor(monitor, %{health_status: new_status})
-    else
-      {:ok, monitor}
     end
   end
 
@@ -322,29 +346,5 @@ defmodule Holter.Monitoring.Monitors do
       |> Repo.one()
 
     if log, do: log.status, else: :unknown
-  end
-
-  def status_severity(:down), do: 4
-  def status_severity(:compromised), do: 3
-  def status_severity(:degraded), do: 2
-  def status_severity(:up), do: 1
-  def status_severity(_), do: 0
-
-  def list_monitors_for_dispatch do
-    now = DateTime.utc_now()
-
-    Monitor
-    |> where([m], m.logical_state == :active)
-    |> where(
-      [m],
-      is_nil(m.last_checked_at) or
-        fragment(
-          "? + (? * interval '1 second') <= ?",
-          m.last_checked_at,
-          m.interval_seconds,
-          ^now
-        )
-    )
-    |> Repo.all()
   end
 end

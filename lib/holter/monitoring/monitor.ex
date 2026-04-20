@@ -1,26 +1,36 @@
 defmodule Holter.Monitoring.Monitor do
   use Ecto.Schema
-  import Ecto.Changeset
   use Gettext, backend: HolterWeb.Gettext
+  import Ecto.Changeset
 
   @manual_check_cooldown 60
-  def manual_check_cooldown, do: @manual_check_cooldown
-
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
-  def http_methods, do: @http_methods
-
   @interval_min_seconds 60
   @interval_max_seconds 7200
   @interval_default_seconds 5400
-  def interval_min_seconds, do: @interval_min_seconds
-  def interval_max_seconds, do: @interval_max_seconds
-  def interval_default_seconds, do: @interval_default_seconds
-
   @bodyless_methods [:get, :head]
-  def bodyless_methods, do: @bodyless_methods
-
   @body_methods [:post, :put, :patch, :delete, :options]
   @max_keywords 20
+  @allowed_fields [
+    :logical_state,
+    :health_status,
+    :url,
+    :method,
+    :interval_seconds,
+    :timeout_seconds,
+    :headers,
+    :raw_headers,
+    :body,
+    :ssl_ignore,
+    :follow_redirects,
+    :max_redirects,
+    :raw_keyword_positive,
+    :raw_keyword_negative,
+    :last_checked_at,
+    :last_success_at,
+    :last_manual_check_at,
+    :ssl_expires_at
+  ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -76,15 +86,12 @@ defmodule Holter.Monitoring.Monitor do
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
-  def changeset(monitor, attrs, workspace \\ nil) do
-    monitor
-    |> cast_fields(attrs)
-    |> validate_core_fields()
-    |> validate_url_field()
-    |> validate_http_semantics(workspace)
-    |> process_virtual_fields()
-  end
+  def manual_check_cooldown, do: @manual_check_cooldown
+  def http_methods, do: @http_methods
+  def interval_min_seconds, do: @interval_min_seconds
+  def interval_max_seconds, do: @interval_max_seconds
+  def interval_default_seconds, do: @interval_default_seconds
+  def bodyless_methods, do: @bodyless_methods
 
   def capture_snapshot(%__MODULE__{} = monitor) do
     %{
@@ -102,26 +109,15 @@ defmodule Holter.Monitoring.Monitor do
     }
   end
 
-  @allowed_fields [
-    :logical_state,
-    :health_status,
-    :url,
-    :method,
-    :interval_seconds,
-    :timeout_seconds,
-    :headers,
-    :raw_headers,
-    :body,
-    :ssl_ignore,
-    :follow_redirects,
-    :max_redirects,
-    :raw_keyword_positive,
-    :raw_keyword_negative,
-    :last_checked_at,
-    :last_success_at,
-    :last_manual_check_at,
-    :ssl_expires_at
-  ]
+  @doc false
+  def changeset(monitor, attrs, workspace \\ nil) do
+    monitor
+    |> cast_fields(attrs)
+    |> validate_core_fields()
+    |> validate_url_field()
+    |> validate_http_semantics(workspace)
+    |> process_virtual_fields()
+  end
 
   defp cast_fields(monitor, attrs) do
     allowed = if is_nil(monitor.id), do: [:workspace_id | @allowed_fields], else: @allowed_fields

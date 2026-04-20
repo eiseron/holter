@@ -1,10 +1,10 @@
 defmodule HolterWeb.Api.ApiSpecTest do
   use HolterWeb.ConnCase, async: true
 
+  import OpenApiSpex.TestAssertions
+
   alias HolterWeb.Api.ApiSpec
   alias OpenApiSpex.OpenApi
-
-  import OpenApiSpex.TestAssertions
 
   test "API spec is valid" do
     spec = ApiSpec.spec()

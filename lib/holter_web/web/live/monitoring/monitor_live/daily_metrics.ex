@@ -8,6 +8,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
   alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @sortable_cols ~w(date uptime_percent avg_latency_ms total_downtime_minutes)
+  @valid_filter_keys ~w(page page_size sort_by sort_dir)
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -51,8 +52,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
            ] do
     {:noreply, push_patch(socket, to: socket.assigns.patch_path)}
   end
-
-  @valid_filter_keys ~w(page page_size sort_by sort_dir)
 
   defp parse_filters(params) do
     %{
