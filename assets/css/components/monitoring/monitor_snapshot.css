@@ -1,0 +1,47 @@
+.h-snapshot-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.h-snapshot-value {
+  display: block;
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  word-break: break-all;
+}
+
+.h-snapshot-value.h-snapshot-badge {
+  display: inline-block;
+  background: color-mix(in srgb, var(--color-status-up) 15%, transparent);
+  color: var(--color-status-up-text);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.h-snapshot-rules-section {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.h-snapshot-code {
+  display: block;
+  background: var(--color-evidence-bg);
+  color: var(--color-evidence-text);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-field);
+  border: 1px solid var(--color-evidence-border);
+  border-left: 2px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-code);
+  line-height: 1.5;
+  overflow-x: auto;
+  word-break: break-all;
+  white-space: pre-wrap;
+  margin: var(--space-2) 0 0 0;
+}

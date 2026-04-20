@@ -45,6 +45,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIncidentsTest do
     test "renders 'Downtime' label for a downtime incident", %{html: html} do
       assert html =~ ~s(data-role="incident-type")
     end
+
+    test "back link points to monitor details", %{view: view, monitor: monitor} do
+      assert has_element?(view, "a.h-btn-back[href='/monitoring/monitor/#{monitor.id}']")
+    end
   end
 
   describe "filtering by type" do

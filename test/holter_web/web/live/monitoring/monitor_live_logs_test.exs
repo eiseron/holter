@@ -32,6 +32,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogsTest do
       assert html =~ "data-status=\"up\""
       assert html =~ "123ms"
     end
+
+    test "back link points to monitor details", %{view: view, monitor: monitor} do
+      assert has_element?(view, "a.h-btn-back[href='/monitoring/monitor/#{monitor.id}']")
+    end
   end
 
   describe "filtering and combined states" do

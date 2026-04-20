@@ -21,7 +21,7 @@
     </.button>
   </:actions>
 
-  <.monitor_subnav monitor_id={@monitor.id} current_page={:show} />
+  <.monitor_subnav monitor_id={@monitor.id} current_page={:show} workspace_slug={@workspace.slug} />
 
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} timezone={@timezone} />
 

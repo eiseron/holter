@@ -71,6 +71,7 @@
   }
   .h-header-content { width: 100%; min-width: 0; }
   .h-header-actions { width: 100%; }
+  .h-page-nav { justify-content: space-evenly; }
 }
 
 @media (max-width: 439px) {

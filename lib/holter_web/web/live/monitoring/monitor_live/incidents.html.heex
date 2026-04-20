@@ -1,12 +1,17 @@
 <.monitor_page_container>
   <:title>
+    <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
     {gettext("Incidents")}
   </:title>
   <:subtitle>
     <span class="h-text-muted h-font-mono">{@monitor.url}</span>
   </:subtitle>
 
-  <.monitor_subnav monitor_id={@monitor.id} current_page={:incidents} />
+  <.monitor_subnav
+    monitor_id={@monitor.id}
+    current_page={:incidents}
+    workspace_slug={@workspace_slug}
+  />
 
   <section aria-label={gettext("Filters")} class="h-logs-filters">
     <.form for={@form} phx-change="filter_updated" class="h-form-row">
