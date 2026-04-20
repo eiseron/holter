@@ -110,8 +110,9 @@ defmodule Holter.Monitoring.Monitors do
 
     with {:ok, workspace} <- fetch_workspace_for_quota(workspace_id),
          :ok <- check_monitor_quota(workspace, logical_state),
+         {:ok, changeset} <- build_valid_changeset(attrs, workspace),
          :ok <- check_create_rate_limit(workspace, logical_state),
-         {:ok, monitor} <- insert_monitor(attrs, workspace),
+         {:ok, monitor} <- Repo.insert(changeset),
          {:ok, should_enqueue} <- check_trigger_budget(monitor, workspace) do
       if should_enqueue, do: enqueue_checks(monitor)
       Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
@@ -274,10 +275,9 @@ defmodule Holter.Monitoring.Monitors do
     end
   end
 
-  defp insert_monitor(attrs, workspace) do
-    %Monitor{}
-    |> Monitor.changeset(attrs, workspace)
-    |> Repo.insert()
+  defp build_valid_changeset(attrs, workspace) do
+    changeset = %Monitor{} |> Monitor.changeset(attrs, workspace)
+    if changeset.valid?, do: {:ok, changeset}, else: {:error, changeset}
   end
 
   defp check_trigger_budget(monitor, workspace) do
