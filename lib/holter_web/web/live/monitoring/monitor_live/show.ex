@@ -1,6 +1,7 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   use HolterWeb, :monitoring_live_view
 
+  alias Holter.Delivery
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
   alias HolterWeb.LiveView.PubSubSubscriptions
@@ -19,6 +20,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     changeset = Monitoring.change_monitor(hydrated_monitor)
 
+    available_channels = Delivery.list_channels(workspace.id)
+    linked_channel_ids = Delivery.list_channels_for_monitor(id) |> Enum.map(& &1.id)
+
     socket =
       socket
       |> assign(:workspace, workspace)
@@ -27,6 +31,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       |> assign(:active_incidents, Monitoring.list_open_incidents(id))
       |> assign(:page_title, gettext("Monitor Details"))
       |> assign(:form, to_form(changeset))
+      |> assign(:available_channels, available_channels)
+      |> assign(:linked_channel_ids, linked_channel_ids)
       |> assign_cooldown(monitor.last_manual_check_at)
 
     {:ok, socket}
@@ -64,15 +70,20 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   end
 
   @impl true
-  def handle_event("save", %{"monitor" => monitor_params}, socket) do
+  def handle_event("save", %{"monitor" => monitor_params} = params, socket) do
+    channel_ids = Map.get(params, "notification_channel_ids", [])
+
     case Monitoring.update_monitor(socket.assigns.monitor, monitor_params) do
       {:ok, monitor} ->
+        Enum.each(channel_ids, &Delivery.link_monitor(monitor.id, &1))
         hydrated_monitor = hydrate_virtual_array_fields(monitor)
+        linked_channel_ids = Delivery.list_channels_for_monitor(monitor.id) |> Enum.map(& &1.id)
 
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor updated successfully"))
          |> assign(:monitor, hydrated_monitor)
+         |> assign(:linked_channel_ids, linked_channel_ids)
          |> assign(:form, to_form(Monitoring.change_monitor(hydrated_monitor)))}
 
       {:error, %Ecto.Changeset{} = changeset} ->

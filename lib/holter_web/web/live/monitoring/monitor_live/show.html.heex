@@ -65,6 +65,23 @@
       min_interval_seconds={@workspace.min_interval_seconds}
     />
 
+    <%= if @available_channels != [] do %>
+      <fieldset class="h-fieldset-card">
+        <legend class="h-fieldset-legend">{gettext("Notification Channels")}</legend>
+        <%= for channel <- @available_channels do %>
+          <label>
+            <input
+              type="checkbox"
+              name="notification_channel_ids[]"
+              value={channel.id}
+              checked={channel.id in @linked_channel_ids}
+            />
+            {channel.name} ({channel.type})
+          </label>
+        <% end %>
+      </fieldset>
+    <% end %>
+
     <div class="h-actions-row">
       <button
         type="button"

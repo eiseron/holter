@@ -82,7 +82,12 @@ defmodule HolterWeb.Api.MonitorSchemas do
       description:
         "Parameters for creating a monitor. url, method and interval_seconds are required.",
       type: :object,
-      properties: monitor_fields(),
+      properties:
+        Map.put(monitor_fields(), :notification_channel_ids, %Schema{
+          type: :array,
+          items: %Schema{type: :string, format: :uuid},
+          description: "Notification channel IDs to link to this monitor."
+        }),
       required: [:url, :method, :interval_seconds]
     }
   end
@@ -92,7 +97,12 @@ defmodule HolterWeb.Api.MonitorSchemas do
       title: "MonitorUpdateRequest",
       description: "Parameters for updating a monitor. All fields are optional.",
       type: :object,
-      properties: monitor_fields()
+      properties:
+        Map.put(monitor_fields(), :notification_channel_ids, %Schema{
+          type: :array,
+          items: %Schema{type: :string, format: :uuid},
+          description: "Notification channel IDs to link to this monitor."
+        })
     }
   end
 

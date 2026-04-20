@@ -6,6 +6,7 @@ defmodule HolterWeb.Api.MonitorController do
   use HolterWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias Holter.Delivery
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
   alias HolterWeb.Api.MonitorSchemas
@@ -96,12 +97,15 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def create(conn, %{workspace_slug: workspace_slug}) do
-    monitor_params = conn.body_params
+    body = conn.body_params
+    {channel_ids, monitor_params} = Map.pop(body, :notification_channel_ids, [])
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          :ok <- if(Monitoring.at_quota?(workspace), do: {:error, :quota_reached}, else: :ok),
          monitor_params = Map.put(monitor_params, :workspace_id, workspace.id),
          {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
+      Enum.each(channel_ids, &Delivery.link_monitor(monitor.id, &1))
+
       conn
       |> put_status(:created)
       |> render(:show, monitor: monitor)
@@ -130,10 +134,12 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def update(conn, %{"id" => id}) do
-    monitor_params = conn.body_params["monitor"] || conn.body_params[:monitor] || %{}
+    body = conn.body_params["monitor"] || conn.body_params[:monitor] || conn.body_params
+    {channel_ids, monitor_params} = Map.pop(body, :notification_channel_ids, [])
 
     with {:ok, monitor} <- Monitoring.get_monitor(id),
          {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(monitor, monitor_params) do
+      Enum.each(channel_ids, &Delivery.link_monitor(monitor.id, &1))
       render(conn, :show, monitor: monitor)
     end
   end

@@ -1,6 +1,7 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   use HolterWeb, :monitoring_live_view
 
+  alias Holter.Delivery
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
 
@@ -21,10 +22,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
         else
           changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
 
+          available_channels = Delivery.list_channels(workspace.id)
+
           {:ok,
            socket
            |> assign(:workspace, workspace)
            |> assign(:page_title, gettext("New Monitor"))
+           |> assign(:available_channels, available_channels)
            |> assign(:form, to_form(changeset))}
         end
 
@@ -47,11 +51,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   end
 
   @impl true
-  def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    params = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
+  def handle_event("save", %{"monitor" => monitor_params} = params, socket) do
+    channel_ids = Map.get(params, "notification_channel_ids", [])
+    attrs = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
 
-    case Monitoring.create_monitor(params) do
-      {:ok, _monitor} ->
+    case Monitoring.create_monitor(attrs) do
+      {:ok, monitor} ->
+        Enum.each(channel_ids, &Delivery.link_monitor(monitor.id, &1))
+
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor created successfully"))

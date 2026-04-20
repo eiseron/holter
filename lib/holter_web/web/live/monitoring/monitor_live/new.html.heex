@@ -20,6 +20,22 @@
     <.monitor_form_security form={@form} />
     <.monitor_form_interval form={@form} min_interval_seconds={@workspace.min_interval_seconds} />
 
+    <%= if @available_channels != [] do %>
+      <fieldset class="h-fieldset-card">
+        <legend class="h-fieldset-legend">{gettext("Notification Channels")}</legend>
+        <%= for channel <- @available_channels do %>
+          <label>
+            <input
+              type="checkbox"
+              name="notification_channel_ids[]"
+              value={channel.id}
+            />
+            {channel.name} ({channel.type})
+          </label>
+        <% end %>
+      </fieldset>
+    <% end %>
+
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
         {gettext("Create Monitor")}

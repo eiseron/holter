@@ -245,4 +245,33 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       assert Monitoring.get_monitor(monitor.id) == {:error, :not_found}
     end
   end
+
+  describe "POST /api/v1/workspaces/:workspace_slug/monitors — channel linking" do
+    test "links notification channels when notification_channel_ids provided", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, channel} =
+        Holter.Delivery.create_channel(%{
+          workspace_id: workspace.id,
+          name: "My Hook",
+          type: :webhook,
+          target: "https://hooks.example.com/notify"
+        })
+
+      conn =
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/monitors", %{
+          url: "https://api-test.local",
+          method: "get",
+          interval_seconds: 60,
+          notification_channel_ids: [channel.id]
+        })
+
+      body = json_response(conn, 201)
+      monitor_id = body["data"]["id"]
+
+      linked = Holter.Delivery.list_channels_for_monitor(monitor_id)
+      assert Enum.any?(linked, &(&1.id == channel.id))
+    end
+  end
 end
