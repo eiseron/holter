@@ -1,0 +1,40 @@
+<section>
+  <header class="h-page-header">
+    <h1>{gettext("Notification Channels")}</h1>
+    <.link
+      navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/new"}
+      class="h-btn h-btn-primary"
+    >
+      {gettext("New Channel")}
+    </.link>
+  </header>
+
+  <%= if Enum.empty?(@channels) do %>
+    <.empty_state>
+      <p>{gettext("No notification channels yet. Create one to receive alerts.")}</p>
+    </.empty_state>
+  <% else %>
+    <ul>
+      <%= for channel <- @channels do %>
+        <li>
+          <article>
+            <.link navigate={
+              ~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/#{channel.id}"
+            }>
+              <strong>{channel.name}</strong>
+            </.link>
+            <span>{channel.type}</span>
+            <span>{channel.target}</span>
+            <button
+              phx-click="delete"
+              phx-value-id={channel.id}
+              data-confirm={gettext("Delete this channel?")}
+            >
+              {gettext("Delete")}
+            </button>
+          </article>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
