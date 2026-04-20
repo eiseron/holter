@@ -161,7 +161,8 @@ defmodule Holter.Monitoring.Engine do
     now = DateTime.utc_now()
     snapshot = Monitor.capture_snapshot(monitor)
 
-    handle_incident_logic(monitor, build_incident_context(params, snapshot, now))
+    ctx = build_incident_context(params, snapshot, now)
+    apply_incident_ops(monitor, determine_incident_ops(ctx), ctx)
 
     {active_incident_id, effective_log_status} =
       compute_effective_status(monitor.id, params.log_status)
@@ -241,29 +242,38 @@ defmodule Holter.Monitoring.Engine do
     {incident.id, Incidents.incident_to_health(incident)}
   end
 
-  defp handle_incident_logic(monitor, %{check_status: :up, now: now}) do
-    resolve_if_open(monitor, :downtime, now)
-    resolve_if_open(monitor, :defacement, now)
+  defp determine_incident_ops(%{check_status: :up}) do
+    [{:resolve, :downtime}, {:resolve, :defacement}]
   end
 
-  defp handle_incident_logic(monitor, %{check_status: :down} = metadata) do
-    resolve_if_open(monitor, :defacement, metadata.now)
-    open_if_missing(monitor, :downtime, metadata)
-    if Map.get(metadata, :defacement_in_body), do: open_if_missing(monitor, :defacement, metadata)
+  defp determine_incident_ops(%{check_status: :down, defacement_in_body: true} = ctx) do
+    [
+      {:resolve, :defacement},
+      {:open, :downtime, ctx.error_msg},
+      {:open, :defacement, ctx.error_msg}
+    ]
   end
 
-  defp handle_incident_logic(
-         monitor,
-         %{check_status: :compromised, positive_ok: false} = metadata
-       ) do
-    open_if_missing(monitor, :downtime, %{metadata | error_msg: metadata.downtime_error_msg})
-    open_if_missing(monitor, :defacement, %{metadata | error_msg: metadata.defacement_error_msg})
+  defp determine_incident_ops(%{check_status: :down} = ctx) do
+    [{:resolve, :defacement}, {:open, :downtime, ctx.error_msg}]
   end
 
-  defp handle_incident_logic(monitor, %{check_status: :compromised} = metadata) do
-    resolve_if_open(monitor, :downtime, metadata.now)
-    open_if_missing(monitor, :defacement, metadata)
+  defp determine_incident_ops(%{check_status: :compromised, positive_ok: false} = ctx) do
+    [{:open, :downtime, ctx.downtime_error_msg}, {:open, :defacement, ctx.defacement_error_msg}]
   end
+
+  defp determine_incident_ops(%{check_status: :compromised} = ctx) do
+    [{:resolve, :downtime}, {:open, :defacement, ctx.error_msg}]
+  end
+
+  defp apply_incident_ops(monitor, ops, ctx),
+    do: Enum.each(ops, &apply_incident_op(monitor, &1, ctx))
+
+  defp apply_incident_op(monitor, {:resolve, type}, ctx),
+    do: resolve_if_open(monitor, type, ctx.now)
+
+  defp apply_incident_op(monitor, {:open, type, error_msg}, ctx),
+    do: open_if_missing(monitor, type, %{ctx | error_msg: error_msg})
 
   defp resolve_if_open(monitor, type, now) do
     case Monitoring.get_open_incident(monitor.id, type) do
