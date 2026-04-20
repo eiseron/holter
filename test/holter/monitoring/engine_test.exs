@@ -347,6 +347,11 @@ defmodule Holter.Monitoring.EngineTest do
          %{monitor: monitor} do
       assert %{type: :ssl_expiry} = Monitoring.get_open_incident(monitor.id, :ssl_expiry)
     end
+
+    test "monitor health_status reflects :compromised from open ssl_expiry incident, not raw :up check",
+         %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+    end
   end
 
   describe "incident-aware logging: active degraded ssl_expiry incident during HTTP check" do
@@ -368,6 +373,11 @@ defmodule Holter.Monitoring.EngineTest do
     test "log status is :degraded when ssl_expiry root_cause is a warning", %{monitor: monitor} do
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
       assert log.status == :degraded
+    end
+
+    test "monitor health_status reflects :degraded from open warning ssl_expiry incident, not raw :up check",
+         %{monitor: monitor} do
+      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
     end
   end
 

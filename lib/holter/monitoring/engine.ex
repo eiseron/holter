@@ -170,7 +170,12 @@ defmodule Holter.Monitoring.Engine do
       monitor_snapshot: snapshot
     })
 
-    updated_monitor = update_monitor_state(monitor, params.check_status, now)
+    updated_monitor =
+      update_monitor_state(monitor, %{
+        check_status: params.check_status,
+        effective_status: effective_log_status,
+        now: now
+      })
 
     {:ok, updated_monitor}
   end
@@ -225,10 +230,14 @@ defmodule Holter.Monitoring.Engine do
     end
   end
 
-  defp update_monitor_state(monitor, check_status, now) do
+  defp update_monitor_state(monitor, %{
+         check_status: check_status,
+         effective_status: effective_status,
+         now: now
+       }) do
     {:ok, updated_monitor} =
       Monitoring.update_monitor(monitor, %{
-        health_status: check_status,
+        health_status: effective_status,
         last_checked_at: now,
         last_success_at: if(check_status == :up, do: now, else: monitor.last_success_at)
       })
