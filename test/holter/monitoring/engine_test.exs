@@ -266,7 +266,7 @@ defmodule Holter.Monitoring.EngineTest do
       invalid_utf8_body = <<195, 40, 231, 97, 111>>
 
       response = %Req.Response{
-        status: 200,
+        status: 500,
         body: invalid_utf8_body,
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
@@ -281,7 +281,7 @@ defmodule Holter.Monitoring.EngineTest do
       invalid_utf8_body = <<195, 40, 231, 97, 111>>
 
       response = %Req.Response{
-        status: 200,
+        status: 500,
         body: invalid_utf8_body,
         headers: [{"content-type", "text/html; charset=ISO-8859-1"}]
       }
