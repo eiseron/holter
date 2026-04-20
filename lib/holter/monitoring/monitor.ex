@@ -3,6 +3,8 @@ defmodule Holter.Monitoring.Monitor do
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
 
+  alias Holter.Monitoring.Engine.NetworkGuard
+
   @manual_check_cooldown 60
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
   @interval_min_seconds 60
@@ -357,55 +359,12 @@ defmodule Holter.Monitoring.Monitor do
     validate_change(changeset, :url, fn :url, url ->
       host = URI.parse(url).host
 
-      if restricted_host?(host) do
+      if NetworkGuard.restricted_host?(host) do
         [url: gettext("is a restricted internal address")]
       else
         []
       end
     end)
-  end
-
-  defp restricted_host?(nil), do: true
-
-  defp restricted_host?(host) do
-    host = host |> String.downcase() |> String.replace("[", "") |> String.replace("]", "")
-    trusted = get_trusted_hosts()
-
-    (localhost?(host) or private_ip?(host) or single_token_host?(host)) and host not in trusted
-  end
-
-  defp single_token_host?(host) do
-    not String.contains?(host, ".")
-  end
-
-  defp get_trusted_hosts do
-    :holter
-    |> Application.get_env(:monitoring, [])
-    |> Keyword.get(:trusted_hosts, [])
-  end
-
-  defp localhost?(host) do
-    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"] or
-      String.starts_with?(host, "127.") or
-      String.starts_with?(host, "::ffff:127.")
-  end
-
-  defp private_ip?(host) do
-    case :inet.parse_address(to_charlist(host)) do
-      {:ok, {127, _, _, _}} -> true
-      {:ok, {10, _, _, _}} -> true
-      {:ok, {172, second, _, _}} when second >= 16 and second <= 31 -> true
-      {:ok, {192, 168, _, _}} -> true
-      {:ok, {169, 254, _, _}} -> true
-      _ -> encoded_ip?(host)
-    end
-  end
-
-  defp encoded_ip?(host) do
-    is_numeric = Regex.match?(~r/^(0x[0-9a-f]+|[0-9]+)$/i, host)
-    is_short_ip = Regex.match?(~r/^[0-9]+\.[0-9]+(\.[0-9]+)?$/, host)
-
-    is_numeric or is_short_ip
   end
 
   defp parse_url(url) do

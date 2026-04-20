@@ -12,6 +12,35 @@ defmodule Holter.Monitoring.Engine.NetworkGuard do
     end
   end
 
+  def restricted_host?(nil), do: true
+
+  def restricted_host?(host) do
+    host = host |> String.downcase() |> String.replace("[", "") |> String.replace("]", "")
+    trusted = get_trusted_hosts()
+    (localhost?(host) or private_ip?(host) or single_token_host?(host)) and host not in trusted
+  end
+
+  def localhost?(host) do
+    host in ["localhost", "127.0.0.1", "::1", "0.0.0.0", "0"] or
+      String.starts_with?(host, "127.") or
+      String.starts_with?(host, "::ffff:127.")
+  end
+
+  def private_ip?(host) do
+    case :inet.parse_address(to_charlist(host)) do
+      {:ok, addr} -> private_network_address?(addr)
+      _ -> encoded_ip?(host)
+    end
+  end
+
+  def encoded_ip?(host) do
+    is_numeric = Regex.match?(~r/^(0x[0-9a-f]+|[0-9]+)$/i, host)
+    is_short_ip = Regex.match?(~r/^[0-9]+\.[0-9]+(\.[0-9]+)?$/, host)
+    is_numeric or is_short_ip
+  end
+
+  def single_token_host?(host), do: not String.contains?(host, ".")
+
   def get_trusted_hosts do
     :holter
     |> Application.get_env(:monitoring, [])
