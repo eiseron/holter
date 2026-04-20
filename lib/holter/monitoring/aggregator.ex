@@ -8,10 +8,11 @@ defmodule Holter.Monitoring.Aggregator do
 
   def aggregate_monitor_date(monitor_id, date) do
     monitor = Holter.Monitoring.get_monitor!(monitor_id)
-    time_range = build_day_range(date, monitor)
+    now = DateTime.utc_now()
+    time_range = build_day_range(date, monitor, now)
 
     if has_activity?(monitor_id, time_range) do
-      data = fetch_aggregation_data(monitor_id, time_range)
+      data = fetch_aggregation_data(monitor_id, time_range, now)
       build_metrics(monitor, date, data)
     else
       build_empty_metrics(monitor_id, date)
@@ -23,16 +24,17 @@ defmodule Holter.Monitoring.Aggregator do
     count_logs(monitor_id, time_range) > 0 or incidents_exist?(monitor_id, time_range)
   end
 
-  defp fetch_aggregation_data(monitor_id, {start_at, end_at} = time_range) do
+  defp fetch_aggregation_data(monitor_id, {start_at, end_at} = time_range, now) do
     %{
       time_range: time_range,
+      now: now,
       avg_latency_ms: fetch_avg_latency(monitor_id, time_range),
       incidents: fetch_overlapping_incidents(monitor_id, start_at, end_at)
     }
   end
 
   defp build_metrics(monitor, date, data) do
-    downtime_seconds = calculate_downtime_seconds_from(data.incidents, data.time_range)
+    downtime_seconds = calculate_downtime_seconds_from(data.incidents, data.time_range, data.now)
 
     %{
       monitor_id: monitor.id,
@@ -53,10 +55,9 @@ defmodule Holter.Monitoring.Aggregator do
     }
   end
 
-  defp build_day_range(date, monitor) do
+  defp build_day_range(date, monitor, now) do
     day_start = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
     day_end = DateTime.new!(Date.add(date, 1), ~T[00:00:00], "Etc/UTC")
-    now = DateTime.utc_now()
 
     start_at = max_datetime(day_start, monitor.inserted_at)
     end_at = min_datetime(day_end, now)
@@ -100,9 +101,9 @@ defmodule Holter.Monitoring.Aggregator do
     |> Repo.all()
   end
 
-  defp calculate_downtime_seconds_from(incidents, {start_at, end_at}) do
+  defp calculate_downtime_seconds_from(incidents, {_start_at, _end_at} = time_range, now) do
     incidents
-    |> Enum.map(&calculate_incident_overlap_seconds(&1, start_at, end_at))
+    |> Enum.map(&calculate_incident_overlap_seconds(&1, time_range, now))
     |> Enum.sum()
   end
 
@@ -125,9 +126,9 @@ defmodule Holter.Monitoring.Aggregator do
     |> Decimal.from_float()
   end
 
-  defp calculate_incident_overlap_seconds(incident, range_start, range_end) do
+  defp calculate_incident_overlap_seconds(incident, {range_start, range_end}, now) do
     overlap_start = max_datetime(incident.started_at, range_start)
-    overlap_end = min_datetime(incident.resolved_at || DateTime.utc_now(), range_end)
+    overlap_end = min_datetime(incident.resolved_at || now, range_end)
 
     overlap_end
     |> DateTime.diff(overlap_start)

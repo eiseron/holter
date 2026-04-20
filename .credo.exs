@@ -43,7 +43,8 @@
       requires: [
         "credo_checks/readability/no_comments.ex",
         "credo_checks/testing/one_assert_per_test.ex",
-        "credo_checks/refactor/strict_function_arity.ex"
+        "credo_checks/refactor/strict_function_arity.ex",
+        "credo_checks/design/no_side_effects_in_transformer.ex"
       ],
       #
       # If you want to enforce a style guide and need a more traditional linting
@@ -72,6 +73,7 @@
           # Custom Eiseron Checks
           {Holter.Credo.Check.Readability.NoComments, []},
           {Holter.Credo.Check.Testing.OneAssertPerTest, []},
+          {Holter.Credo.Check.Design.NoSideEffectsInTransformer, []},
 
           # Consistency Checks
           {Credo.Check.Consistency.ExceptionNames, []},
