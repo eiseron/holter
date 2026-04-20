@@ -54,12 +54,17 @@ defmodule Holter.Monitoring.Workspaces do
         {:error, :long_budget_exhausted}
 
       true ->
-        apply_budget_increment(workspace, %{
-          short_count: short_count + 1,
-          short_start: short_start,
-          long_count: long_count + 1,
-          long_start: long_start
-        })
+        apply_budget_update(
+          workspace,
+          {:trigger_short_count, :trigger_short_window_start, :trigger_long_count,
+           :trigger_long_window_start},
+          %{
+            short_count: short_count + 1,
+            short_start: short_start,
+            long_count: long_count + 1,
+            long_start: long_start
+          }
+        )
     end
   end
 
@@ -88,12 +93,17 @@ defmodule Holter.Monitoring.Workspaces do
         {:error, :create_rate_limited}
 
       true ->
-        apply_create_budget_increment(workspace, %{
-          short_count: short_count + 1,
-          short_start: short_start,
-          long_count: long_count + 1,
-          long_start: long_start
-        })
+        apply_budget_update(
+          workspace,
+          {:create_short_count, :create_short_window_start, :create_long_count,
+           :create_long_window_start},
+          %{
+            short_count: short_count + 1,
+            short_start: short_start,
+            long_count: long_count + 1,
+            long_start: long_start
+          }
+        )
     end
   end
 
@@ -124,40 +134,18 @@ defmodule Holter.Monitoring.Workspaces do
     end
   end
 
-  defp apply_budget_increment(%Workspace{} = workspace, budget_data) do
-    workspace
-    |> Ecto.Changeset.cast(
-      %{
-        trigger_short_count: budget_data.short_count,
-        trigger_short_window_start: budget_data.short_start,
-        trigger_long_count: budget_data.long_count,
-        trigger_long_window_start: budget_data.long_start
-      },
-      [
-        :trigger_short_count,
-        :trigger_short_window_start,
-        :trigger_long_count,
-        :trigger_long_window_start
-      ]
-    )
-    |> Repo.update()
-  end
+  defp apply_budget_update(%Workspace{} = workspace, fields, budget_data) do
+    {short_count, short_start, long_count, long_start} = fields
 
-  defp apply_create_budget_increment(%Workspace{} = workspace, budget_data) do
     workspace
     |> Ecto.Changeset.cast(
       %{
-        create_short_count: budget_data.short_count,
-        create_short_window_start: budget_data.short_start,
-        create_long_count: budget_data.long_count,
-        create_long_window_start: budget_data.long_start
+        short_count => budget_data.short_count,
+        short_start => budget_data.short_start,
+        long_count => budget_data.long_count,
+        long_start => budget_data.long_start
       },
-      [
-        :create_short_count,
-        :create_short_window_start,
-        :create_long_count,
-        :create_long_window_start
-      ]
+      [short_count, short_start, long_count, long_start]
     )
     |> Repo.update()
   end
