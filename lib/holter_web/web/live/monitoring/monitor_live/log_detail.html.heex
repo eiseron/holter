@@ -49,6 +49,9 @@
                     <%= if hop["status_code"] do %>
                       <span class="h-redirect-status">{hop["status_code"]}</span>
                     <% end %>
+                    <%= if hop["latency_ms"] do %>
+                      <span class="h-redirect-latency">{hop["latency_ms"]}ms</span>
+                    <% end %>
                   </div>
                 </div>
               </li>

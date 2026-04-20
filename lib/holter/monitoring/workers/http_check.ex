@@ -16,7 +16,16 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id}}) do
     monitor = Monitoring.get_monitor!(id)
-    state = %{url: monitor.url, safe_ip: nil, redirects: 0, redirect_list: [], start_time: nil}
+
+    state = %{
+      url: monitor.url,
+      safe_ip: nil,
+      redirects: 0,
+      redirect_list: [],
+      start_time: nil,
+      last_hop_duration_ms: nil
+    }
+
     run_hops(monitor, state)
     :ok
   end
@@ -29,8 +38,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
       {:done, {response, meta}} ->
         Engine.process_response(monitor, response, meta)
 
-      {:failure, {error, start_time}} ->
-        Engine.handle_failure(monitor, error, calculate_duration(start_time))
+      {:failure, {error, duration_ms}} ->
+        Engine.handle_failure(monitor, error, duration_ms)
     end
   end
 
@@ -40,7 +49,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
     case validate_destination(state.url) do
       {:error, reason} ->
-        {:failure, {%RuntimeError{message: reason}, start_time}}
+        {:failure, {%RuntimeError{message: reason}, calculate_duration(start_time)}}
 
       {:ok, safe_ip} ->
         hop = %{"url" => state.url, "ip" => safe_ip}
@@ -48,7 +57,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
         remaining_timeout = calculate_remaining_timeout(monitor, start_time)
 
         if remaining_timeout <= 0 do
-          {:failure, {%RuntimeError{message: "Global timeout exceeded"}, start_time}}
+          {:failure,
+           {%RuntimeError{message: "Global timeout exceeded"}, calculate_duration(start_time)}}
         else
           do_request(monitor, state, remaining_timeout)
         end
@@ -61,22 +71,27 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     opts =
       build_opts(monitor, %{url: state.url, safe_ip: state.safe_ip, timeout: remaining_timeout})
 
+    hop_start = System.monotonic_time()
+
     case client.request(opts) do
       {:ok, response} ->
+        hop_ms = calculate_duration(hop_start)
+
         state = %{
           state
-          | redirect_list:
+          | last_hop_duration_ms: hop_ms,
+            redirect_list:
               List.update_at(
                 state.redirect_list,
                 -1,
-                &Map.put(&1, "status_code", response.status)
+                &Map.merge(&1, %{"status_code" => response.status, "latency_ms" => hop_ms})
               )
         }
 
         decide_after_response(monitor, state, response)
 
       {:error, error} ->
-        {:failure, {error, state.start_time}}
+        {:failure, {error, calculate_duration(hop_start)}}
     end
   end
 
@@ -101,7 +116,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp build_meta(state) do
     %{
-      duration_ms: calculate_duration(state.start_time),
+      duration_ms: state.last_hop_duration_ms,
       redirects: state.redirects,
       last_url: state.url,
       redirect_list: state.redirect_list
