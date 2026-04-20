@@ -8,6 +8,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail do
   def mount(%{"incident_id" => incident_id}, _session, socket) do
     incident = Monitoring.get_incident!(incident_id)
     monitor = Monitoring.get_monitor!(incident.monitor_id)
+    workspace = Monitoring.get_workspace!(monitor.workspace_id)
 
     PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
 
@@ -18,6 +19,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail do
      socket
      |> assign(:incident, incident)
      |> assign(:monitor, monitor)
+     |> assign(:workspace_slug, workspace.slug)
      |> assign(:logs, logs)
      |> assign(:logs_total, logs_total)
      |> assign(:page_title, gettext("Incident Details"))}

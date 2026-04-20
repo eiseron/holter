@@ -14,10 +14,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
   def mount(%{"id" => id}, _session, socket) do
     PubSubSubscriptions.subscribe_to_monitor(socket, id)
     monitor = Monitoring.get_monitor!(id)
+    workspace = Monitoring.get_workspace!(monitor.workspace_id)
 
     {:ok,
      socket
      |> assign(:monitor, monitor)
+     |> assign(:workspace_slug, workspace.slug)
      |> assign(:page_title, gettext("Daily Metrics"))
      |> assign(:metrics, [])
      |> assign(:page_number, 1)

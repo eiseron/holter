@@ -7,7 +7,11 @@
     <span class="h-text-muted h-font-mono">{@monitor.url}</span>
   </:subtitle>
 
-  <.monitor_subnav monitor_id={@monitor.id} current_page={:incident_detail} />
+  <.monitor_subnav
+    monitor_id={@monitor.id}
+    current_page={:incident_detail}
+    workspace_slug={@workspace_slug}
+  />
 
   <article class="h-log-detail-content">
     <div class="h-evidence-grid">

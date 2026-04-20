@@ -4,10 +4,17 @@ defmodule HolterWeb.Components.Monitoring.MonitorSubnav do
 
   attr :monitor_id, :string, required: true
   attr :current_page, :atom, required: true
+  attr :workspace_slug, :string, required: true
 
   def monitor_subnav(assigns) do
     ~H"""
     <nav class="h-page-nav">
+      <.link
+        navigate={~p"/monitoring/workspaces/#{@workspace_slug}/dashboard"}
+        class="h-nav-link"
+      >
+        {gettext("Dashboard")}
+      </.link>
       <.link
         :if={@current_page != :show}
         navigate={~p"/monitoring/monitor/#{@monitor_id}"}
