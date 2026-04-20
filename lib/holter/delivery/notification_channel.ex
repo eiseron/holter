@@ -2,7 +2,7 @@ defmodule Holter.Delivery.NotificationChannel do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @channel_types [:email, :webhook, :slack, :discord]
+  @channel_types [:email, :webhook]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -36,7 +36,7 @@ defmodule Holter.Delivery.NotificationChannel do
 
   defp validate_target_format(changeset) do
     case get_field(changeset, :type) do
-      type when type in [:webhook, :slack, :discord] -> validate_target_url(changeset)
+      :webhook -> validate_target_url(changeset)
       :email -> validate_target_email(changeset)
       _ -> changeset
     end

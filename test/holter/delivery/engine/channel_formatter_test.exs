@@ -38,25 +38,6 @@ defmodule Holter.Delivery.Engine.ChannelFormatterTest do
     end
   end
 
-  describe "format_payload/2 — :slack" do
-    test "returns a JSON string as first element" do
-      {json, _headers} = ChannelFormatter.format_payload(down_payload(), :slack)
-      assert {:ok, _} = Jason.decode(json)
-    end
-
-    test "returns content-type header" do
-      {_json, headers} = ChannelFormatter.format_payload(down_payload(), :slack)
-      assert {"content-type", "application/json"} in headers
-    end
-  end
-
-  describe "format_payload/2 — :discord" do
-    test "returns a JSON string as first element" do
-      {json, _headers} = ChannelFormatter.format_payload(down_payload(), :discord)
-      assert {:ok, _} = Jason.decode(json)
-    end
-  end
-
   describe "format_payload/2 — :email" do
     test "subject contains the monitor URL for a down event" do
       {subject, _body} = ChannelFormatter.format_payload(down_payload(), :email)

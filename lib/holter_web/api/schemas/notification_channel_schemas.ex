@@ -24,7 +24,7 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
         id: %Schema{type: :string, format: :uuid},
         workspace_id: %Schema{type: :string, format: :uuid},
         name: %Schema{type: :string},
-        type: %Schema{type: :string, enum: ["email", "webhook", "slack", "discord"]},
+        type: %Schema{type: :string, enum: ["email", "webhook"]},
         target: %Schema{type: :string},
         settings: %Schema{type: :object, additionalProperties: true, nullable: true},
         inserted_at: %Schema{type: :string, format: :"date-time"},
@@ -66,7 +66,7 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
       additionalProperties: false,
       properties: %{
         name: %Schema{type: :string, minLength: 1, maxLength: 255},
-        type: %Schema{type: :string, enum: ["email", "webhook", "slack", "discord"]},
+        type: %Schema{type: :string, enum: ["email", "webhook"]},
         target: %Schema{type: :string, minLength: 1, maxLength: 2048},
         settings: %Schema{type: :object, additionalProperties: true, nullable: true}
       },

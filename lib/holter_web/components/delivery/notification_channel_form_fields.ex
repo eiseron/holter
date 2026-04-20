@@ -54,8 +54,6 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
         case type do
           :webhook -> gettext("Webhook")
           :email -> gettext("Email")
-          :slack -> gettext("Slack")
-          :discord -> gettext("Discord")
         end
 
       {label, to_string(type)}
@@ -63,6 +61,6 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
   end
 
   defp target_help_text do
-    gettext("URL for webhook, Slack, and Discord channels. Email address for email channels.")
+    gettext("URL for webhook channels. Email address for email channels.")
   end
 end

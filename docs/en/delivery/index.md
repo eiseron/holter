@@ -26,8 +26,6 @@ The delivery module lets you receive alerts when monitors go down or recover. Yo
 |------|----------------|
 | Webhook | HTTP POST with a JSON payload to any URL |
 | Email | Email sent via the configured mail provider |
-| Slack | JSON payload formatted as a Slack message |
-| Discord | JSON payload formatted as a Discord embed |
 
 ## Related
 

@@ -17,8 +17,8 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Name | Yes | A human-readable label for the channel (e.g. "Ops Slack"). |
-| Type | Yes | One of: `webhook`, `email`, `slack`, `discord`. |
+| Name | Yes | A human-readable label for the channel (e.g. "Ops Webhook"). |
+| Type | Yes | One of: `webhook`, `email`. |
 | Target | Yes | The delivery destination. See format rules by type below. |
 
 ### Target format by type
@@ -26,8 +26,6 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 | Type | Expected format |
 |------|----------------|
 | `webhook` | A valid `http://` or `https://` URL. |
-| `slack` | A valid Slack incoming webhook URL (`https://hooks.slack.com/…`). |
-| `discord` | A valid Discord webhook URL (`https://discord.com/api/webhooks/…`). |
 | `email` | A valid email address (e.g. `ops@example.com`). |
 
 ## Editing a Channel
@@ -56,7 +54,7 @@ You can also manage links via the API — include a `notification_channel_ids` a
 
 ## Payload Shape
 
-When a monitor goes down or recovers, Holter sends the following JSON payload to webhook, Slack, and Discord channels:
+When a monitor goes down or recovers, Holter sends the following JSON payload to webhook channels:
 
 ```json
 {

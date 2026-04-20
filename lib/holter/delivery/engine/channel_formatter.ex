@@ -1,11 +1,7 @@
 defmodule Holter.Delivery.Engine.ChannelFormatter do
   @moduledoc false
 
-  def format_payload(payload, :webhook), do: format_payload(payload, :slack)
-
-  def format_payload(payload, :discord), do: format_payload(payload, :slack)
-
-  def format_payload(payload, :slack) do
+  def format_payload(payload, :webhook) do
     {:ok, json} = Jason.encode(payload)
     {json, [{"content-type", "application/json"}]}
   end

@@ -53,8 +53,6 @@ components:
           enum:
             - email
             - webhook
-            - slack
-            - discord
           type: string
           x-struct:
           x-validate:
@@ -106,8 +104,6 @@ components:
           enum:
             - email
             - webhook
-            - slack
-            - discord
           type: string
           x-struct:
           x-validate:
@@ -155,8 +151,6 @@ components:
                 enum:
                   - email
                   - webhook
-                  - slack
-                  - discord
                 type: string
                 x-struct:
                 x-validate:
@@ -226,8 +220,6 @@ components:
               enum:
                 - email
                 - webhook
-                - slack
-                - discord
               type: string
               x-struct:
               x-validate:
@@ -391,8 +383,6 @@ paths:
                           enum:
                             - email
                             - webhook
-                            - slack
-                            - discord
                           type: string
                           x-struct:
                           x-validate:
@@ -496,8 +486,6 @@ paths:
                   enum:
                     - email
                     - webhook
-                    - slack
-                    - discord
                   type: string
                   x-struct:
                   x-validate:
@@ -550,8 +538,6 @@ paths:
                         enum:
                           - email
                           - webhook
-                          - slack
-                          - discord
                         type: string
                         x-struct:
                         x-validate:
@@ -725,8 +711,6 @@ paths:
                         enum:
                           - email
                           - webhook
-                          - slack
-                          - discord
                         type: string
                         x-struct:
                         x-validate:
@@ -877,8 +861,6 @@ paths:
                         enum:
                           - email
                           - webhook
-                          - slack
-                          - discord
                         type: string
                         x-struct:
                         x-validate:
@@ -1052,8 +1034,6 @@ paths:
                         enum:
                           - email
                           - webhook
-                          - slack
-                          - discord
                         type: string
                         x-struct:
                         x-validate:

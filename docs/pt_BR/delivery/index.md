@@ -26,8 +26,6 @@ O módulo de entrega permite que você receba alertas quando monitores caem ou s
 |------|------------------|
 | Webhook | HTTP POST com payload JSON para qualquer URL |
 | E-mail | E-mail enviado via provedor de e-mail configurado |
-| Slack | Payload JSON formatado como mensagem Slack |
-| Discord | Payload JSON formatado como embed Discord |
 
 ## Relacionado
 

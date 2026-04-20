@@ -17,8 +17,8 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 | Campo | Obrigatório | Descrição |
 |-------|-------------|-----------|
-| Nome | Sim | Rótulo legível para o canal (ex: "Slack da Equipe de Ops"). |
-| Tipo | Sim | Um de: `webhook`, `email`, `slack`, `discord`. |
+| Nome | Sim | Rótulo legível para o canal (ex: "Webhook de Ops"). |
+| Tipo | Sim | Um de: `webhook`, `email`. |
 | Destino | Sim | O endereço de entrega. Veja o formato esperado por tipo abaixo. |
 
 ### Formato do destino por tipo
@@ -26,8 +26,6 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 | Tipo | Formato esperado |
 |------|-----------------|
 | `webhook` | URL válida `http://` ou `https://`. |
-| `slack` | URL de webhook incoming do Slack (`https://hooks.slack.com/…`). |
-| `discord` | URL de webhook do Discord (`https://discord.com/api/webhooks/…`). |
 | `email` | Endereço de e-mail válido (ex: `ops@exemplo.com`). |
 
 ## Editando um Canal
@@ -56,7 +54,7 @@ Você também pode gerenciar os vínculos via API — inclua um array `notificat
 
 ## Formato do Payload
 
-Quando um monitor cai ou se recupera, o Holter envia o seguinte payload JSON para canais webhook, Slack e Discord:
+Quando um monitor cai ou se recupera, o Holter envia o seguinte payload JSON para canais webhook:
 
 ```json
 {

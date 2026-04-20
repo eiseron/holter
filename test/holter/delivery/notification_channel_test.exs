@@ -64,7 +64,7 @@ defmodule Holter.Delivery.NotificationChannelTest do
     test "accepts all valid channel types" do
       ws = workspace_fixture()
 
-      for type <- [:email, :webhook, :slack, :discord] do
+      for type <- [:email, :webhook] do
         target = if type == :email, do: "user@example.com", else: "https://example.com/hook"
 
         changeset =
@@ -88,7 +88,7 @@ defmodule Holter.Delivery.NotificationChannelTest do
     end
   end
 
-  describe "changeset/2 — target URL validation for webhook/slack/discord" do
+  describe "changeset/2 — target URL validation for webhook" do
     test "rejects non-URL target for webhook type" do
       ws = workspace_fixture()
 
@@ -101,28 +101,16 @@ defmodule Holter.Delivery.NotificationChannelTest do
       assert "must be a valid http or https URL" in errors_on(changeset).target
     end
 
-    test "rejects non-URL target for slack type" do
+    test "rejects unknown type as invalid" do
       ws = workspace_fixture()
 
       changeset =
         NotificationChannel.changeset(
           %NotificationChannel{},
-          valid_attrs(ws.id, %{type: :slack, target: "plaintext"})
+          valid_attrs(ws.id, %{type: :slack})
         )
 
-      assert "must be a valid http or https URL" in errors_on(changeset).target
-    end
-
-    test "rejects non-URL target for discord type" do
-      ws = workspace_fixture()
-
-      changeset =
-        NotificationChannel.changeset(
-          %NotificationChannel{},
-          valid_attrs(ws.id, %{type: :discord, target: "ftp://wrong.com"})
-        )
-
-      assert "must be a valid http or https URL" in errors_on(changeset).target
+      assert "is invalid" in errors_on(changeset).type
     end
 
     test "accepts https URL for webhook type" do

@@ -6,6 +6,11 @@ defmodule Holter.Delivery.EngineTest do
   alias Holter.Delivery.Engine
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
 
+  setup do
+    Phoenix.PubSub.subscribe(Holter.PubSub, "delivery:notifications")
+    :ok
+  end
+
   defp webhook_channel_fixture(workspace_id) do
     {:ok, channel} =
       Delivery.create_channel(%{
@@ -85,6 +90,19 @@ defmodule Holter.Delivery.EngineTest do
       assert all_enqueued(queue: :notifications) == []
     end
 
+    test "broadcasts notification_dispatched on delivery:notifications" do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      monitor_id = monitor.id
+      incident_id = incident.id
+
+      Engine.dispatch_incident(monitor.id, incident.id, :down)
+
+      assert_receive {:notification_dispatched,
+                      %{monitor_id: ^monitor_id, incident_id: ^incident_id, event: :down}}
+    end
+
     test "enqueues job with :up event for resolved incident" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
@@ -121,6 +139,16 @@ defmodule Holter.Delivery.EngineTest do
         worker: EmailDispatcher,
         args: %{"test" => true, "channel_id" => channel.id}
       )
+    end
+
+    test "broadcasts test_dispatched on delivery:notifications" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+      channel_id = channel.id
+
+      Engine.dispatch_test(channel.id)
+
+      assert_receive {:test_dispatched, %{channel_id: ^channel_id}}
     end
   end
 end

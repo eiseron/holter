@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.Engine do
   @moduledoc false
 
-  alias Holter.Delivery.NotificationChannels
+  alias Holter.Delivery.{Broadcaster, NotificationChannels}
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
 
   def dispatch_incident(monitor_id, incident_id, event) when event in [:down, :up] do
@@ -14,11 +14,14 @@ defmodule Holter.Delivery.Engine do
     }
 
     Enum.each(channels, &enqueue_for_channel(&1, ctx))
+    Broadcaster.broadcast_notification_dispatched(monitor_id, incident_id, event)
   end
 
   def dispatch_test(channel_id) do
     channel = NotificationChannels.get_channel!(channel_id)
-    enqueue_test_for_channel(channel)
+    result = enqueue_test_for_channel(channel)
+    Broadcaster.broadcast_test_dispatched(channel_id)
+    result
   end
 
   defp enqueue_for_channel(channel, ctx) do
