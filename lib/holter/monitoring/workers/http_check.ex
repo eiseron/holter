@@ -21,15 +21,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     :ok
   end
 
-  def resolve_host(nil), do: {:error, :no_host}
-
-  def resolve_host(host) do
-    case :inet.getaddrs(to_charlist(host), :inet) do
-      {:ok, addrs} -> {:ok, Enum.map(addrs, fn addr -> :inet.ntoa(addr) |> to_string() end)}
-      error -> error
-    end
-  end
-
   defp run_hops(monitor, state) do
     case do_one_hop(monitor, state) do
       {:redirect, new_state} ->
@@ -122,6 +113,15 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   defp get_header(headers, key) do
     headers |> Enum.find_value(fn {k, v} -> if String.downcase(k) == key, do: v end)
+  end
+
+  defp resolve_host(nil), do: {:error, :no_host}
+
+  defp resolve_host(host) do
+    case :inet.getaddrs(to_charlist(host), :inet) do
+      {:ok, addrs} -> {:ok, Enum.map(addrs, fn addr -> :inet.ntoa(addr) |> to_string() end)}
+      error -> error
+    end
   end
 
   defp validate_destination(url) do
