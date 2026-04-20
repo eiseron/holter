@@ -207,7 +207,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
-      assert_redirected(view, "/workspaces/#{workspace.slug}/dashboard")
+      assert_redirected(view, "/")
     end
 
     test "Given a user clicking the modal deletion confirmation, when processed, then the database destroys the record",
