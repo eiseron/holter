@@ -10,6 +10,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(slug),
          {:ok, channel} <- Delivery.get_channel(id) do
       changeset = Delivery.change_channel(channel)
+      available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+      linked_monitor_ids = Delivery.list_monitor_ids_for_channel(id)
 
       {:ok,
        socket
@@ -17,6 +19,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:channel, channel)
        |> assign(:page_title, channel.name)
        |> assign(:form, to_form(changeset))
+       |> assign(:available_monitors, available_monitors)
+       |> assign(:linked_monitor_ids, linked_monitor_ids)
        |> assign(:test_sent, false)}
     else
       {:error, :not_found} ->
@@ -38,13 +42,19 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
-  def handle_event("save", %{"notification_channel" => params}, socket) do
+  def handle_event("save", %{"notification_channel" => params} = full_params, socket) do
+    monitor_ids = Map.get(full_params, "monitor_ids", [])
+
     case Delivery.update_channel(socket.assigns.channel, params) do
       {:ok, channel} ->
+        Delivery.sync_monitors_for_channel(channel.id, monitor_ids)
+        linked_monitor_ids = Delivery.list_monitor_ids_for_channel(channel.id)
+
         {:noreply,
          socket
          |> put_flash(:info, gettext("Channel updated successfully"))
          |> assign(:channel, channel)
+         |> assign(:linked_monitor_ids, linked_monitor_ids)
          |> assign(:form, to_form(Delivery.change_channel(channel)))}
 
       {:error, %Ecto.Changeset{} = changeset} ->

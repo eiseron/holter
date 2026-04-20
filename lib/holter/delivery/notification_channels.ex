@@ -68,4 +68,20 @@ defmodule Holter.Delivery.NotificationChannels do
     )
     |> Repo.all()
   end
+
+  def list_monitor_ids_for_channel(channel_id) do
+    MonitorNotification
+    |> where([mn], mn.notification_channel_id == ^channel_id and mn.is_active == true)
+    |> select([mn], mn.monitor_id)
+    |> Repo.all()
+  end
+
+  def sync_monitors_for_channel(channel_id, monitor_ids) do
+    current_ids = list_monitor_ids_for_channel(channel_id)
+
+    Enum.each(monitor_ids -- current_ids, &link_monitor(&1, channel_id))
+    Enum.each(current_ids -- monitor_ids, &unlink_monitor(&1, channel_id))
+
+    :ok
+  end
 end

@@ -1,7 +1,6 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   use HolterWeb, :monitoring_live_view
 
-  alias Holter.Delivery
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
 
@@ -18,17 +17,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
                max: workspace.max_monitors
              )
            )
-           |> push_navigate(to: ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")}
+           |> push_navigate(to: ~p"/workspaces/#{workspace.slug}/dashboard")}
         else
           changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
-
-          available_channels = Delivery.list_channels(workspace.id)
 
           {:ok,
            socket
            |> assign(:workspace, workspace)
            |> assign(:page_title, gettext("New Monitor"))
-           |> assign(:available_channels, available_channels)
            |> assign(:form, to_form(changeset))}
         end
 
@@ -51,20 +47,15 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   end
 
   @impl true
-  def handle_event("save", %{"monitor" => monitor_params} = params, socket) do
-    channel_ids = Map.get(params, "notification_channel_ids", [])
+  def handle_event("save", %{"monitor" => monitor_params}, socket) do
     attrs = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
 
     case Monitoring.create_monitor(attrs) do
-      {:ok, monitor} ->
-        Enum.each(channel_ids, &Delivery.link_monitor(monitor.id, &1))
-
+      {:ok, _monitor} ->
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor created successfully"))
-         |> push_navigate(
-           to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard"
-         )}
+         |> push_navigate(to: ~p"/workspaces/#{socket.assigns.workspace.slug}/dashboard")}
 
       {:error, :quota_exceeded} ->
         {:noreply,

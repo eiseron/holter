@@ -5,6 +5,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
   import Phoenix.LiveViewTest
 
   alias Holter.Delivery
+  alias Holter.Monitoring
 
   setup do
     workspace = workspace_fixture()
@@ -156,6 +157,58 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         worker: Holter.Delivery.Workers.WebhookDispatcher,
         args: %{"test" => true, "channel_id" => channel.id}
       )
+    end
+
+    test "links monitors to channel on save", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
+        )
+
+      view
+      |> form("#notification-channel-form", notification_channel: %{name: channel.name})
+      |> render_submit(%{"monitor_ids" => [monitor.id]})
+
+      assert monitor.id in Delivery.list_monitor_ids_for_channel(channel.id)
+    end
+
+    test "unlinks monitors from channel when unchecked on save", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+      Delivery.link_monitor(monitor.id, channel.id)
+
+      {:ok, view, _html} =
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
+        )
+
+      view
+      |> form("#notification-channel-form", notification_channel: %{name: channel.name})
+      |> render_submit(%{"monitor_ids" => []})
+
+      refute monitor.id in Delivery.list_monitor_ids_for_channel(channel.id)
+    end
+
+    test "renders linked monitors as checked checkboxes", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+      Delivery.link_monitor(monitor.id, channel.id)
+
+      {:ok, _view, html} =
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/#{channel.id}"
+        )
+
+      assert html =~ "value=\"#{monitor.id}\" checked"
     end
   end
 end

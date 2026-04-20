@@ -15,4 +15,6 @@ defmodule Holter.Delivery do
   defdelegate link_monitor(monitor_id, channel_id), to: NotificationChannels
   defdelegate unlink_monitor(monitor_id, channel_id), to: NotificationChannels
   defdelegate list_channels_for_monitor(monitor_id), to: NotificationChannels
+  defdelegate list_monitor_ids_for_channel(channel_id), to: NotificationChannels
+  defdelegate sync_monitors_for_channel(channel_id, monitor_ids), to: NotificationChannels
 end

@@ -33,7 +33,7 @@ msgstr "Intervalo de Verificação"
 msgid "Configure technical details, security rules, and intervals."
 msgstr "Configure os detalhes técnicos, regras de segurança e intervalos."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:41
+#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "Create Monitor"
 msgstr "Criar Monitor"
@@ -60,7 +60,7 @@ msgstr "Padrões de Intervalo"
 msgid "Method"
 msgstr "Método"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:64
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:57
 #, elixir-autogen, elixir-format
 msgid "Monitor created successfully"
 msgstr "Monitor criado com sucesso"
@@ -72,9 +72,9 @@ msgid "Must Not Contain (Defacement)"
 msgstr "Não Deve Conter (Desfigurações)"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:22
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:27
-#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:40
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:94
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:45
+#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:24
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:77
 #, elixir-autogen, elixir-format
 msgid "Saving..."
 msgstr "Salvando..."
@@ -189,23 +189,23 @@ msgstr "A resposta do endpoint DEVE conter estas palavras, caso contrário é co
 msgid "hacked, database error"
 msgstr "hacked, database error"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:103
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:86
 #, elixir-autogen, elixir-format
 msgid "Are you absolutely sure you want to delete this monitor? This action cannot be undone and you will lose all tracking history."
 msgstr "Tem certeza de que deseja excluir este monitor? Esta ação não pode ser desfeita e você perderá todo o histórico de rastreamento."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:113
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:96
 #, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:91
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:101
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:74
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:84
 #, elixir-autogen, elixir-format
 msgid "Delete Monitor"
 msgstr "Excluir Monitor"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:119
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:102
 #, elixir-autogen, elixir-format
 msgid "Deleting..."
 msgstr "Excluindo..."
@@ -215,23 +215,23 @@ msgstr "Excluindo..."
 msgid "Monitor Settings"
 msgstr "Configurações do Monitor"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:100
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:89
 #, elixir-autogen, elixir-format
 msgid "Monitor deleted successfully"
 msgstr "Monitor excluído com sucesso"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:84
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:74
 #, elixir-autogen, elixir-format
 msgid "Monitor updated successfully"
 msgstr "Monitor atualizado com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:28
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:95
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:46
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:78
 #, elixir-autogen, elixir-format
 msgid "Save Changes"
 msgstr "Salvar Alterações"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:121
+#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:104
 #, elixir-autogen, elixir-format
 msgid "Yes, Delete Completely"
 msgstr "Sim, Excluir Definitivamente"
@@ -373,7 +373,7 @@ msgstr "Snippet de Conteúdo"
 msgid "Details"
 msgstr "Detalhes"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:179
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:168
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr "Falha ao disparar a verificação"
@@ -386,14 +386,14 @@ msgstr "De"
 
 #: lib/holter_web/components/monitoring/dashboard_header.ex:16
 #: lib/holter_web/components/monitoring/monitor_subnav.ex:16
-#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:16
+#: lib/holter_web/web/live/workspace_dashboard/index_live.ex:16
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
 msgstr "Dashboard"
 
 #: lib/holter_web/components/monitoring/dashboard_header.ex:38
 #: lib/holter_web/components/monitoring/dashboard_header.ex:55
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:30
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:27
 #, elixir-autogen, elixir-format
 msgid "New Monitor"
 msgstr "Novo Monitor"
@@ -403,7 +403,7 @@ msgstr "Novo Monitor"
 msgid "No data yet"
 msgstr "Sem dados ainda"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/index.html.heex:11
+#: lib/holter_web/web/live/workspace_dashboard/index_live.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "No assets monitored. Add a domain to start the audit."
 msgstr "Nenhum ativo monitorado. Adicione um domínio para iniciar a auditoria."
@@ -463,8 +463,8 @@ msgstr "Ativo"
 msgid "Monitor limit reached (%{max}/%{max})"
 msgstr "Limite de monitores atingido (%{max}/%{max})"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:17
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:74
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:16
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:65
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace (max: %{max})"
 msgstr "Limite de monitores atingido para este workspace (máximo: %{max})"
@@ -490,20 +490,20 @@ msgstr "Máx. de Redirecionamentos"
 msgid "Maximum number of sequential redirects to follow (1-20)."
 msgstr "Número máximo de redirecionamentos sequenciais a seguir (1-20)."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:47
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:41
 #, elixir-autogen, elixir-format
 msgid "Please wait before triggering another manual check."
 msgstr "Por favor, aguarde antes de acionar outra verificação manual."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:54
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:48
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Please save them before checking."
 msgstr "Você tem alterações não salvas. Por favor, salve-as antes de verificar."
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/index.ex:22
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.ex:23
-#: lib/holter_web/web/live/monitoring/monitor_live/index.ex:22
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:38
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:34
+#: lib/holter_web/web/live/workspace_dashboard/index_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Workspace not found"
 msgstr "Workspace não encontrado"
@@ -635,7 +635,7 @@ msgid "Log Evidence"
 msgstr "Evidência do Log"
 
 #: lib/holter_web/components/monitoring/monitor_subnav.ex:23
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:32
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:28
 #, elixir-autogen, elixir-format
 msgid "Monitor Details"
 msgstr "Detalhes do Monitor"
@@ -645,7 +645,7 @@ msgstr "Detalhes do Monitor"
 msgid "Monitor Logs"
 msgstr "Logs do Monitor"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:176
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:165
 #, elixir-autogen, elixir-format
 msgid "Hourly check limit reached for this workspace."
 msgstr "Limite horário de verificações atingido para este espaço de trabalho."
@@ -660,12 +660,12 @@ msgstr "Erro de Rede"
 msgid "The connection failed before a response was received (no HTTP status code)."
 msgstr "A conexão falhou antes de receber uma resposta (sem código de status HTTP)."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:172
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:161
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
 msgstr "Muitas verificações no último minuto. Por favor, aguarde."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:84
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:75
 #, elixir-autogen, elixir-format
 msgid "Too many monitors created recently. Please wait before creating another."
 msgstr "Muitos monitores criados recentemente. Aguarde antes de criar outro."
@@ -887,7 +887,7 @@ msgstr "Canal criado com sucesso"
 msgid "Channel not found"
 msgstr "Canal não encontrado"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:46
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:55
 #, elixir-autogen, elixir-format
 msgid "Channel updated successfully"
 msgstr "Canal atualizado com sucesso"
@@ -917,7 +917,7 @@ msgstr "Discord"
 msgid "Email"
 msgstr "E-mail"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:65
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:75
 #, elixir-autogen, elixir-format
 msgid "Failed to enqueue test notification"
 msgstr "Falha ao enfileirar notificação de teste"
@@ -959,15 +959,13 @@ msgstr "Novo Canal de Notificação"
 msgid "No notification channels yet. Create one to receive alerts."
 msgstr "Nenhum canal de notificação ainda. Crie um para receber alertas."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:25
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:29
 #, elixir-autogen, elixir-format
 msgid "Not found"
 msgstr "Não encontrado"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/index.ex:17
 #: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:3
-#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:25
-#: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:70
 #, elixir-autogen, elixir-format
 msgid "Notification Channels"
 msgstr "Canais de Notificação"
@@ -977,7 +975,7 @@ msgstr "Canais de Notificação"
 msgid "Ongoing"
 msgstr "Em andamento"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:13
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "Send Test"
 msgstr "Enviar Teste"
@@ -993,7 +991,7 @@ msgstr "Slack"
 msgid "Target"
 msgstr "Destino"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:61
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:71
 #, elixir-autogen, elixir-format
 msgid "Test notification enqueued"
 msgstr "Notificação de teste enfileirada"
@@ -1018,7 +1016,7 @@ msgstr "Configure o destino de entrega para alertas de monitoramento."
 msgid "Delivery method. Cannot be changed after creation."
 msgstr "Método de entrega. Não pode ser alterado após a criação."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:9
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "Type: %{type}"
 msgstr "Tipo: %{type}"
@@ -1027,3 +1025,13 @@ msgstr "Tipo: %{type}"
 #, elixir-autogen, elixir-format
 msgid "URL for webhook, Slack, and Discord channels. Email address for email channels."
 msgstr "URL para canais webhook, Slack e Discord. Endereço de e-mail para canais de e-mail."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "Linked Monitors"
+msgstr "Monitores Vinculados"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Select which monitors will trigger notifications through this channel."
+msgstr "Selecione quais monitores irão disparar notificações por este canal."

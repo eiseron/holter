@@ -1,6 +1,6 @@
 <.page_container>
   <:title>
-    <.back_link navigate={~p"/monitoring/workspaces/#{@workspace.slug}/dashboard"} />
+    <.back_link navigate={~p"/workspaces/#{@workspace.slug}/dashboard"} />
     {gettext("Monitor Settings")}
     <.health_badge status={@monitor.health_status} logical_state={@monitor.logical_state} />
   </:title>
@@ -64,23 +64,6 @@
       show_logical_state={true}
       min_interval_seconds={@workspace.min_interval_seconds}
     />
-
-    <%= if @available_channels != [] do %>
-      <fieldset class="h-fieldset-card">
-        <legend class="h-fieldset-legend">{gettext("Notification Channels")}</legend>
-        <%= for channel <- @available_channels do %>
-          <label>
-            <input
-              type="checkbox"
-              name="notification_channel_ids[]"
-              value={channel.id}
-              checked={channel.id in @linked_channel_ids}
-            />
-            {channel.name} ({channel.type})
-          </label>
-        <% end %>
-      </fieldset>
-    <% end %>
 
     <div class="h-actions-row">
       <button

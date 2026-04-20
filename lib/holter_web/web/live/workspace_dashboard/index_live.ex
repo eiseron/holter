@@ -1,4 +1,4 @@
-defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
+defmodule HolterWeb.Web.WorkspaceDashboard.IndexLive do
   use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring

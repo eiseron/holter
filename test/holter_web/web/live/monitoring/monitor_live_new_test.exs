@@ -124,7 +124,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveNewTest do
       |> form("#monitor-form", monitor: @valid_attrs)
       |> render_submit()
 
-      assert_redirect(view, "/monitoring/workspaces/#{workspace.slug}/dashboard")
+      assert_redirect(view, "/workspaces/#{workspace.slug}/dashboard")
     end
   end
 end

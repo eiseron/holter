@@ -10,7 +10,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorSubnav do
     ~H"""
     <nav class="h-page-nav">
       <.link
-        navigate={~p"/monitoring/workspaces/#{@workspace_slug}/dashboard"}
+        navigate={~p"/workspaces/#{@workspace_slug}/dashboard"}
         class="h-nav-link"
       >
         {gettext("Dashboard")}

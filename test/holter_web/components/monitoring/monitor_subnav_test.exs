@@ -18,17 +18,17 @@ defmodule HolterWeb.Components.Monitoring.MonitorSubnavTest do
   describe "Dashboard link" do
     test "always renders with the correct workspace URL" do
       html = render_nav(:show)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
+      assert html =~ ~s(href="/workspaces/#{@workspace_slug}/dashboard")
     end
 
     test "renders on nested pages (log_detail)" do
       html = render_nav(:log_detail)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
+      assert html =~ ~s(href="/workspaces/#{@workspace_slug}/dashboard")
     end
 
     test "renders on nested pages (incident_detail)" do
       html = render_nav(:incident_detail)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
+      assert html =~ ~s(href="/workspaces/#{@workspace_slug}/dashboard")
     end
   end
 
