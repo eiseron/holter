@@ -63,5 +63,6 @@
 }
 
 @media (max-width: 479px) {
+  .h-fieldset-card { padding: var(--space-4); }
   .h-actions-row { flex-direction: column-reverse; align-items: stretch; gap: var(--space-4); }
 }

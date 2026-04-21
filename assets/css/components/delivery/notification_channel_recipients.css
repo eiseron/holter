@@ -82,3 +82,10 @@
   color: var(--color-danger, #dc2626);
   background: var(--color-danger-bg, #fee2e2);
 }
+
+@media (max-width: 479px) {
+  .h-recipient-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
