@@ -58,7 +58,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
 
       assert html =~ ~s(placeholder="https://example.com/webhook")
-      assert html =~ ~s(type="url")
+      assert html =~ ~s(type="text")
     end
 
     test "updates placeholder and input type when type changes to email", %{

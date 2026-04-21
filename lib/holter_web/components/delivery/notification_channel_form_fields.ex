@@ -68,7 +68,7 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
   end
 
   defp input_type_for(:email), do: "email"
-  defp input_type_for(_), do: "url"
+  defp input_type_for(_), do: "text"
 
   defp target_placeholder(:email), do: "ops@example.com"
   defp target_placeholder(_), do: "https://example.com/webhook"
