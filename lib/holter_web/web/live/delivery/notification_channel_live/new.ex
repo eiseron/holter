@@ -6,7 +6,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   alias Holter.Delivery
   alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.NotificationChannel
-  alias Holter.Mailer
+  alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
 
   @impl true
@@ -99,6 +99,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
     end
   end
 
+  defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
+
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   defp add_pending_cc_recipients(channel, emails) do
@@ -108,8 +110,12 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
           verification_url =
             url(~p"/delivery/notification-channels/recipients/verify/#{recipient.token}")
 
-          RecipientVerification.build_verification_email(recipient, channel, verification_url)
-          |> Mailer.deliver()
+          RecipientVerification.build_verification_email(
+            recipient,
+            channel,
+            %{url: verification_url, from: info_from_address()}
+          )
+          |> InfoMailer.deliver()
 
         {:error, _} ->
           :ok

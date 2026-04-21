@@ -3,12 +3,10 @@ defmodule Holter.Delivery.Emails.RecipientVerification do
 
   import Swoosh.Email
 
-  @from_address "alerts@holter.io"
-
-  def build_verification_email(recipient, channel, verification_url) do
+  def build_verification_email(recipient, channel, %{url: verification_url, from: from_address}) do
     new()
     |> to(recipient.email)
-    |> from(@from_address)
+    |> from(from_address)
     |> subject("Verify your notification email — #{channel.name}")
     |> text_body(
       "You were added as a CC recipient for monitoring alerts on the channel \"#{channel.name}\".\n\n" <>

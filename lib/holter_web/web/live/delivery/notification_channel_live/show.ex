@@ -6,7 +6,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   alias Holter.Delivery
   alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.Engine
-  alias Holter.Mailer
+  alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
 
   @impl true
@@ -98,8 +98,12 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
         verification_url =
           url(~p"/delivery/notification-channels/recipients/verify/#{recipient.token}")
 
-        RecipientVerification.build_verification_email(recipient, channel, verification_url)
-        |> Mailer.deliver()
+        RecipientVerification.build_verification_email(
+          recipient,
+          channel,
+          %{url: verification_url, from: info_from_address()}
+        )
+        |> InfoMailer.deliver()
 
         {:noreply,
          socket
@@ -137,4 +141,6 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
 
   defp load_recipients(%{type: :email, id: id}), do: Delivery.list_recipients(id)
   defp load_recipients(_), do: []
+
+  defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
 end

@@ -21,7 +21,8 @@ config :holter, HolterWeb.Endpoint,
   server: false
 
 # In test we don't send emails
-config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Test
+config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Test
+config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Test
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false

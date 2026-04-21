@@ -24,6 +24,32 @@ if from_address = System.get_env("DELIVERY_ALERT_FROM_EMAIL") do
   config :holter, :email, from_address: from_address
 end
 
+if from_address = System.get_env("INFO_FROM_EMAIL") do
+  config :holter, :info_email, from_address: from_address
+end
+
+if System.get_env("ALERT_SMTP_HOST") do
+  config :holter, Holter.Mailers.AlertMailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: System.get_env("ALERT_SMTP_HOST"),
+    port: String.to_integer(System.get_env("ALERT_SMTP_PORT", "587")),
+    username: System.get_env("ALERT_SMTP_USERNAME"),
+    password: System.get_env("ALERT_SMTP_PASSWORD"),
+    tls: :always,
+    auth: :always
+end
+
+if System.get_env("INFO_SMTP_HOST") do
+  config :holter, Holter.Mailers.InfoMailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: System.get_env("INFO_SMTP_HOST"),
+    port: String.to_integer(System.get_env("INFO_SMTP_PORT", "587")),
+    username: System.get_env("INFO_SMTP_USERNAME"),
+    password: System.get_env("INFO_SMTP_PASSWORD"),
+    tls: :always,
+    auth: :always
+end
+
 config :holter, HolterWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 

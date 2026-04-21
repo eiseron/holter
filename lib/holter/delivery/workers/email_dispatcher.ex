@@ -7,7 +7,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Delivery.NotificationChannels
-  alias Holter.Mailer
+  alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring
 
   @impl Oban.Worker
@@ -39,7 +39,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
-    |> Mailer.deliver()
+    |> AlertMailer.deliver()
 
     :ok
   end
@@ -58,7 +58,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
-    |> Mailer.deliver()
+    |> AlertMailer.deliver()
 
     :ok
   end

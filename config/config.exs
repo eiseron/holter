@@ -17,9 +17,11 @@ config :holter, HolterWeb.Endpoint,
   pubsub_server: Holter.PubSub,
   live_view: [signing_salt: "W9N2oSh5"]
 
-config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Local
+config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Local
+config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Local
 
 config :holter, :email, from_address: "noreply@alerts.holter.dev"
+config :holter, :info_email, from_address: "noreply@holter.dev"
 
 config :esbuild,
   version: "0.25.4",
