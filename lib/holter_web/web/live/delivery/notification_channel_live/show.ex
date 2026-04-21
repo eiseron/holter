@@ -89,7 +89,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
-  def handle_event("add_recipient", %{"email" => email}, socket) do
+  def handle_event("add_recipient", params, socket) do
+    email = (Map.get(params, "email") || Map.get(params, "value", "")) |> String.trim()
     channel = socket.assigns.channel
 
     case Delivery.add_recipient(channel.id, email) do

@@ -378,6 +378,65 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
     end
   end
 
+  describe "Show — full email channel update flow" do
+    test "updates email channel with CC recipients and monitors", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      monitor1 = monitor_fixture(%{workspace_id: workspace.id})
+      monitor2 = monitor_fixture(%{workspace_id: workspace.id})
+
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ channel.name
+      assert html =~ channel.target
+      assert html =~ "The primary email address that will receive alerts."
+      assert html =~ "CC Recipients"
+      assert html =~ monitor1.url
+      assert html =~ monitor2.url
+
+      html = render_keydown(view, "add_recipient", %{"value" => "alice@example.com"})
+
+      assert html =~ "alice@example.com"
+      assert html =~ "Pending"
+
+      html = render_keydown(view, "add_recipient", %{"value" => "bob@example.com"})
+
+      assert html =~ "alice@example.com"
+      assert html =~ "bob@example.com"
+
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "Updated Alerts",
+          target: "new@example.com"
+        }
+      )
+      |> render_submit(%{"monitor_ids" => [monitor1.id, monitor2.id]})
+
+      assert render(view) =~ "Channel updated successfully"
+
+      updated = Delivery.get_channel!(channel.id)
+      assert updated.name == "Updated Alerts"
+      assert updated.target == "new@example.com"
+
+      assert monitor1.id in Delivery.list_monitor_ids_for_channel(channel.id)
+      assert monitor2.id in Delivery.list_monitor_ids_for_channel(channel.id)
+
+      recipients = Delivery.list_recipients(channel.id)
+      assert length(recipients) == 2
+      recipient_emails = Enum.map(recipients, & &1.email) |> MapSet.new()
+      assert MapSet.member?(recipient_emails, "alice@example.com")
+      assert MapSet.member?(recipient_emails, "bob@example.com")
+
+      assert_email_sent(to: "alice@example.com")
+      assert_email_sent(to: "bob@example.com")
+    end
+  end
+
   describe "New — full email channel creation flow" do
     test "creates email channel with CC recipients and monitors", %{
       conn: conn,
