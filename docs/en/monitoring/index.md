@@ -11,7 +11,7 @@ Holter's monitoring module continuously checks your URLs and alerts you when som
 
 | Page | Description |
 |------|-------------|
-| [Dashboard](dashboard.md) | Overview of all monitors in your workspace, ranked by severity |
+| [Monitors](dashboard.md) | Overview of all monitors in your workspace, ranked by severity |
 | [New Monitor](new-monitor.md) | Create a monitor and configure its URL, method, keywords, and schedule |
 | [Monitor Settings](monitor-settings.md) | Edit a monitor, run a manual check, and view its health history |
 | [Daily Metrics](daily-metrics.md) | Uptime percentages, average latency, and downtime minutes per day |

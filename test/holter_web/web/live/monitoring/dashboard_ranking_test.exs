@@ -31,7 +31,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :down
         )
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       urls = extract_monitor_urls(view)
 
@@ -57,7 +57,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :up
         )
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       urls_initial = extract_monitor_urls(view)
       assert List.first(urls_initial) == monitor_2.url
@@ -85,7 +85,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           logical_state: :paused
         )
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       urls = extract_monitor_urls(view)
 
@@ -110,7 +110,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           logical_state: :paused
         )
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       urls = extract_monitor_urls(view)
 
@@ -137,7 +137,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
           health_status: :down
         )
 
-      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")
+      {:ok, view, _html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
       urls = extract_monitor_urls(view)
 

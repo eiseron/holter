@@ -82,6 +82,7 @@ defmodule Holter.Monitoring.Incidents do
          |> Repo.insert() do
       {:ok, incident} ->
         Broadcaster.broadcast({:ok, incident}, :incident_created, incident.monitor_id)
+        Broadcaster.broadcast_incident_opened(incident)
         {:ok, incident}
 
       error ->
@@ -122,6 +123,7 @@ defmodule Holter.Monitoring.Incidents do
     if count == 1 do
       updated = %{incident | resolved_at: resolved_at, duration_seconds: duration}
       Broadcaster.broadcast({:ok, updated}, :incident_resolved, updated.monitor_id)
+      Broadcaster.broadcast_incident_resolved(updated)
       {:ok, updated}
     else
       {:ok, incident}

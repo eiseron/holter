@@ -18,3 +18,4 @@ Novo no Holter? Comece aqui:
 | Módulo | Descrição |
 |--------|-----------|
 | [Monitoramento](monitoring/index.md) | Verificações contínuas de URLs, histórico de uptime, alertas de incidentes e logs técnicos |
+| [Entrega](delivery/index.md) | Canais de notificação para receber alertas quando monitores caem ou se recuperam |

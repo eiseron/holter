@@ -8,4 +8,16 @@ defmodule Holter.Monitoring.Broadcaster do
   end
 
   def broadcast(error, _event, _monitor_id), do: error
+
+  def broadcast_incident_opened(incident) do
+    Phoenix.PubSub.broadcast(Holter.PubSub, "monitoring:incidents", {:incident_opened, incident})
+  end
+
+  def broadcast_incident_resolved(incident) do
+    Phoenix.PubSub.broadcast(
+      Holter.PubSub,
+      "monitoring:incidents",
+      {:incident_resolved, incident}
+    )
+  end
 end

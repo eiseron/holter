@@ -92,14 +92,14 @@ defmodule HolterWeb do
   def monitoring_live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {HolterWeb.Layouts, :app}
+        layout: {HolterWeb.Layouts, :workspace}
 
       on_mount HolterWeb.ObservabilityHook
+      on_mount HolterWeb.Hooks.MonitoringWorkspaceHook
 
       unquote(html_helpers())
 
       import HolterWeb.Timezone, only: [format_datetime: 2, short_cause: 1]
-      import HolterWeb.Components.Monitoring.MonitorPageContainer
       import HolterWeb.Components.Monitoring.DashboardHeader
       import HolterWeb.Components.Monitoring.MonitorCard
       import HolterWeb.Components.Monitoring.HealthBadge
@@ -113,6 +113,31 @@ defmodule HolterWeb do
       import HolterWeb.Components.Monitoring.DailyMetricsChart
       import HolterWeb.Components.Monitoring.MonitorSubnav
       import HolterWeb.Components.Monitoring.IncidentGanttChart
+    end
+  end
+
+  def workspace_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :workspace}
+
+      on_mount HolterWeb.ObservabilityHook
+
+      unquote(html_helpers())
+    end
+  end
+
+  def delivery_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :workspace}
+
+      on_mount HolterWeb.ObservabilityHook
+      on_mount HolterWeb.Hooks.DeliveryWorkspaceHook
+
+      unquote(html_helpers())
+
+      import HolterWeb.Components.Delivery.NotificationChannelFormFields
     end
   end
 
@@ -143,6 +168,7 @@ defmodule HolterWeb do
       import HolterWeb.Components.BackLink
       import HolterWeb.Components.Pagination
       import HolterWeb.Components.EmptyState
+      import HolterWeb.Components.PageContainer
 
       use Gettext, backend: HolterWeb.Gettext
 

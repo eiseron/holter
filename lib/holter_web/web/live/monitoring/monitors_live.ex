@@ -1,5 +1,8 @@
-defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
-  use HolterWeb, :monitoring_live_view
+defmodule HolterWeb.Web.Monitoring.MonitorsLive do
+  use HolterWeb, :workspace_live_view
+
+  import HolterWeb.Components.Monitoring.DashboardHeader
+  import HolterWeb.Components.Monitoring.MonitorCard
 
   alias Holter.Monitoring
   alias HolterWeb.LiveView.PubSubSubscriptions
@@ -13,7 +16,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Index do
         {:ok,
          socket
          |> assign(:workspace, workspace)
-         |> assign(:page_title, gettext("Dashboard"))
+         |> assign(:page_title, gettext("Monitors"))
          |> fetch_monitors()}
 
       {:error, :not_found} ->

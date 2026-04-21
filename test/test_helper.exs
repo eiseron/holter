@@ -1,4 +1,5 @@
 Mox.defmock(Holter.Monitoring.MonitorClientMock, for: Holter.Monitoring.MonitorClient)
+Mox.defmock(Holter.Delivery.HttpClientMock, for: Holter.Delivery.HttpClient)
 
 {:ok, _} = Holter.Test.DummyService.start_link([])
 {:ok, _} = Bandit.start_link(plug: Holter.Test.DummyService, port: 4001)

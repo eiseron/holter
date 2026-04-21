@@ -9,7 +9,7 @@ The New Monitor form lets you configure a URL to be checked on a recurring sched
 
 ## Accessing the Form
 
-Click **New Monitor** on the Dashboard, or navigate directly to `/monitoring/workspaces/{workspace_slug}/monitor/new`.
+Click **New Monitor** on the Monitors page, or navigate directly to `/monitoring/workspaces/{workspace_slug}/monitor/new`.
 
 If your workspace is at quota, the button is disabled. Delete or archive an existing monitor first.
 
@@ -46,4 +46,6 @@ The form validates in real time as you type. Errors appear inline below each fie
 
 ## After Creation
 
-On success, you are redirected to the Dashboard. The new monitor begins checking on the next dispatch cycle (within one minute for active monitors).
+On success, you are redirected to the Monitor Settings page for the new monitor. The monitor begins checking on the next dispatch cycle (within one minute for active monitors).
+
+To link notification channels to the monitor, go to **Channels** in the left sidebar, open a channel, and select the monitor from the Linked Monitors list. See [Notification Channels](../delivery/notification-channels.md).

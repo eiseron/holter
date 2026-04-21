@@ -87,7 +87,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     {:noreply,
      socket
      |> put_flash(:info, gettext("Monitor deleted successfully"))
-     |> push_navigate(to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard")}
+     |> push_navigate(to: "/")}
   end
 
   @impl true

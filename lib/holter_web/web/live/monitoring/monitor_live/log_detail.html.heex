@@ -1,4 +1,4 @@
-<.monitor_page_container>
+<.page_container>
   <:title>
     <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}/logs"} />
     {gettext("Log Details")}
@@ -10,7 +10,6 @@
   <.monitor_subnav
     monitor_id={@monitor.id}
     current_page={:log_detail}
-    workspace_slug={@workspace_slug}
   />
 
   <article class="h-log-detail-content">
@@ -124,4 +123,4 @@
       <% end %>
     </div>
   </article>
-</.monitor_page_container>
+</.page_container>

@@ -17,7 +17,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
                max: workspace.max_monitors
              )
            )
-           |> push_navigate(to: ~p"/monitoring/workspaces/#{workspace.slug}/dashboard")}
+           |> push_navigate(to: "/")}
         else
           changeset = Monitoring.change_monitor(%Monitor{workspace_id: workspace.id})
 
@@ -48,16 +48,14 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
 
   @impl true
   def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    params = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
+    attrs = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
 
-    case Monitoring.create_monitor(params) do
-      {:ok, _monitor} ->
+    case Monitoring.create_monitor(attrs) do
+      {:ok, monitor} ->
         {:noreply,
          socket
          |> put_flash(:info, gettext("Monitor created successfully"))
-         |> push_navigate(
-           to: ~p"/monitoring/workspaces/#{socket.assigns.workspace.slug}/dashboard"
-         )}
+         |> push_navigate(to: ~p"/monitoring/monitor/#{monitor.id}")}
 
       {:error, :quota_exceeded} ->
         {:noreply,

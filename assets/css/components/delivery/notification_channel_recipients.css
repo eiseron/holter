@@ -1,0 +1,91 @@
+.h-recipient-add-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.h-recipient-email-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.h-recipient-empty {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.h-recipients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.h-recipient-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.h-recipient-email {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.h-recipient-badge {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.h-recipient-badge--verified {
+  color: var(--color-success-text, #166534);
+  background: var(--color-success-bg, #dcfce7);
+}
+
+.h-recipient-badge--pending {
+  color: var(--color-warning-text, #92400e);
+  background: var(--color-warning-bg, #fef3c7);
+}
+
+.h-recipient-remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.h-recipient-remove:hover {
+  color: var(--color-danger, #dc2626);
+  background: var(--color-danger-bg, #fee2e2);
+}
+
+@media (max-width: 479px) {
+  .h-recipient-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

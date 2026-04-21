@@ -44,13 +44,38 @@ defmodule HolterWeb.Router do
     end
 
     resources "/incidents", IncidentController, only: [:show]
+
+    scope "/workspaces/:workspace_slug" do
+      resources "/notification_channels", NotificationChannelController, except: [:new, :edit]
+    end
+
+    resources "/notification_channels", NotificationChannelController, only: [] do
+      post "/test", NotificationChannelController, :test
+    end
+  end
+
+  scope "/delivery/workspaces/:workspace_slug", HolterWeb.Web.Delivery do
+    pipe_through :browser
+
+    live "/channels", ChannelsLive, :index
+    live "/notification-channels/new", NotificationChannelLive.New, :new
+  end
+
+  scope "/delivery", HolterWeb.Web.Delivery do
+    pipe_through :browser
+
+    live "/notification-channels/recipients/verify/:token",
+         NotificationChannelRecipientLive.Verify,
+         :verify
+
+    live "/notification-channels/:id", NotificationChannelLive.Show, :show
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
-    live "/dashboard", MonitorLive.Index, :index
     live "/monitor/new", MonitorLive.New, :new
+    live "/monitors", MonitorsLive, :index
   end
 
   scope "/monitoring", HolterWeb.Web.Monitoring do

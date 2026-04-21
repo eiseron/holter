@@ -21,7 +21,8 @@ config :holter, HolterWeb.Endpoint,
   server: false
 
 # In test we don't send emails
-config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Test
+config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Test
+config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Test
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
@@ -52,6 +53,8 @@ config :holter, dev_routes: true
 config :holter, :sql_sandbox, true
 
 config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
+config :holter, delivery_http_client: Holter.Delivery.HttpClientMock
+config :holter, start_delivery_event_consumer: false
 
 # Set default locale to English for tests
 config :holter, HolterWeb.Gettext, default_locale: "en"

@@ -1,15 +1,15 @@
 ---
-title: Dashboard
+title: Monitores
 description: Visão geral de todos os monitores do workspace, ordenados por severidade, com atualizações em tempo real.
 ---
 
-# Dashboard
+# Monitores
 
-O Dashboard é a tela principal do módulo de monitoramento. Ele exibe todos os monitores de um workspace em uma grade de cards, ordenados para que os problemas mais críticos apareçam primeiro.
+A página Monitores é a tela principal do módulo de monitoramento. Ela exibe todos os monitores de um workspace em uma grade de cards, ordenados para que os problemas mais críticos apareçam primeiro.
 
-## Acessando o Dashboard
+## Acessando a Página
 
-Navegue para `/monitoring/workspaces/{workspace_slug}/dashboard`. O slug do workspace aparece apenas nas URLs do dashboard e do formulário de novo monitor; as páginas de monitor individual, logs e métricas utilizam o ID do monitor ou do log.
+Clique em **Monitores** na barra lateral esquerda, ou navegue diretamente para `/workspaces/{workspace_slug}/monitors`.
 
 ## Cards de Monitor
 
@@ -57,7 +57,7 @@ Clique em **Novo Monitor** no canto superior direito para abrir o formulário de
 
 ## Estado Vazio
 
-Se nenhum monitor foi criado ainda, o dashboard exibe um prompt para criar o primeiro.
+Se nenhum monitor foi criado ainda, a página exibe um prompt para criar o primeiro.
 
 ## Atualizações em Tempo Real
 

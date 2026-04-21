@@ -1,4 +1,4 @@
-<.monitor_page_container>
+<.page_container>
   <:title>
     <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
     {gettext("Daily Uptime History")}
@@ -10,7 +10,6 @@
   <.monitor_subnav
     monitor_id={@monitor.id}
     current_page={:daily_metrics}
-    workspace_slug={@workspace_slug}
   />
 
   <.daily_metrics_chart
@@ -75,4 +74,4 @@
       total_pages={@total_pages}
     />
   </div>
-</.monitor_page_container>
+</.page_container>

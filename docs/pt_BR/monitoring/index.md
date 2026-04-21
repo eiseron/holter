@@ -11,7 +11,7 @@ O módulo de monitoramento do Holter verifica continuamente suas URLs e avisa qu
 
 | Página | Descrição |
 |--------|-----------|
-| [Dashboard](dashboard.md) | Visão geral de todos os monitores do workspace, ordenados por severidade |
+| [Monitores](dashboard.md) | Visão geral de todos os monitores do workspace, ordenados por severidade |
 | [Novo Monitor](new-monitor.md) | Crie um monitor e configure URL, método, palavras-chave e agendamento |
 | [Configurações do Monitor](monitor-settings.md) | Edite um monitor, execute uma verificação manual e veja o histórico de saúde |
 | [Métricas Diárias](daily-metrics.md) | Percentuais de uptime, latência média e minutos de indisponibilidade por dia |

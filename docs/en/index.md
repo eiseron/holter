@@ -18,3 +18,4 @@ New to Holter? Start here:
 | Module | Description |
 |--------|-------------|
 | [Monitoring](monitoring/index.md) | Continuous URL checks, uptime history, incident alerts, and technical logs |
+| [Delivery](delivery/index.md) | Notification channels for receiving alerts when monitors go down or recover |

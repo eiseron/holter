@@ -1,4 +1,4 @@
-<.monitor_page_container>
+<.page_container>
   <:title>
     <.back_link navigate={~p"/monitoring/monitor/#{@monitor.id}"} />
     {gettext("Incidents")}
@@ -10,7 +10,6 @@
   <.monitor_subnav
     monitor_id={@monitor.id}
     current_page={:incidents}
-    workspace_slug={@workspace_slug}
   />
 
   <section aria-label={gettext("Filters")} class="h-logs-filters">
@@ -128,4 +127,4 @@
       total_pages={@total_pages}
     />
   </section>
-</.monitor_page_container>
+</.page_container>

@@ -9,14 +9,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
   def mount(%{"log_id" => log_id}, _session, socket) do
     log = Monitoring.get_monitor_log!(log_id)
     monitor = Monitoring.get_monitor!(log.monitor_id)
-    workspace = Monitoring.get_workspace!(monitor.workspace_id)
 
     {payload_log, inherited?} = resolve_payload(log, monitor)
 
     {:ok,
      socket
      |> assign(:monitor, monitor)
-     |> assign(:workspace_slug, workspace.slug)
      |> assign(:page_title, gettext("Log Evidence"))
      |> assign(:log, log)
      |> assign(:payload_log, payload_log)

@@ -9,7 +9,7 @@ O formulário Novo Monitor permite configurar uma URL para ser verificada em um 
 
 ## Acessando o Formulário
 
-Clique em **Novo Monitor** no Dashboard ou navegue diretamente para `/monitoring/workspaces/{workspace_slug}/monitor/new`.
+Clique em **Novo Monitor** na página de Monitores ou navegue diretamente para `/monitoring/workspaces/{workspace_slug}/monitor/new`.
 
 Se o workspace estiver na cota máxima, o botão estará desabilitado. Exclua ou arquive um monitor existente antes de criar um novo.
 
@@ -46,4 +46,6 @@ O formulário valida em tempo real enquanto você digita. Erros aparecem inline 
 
 ## Após a Criação
 
-Em caso de sucesso, você é redirecionado para o Dashboard. O novo monitor começa a verificar no próximo ciclo de despacho (em até um minuto para monitores ativos).
+Em caso de sucesso, você é redirecionado para a página de Configurações do Monitor recém-criado. O monitor começa a verificar no próximo ciclo de despacho (em até um minuto para monitores ativos).
+
+Para vincular canais de notificação ao monitor, acesse **Canais** na barra lateral esquerda, abra um canal e selecione o monitor na lista de Monitores Vinculados. Veja [Canais de Notificação](../delivery/notification-channels.md).

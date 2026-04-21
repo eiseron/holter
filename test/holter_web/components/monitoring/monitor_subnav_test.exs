@@ -5,31 +5,12 @@ defmodule HolterWeb.Components.Monitoring.MonitorSubnavTest do
   import HolterWeb.Components.Monitoring.MonitorSubnav
 
   @monitor_id "abc-123"
-  @workspace_slug "my-workspace"
 
   defp render_nav(current_page) do
     render_component(&monitor_subnav/1,
       monitor_id: @monitor_id,
-      workspace_slug: @workspace_slug,
       current_page: current_page
     )
-  end
-
-  describe "Dashboard link" do
-    test "always renders with the correct workspace URL" do
-      html = render_nav(:show)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
-    end
-
-    test "renders on nested pages (log_detail)" do
-      html = render_nav(:log_detail)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
-    end
-
-    test "renders on nested pages (incident_detail)" do
-      html = render_nav(:incident_detail)
-      assert html =~ ~s(href="/monitoring/workspaces/#{@workspace_slug}/dashboard")
-    end
   end
 
   describe "Monitor Details link" do
@@ -116,11 +97,6 @@ defmodule HolterWeb.Components.Monitoring.MonitorSubnavTest do
   end
 
   describe "link labels" do
-    test "renders Dashboard label" do
-      html = render_nav(:logs)
-      assert html =~ "Dashboard"
-    end
-
     test "renders Monitor Details label" do
       html = render_nav(:logs)
       assert html =~ "Monitor Details"

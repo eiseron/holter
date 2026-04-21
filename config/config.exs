@@ -17,7 +17,11 @@ config :holter, HolterWeb.Endpoint,
   pubsub_server: Holter.PubSub,
   live_view: [signing_salt: "W9N2oSh5"]
 
-config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Local
+config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Local
+config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Local
+
+config :holter, :email, from_address: "noreply@alerts.holter.dev"
+config :holter, :info_email, from_address: "noreply@holter.dev"
 
 config :esbuild,
   version: "0.25.4",
@@ -66,6 +70,7 @@ config :phoenix, :json_library, Jason
 
 config :holter, :api_specs, [
   {HolterWeb.Api.MonitoringApiSpec, "docs/api/monitoring.yml"},
+  {HolterWeb.Api.DeliveryApiSpec, "docs/api/delivery.yml"},
   {HolterWeb.Api.ApiSpec, "docs/api/openapi.yml"}
 ]
 
@@ -80,6 +85,6 @@ config :holter, Oban,
         Holter.Monitoring.Workers.DailyMetricsAggregator}
      ]}
   ],
-  queues: [dispatchers: 1, checks: 50, metrics: 5]
+  queues: [dispatchers: 1, checks: 50, metrics: 5, notifications: 10]
 
 import_config "#{config_env()}.exs"

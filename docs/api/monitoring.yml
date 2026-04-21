@@ -132,34 +132,20 @@ components:
       x-struct:
       x-validate:
     Error:
-      additionalProperties: false
-      description: Standard error response.
       properties:
         error:
           properties:
             code:
-              description: Machine-readable error code (slug).
               type: string
-              x-struct:
-              x-validate:
-            details:
-              description: Optional additional error details (e.g. validation errors).
-              type: object
               x-struct:
               x-validate:
             message:
-              description: Human-readable error message.
               type: string
               x-struct:
               x-validate:
-          required:
-            - code
-            - message
           type: object
           x-struct:
           x-validate:
-      required:
-        - error
       title: Error
       type: object
       x-struct:
@@ -1453,6 +1439,262 @@ components:
           x-struct:
           x-validate:
       title: MonitorUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    NotificationChannel:
+      additionalProperties: false
+      description: A notification delivery channel (webhook, email, Slack, or Discord).
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        target:
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - email
+            - webhook
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - name
+        - type
+        - target
+        - inserted_at
+        - updated_at
+      title: NotificationChannel
+      type: object
+      x-struct:
+      x-validate:
+    NotificationChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating a notification channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        target:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - email
+            - webhook
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - name
+        - type
+        - target
+      title: NotificationChannelCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    NotificationChannelList:
+      description: Paginated list of notification channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A notification delivery channel (webhook, email, Slack, or Discord).
+            properties:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              target:
+                type: string
+                x-struct:
+                x-validate:
+              type:
+                enum:
+                  - email
+                  - webhook
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - type
+              - target
+              - inserted_at
+              - updated_at
+            title: NotificationChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: NotificationChannelList
+      type: object
+      x-struct:
+      x-validate:
+    NotificationChannelResponse:
+      description: Single notification channel response.
+      properties:
+        data:
+          additionalProperties: false
+          description: A notification delivery channel (webhook, email, Slack, or Discord).
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            target:
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - email
+                - webhook
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - type
+            - target
+            - inserted_at
+            - updated_at
+          title: NotificationChannel
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: NotificationChannelResponse
+      type: object
+      x-struct:
+      x-validate:
+    NotificationChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating a notification channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        target:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+      title: NotificationChannelUpdateRequest
       type: object
       x-struct:
       x-validate:
@@ -3506,6 +3748,52 @@ paths:
       summary: Get monitor log
       tags:
         - Logs
+  /api/v1/notification_channels/{notification_channel_id}/test:
+    post:
+      callbacks: {}
+      description: Enqueue a test notification for this channel.
+      operationId: HolterWeb.Api.NotificationChannelController.test
+      parameters:
+        - description: Channel UUID
+          in: path
+          name: notification_channel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '202':
+          content:
+            application/json: {}
+          description: Test enqueued
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Send test notification
+      tags:
+        - Notification Channels
   /api/v1/workspaces/{workspace_slug}:
     get:
       callbacks: {}
@@ -4215,6 +4503,792 @@ paths:
       summary: Create monitor
       tags:
         - Monitors
+  /api/v1/workspaces/{workspace_slug}/notification_channels:
+    get:
+      callbacks: {}
+      description: List all notification channels for a workspace.
+      operationId: HolterWeb.Api.NotificationChannelController.index
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Paginated list of notification channels.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A notification delivery channel (webhook, email, Slack, or Discord).
+                      properties:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        name:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        settings:
+                          additionalProperties: true
+                          nullable: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        target:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        type:
+                          enum:
+                            - email
+                            - webhook
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        workspace_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - workspace_id
+                        - name
+                        - type
+                        - target
+                        - inserted_at
+                        - updated_at
+                      title: NotificationChannel
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: NotificationChannelList
+                type: object
+                x-struct:
+                x-validate:
+          description: Notification channel list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: List notification channels
+      tags:
+        - Notification Channels
+    post:
+      callbacks: {}
+      description: Create a new notification channel for the specified workspace.
+      operationId: HolterWeb.Api.NotificationChannelController.create
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for creating a notification channel.
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+                target:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                type:
+                  enum:
+                    - email
+                    - webhook
+                  type: string
+                  x-struct:
+                  x-validate:
+              required:
+                - name
+                - type
+                - target
+              title: NotificationChannelCreateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Channel parameters
+        required: false
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: Single notification channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A notification delivery channel (webhook, email, Slack, or Discord).
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      target:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      type:
+                        enum:
+                          - email
+                          - webhook
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - type
+                      - target
+                      - inserted_at
+                      - updated_at
+                    title: NotificationChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: NotificationChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Created channel
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Create notification channel
+      tags:
+        - Notification Channels
+  /api/v1/workspaces/{workspace_slug}/notification_channels/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently delete a notification channel.
+      operationId: HolterWeb.Api.NotificationChannelController.delete
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Deleted successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Delete notification channel
+      tags:
+        - Notification Channels
+    get:
+      callbacks: {}
+      description: Fetch a single notification channel by its UUID.
+      operationId: HolterWeb.Api.NotificationChannelController.show
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single notification channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A notification delivery channel (webhook, email, Slack, or Discord).
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      target:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      type:
+                        enum:
+                          - email
+                          - webhook
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - type
+                      - target
+                      - inserted_at
+                      - updated_at
+                    title: NotificationChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: NotificationChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Notification channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Get notification channel
+      tags:
+        - Notification Channels
+    patch:
+      callbacks: {}
+      description: Update an existing notification channel.
+      operationId: HolterWeb.Api.NotificationChannelController.update (2)
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a notification channel.
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+                target:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: NotificationChannelUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single notification channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A notification delivery channel (webhook, email, Slack, or Discord).
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      target:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      type:
+                        enum:
+                          - email
+                          - webhook
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - type
+                      - target
+                      - inserted_at
+                      - updated_at
+                    title: NotificationChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: NotificationChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update notification channel
+      tags:
+        - Notification Channels
+    put:
+      callbacks: {}
+      description: Update an existing notification channel.
+      operationId: HolterWeb.Api.NotificationChannelController.update
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: Channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a notification channel.
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+                target:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: NotificationChannelUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single notification channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A notification delivery channel (webhook, email, Slack, or Discord).
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        nullable: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      target:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      type:
+                        enum:
+                          - email
+                          - webhook
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - type
+                      - target
+                      - inserted_at
+                      - updated_at
+                    title: NotificationChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: NotificationChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update notification channel
+      tags:
+        - Notification Channels
 security: []
 servers:
   - url: /
