@@ -18,6 +18,59 @@
   >
     <.notification_channel_form_fields form={@form} selected_type={@selected_type} />
 
+    <%= if @selected_type == :email do %>
+      <section class="h-fieldset-card">
+        <h3 class="h-fieldset-legend">{gettext("CC Recipients")}</h3>
+        <p class="h-help-text h-mb-4">
+          {gettext(
+            "Additional addresses that receive a copy of each alert. Each address must be verified after the channel is created."
+          )}
+        </p>
+
+        <div class="h-recipient-add-form">
+          <input
+            type="email"
+            name="cc_email"
+            value={@new_cc_input}
+            placeholder={gettext("cc@example.com")}
+            phx-change="update_new_cc_input"
+            class="h-input h-recipient-email-input"
+          />
+          <.button
+            type="button"
+            phx-click="add_pending_cc"
+            phx-value-email={@new_cc_input}
+          >
+            {gettext("Add CC Email")}
+          </.button>
+        </div>
+
+        <%= if @pending_cc_emails == [] do %>
+          <p class="h-recipient-empty">{gettext("No CC recipients added yet.")}</p>
+        <% else %>
+          <ul class="h-recipients-list h-mt-4" role="list">
+            <%= for email <- @pending_cc_emails do %>
+              <li class="h-recipient-item">
+                <span class="h-recipient-email">{email}</span>
+                <span class="h-recipient-badge h-recipient-badge--pending">
+                  {gettext("Pending verification")}
+                </span>
+                <button
+                  type="button"
+                  phx-click="remove_pending_cc"
+                  phx-value-email={email}
+                  class="h-recipient-remove"
+                  aria-label={gettext("Remove %{email}", email: email)}
+                >
+                  &times;
+                </button>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </section>
+    <% end %>
+
     <.monitor_channel_select monitors={@available_monitors} selected_ids={[]} />
 
     <div class="h-actions-row h-justify-end">

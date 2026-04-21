@@ -27,6 +27,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:available_monitors, available_monitors)
        |> assign(:linked_monitor_ids, linked_monitor_ids)
        |> assign(:recipients, load_recipients(channel))
+       |> assign(:cc_input, "")
        |> assign(:test_sent, false)}
     else
       {:error, :not_found} ->
@@ -83,6 +84,11 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
+  def handle_event("update_cc_input", %{"cc_email" => email}, socket) do
+    {:noreply, assign(socket, :cc_input, email)}
+  end
+
+  @impl true
   def handle_event("add_recipient", %{"email" => email}, socket) do
     channel = socket.assigns.channel
 
@@ -97,7 +103,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
         {:noreply,
          socket
          |> put_flash(:info, gettext("Verification email sent to %{email}", email: email))
-         |> assign(:recipients, Delivery.list_recipients(channel.id))}
+         |> assign(:recipients, Delivery.list_recipients(channel.id))
+         |> assign(:cc_input, "")}
 
       {:error, changeset} ->
         [message | _] =

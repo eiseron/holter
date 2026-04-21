@@ -97,6 +97,68 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
     end
 
+    test "shows CC recipients section when type is email", %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      html =
+        view
+        |> form("#notification-channel-form", notification_channel: %{type: "email"})
+        |> render_change()
+
+      assert html =~ "CC Recipients"
+    end
+
+    test "does not show CC recipients section for webhook type", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      refute html =~ "CC Recipients"
+    end
+
+    test "adds pending CC email to list before creation", %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      view
+      |> form("#notification-channel-form", notification_channel: %{type: "email"})
+      |> render_change()
+
+      html = render_click(view, "add_pending_cc", %{"email" => "cc@example.com"})
+
+      assert html =~ "cc@example.com"
+      assert html =~ "Pending verification"
+    end
+
+    test "sends verification email to pending CC recipients on channel creation", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      view
+      |> form("#notification-channel-form", notification_channel: %{type: "email"})
+      |> render_change()
+
+      render_click(view, "add_pending_cc", %{"email" => "cc@example.com"})
+
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "Ops",
+          type: "email",
+          target: "ops@example.com"
+        }
+      )
+      |> render_submit()
+
+      assert_email_sent(to: "cc@example.com")
+    end
+
     test "links selected monitors on channel creation", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
@@ -256,10 +318,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
-      html =
-        view
-        |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
-        |> render_submit()
+      html = render_click(view, "add_recipient", %{"email" => "cc@example.com"})
 
       assert html =~ "cc@example.com"
       assert html =~ "Pending"
@@ -274,9 +333,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
-      view
-      |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
-      |> render_submit()
+      render_click(view, "add_recipient", %{"email" => "cc@example.com"})
 
       assert_email_sent(to: "cc@example.com")
     end
@@ -288,10 +345,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
-      html =
-        view
-        |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
-        |> render_submit()
+      html = render_click(view, "add_recipient", %{"email" => "cc@example.com"})
 
       assert html =~ "has already been added to this channel"
     end

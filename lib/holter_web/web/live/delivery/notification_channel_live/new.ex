@@ -4,7 +4,9 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   import HolterWeb.Components.Delivery.MonitorChannelSelect
 
   alias Holter.Delivery
+  alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.NotificationChannel
+  alias Holter.Mailer
   alias Holter.Monitoring
 
   @impl true
@@ -20,7 +22,9 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
          |> assign(:page_title, gettext("New Notification Channel"))
          |> assign(:selected_type, :webhook)
          |> assign(:available_monitors, available_monitors)
-         |> assign(:form, to_form(changeset))}
+         |> assign(:form, to_form(changeset))
+         |> assign(:pending_cc_emails, [])
+         |> assign(:new_cc_input, "")}
 
       {:error, :not_found} ->
         {:ok,
@@ -50,6 +54,31 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   end
 
   @impl true
+  def handle_event("update_new_cc_input", %{"cc_email" => email}, socket) do
+    {:noreply, assign(socket, :new_cc_input, email)}
+  end
+
+  @impl true
+  def handle_event("add_pending_cc", %{"email" => email}, socket) do
+    email = String.trim(email)
+
+    if email != "" and email not in socket.assigns.pending_cc_emails do
+      {:noreply,
+       socket
+       |> assign(:pending_cc_emails, socket.assigns.pending_cc_emails ++ [email])
+       |> assign(:new_cc_input, "")}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("remove_pending_cc", %{"email" => email}, socket) do
+    updated = Enum.reject(socket.assigns.pending_cc_emails, &(&1 == email))
+    {:noreply, assign(socket, :pending_cc_emails, updated)}
+  end
+
+  @impl true
   def handle_event("save", %{"notification_channel" => params} = full_params, socket) do
     workspace = socket.assigns.workspace
     attrs = Map.put(params, "workspace_id", workspace.id)
@@ -58,6 +87,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
     case Delivery.create_channel(attrs) do
       {:ok, channel} ->
         Delivery.sync_monitors_for_channel(channel.id, monitor_ids)
+        add_pending_cc_recipients(channel, socket.assigns.pending_cc_emails)
 
         {:noreply,
          socket
@@ -67,5 +97,21 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
+  end
+
+  defp add_pending_cc_recipients(channel, emails) do
+    Enum.each(emails, fn email ->
+      case Delivery.add_recipient(channel.id, email) do
+        {:ok, recipient} ->
+          verification_url =
+            url(~p"/delivery/notification-channels/recipients/verify/#{recipient.token}")
+
+          RecipientVerification.build_verification_email(recipient, channel, verification_url)
+          |> Mailer.deliver()
+
+        {:error, _} ->
+          :ok
+      end
+    end)
   end
 end
