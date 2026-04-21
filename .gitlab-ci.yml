@@ -1,0 +1,72 @@
+image: elixir:1.19-otp-28-slim
+
+stages:
+  - test
+  - sync
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+cache:
+  key:
+    files:
+      - mix.lock
+  paths:
+    - deps/
+    - _build/test/
+
+test:
+  stage: test
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+  variables:
+    MIX_ENV: test
+    DB_HOST: postgres
+    DB_USER: postgres
+    DB_PASS: postgres
+    DB_NAME: holter
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git build-essential
+    - mix local.hex --force --quiet
+    - mix local.rebar --force --quiet
+    - mix deps.get
+  script:
+    - mix compile --warnings-as-errors
+    - mix credo --strict
+    - mix test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sync-github:
+  stage: sync
+  image: alpine:3
+  variables:
+    GIT_DEPTH: "0"
+  before_script:
+    - apk add --no-cache git curl jq openssl
+    - |
+      echo "$GITHUB_APP_PRIVATE_KEY" | base64 -d > /tmp/github-app.pem
+      now=$(date +%s)
+      iat=$((now - 60))
+      exp=$((now + 540))
+      header=$(printf '{"alg":"RS256","typ":"JWT"}' | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+      payload=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' "$iat" "$exp" "$GITHUB_APP_ID" | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+      sig=$(printf '%s.%s' "$header" "$payload" | openssl dgst -sha256 -sign /tmp/github-app.pem | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+      GITHUB_TOKEN=$(curl -sf \
+        -X POST \
+        -H "Authorization: Bearer ${header}.${payload}.${sig}" \
+        -H "Accept: application/vnd.github+json" \
+        "https://api.github.com/app/installations/$GITHUB_APP_INSTALLATION_ID/access_tokens" \
+        | jq -r '.token')
+      export GITHUB_TOKEN
+      rm /tmp/github-app.pem
+  script:
+    - git remote add github "https://x-access-token:${GITHUB_TOKEN}@github.com/eiseron/holter.git"
+    - git push github HEAD:main --tags
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
