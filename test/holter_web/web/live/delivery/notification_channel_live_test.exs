@@ -95,6 +95,26 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
     end
+
+    test "links selected monitors on channel creation", %{conn: conn, workspace: workspace} do
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "My Hook",
+          type: "webhook",
+          target: "https://hooks.example.com/notify"
+        }
+      )
+      |> render_submit(%{"monitor_ids" => [monitor.id]})
+
+      channel = Delivery.list_channels(workspace.id) |> List.last()
+      assert monitor.id in Delivery.list_monitor_ids_for_channel(channel.id)
+    end
   end
 
   describe "Show" do
@@ -178,7 +198,17 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       {:ok, _view, html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
-      assert html =~ "value=\"#{monitor.id}\" checked"
+      assert html =~ ~s(value="#{monitor.id}" checked)
+    end
+
+    test "renders monitor URL in the monitor select", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ monitor.url
     end
   end
 end

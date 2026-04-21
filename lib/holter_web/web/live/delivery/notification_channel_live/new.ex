@@ -1,6 +1,8 @@
 defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   use HolterWeb, :delivery_live_view
 
+  import HolterWeb.Components.Delivery.MonitorChannelSelect
+
   alias Holter.Delivery
   alias Holter.Delivery.NotificationChannel
   alias Holter.Monitoring
@@ -10,12 +12,14 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
         changeset = Delivery.change_channel(%NotificationChannel{workspace_id: workspace.id})
+        available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
 
         {:ok,
          socket
          |> assign(:workspace, workspace)
          |> assign(:page_title, gettext("New Notification Channel"))
          |> assign(:selected_type, :webhook)
+         |> assign(:available_monitors, available_monitors)
          |> assign(:form, to_form(changeset))}
 
       {:error, :not_found} ->
@@ -46,12 +50,15 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   end
 
   @impl true
-  def handle_event("save", %{"notification_channel" => params}, socket) do
+  def handle_event("save", %{"notification_channel" => params} = full_params, socket) do
     workspace = socket.assigns.workspace
     attrs = Map.put(params, "workspace_id", workspace.id)
+    monitor_ids = Map.get(full_params, "monitor_ids", [])
 
     case Delivery.create_channel(attrs) do
-      {:ok, _channel} ->
+      {:ok, channel} ->
+        Delivery.sync_monitors_for_channel(channel.id, monitor_ids)
+
         {:noreply,
          socket
          |> put_flash(:info, gettext("Channel created successfully"))

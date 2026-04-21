@@ -18,6 +18,8 @@
   >
     <.notification_channel_form_fields form={@form} selected_type={@selected_type} />
 
+    <.monitor_channel_select monitors={@available_monitors} selected_ids={[]} />
+
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
         {gettext("Create Channel")}

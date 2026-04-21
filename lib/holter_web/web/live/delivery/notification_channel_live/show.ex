@@ -1,6 +1,8 @@
 defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   use HolterWeb, :delivery_live_view
 
+  import HolterWeb.Components.Delivery.MonitorChannelSelect
+
   alias Holter.Delivery
   alias Holter.Delivery.Engine
   alias Holter.Monitoring

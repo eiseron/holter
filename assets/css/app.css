@@ -45,5 +45,6 @@
 @import "./components/monitoring/daily_metrics_chart.css";
 @import "./components/monitoring/incident_gantt_chart.css";
 
+@import "./components/delivery/monitor_channel_select.css";
 
 .hidden { display: none !important; }

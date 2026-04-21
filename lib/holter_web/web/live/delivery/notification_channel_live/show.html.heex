@@ -25,27 +25,10 @@
       selected_type={@selected_type}
     />
 
-    <%= if @available_monitors != [] do %>
-      <div class="h-fieldset-card">
-        <h3 class="h-fieldset-legend">{gettext("Linked Monitors")}</h3>
-        <p class="h-help-text">
-          {gettext("Select which monitors will trigger notifications through this channel.")}
-        </p>
-        <div class="h-form-grid h-grid-cols-2">
-          <%= for monitor <- @available_monitors do %>
-            <label class="h-checkbox-label">
-              <input
-                type="checkbox"
-                name="monitor_ids[]"
-                value={monitor.id}
-                checked={monitor.id in @linked_monitor_ids}
-              />
-              {monitor.url}
-            </label>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
+    <.monitor_channel_select
+      monitors={@available_monitors}
+      selected_ids={@linked_monitor_ids}
+    />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
