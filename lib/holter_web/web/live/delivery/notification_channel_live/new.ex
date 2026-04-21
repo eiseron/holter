@@ -20,7 +20,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
          socket
          |> assign(:workspace, workspace)
          |> assign(:page_title, gettext("New Notification Channel"))
-         |> assign(:selected_type, :webhook)
+         |> assign(:selected_type, :email)
          |> assign(:available_monitors, available_monitors)
          |> assign(:form, to_form(changeset))
          |> assign(:pending_cc_emails, [])

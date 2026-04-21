@@ -50,18 +50,18 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert html =~ "notification-channel-form"
     end
 
-    test "shows URL placeholder and url input type for webhook type by default", %{
+    test "shows email placeholder and email input type by default", %{
       conn: conn,
       workspace: workspace
     } do
       {:ok, _view, html} =
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
 
-      assert html =~ ~s(placeholder="https://example.com/webhook")
-      assert html =~ ~s(type="text")
+      assert html =~ ~s(placeholder="ops@example.com")
+      assert html =~ ~s(type="email")
     end
 
-    test "updates placeholder and input type when type changes to email", %{
+    test "updates placeholder and input type when type changes to webhook", %{
       conn: conn,
       workspace: workspace
     } do
@@ -70,11 +70,11 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       html =
         view
-        |> form("#notification-channel-form", notification_channel: %{type: "email"})
+        |> form("#notification-channel-form", notification_channel: %{type: "webhook"})
         |> render_change()
 
-      assert html =~ ~s(placeholder="ops@example.com")
-      assert html =~ ~s(type="email")
+      assert html =~ ~s(placeholder="https://example.com/webhook")
+      assert html =~ ~s(type="text")
     end
 
     test "creates channel and redirects to workspace channels on valid submit", %{
@@ -97,24 +97,27 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
     end
 
-    test "shows CC recipients section when type is email", %{conn: conn, workspace: workspace} do
-      {:ok, view, _html} =
-        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
-
-      html =
-        view
-        |> form("#notification-channel-form", notification_channel: %{type: "email"})
-        |> render_change()
-
-      assert html =~ "CC Recipients"
-    end
-
-    test "does not show CC recipients section for webhook type", %{
+    test "shows CC recipients section by default (email type)", %{
       conn: conn,
       workspace: workspace
     } do
       {:ok, _view, html} =
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      assert html =~ "CC Recipients"
+    end
+
+    test "hides CC recipients section when type changes to webhook", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      html =
+        view
+        |> form("#notification-channel-form", notification_channel: %{type: "webhook"})
+        |> render_change()
 
       refute html =~ "CC Recipients"
     end
@@ -398,12 +401,18 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert html =~ monitor1.url
       assert html =~ monitor2.url
 
-      html = render_keydown(view, "add_recipient", %{"value" => "alice@example.com"})
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "alice@example.com"})
 
       assert html =~ "alice@example.com"
       assert html =~ "Pending"
 
-      html = render_keydown(view, "add_recipient", %{"value" => "bob@example.com"})
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "bob@example.com"})
 
       assert html =~ "alice@example.com"
       assert html =~ "bob@example.com"
@@ -449,29 +458,41 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
 
       assert html =~ ~s(name="notification_channel[name]")
-      refute html =~ "CC Recipients"
-
-      html =
-        view
-        |> form("#notification-channel-form", notification_channel: %{type: "email"})
-        |> render_change()
-
+      assert html =~ "CC Recipients"
       assert html =~ ~s(value="")
       assert html =~ "The primary email address that will receive alerts."
-      assert html =~ "CC Recipients"
       assert html =~ monitor1.url
       assert html =~ monitor2.url
 
-      html = render_keydown(view, "add_pending_cc", %{"value" => "alice@example.com"})
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "Production Alerts",
+          type: "email",
+          target: "ops@example.com"
+        }
+      )
+      |> render_change()
+
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "alice@example.com"})
 
       assert html =~ "alice@example.com"
       assert html =~ "Pending verification"
       assert Delivery.list_channels(workspace.id) == []
 
-      html = render_keydown(view, "add_pending_cc", %{"value" => "bob@example.com"})
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "bob@example.com"})
 
       assert html =~ "alice@example.com"
       assert html =~ "bob@example.com"
+      assert html =~ ~s(value="Production Alerts")
+      assert html =~ ~s(value="ops@example.com")
+      assert html =~ "Pending verification"
       assert Delivery.list_channels(workspace.id) == []
 
       view

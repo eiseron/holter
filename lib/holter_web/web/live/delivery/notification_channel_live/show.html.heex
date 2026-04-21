@@ -43,6 +43,7 @@
             phx-change="update_cc_input"
             phx-keydown="add_recipient"
             phx-key="Enter"
+            onkeydown="if(event.key === 'Enter') event.preventDefault();"
             class="h-input h-recipient-email-input"
           />
           <.button
