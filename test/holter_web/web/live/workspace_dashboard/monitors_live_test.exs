@@ -15,7 +15,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.MonitorsLiveTest do
          %{conn: conn, workspace: workspace} do
       {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/monitors")
 
-      assert html =~ "Dashboard"
+      assert html =~ "Monitors"
     end
 
     test "Given an invalid workspace slug, when mounted, then it redirects with an error",

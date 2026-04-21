@@ -1,6 +1,8 @@
 defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLive do
   use HolterWeb, :workspace_live_view
 
+  import HolterWeb.Components.Monitoring.DashboardHeader
+
   alias Holter.Delivery
   alias Holter.Monitoring
 
