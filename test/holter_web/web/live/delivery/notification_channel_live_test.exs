@@ -456,6 +456,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         |> form("#notification-channel-form", notification_channel: %{type: "email"})
         |> render_change()
 
+      assert html =~ ~s(value="")
       assert html =~ "The primary email address that will receive alerts."
       assert html =~ "CC Recipients"
       assert html =~ monitor1.url
@@ -465,11 +466,13 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       assert html =~ "alice@example.com"
       assert html =~ "Pending verification"
+      assert Delivery.list_channels(workspace.id) == []
 
       html = render_keydown(view, "add_pending_cc", %{"value" => "bob@example.com"})
 
       assert html =~ "alice@example.com"
       assert html =~ "bob@example.com"
+      assert Delivery.list_channels(workspace.id) == []
 
       view
       |> form("#notification-channel-form",
