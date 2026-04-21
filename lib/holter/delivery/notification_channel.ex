@@ -18,6 +18,8 @@ defmodule Holter.Delivery.NotificationChannel do
       join_through: Holter.Delivery.MonitorNotification,
       join_keys: [notification_channel_id: :id, monitor_id: :id]
 
+    has_many :recipients, Holter.Delivery.NotificationChannelRecipient
+
     timestamps(type: :utc_datetime)
   end
 

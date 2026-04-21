@@ -18,4 +18,10 @@ defmodule Holter.Delivery do
   defdelegate list_channels_for_monitor(monitor_id), to: NotificationChannels
   defdelegate list_monitor_ids_for_channel(channel_id), to: NotificationChannels
   defdelegate sync_monitors_for_channel(channel_id, monitor_ids), to: NotificationChannels
+  defdelegate list_recipients(channel_id), to: NotificationChannels
+  defdelegate add_recipient(channel_id, email), to: NotificationChannels
+  defdelegate remove_recipient(recipient_id), to: NotificationChannels
+  defdelegate get_recipient_by_token(token), to: NotificationChannels
+  defdelegate verify_recipient(token), to: NotificationChannels
+  defdelegate list_verified_emails(channel_id), to: NotificationChannels
 end

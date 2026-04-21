@@ -3,7 +3,7 @@ defmodule Holter.Delivery.NotificationChannels do
 
   import Ecto.Query
 
-  alias Holter.Delivery.{MonitorNotification, NotificationChannel}
+  alias Holter.Delivery.{MonitorNotification, NotificationChannel, NotificationChannelRecipient}
   alias Holter.Repo
 
   def list_channels(workspace_id) do
@@ -89,5 +89,73 @@ defmodule Holter.Delivery.NotificationChannels do
     Enum.each(current_ids -- monitor_ids, &unlink_monitor(&1, channel_id))
 
     :ok
+  end
+
+  def list_recipients(channel_id) do
+    NotificationChannelRecipient
+    |> where([r], r.notification_channel_id == ^channel_id)
+    |> order_by([r], asc: r.inserted_at)
+    |> Repo.all()
+  end
+
+  def add_recipient(channel_id, email) do
+    token = NotificationChannelRecipient.generate_token()
+    expires_at = NaiveDateTime.add(NaiveDateTime.utc_now(), 48 * 3600, :second)
+
+    %NotificationChannelRecipient{}
+    |> NotificationChannelRecipient.changeset(%{
+      notification_channel_id: channel_id,
+      email: email,
+      token: token,
+      token_expires_at: NaiveDateTime.truncate(expires_at, :second)
+    })
+    |> Repo.insert()
+  end
+
+  def remove_recipient(recipient_id) do
+    NotificationChannelRecipient
+    |> where([r], r.id == ^recipient_id)
+    |> Repo.delete_all()
+
+    :ok
+  end
+
+  def get_recipient_by_token(token) do
+    now = NaiveDateTime.utc_now()
+
+    case Repo.get_by(NotificationChannelRecipient, token: token) do
+      nil ->
+        {:error, :not_found}
+
+      recipient ->
+        if NaiveDateTime.compare(recipient.token_expires_at, now) == :gt do
+          {:ok, recipient}
+        else
+          {:error, :expired}
+        end
+    end
+  end
+
+  def verify_recipient(token) do
+    case get_recipient_by_token(token) do
+      {:ok, recipient} ->
+        recipient
+        |> NotificationChannelRecipient.changeset(%{
+          verified_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
+          token: nil,
+          token_expires_at: nil
+        })
+        |> Repo.update()
+
+      error ->
+        error
+    end
+  end
+
+  def list_verified_emails(channel_id) do
+    NotificationChannelRecipient
+    |> where([r], r.notification_channel_id == ^channel_id and not is_nil(r.verified_at))
+    |> select([r], r.email)
+    |> Repo.all()
   end
 end
