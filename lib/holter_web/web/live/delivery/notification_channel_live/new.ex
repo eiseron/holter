@@ -15,6 +15,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
          socket
          |> assign(:workspace, workspace)
          |> assign(:page_title, gettext("New Notification Channel"))
+         |> assign(:selected_type, :webhook)
          |> assign(:form, to_form(changeset))}
 
       {:error, :not_found} ->
@@ -32,7 +33,16 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
       |> Delivery.change_channel(params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, form: to_form(changeset))}
+    selected_type =
+      case params["type"] do
+        t when t in ["email", "webhook"] -> String.to_existing_atom(t)
+        _ -> socket.assigns.selected_type
+      end
+
+    {:noreply,
+     socket
+     |> assign(:form, to_form(changeset))
+     |> assign(:selected_type, selected_type)}
   end
 
   @impl true

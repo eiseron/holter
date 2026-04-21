@@ -16,7 +16,7 @@
     phx-submit="save"
     class="h-form-sections"
   >
-    <.notification_channel_form_fields form={@form} />
+    <.notification_channel_form_fields form={@form} selected_type={@selected_type} />
 
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">

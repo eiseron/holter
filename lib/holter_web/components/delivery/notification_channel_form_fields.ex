@@ -6,13 +6,9 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
 
   alias Holter.Delivery.NotificationChannel
 
-  @doc """
-  Renders the main configuration fieldset for a notification channel form.
-  Accepts an optional `locked_type` boolean to disable the type selector
-  when editing an existing channel.
-  """
   attr :form, :any, required: true
   attr :locked_type, :boolean, default: false
+  attr :selected_type, :atom, default: :webhook
 
   def notification_channel_form_fields(assigns) do
     ~H"""
@@ -39,8 +35,14 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
         </div>
 
         <div class="h-col-span-2">
-          <.input field={@form[:target]} label={gettext("Target")} required />
-          <p class="h-help-text">{target_help_text()}</p>
+          <.input
+            field={@form[:target]}
+            type={input_type_for(@selected_type)}
+            label={gettext("Target")}
+            placeholder={target_placeholder(@selected_type)}
+            required
+          />
+          <p class="h-help-text">{target_help_text(@selected_type)}</p>
         </div>
       </div>
     </div>
@@ -60,7 +62,15 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
     end)
   end
 
-  defp target_help_text do
-    gettext("URL for webhook channels. Email address for email channels.")
-  end
+  defp input_type_for(:email), do: "email"
+  defp input_type_for(_), do: "url"
+
+  defp target_placeholder(:email), do: "ops@example.com"
+  defp target_placeholder(_), do: "https://example.com/webhook"
+
+  defp target_help_text(:email),
+    do: gettext("The primary email address that will receive alerts.")
+
+  defp target_help_text(_),
+    do: gettext("The URL that will receive HTTP POST requests with alert payloads.")
 end

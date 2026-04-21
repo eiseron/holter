@@ -19,7 +19,11 @@
     phx-submit="save"
     class="h-form-sections h-mt-8"
   >
-    <.notification_channel_form_fields form={@form} locked_type={true} />
+    <.notification_channel_form_fields
+      form={@form}
+      locked_type={true}
+      selected_type={@selected_type}
+    />
 
     <%= if @available_monitors != [] do %>
       <div class="h-fieldset-card">

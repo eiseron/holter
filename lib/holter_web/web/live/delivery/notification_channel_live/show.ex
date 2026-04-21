@@ -18,6 +18,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:workspace, workspace)
        |> assign(:channel, channel)
        |> assign(:page_title, channel.name)
+       |> assign(:selected_type, channel.type)
        |> assign(:form, to_form(changeset))
        |> assign(:available_monitors, available_monitors)
        |> assign(:linked_monitor_ids, linked_monitor_ids)

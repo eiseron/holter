@@ -49,6 +49,33 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert html =~ "notification-channel-form"
     end
 
+    test "shows URL placeholder and url input type for webhook type by default", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      assert html =~ ~s(placeholder="https://example.com/webhook")
+      assert html =~ ~s(type="url")
+    end
+
+    test "updates placeholder and input type when type changes to email", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      html =
+        view
+        |> form("#notification-channel-form", notification_channel: %{type: "email"})
+        |> render_change()
+
+      assert html =~ ~s(placeholder="ops@example.com")
+      assert html =~ ~s(type="email")
+    end
+
     test "creates channel and redirects to workspace channels on valid submit", %{
       conn: conn,
       workspace: workspace
