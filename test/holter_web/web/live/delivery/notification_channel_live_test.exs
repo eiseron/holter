@@ -134,6 +134,22 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       refute html =~ "notanemail"
     end
 
+    test "does not add duplicate email to CC list", %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      view
+      |> element("input[name='cc_email']")
+      |> render_keydown(%{"key" => "Enter", "value" => "cc@example.com"})
+
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "cc@example.com"})
+
+      assert [_] = Regex.scan(~r/h-recipient-item/, html)
+    end
+
     test "adds pending CC email to list before creation", %{conn: conn, workspace: workspace} do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
