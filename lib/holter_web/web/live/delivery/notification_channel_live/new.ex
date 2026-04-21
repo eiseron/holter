@@ -72,8 +72,6 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
     end
   end
 
-  defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
   @impl true
   def handle_event("remove_pending_cc", %{"email" => email}, socket) do
     updated = Enum.reject(socket.assigns.pending_cc_emails, &(&1 == email))
@@ -100,6 +98,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
+
+  defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   defp add_pending_cc_recipients(channel, emails) do
     Enum.each(emails, fn email ->

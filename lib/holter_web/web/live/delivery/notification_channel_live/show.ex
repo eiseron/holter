@@ -116,6 +116,18 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
+  def handle_event("delete_channel", _params, socket) do
+    channel = socket.assigns.channel
+    workspace = socket.assigns.workspace
+    {:ok, _} = Delivery.delete_channel(channel)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, gettext("Channel deleted successfully"))
+     |> push_navigate(to: ~p"/workspaces/#{workspace.slug}/channels")}
+  end
+
+  @impl true
   def handle_event("remove_recipient", %{"id" => id}, socket) do
     channel = socket.assigns.channel
     Delivery.remove_recipient(id)

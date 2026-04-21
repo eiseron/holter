@@ -304,6 +304,33 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       assert html =~ monitor.url
     end
+
+    test "deletes channel and redirects after confirmation", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ "Are you sure"
+      assert html =~ ~r/id="delete-channel-modal"[^>]*hidden=""/
+
+      view |> element("button[phx-click='delete_channel']") |> render_click()
+
+      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
+      assert {:error, :not_found} = Delivery.get_channel(channel.id)
+    end
+
+    test "does not delete channel when confirmation is not given", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert {:ok, _} = Delivery.get_channel(channel.id)
+    end
   end
 
   describe "Show — CC recipients (email channel)" do
@@ -406,6 +433,38 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       assert html =~ "verified@example.com"
       assert html =~ "Verified"
+    end
+
+    test "does not add invalid email to CC list", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "notanemail"})
+
+      refute html =~ "notanemail"
+    end
+
+    test "does not add duplicate email to CC list", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      view
+      |> element("input[name='cc_email']")
+      |> render_keydown(%{"key" => "Enter", "value" => "cc@example.com"})
+
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "cc@example.com"})
+
+      assert [_] = Regex.scan(~r/h-recipient-item/, html)
     end
   end
 
