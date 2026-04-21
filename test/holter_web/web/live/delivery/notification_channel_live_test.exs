@@ -377,4 +377,69 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert html =~ "Verified"
     end
   end
+
+  describe "New — full email channel creation flow" do
+    test "creates email channel with CC recipients and monitors", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      monitor1 = monitor_fixture(%{workspace_id: workspace.id})
+      monitor2 = monitor_fixture(%{workspace_id: workspace.id})
+
+      {:ok, view, html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      assert html =~ ~s(name="notification_channel[name]")
+      refute html =~ "CC Recipients"
+
+      html =
+        view
+        |> form("#notification-channel-form", notification_channel: %{type: "email"})
+        |> render_change()
+
+      assert html =~ "The primary email address that will receive alerts."
+      assert html =~ "CC Recipients"
+      assert html =~ monitor1.url
+      assert html =~ monitor2.url
+
+      html = render_keydown(view, "add_pending_cc", %{"value" => "alice@example.com"})
+
+      assert html =~ "alice@example.com"
+      assert html =~ "Pending verification"
+
+      html = render_keydown(view, "add_pending_cc", %{"value" => "bob@example.com"})
+
+      assert html =~ "alice@example.com"
+      assert html =~ "bob@example.com"
+
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "Production Alerts",
+          type: "email",
+          target: "ops@example.com"
+        }
+      )
+      |> render_submit(%{"monitor_ids" => [monitor1.id, monitor2.id]})
+
+      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
+
+      channel = Delivery.list_channels(workspace.id) |> List.last()
+      assert channel.name == "Production Alerts"
+      assert channel.type == :email
+      assert channel.target == "ops@example.com"
+
+      assert monitor1.id in Delivery.list_monitor_ids_for_channel(channel.id)
+      assert monitor2.id in Delivery.list_monitor_ids_for_channel(channel.id)
+
+      recipients = Delivery.list_recipients(channel.id)
+      assert length(recipients) == 2
+      recipient_emails = Enum.map(recipients, & &1.email) |> MapSet.new()
+      assert MapSet.member?(recipient_emails, "alice@example.com")
+      assert MapSet.member?(recipient_emails, "bob@example.com")
+
+      assert_email_sent(to: "alice@example.com")
+      assert_email_sent(to: "bob@example.com")
+    end
+  end
 end

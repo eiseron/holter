@@ -34,6 +34,8 @@
             value={@new_cc_input}
             placeholder={gettext("cc@example.com")}
             phx-change="update_new_cc_input"
+            phx-keydown="add_pending_cc"
+            phx-key="Enter"
             class="h-input h-recipient-email-input"
           />
           <.button
