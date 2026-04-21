@@ -1,6 +1,7 @@
 image: elixir:1.19-otp-28-slim
 
 stages:
+  - lint
   - test
   - sync
 
@@ -17,6 +18,23 @@ cache:
     - deps/
     - _build/test/
 
+default:
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git build-essential
+    - mix local.hex --force --quiet
+    - mix local.rebar --force --quiet
+    - mix deps.get
+
+lint:
+  stage: lint
+  script:
+    - mix format --check-formatted
+    - mix compile --warnings-as-errors
+    - mix credo --strict
+    - mix deps.audit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
 test:
   stage: test
   services:
@@ -30,14 +48,7 @@ test:
     DB_NAME: holter
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq git build-essential
-    - mix local.hex --force --quiet
-    - mix local.rebar --force --quiet
-    - mix deps.get
   script:
-    - mix compile --warnings-as-errors
-    - mix credo --strict
     - mix test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
