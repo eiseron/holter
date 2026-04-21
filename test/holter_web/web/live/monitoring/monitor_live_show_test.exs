@@ -200,8 +200,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     test "Given a user clicking the modal deletion confirmation, when processed, then the UX redirects",
          %{
            conn: conn,
-           monitor: monitor,
-           workspace: workspace
+           monitor: monitor
          } do
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
