@@ -194,7 +194,7 @@ msgstr "hacked, database error"
 msgid "Are you absolutely sure you want to delete this monitor? This action cannot be undone and you will lose all tracking history."
 msgstr "Tem certeza de que deseja excluir este monitor? Esta ação não pode ser desfeita e você perderá todo o histórico de rastreamento."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:122
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:120
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Cancel"
@@ -206,7 +206,7 @@ msgstr "Cancelar"
 msgid "Delete Monitor"
 msgstr "Excluir Monitor"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:128
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:126
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:101
 #, elixir-autogen, elixir-format
 msgid "Deleting..."
@@ -233,7 +233,7 @@ msgstr "Monitor atualizado com sucesso"
 msgid "Save Changes"
 msgstr "Salvar Alterações"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:130
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:128
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Yes, Delete Completely"
@@ -873,7 +873,7 @@ msgstr "Ver log"
 msgid "Channel Details"
 msgstr "Detalhes do Canal"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/new.ex:96
+#: lib/holter_web/web/live/delivery/notification_channel_live/new.ex:94
 #, elixir-autogen, elixir-format
 msgid "Channel created successfully"
 msgstr "Canal criado com sucesso"
@@ -996,11 +996,6 @@ msgstr "Monitores Vinculados"
 #, elixir-autogen, elixir-format
 msgid "Select which monitors will trigger notifications through this channel."
 msgstr "Selecione quais monitores irão disparar notificações por este canal."
-
-#: lib/holter_web/components/workspace_sidebar_live.ex:50
-#, elixir-autogen, elixir-format
-msgid "Channels"
-msgstr "Canais"
 
 #: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:54
 #, elixir-autogen, elixir-format
@@ -1158,3 +1153,8 @@ msgstr "cc@exemplo.com"
 #, elixir-autogen, elixir-format
 msgid "e.g. Production Alerts"
 msgstr "ex.: Alertas de Produção"
+
+#: lib/holter_web/components/workspace_sidebar_live.ex:50
+#, elixir-autogen, elixir-format
+msgid "Notifications"
+msgstr "Notificações"

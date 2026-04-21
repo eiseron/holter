@@ -47,7 +47,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
               active?(@current_view, channels_views()) && "h-sidebar-link--active"
             ]}
           >
-            <span class="h-sidebar-link-label">{gettext("Channels")}</span>
+            <span class="h-sidebar-link-label">{gettext("Notifications")}</span>
             <span class="h-sidebar-badge">{@channel_count}</span>
           </.link>
         </li>
