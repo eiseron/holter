@@ -94,7 +94,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       )
       |> render_submit()
 
-      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
+      assert_redirect(view, "/delivery/workspaces/#{workspace.slug}/channels")
     end
 
     test "shows CC recipients section by default (email type)", %{
@@ -316,7 +316,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       view |> element("button[phx-click='delete_channel']") |> render_click()
 
-      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
+      assert_redirect(view, "/delivery/workspaces/#{workspace.slug}/channels")
       assert {:error, :not_found} = Delivery.get_channel(channel.id)
     end
 
@@ -592,7 +592,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       )
       |> render_submit(%{"monitor_ids" => [monitor1.id, monitor2.id]})
 
-      assert_redirect(view, "/workspaces/#{workspace.slug}/channels")
+      assert_redirect(view, "/delivery/workspaces/#{workspace.slug}/channels")
 
       channel = Delivery.list_channels(workspace.id) |> List.last()
       assert channel.name == "Production Alerts"
