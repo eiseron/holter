@@ -124,7 +124,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
     {:noreply,
      socket
      |> put_flash(:info, gettext("Channel deleted successfully"))
-     |> push_navigate(to: ~p"/workspaces/#{workspace.slug}/channels")}
+     |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
   end
 
   @impl true

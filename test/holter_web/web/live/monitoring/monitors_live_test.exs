@@ -1,4 +1,4 @@
-defmodule HolterWeb.Web.WorkspaceDashboard.MonitorsLiveTest do
+defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
   use HolterWeb.ConnCase
 
   import Phoenix.LiveViewTest

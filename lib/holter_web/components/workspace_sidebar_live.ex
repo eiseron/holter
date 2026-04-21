@@ -29,7 +29,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
       <ul class="h-sidebar-nav">
         <li>
           <.link
-            navigate={~p"/workspaces/#{@workspace.slug}/monitors"}
+            navigate={~p"/monitoring/workspaces/#{@workspace.slug}/monitors"}
             class={[
               "h-sidebar-link",
               active?(@current_view, monitors_views()) && "h-sidebar-link--active"
@@ -41,7 +41,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
         </li>
         <li>
           <.link
-            navigate={~p"/workspaces/#{@workspace.slug}/channels"}
+            navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels"}
             class={[
               "h-sidebar-link",
               active?(@current_view, channels_views()) && "h-sidebar-link--active"
@@ -60,7 +60,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
   defp monitors_views do
     [
-      HolterWeb.Web.WorkspaceDashboard.MonitorsLive,
+      HolterWeb.Web.Monitoring.MonitorsLive,
       HolterWeb.Web.Monitoring.MonitorLive.New,
       HolterWeb.Web.Monitoring.MonitorLive.Show,
       HolterWeb.Web.Monitoring.MonitorLive.Logs,
@@ -73,7 +73,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
   defp channels_views do
     [
-      HolterWeb.Web.WorkspaceDashboard.ChannelsLive,
+      HolterWeb.Web.Delivery.ChannelsLive,
       HolterWeb.Web.Delivery.NotificationChannelLive.New,
       HolterWeb.Web.Delivery.NotificationChannelLive.Show
     ]

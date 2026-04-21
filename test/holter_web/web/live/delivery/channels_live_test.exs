@@ -1,4 +1,4 @@
-defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLiveTest do
+defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
   use HolterWeb.ConnCase
 
   import Phoenix.LiveViewTest
@@ -30,7 +30,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLiveTest do
   describe "mount" do
     test "Given a valid workspace slug, when mounted, then the page renders",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/channels")
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "Notification Channels"
     end
@@ -38,12 +38,12 @@ defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLiveTest do
     test "Given an invalid workspace slug, when mounted, then it redirects with an error",
          %{conn: conn} do
       assert {:error, {:live_redirect, %{to: "/"}}} =
-               live(conn, ~p"/workspaces/nonexistent-slug/channels")
+               live(conn, ~p"/delivery/workspaces/nonexistent-slug/channels")
     end
 
     test "Given a workspace with no channels, when mounted, then the empty state is shown",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/channels")
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "No notification channels yet"
     end
@@ -52,7 +52,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLiveTest do
          %{conn: conn, workspace: workspace} do
       channel_fixture(workspace.id, %{name: "My Webhook"})
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/channels")
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "My Webhook"
     end
@@ -64,7 +64,7 @@ defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLiveTest do
       monitor_fixture(%{workspace_id: workspace.id})
       channel_fixture(workspace.id)
 
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}/channels")
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "Monitors"
       assert html =~ "Channels"

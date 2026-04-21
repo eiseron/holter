@@ -1,4 +1,4 @@
-defmodule HolterWeb.Web.WorkspaceDashboard.ChannelsLive do
+defmodule HolterWeb.Web.Delivery.ChannelsLive do
   use HolterWeb, :workspace_live_view
 
   import HolterWeb.Components.Monitoring.DashboardHeader
