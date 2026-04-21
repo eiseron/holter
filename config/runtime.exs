@@ -20,6 +20,10 @@ if System.get_env("PHX_SERVER") do
   config :holter, HolterWeb.Endpoint, server: true
 end
 
+if from_address = System.get_env("DELIVERY_ALERT_FROM_EMAIL") do
+  config :holter, :email, from_address: from_address
+end
+
 config :holter, HolterWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 

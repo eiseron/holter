@@ -10,8 +10,6 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
   alias Holter.Mailer
   alias Holter.Monitoring
 
-  @from_address "alerts@holter.io"
-
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{
@@ -37,7 +35,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
     new()
     |> to(channel.target)
-    |> from(@from_address)
+    |> from(from_address())
     |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
@@ -56,7 +54,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
     new()
     |> to(channel.target)
-    |> from(@from_address)
+    |> from(from_address())
     |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
@@ -64,4 +62,6 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
     :ok
   end
+
+  defp from_address, do: Application.fetch_env!(:holter, :email)[:from_address]
 end

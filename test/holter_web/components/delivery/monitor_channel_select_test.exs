@@ -21,10 +21,15 @@ defmodule HolterWeb.Components.Delivery.MonitorChannelSelectTest do
   end
 
   describe "monitor_channel_select/1 — monitor list" do
-    test "renders a checkbox for each monitor" do
+    test "renders first monitor url" do
       monitors = [monitor("id-1", "https://alpha.local"), monitor("id-2", "https://beta.local")]
       html = render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: [])
       assert html =~ "https://alpha.local"
+    end
+
+    test "renders second monitor url" do
+      monitors = [monitor("id-1", "https://alpha.local"), monitor("id-2", "https://beta.local")]
+      html = render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: [])
       assert html =~ "https://beta.local"
     end
 
@@ -36,14 +41,28 @@ defmodule HolterWeb.Components.Delivery.MonitorChannelSelectTest do
 
     test "selected monitors have checked attribute" do
       monitors = [monitor("id-1", "https://alpha.local"), monitor("id-2", "https://beta.local")]
-      html = render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: ["id-1"])
+
+      html =
+        render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: ["id-1"])
+
       assert html =~ ~s(checked)
+    end
+
+    test "selected monitors get the checked modifier class" do
+      monitors = [monitor("id-1", "https://alpha.local"), monitor("id-2", "https://beta.local")]
+
+      html =
+        render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: ["id-1"])
+
       assert html =~ "h-monitor-select-item--checked"
     end
 
     test "only selected monitors get the checked modifier class" do
       monitors = [monitor("id-1", "https://alpha.local"), monitor("id-2", "https://beta.local")]
-      html = render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: ["id-1"])
+
+      html =
+        render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: ["id-1"])
+
       assert Regex.scan(~r/h-monitor-select-item--checked/, html) |> length() == 1
     end
 
@@ -55,7 +74,14 @@ defmodule HolterWeb.Components.Delivery.MonitorChannelSelectTest do
 
     test "uses custom input_name when provided" do
       monitors = [monitor("id-1", "https://alpha.local")]
-      html = render_component(&monitor_channel_select/1, monitors: monitors, selected_ids: [], input_name: "custom[]")
+
+      html =
+        render_component(&monitor_channel_select/1,
+          monitors: monitors,
+          selected_ids: [],
+          input_name: "custom[]"
+        )
+
       assert html =~ ~s(name="custom[]")
     end
   end

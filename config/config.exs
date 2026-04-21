@@ -19,6 +19,8 @@ config :holter, HolterWeb.Endpoint,
 
 config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Local
 
+config :holter, :email, from_address: "alerts@holter.io"
+
 config :esbuild,
   version: "0.25.4",
   holter: [
