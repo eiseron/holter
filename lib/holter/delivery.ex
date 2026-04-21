@@ -3,7 +3,7 @@ defmodule Holter.Delivery do
   The Delivery context — manages notification channels and dispatches alerts.
   """
 
-  alias Holter.Delivery.NotificationChannels
+  alias Holter.Delivery.{ChannelLogs, NotificationChannels}
 
   defdelegate list_channels(workspace_id), to: NotificationChannels
   defdelegate count_channels(workspace_id), to: NotificationChannels
@@ -24,4 +24,8 @@ defmodule Holter.Delivery do
   defdelegate get_recipient_by_token(token), to: NotificationChannels
   defdelegate verify_recipient(token), to: NotificationChannels
   defdelegate list_verified_emails(channel_id), to: NotificationChannels
+
+  defdelegate list_channel_logs(channel, filters), to: ChannelLogs
+  defdelegate get_channel_log!(id), to: ChannelLogs
+  defdelegate create_channel_log(attrs), to: ChannelLogs
 end
