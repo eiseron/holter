@@ -3,6 +3,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
   use Oban.Testing, repo: Holter.Repo
 
   import Phoenix.LiveViewTest
+  import Swoosh.TestAssertions
 
   alias Holter.Delivery
 
@@ -209,6 +210,117 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         live(conn, ~p"/delivery/notification-channels/#{channel.id}")
 
       assert html =~ monitor.url
+    end
+  end
+
+  describe "Show — CC recipients (email channel)" do
+    defp email_channel_fixture(workspace_id) do
+      {:ok, channel} =
+        Delivery.create_channel(%{
+          workspace_id: workspace_id,
+          name: "Ops Email",
+          type: :email,
+          target: "ops@example.com"
+        })
+
+      channel
+    end
+
+    test "renders CC recipients section for email channels", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ "CC Recipients"
+    end
+
+    test "does not render CC recipients section for webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      refute html =~ "CC Recipients"
+    end
+
+    test "adds recipient and shows pending badge after add_recipient event", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html =
+        view
+        |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
+        |> render_submit()
+
+      assert html =~ "cc@example.com"
+      assert html =~ "Pending"
+    end
+
+    test "sends verification email when recipient is added", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      view
+      |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
+      |> render_submit()
+
+      assert_email_sent(to: "cc@example.com")
+    end
+
+    test "shows error flash when adding duplicate email", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, _recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html =
+        view
+        |> form("form[phx-submit='add_recipient']", %{email: "cc@example.com"})
+        |> render_submit()
+
+      assert html =~ "has already been added to this channel"
+    end
+
+    test "removes recipient on remove_recipient event", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "remove@example.com")
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html =
+        view
+        |> element("button[phx-click='remove_recipient'][phx-value-id='#{recipient.id}']")
+        |> render_click()
+
+      refute html =~ "remove@example.com"
+    end
+
+    test "shows verified badge for verified recipient", %{conn: conn, workspace: workspace} do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "verified@example.com")
+      Delivery.verify_recipient(recipient.token)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ "verified@example.com"
+      assert html =~ "Verified"
     end
   end
 end

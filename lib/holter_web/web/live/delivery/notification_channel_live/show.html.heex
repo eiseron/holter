@@ -36,4 +36,58 @@
       </.button>
     </div>
   </.form>
+
+  <%= if @channel.type == :email do %>
+    <section class="h-fieldset-card h-mt-8">
+      <h2 class="h-fieldset-title">{gettext("CC Recipients")}</h2>
+      <p class="h-fieldset-subtitle h-mb-4">
+        {gettext(
+          "Additional addresses that receive a copy of each alert. Each address must be verified before receiving notifications."
+        )}
+      </p>
+
+      <form phx-submit="add_recipient" class="h-recipient-add-form">
+        <input
+          type="email"
+          name="email"
+          placeholder={gettext("cc@example.com")}
+          required
+          class="h-input h-recipient-email-input"
+        />
+        <.button type="submit">
+          {gettext("Add CC Email")}
+        </.button>
+      </form>
+
+      <%= if @recipients == [] do %>
+        <p class="h-recipient-empty">{gettext("No CC recipients yet.")}</p>
+      <% else %>
+        <ul class="h-recipients-list h-mt-4" role="list">
+          <%= for recipient <- @recipients do %>
+            <li class="h-recipient-item">
+              <span class="h-recipient-email">{recipient.email}</span>
+              <%= if recipient.verified_at do %>
+                <span class="h-recipient-badge h-recipient-badge--verified">
+                  {gettext("Verified")}
+                </span>
+              <% else %>
+                <span class="h-recipient-badge h-recipient-badge--pending">
+                  {gettext("Pending")}
+                </span>
+              <% end %>
+              <button
+                type="button"
+                phx-click="remove_recipient"
+                phx-value-id={recipient.id}
+                class="h-recipient-remove"
+                aria-label={gettext("Remove %{email}", email: recipient.email)}
+              >
+                &times;
+              </button>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+  <% end %>
 </.page_container>

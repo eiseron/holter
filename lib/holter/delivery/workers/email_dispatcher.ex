@@ -33,10 +33,12 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
       })
 
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
+    cc_emails = NotificationChannels.list_verified_emails(channel_id)
 
     new()
     |> to(channel.target)
     |> from(@from_address)
+    |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
     |> Mailer.deliver()
@@ -50,15 +52,16 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
     payload = PayloadBuilder.build_test_payload(channel, now)
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
+    cc_emails = NotificationChannels.list_verified_emails(channel_id)
 
-    email =
-      new()
-      |> to(channel.target)
-      |> from(@from_address)
-      |> subject(subject)
-      |> text_body(body)
+    new()
+    |> to(channel.target)
+    |> from(@from_address)
+    |> then(fn email -> Enum.reduce(cc_emails, email, &cc(&2, &1)) end)
+    |> subject(subject)
+    |> text_body(body)
+    |> Mailer.deliver()
 
-    Mailer.deliver(email)
     :ok
   end
 end

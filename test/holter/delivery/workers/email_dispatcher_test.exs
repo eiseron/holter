@@ -62,5 +62,47 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
       assert_email_sent(to: "ops@example.com")
     end
+
+    test "includes verified CC recipients in test email" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
+      Delivery.verify_recipient(recipient.token)
+
+      :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+
+      assert_email_sent(cc: [{"", "cc@example.com"}])
+    end
+
+    test "does not include unverified CC recipients in test email" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id)
+      Delivery.add_recipient(channel.id, "pending@example.com")
+
+      :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+
+      assert_email_sent(fn email -> email.cc == [] end)
+    end
+  end
+
+  describe "perform/1 — incident notification with CC" do
+    test "includes verified CC recipients in incident email" do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
+      Delivery.verify_recipient(recipient.token)
+
+      :ok =
+        perform_job(EmailDispatcher, %{
+          "channel_id" => channel.id,
+          "monitor_id" => monitor.id,
+          "incident_id" => incident.id,
+          "event" => "down"
+        })
+
+      assert_email_sent(cc: [{"", "cc@example.com"}])
+    end
   end
 end

@@ -384,14 +384,9 @@ msgstr ""
 msgid "From"
 msgstr ""
 
-#: lib/holter_web/components/monitoring/dashboard_header.ex:16
-#, elixir-autogen, elixir-format
-msgid "Dashboard"
-msgstr ""
-
-#: lib/holter_web/components/monitoring/dashboard_header.ex:38
-#: lib/holter_web/components/monitoring/dashboard_header.ex:55
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:27
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:22
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:42
 #, elixir-autogen, elixir-format
 msgid "New Monitor"
 msgstr ""
@@ -401,7 +396,7 @@ msgstr ""
 msgid "No data yet"
 msgstr ""
 
-#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:11
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:51
 #, elixir-autogen, elixir-format
 msgid "No assets monitored. Add a domain to start the audit."
 msgstr ""
@@ -411,7 +406,7 @@ msgstr ""
 msgid "Page %{page_number} of %{total_pages}"
 msgstr ""
 
-#: lib/holter_web/components/monitoring/dashboard_header.ex:17
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Real-time Overview"
 msgstr ""
@@ -456,7 +451,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: lib/holter_web/components/monitoring/dashboard_header.ex:23
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached (%{max}/%{max})"
 msgstr ""
@@ -498,10 +493,9 @@ msgstr ""
 msgid "You have unsaved changes. Please save them before checking."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.ex:22
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.ex:23
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:34
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.ex:20
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.ex:22
 #: lib/holter_web/web/live/workspace_dashboard/monitors_live.ex:25
 #, elixir-autogen, elixir-format
 msgid "Workspace not found"
@@ -810,12 +804,11 @@ msgid "State"
 msgstr ""
 
 #: lib/holter_web/components/delivery/notification_channel_form_fields.ex:31
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:19
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:21
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:75
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:30
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:31
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Type"
 msgstr ""
@@ -882,11 +875,6 @@ msgstr ""
 msgid "Channel created successfully"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.ex:36
-#, elixir-autogen, elixir-format
-msgid "Channel not found"
-msgstr ""
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:55
 #, elixir-autogen, elixir-format
 msgid "Channel updated successfully"
@@ -895,21 +883,6 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "Create Channel"
-msgstr ""
-
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:43
-#, elixir-autogen, elixir-format
-msgid "Delete"
-msgstr ""
-
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:40
-#, elixir-autogen, elixir-format
-msgid "Delete this channel?"
-msgstr ""
-
-#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:58
-#, elixir-autogen, elixir-format
-msgid "Discord"
 msgstr ""
 
 #: lib/holter_web/components/delivery/notification_channel_form_fields.ex:56
@@ -938,14 +911,12 @@ msgid "Incident timeline"
 msgstr ""
 
 #: lib/holter_web/components/delivery/notification_channel_form_fields.ex:23
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:20
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:21
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:35
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:10
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:11
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "New Channel"
 msgstr ""
@@ -956,20 +927,13 @@ msgstr ""
 msgid "New Notification Channel"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:16
-#, elixir-autogen, elixir-format
-msgid "No notification channels yet. Create one to receive alerts."
-msgstr ""
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:29
 #, elixir-autogen, elixir-format
 msgid "Not found"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.ex:17
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:3
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.ex:14
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:4
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.ex:16
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Notification Channels"
 msgstr ""
@@ -984,14 +948,8 @@ msgstr ""
 msgid "Send Test"
 msgstr ""
 
-#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:57
-#, elixir-autogen, elixir-format
-msgid "Slack"
-msgstr ""
-
 #: lib/holter_web/components/delivery/notification_channel_form_fields.ex:42
-#: lib/holter_web/web/live/delivery/notification_channel_live/index.html.heex:33
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:34
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:46
 #, elixir-autogen, elixir-format
 msgid "Target"
 msgstr ""
@@ -1026,11 +984,6 @@ msgstr ""
 msgid "Type: %{type}"
 msgstr ""
 
-#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:66
-#, elixir-autogen, elixir-format
-msgid "URL for webhook, Slack, and Discord channels. Email address for email channels."
-msgstr ""
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:26
 #, elixir-autogen, elixir-format
 msgid "Linked Monitors"
@@ -1046,18 +999,29 @@ msgstr ""
 msgid "Channels"
 msgstr ""
 
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:44
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Edit"
 msgstr ""
 
 #: lib/holter_web/components/workspace_sidebar_live.ex:38
 #: lib/holter_web/web/live/workspace_dashboard/monitors_live.ex:19
+#: lib/holter_web/web/live/workspace_dashboard/monitors_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Monitors"
 msgstr ""
 
-#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:17
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "No notification channels yet. Create one to start receiving alerts."
+msgstr ""
+
+#: lib/holter_web/web/live/workspace_dashboard/channels_live.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Alert delivery channels"
+msgstr ""
+
+#: lib/holter_web/components/delivery/notification_channel_form_fields.ex:64
+#, elixir-autogen, elixir-format
+msgid "URL for webhook channels. Email address for email channels."
 msgstr ""
