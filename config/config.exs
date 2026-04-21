@@ -19,7 +19,7 @@ config :holter, HolterWeb.Endpoint,
 
 config :holter, Holter.Mailer, adapter: Swoosh.Adapters.Local
 
-config :holter, :email, from_address: "alerts@holter.io"
+config :holter, :email, from_address: "noreply@alerts.holter.dev"
 
 config :esbuild,
   version: "0.25.4",
