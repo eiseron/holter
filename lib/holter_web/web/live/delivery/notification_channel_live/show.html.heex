@@ -39,8 +39,8 @@
 
   <%= if @channel.type == :email do %>
     <section class="h-fieldset-card h-mt-8">
-      <h2 class="h-fieldset-title">{gettext("CC Recipients")}</h2>
-      <p class="h-fieldset-subtitle h-mb-4">
+      <h3 class="h-fieldset-legend">{gettext("CC Recipients")}</h3>
+      <p class="h-help-text h-mb-4">
         {gettext(
           "Additional addresses that receive a copy of each alert. Each address must be verified before receiving notifications."
         )}

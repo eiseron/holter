@@ -16,7 +16,12 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
       <h3 class="h-fieldset-legend">{gettext("Channel Details")}</h3>
       <div class="h-form-grid h-grid-cols-2">
         <div>
-          <.input field={@form[:name]} label={gettext("Name")} required />
+          <.input
+            field={@form[:name]}
+            label={gettext("Name")}
+            placeholder={gettext("e.g. Production Alerts")}
+            required
+          />
           <p class="h-help-text">{gettext("A label to identify this channel in your workspace.")}</p>
         </div>
 
