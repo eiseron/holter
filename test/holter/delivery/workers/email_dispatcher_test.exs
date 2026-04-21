@@ -5,7 +5,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
   import Swoosh.TestAssertions
 
   alias Holter.Delivery
-  alias Holter.Delivery.Workers.EmailDispatcher
+  alias Holter.Delivery.{ChannelLogs, Workers.EmailDispatcher}
 
   defp email_channel_fixture(workspace_id) do
     {:ok, channel} =
@@ -82,6 +82,64 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
 
       assert_email_sent(fn email -> email.cc == [] end)
+    end
+  end
+
+  describe "perform/1 — log creation" do
+    test "creates a success log on incident dispatch" do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id)
+
+      perform_job(EmailDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      %{logs: [log]} = ChannelLogs.list_channel_logs(channel, %{})
+      assert log.status == :success
+    end
+
+    test "incident log records event_type, monitor_id, and incident_id" do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id)
+
+      perform_job(EmailDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      %{logs: [log]} = ChannelLogs.list_channel_logs(channel, %{})
+
+      assert log.event_type == "down" and log.monitor_id == monitor.id and
+               log.incident_id == incident.id
+    end
+
+    test "creates a success log on test dispatch" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id)
+
+      perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+
+      %{logs: [log]} = ChannelLogs.list_channel_logs(channel, %{})
+      assert log.status == :success
+    end
+
+    test "test dispatch log has event_type 'test' and no monitor or incident refs" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id)
+
+      perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+
+      %{logs: [log]} = ChannelLogs.list_channel_logs(channel, %{})
+      assert log.event_type == "test" and is_nil(log.monitor_id) and is_nil(log.incident_id)
     end
   end
 

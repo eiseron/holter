@@ -7,6 +7,12 @@
     {gettext("Type: %{type}", type: @channel.type)}
   </:subtitle>
   <:actions>
+    <.link
+      navigate={~p"/delivery/notification-channels/#{@channel.id}/logs"}
+      class="h-btn h-btn-soft"
+    >
+      {gettext("View Logs")}
+    </.link>
     <.button type="button" phx-click="test">
       {gettext("Send Test")}
     </.button>
