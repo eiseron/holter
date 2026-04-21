@@ -122,6 +122,18 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       refute html =~ "CC Recipients"
     end
 
+    test "does not add invalid email to CC list", %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      html =
+        view
+        |> element("input[name='cc_email']")
+        |> render_keydown(%{"key" => "Enter", "value" => "notanemail"})
+
+      refute html =~ "notanemail"
+    end
+
     test "adds pending CC email to list before creation", %{conn: conn, workspace: workspace} do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")

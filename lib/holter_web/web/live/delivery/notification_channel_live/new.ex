@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
   def handle_event("add_pending_cc", params, socket) do
     email = (Map.get(params, "email") || Map.get(params, "value", "")) |> String.trim()
 
-    if email != "" and email not in socket.assigns.pending_cc_emails do
+    if valid_email?(email) and email not in socket.assigns.pending_cc_emails do
       {:noreply,
        socket
        |> assign(:pending_cc_emails, socket.assigns.pending_cc_emails ++ [email])
@@ -71,6 +71,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
       {:noreply, socket}
     end
   end
+
+  defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   @impl true
   def handle_event("remove_pending_cc", %{"email" => email}, socket) do
