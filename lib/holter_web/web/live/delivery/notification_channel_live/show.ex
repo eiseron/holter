@@ -4,7 +4,9 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   import HolterWeb.Components.Delivery.MonitorChannelSelect
 
   alias Holter.Delivery
+  alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.Engine
+  alias Holter.Mailer
   alias Holter.Monitoring
 
   @impl true
@@ -24,6 +26,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:form, to_form(changeset))
        |> assign(:available_monitors, available_monitors)
        |> assign(:linked_monitor_ids, linked_monitor_ids)
+       |> assign(:recipients, load_recipients(channel))
        |> assign(:test_sent, false)}
     else
       {:error, :not_found} ->
@@ -78,4 +81,40 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
         {:noreply, put_flash(socket, :error, gettext("Failed to enqueue test notification"))}
     end
   end
+
+  @impl true
+  def handle_event("add_recipient", %{"email" => email}, socket) do
+    channel = socket.assigns.channel
+
+    case Delivery.add_recipient(channel.id, email) do
+      {:ok, recipient} ->
+        verification_url =
+          url(~p"/delivery/notification-channels/recipients/verify/#{recipient.token}")
+
+        RecipientVerification.build_verification_email(recipient, channel, verification_url)
+        |> Mailer.deliver()
+
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Verification email sent to %{email}", email: email))
+         |> assign(:recipients, Delivery.list_recipients(channel.id))}
+
+      {:error, changeset} ->
+        [message | _] =
+          changeset.errors |> Keyword.values() |> List.flatten() |> Enum.map(&elem(&1, 0))
+
+        {:noreply, put_flash(socket, :error, message)}
+    end
+  end
+
+  @impl true
+  def handle_event("remove_recipient", %{"id" => id}, socket) do
+    channel = socket.assigns.channel
+    Delivery.remove_recipient(id)
+
+    {:noreply, assign(socket, :recipients, Delivery.list_recipients(channel.id))}
+  end
+
+  defp load_recipients(%{type: :email, id: id}), do: Delivery.list_recipients(id)
+  defp load_recipients(_), do: []
 end

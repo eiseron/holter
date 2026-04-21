@@ -63,6 +63,10 @@ defmodule HolterWeb.Router do
   scope "/delivery", HolterWeb.Web.Delivery do
     pipe_through :browser
 
+    live "/notification-channels/recipients/verify/:token",
+         NotificationChannelRecipientLive.Verify,
+         :verify
+
     live "/notification-channels/:id", NotificationChannelLive.Show, :show
   end
 
