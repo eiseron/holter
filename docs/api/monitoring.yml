@@ -575,16 +575,6 @@ components:
           type: string
           x-struct:
           x-validate:
-        notification_channel_ids:
-          description: Notification channel IDs to link to this monitor.
-          items:
-            format: uuid
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
         raw_headers:
           nullable: true
           type: string
@@ -1415,16 +1405,6 @@ components:
             - options
             - head
           type: string
-          x-struct:
-          x-validate:
-        notification_channel_ids:
-          description: Notification channel IDs to link to this monitor.
-          items:
-            format: uuid
-            type: string
-            x-struct:
-            x-validate:
-          type: array
           x-struct:
           x-validate:
         raw_headers:
@@ -2302,16 +2282,6 @@ paths:
                   type: string
                   x-struct:
                   x-validate:
-                notification_channel_ids:
-                  description: Notification channel IDs to link to this monitor.
-                  items:
-                    format: uuid
-                    type: string
-                    x-struct:
-                    x-validate:
-                  type: array
-                  x-struct:
-                  x-validate:
                 raw_headers:
                   nullable: true
                   type: string
@@ -2650,16 +2620,6 @@ paths:
                     - options
                     - head
                   type: string
-                  x-struct:
-                  x-validate:
-                notification_channel_ids:
-                  description: Notification channel IDs to link to this monitor.
-                  items:
-                    format: uuid
-                    type: string
-                    x-struct:
-                    x-validate:
-                  type: array
                   x-struct:
                   x-validate:
                 raw_headers:
@@ -4289,16 +4249,6 @@ paths:
                     - options
                     - head
                   type: string
-                  x-struct:
-                  x-validate:
-                notification_channel_ids:
-                  description: Notification channel IDs to link to this monitor.
-                  items:
-                    format: uuid
-                    type: string
-                    x-struct:
-                    x-validate:
-                  type: array
                   x-struct:
                   x-validate:
                 raw_headers:
