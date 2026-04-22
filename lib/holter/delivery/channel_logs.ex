@@ -32,16 +32,11 @@ defmodule Holter.Delivery.ChannelLogs do
     }
   end
 
-  def get_channel_log!(id), do: Repo.get!(Oban.Job, id)
-
   def classify_delivery_status(%Oban.Job{state: "completed"}), do: "success"
   def classify_delivery_status(%Oban.Job{}), do: "failed"
 
   def format_event_type(%Oban.Job{args: %{"test" => true}}), do: "test"
   def format_event_type(%Oban.Job{args: %{"event" => event}}), do: event
-
-  def format_last_error(%Oban.Job{errors: []}), do: nil
-  def format_last_error(%Oban.Job{errors: errors}), do: errors |> List.last() |> Map.get("error")
 
   defp build_base_query(channel_id, filters) do
     timezone = filters[:timezone] || "Etc/UTC"

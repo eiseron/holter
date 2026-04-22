@@ -86,14 +86,6 @@
       <:col :let={job} label={gettext("Event")}>
         {format_event_type(job)}
       </:col>
-      <:col :let={job} label={gettext("Details")}>
-        <.link
-          navigate={~p"/delivery/channel-logs/#{job.id}"}
-          class="h-btn h-btn-soft h-text-sm"
-        >
-          {gettext("View Details")}
-        </.link>
-      </:col>
     </.table>
 
     <.pagination_nav

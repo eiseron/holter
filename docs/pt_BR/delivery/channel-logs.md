@@ -34,8 +34,6 @@ Cada linha representa uma tentativa de envio:
 | Status | Resultado do envio: `success` (sucesso) ou `failed` (falhou) |
 | Evento | Tipo de evento que disparou o envio: `down`, `up` ou `test` |
 
-Clique em **Ver Detalhes** em qualquer linha para abrir a página de [Detalhe do Log de Entrega](channel-log-detail.md).
-
 ## Ordenação
 
 Clique no cabeçalho da coluna **Horário** ou **Status** para ordenar. Clique novamente para inverter a direção.

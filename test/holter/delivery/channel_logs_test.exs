@@ -181,22 +181,6 @@ defmodule Holter.Delivery.ChannelLogsTest do
     end
   end
 
-  describe "get_channel_log!/1" do
-    test "returns the Oban job by id", %{channel: channel} do
-      job = job_fixture(channel.id)
-      fetched = ChannelLogs.get_channel_log!(job.id)
-      assert fetched.id == job.id
-    end
-
-    test "raises Ecto.NoResultsError on unknown id", %{channel: channel} do
-      _other = job_fixture(channel.id)
-
-      assert_raise Ecto.NoResultsError, fn ->
-        ChannelLogs.get_channel_log!(0)
-      end
-    end
-  end
-
   describe "classify_delivery_status/1" do
     test "returns 'success' for a completed job" do
       job = %Oban.Job{state: "completed"}
@@ -223,24 +207,6 @@ defmodule Holter.Delivery.ChannelLogsTest do
     test "returns the event for incident jobs" do
       job = %Oban.Job{args: %{"event" => "down"}}
       assert ChannelLogs.format_event_type(job) == "down"
-    end
-  end
-
-  describe "format_last_error/1" do
-    test "returns nil when there are no errors" do
-      job = %Oban.Job{errors: []}
-      assert is_nil(ChannelLogs.format_last_error(job))
-    end
-
-    test "returns the last error message" do
-      job = %Oban.Job{
-        errors: [
-          %{"attempt" => 1, "error" => "first error"},
-          %{"attempt" => 2, "error" => "last error"}
-        ]
-      }
-
-      assert ChannelLogs.format_last_error(job) == "last error"
     end
   end
 end

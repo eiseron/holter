@@ -34,8 +34,6 @@ Each row represents one dispatch attempt:
 | Status | Outcome of the dispatch: `success` or `failed` |
 | Event | The event type that triggered the dispatch: `down`, `up`, or `test` |
 
-Click **View Details** on any row to open the [Delivery Log Detail](channel-log-detail.md) page.
-
 ## Sorting
 
 Click the **Time** or **Status** column header to sort. Click again to reverse the direction.
