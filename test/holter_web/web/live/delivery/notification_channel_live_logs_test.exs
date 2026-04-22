@@ -3,7 +3,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
   import Phoenix.LiveViewTest
 
   alias Holter.Delivery
-  alias Holter.Delivery.ChannelLogs
+  alias Holter.Delivery.Workers.WebhookDispatcher
 
   defp channel_fixture(workspace_id, overrides \\ %{}) do
     {:ok, channel} =
@@ -22,21 +22,24 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
     channel
   end
 
-  defp channel_log_fixture(channel_id, attrs \\ %{}) do
-    {:ok, log} =
-      ChannelLogs.create_channel_log(
-        Map.merge(
-          %{
-            notification_channel_id: channel_id,
-            status: :success,
-            event_type: "down",
-            dispatched_at: DateTime.utc_now()
-          },
-          attrs
-        )
-      )
+  defp job_fixture(channel_id, overrides \\ %{}) do
+    args =
+      Map.get(overrides, :args, %{
+        "channel_id" => channel_id,
+        "event" => "down",
+        "monitor_id" => Ecto.UUID.generate(),
+        "incident_id" => Ecto.UUID.generate()
+      })
 
-    log
+    state = Map.get(overrides, :state, "completed")
+    attempted_at = Map.get(overrides, :attempted_at, DateTime.utc_now())
+    errors = Map.get(overrides, :errors, [])
+
+    {:ok, job} = WebhookDispatcher.new(args) |> Holter.Repo.insert()
+
+    Holter.Repo.update!(
+      Ecto.Changeset.change(job, state: state, attempted_at: attempted_at, errors: errors)
+    )
   end
 
   setup do
@@ -55,7 +58,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
     end
 
     test "renders log entries with status indicators", %{conn: conn, channel: channel} do
-      channel_log_fixture(channel.id, %{status: :success, event_type: "down"})
+      job_fixture(channel.id, %{state: "completed"})
 
       {:ok, _view, html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs")
@@ -85,8 +88,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
 
   describe "status filter" do
     setup %{channel: channel} do
-      channel_log_fixture(channel.id, %{status: :success})
-      channel_log_fixture(channel.id, %{status: :failed})
+      job_fixture(channel.id, %{state: "completed"})
+      job_fixture(channel.id, %{state: "discarded"})
       :ok
     end
 
@@ -143,24 +146,24 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
   end
 
   describe "sorting" do
-    test "default page has dispatched_at sort link in header", %{conn: conn, channel: channel} do
+    test "default page has attempted_at sort link in header", %{conn: conn, channel: channel} do
       {:ok, _view, html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs")
 
-      assert html =~ "sort_by=dispatched_at"
+      assert html =~ "sort_by=attempted_at"
     end
 
-    test "sort_by=dispatched_at&sort_dir=asc renders oldest log first", %{
+    test "sort_by=attempted_at&sort_dir=asc renders oldest log first", %{
       conn: conn,
       channel: channel
     } do
-      channel_log_fixture(channel.id, %{dispatched_at: ~U[2026-01-01 00:00:00.000000Z]})
-      channel_log_fixture(channel.id, %{dispatched_at: ~U[2026-01-10 00:00:00.000000Z]})
+      job_fixture(channel.id, %{attempted_at: ~U[2026-01-01 00:00:00.000000Z]})
+      job_fixture(channel.id, %{attempted_at: ~U[2026-01-10 00:00:00.000000Z]})
 
       {:ok, view, _html} =
         live(
           conn,
-          ~p"/delivery/notification-channels/#{channel.id}/logs?sort_by=dispatched_at&sort_dir=asc"
+          ~p"/delivery/notification-channels/#{channel.id}/logs?sort_by=attempted_at&sort_dir=asc"
         )
 
       html = render(view)
@@ -178,10 +181,10 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs")
 
-      view |> element("thead a[href*='sort_by=dispatched_at']") |> render_click()
+      view |> element("thead a[href*='sort_by=attempted_at']") |> render_click()
 
       patched = assert_patch(view)
-      assert patched =~ "sort_by=dispatched_at"
+      assert patched =~ "sort_by=attempted_at"
       assert patched =~ "sort_dir=asc"
     end
 
@@ -189,7 +192,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
       {:ok, _view, html} =
         live(
           conn,
-          ~p"/delivery/notification-channels/#{channel.id}/logs?sort_by=dispatched_at&sort_dir=asc"
+          ~p"/delivery/notification-channels/#{channel.id}/logs?sort_by=attempted_at&sort_dir=asc"
         )
 
       assert html =~ "h-sort-indicator"
@@ -216,7 +219,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
       conn: conn,
       channel: channel
     } do
-      for _ <- 1..3, do: channel_log_fixture(channel.id)
+      for _ <- 1..3, do: job_fixture(channel.id)
 
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs?page=999&page_size=2")
@@ -228,26 +231,26 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
 
   describe "log detail page" do
     test "View Details link appears in the logs table", %{conn: conn, channel: channel} do
-      log = channel_log_fixture(channel.id)
+      job = job_fixture(channel.id)
 
       {:ok, view, _html} =
         live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs")
 
-      assert has_element?(view, "a[href='/delivery/channel-logs/#{log.id}']")
+      assert has_element?(view, "a[href='/delivery/channel-logs/#{job.id}']")
     end
 
     test "renders log detail with status, event type, and channel name", %{
       conn: conn,
       channel: channel
     } do
-      log =
-        channel_log_fixture(channel.id, %{
-          status: :failed,
-          event_type: "test",
-          error_message: "connection timeout"
+      job =
+        job_fixture(channel.id, %{
+          state: "discarded",
+          args: %{"channel_id" => channel.id, "test" => true},
+          errors: [%{"attempt" => 1, "error" => "connection timeout"}]
         })
 
-      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{log.id}")
+      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{job.id}")
 
       assert html =~ "failed"
       assert html =~ "test"
@@ -259,36 +262,37 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
       conn: conn,
       channel: channel
     } do
-      log = channel_log_fixture(channel.id)
+      job = job_fixture(channel.id)
 
-      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{log.id}")
+      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{job.id}")
 
       assert html =~ ~p"/delivery/notification-channels/#{channel.id}/logs"
     end
 
-    test "does not show error section when log has no error_message", %{
-      conn: conn,
-      channel: channel
-    } do
-      log = channel_log_fixture(channel.id, %{status: :success, error_message: nil})
+    test "does not show error section when job has no errors", %{conn: conn, channel: channel} do
+      job = job_fixture(channel.id, %{state: "completed"})
 
-      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{log.id}")
+      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{job.id}")
 
       refute html =~ "Error Message"
     end
 
-    test "shows monitor link when log has a monitor_id", %{conn: conn, channel: channel} do
-      monitor = monitor_fixture()
+    test "shows monitor link when job args contain a monitor_id", %{conn: conn, channel: channel} do
+      monitor_id = Ecto.UUID.generate()
 
-      log =
-        channel_log_fixture(channel.id, %{
-          event_type: "down",
-          monitor_id: monitor.id
+      job =
+        job_fixture(channel.id, %{
+          args: %{
+            "channel_id" => channel.id,
+            "event" => "down",
+            "monitor_id" => monitor_id,
+            "incident_id" => Ecto.UUID.generate()
+          }
         })
 
-      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{log.id}")
+      {:ok, _view, html} = live(conn, ~p"/delivery/channel-logs/#{job.id}")
 
-      assert html =~ ~p"/monitoring/monitor/#{monitor.id}"
+      assert html =~ ~p"/monitoring/monitor/#{monitor_id}"
     end
   end
 

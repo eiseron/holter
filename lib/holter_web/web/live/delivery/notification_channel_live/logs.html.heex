@@ -60,31 +60,31 @@
   <div class="h-mt-6 h-logs-table-container">
     <.table id="channel-logs-table" rows={@logs}>
       <:col
-        :let={log}
+        :let={job}
         label={gettext("Time")}
-        sort_url={@sort_info["dispatched_at"].url}
-        sort_active={@sort_info["dispatched_at"].active}
-        sort_dir={@sort_info["dispatched_at"].dir}
+        sort_url={@sort_info["attempted_at"].url}
+        sort_active={@sort_info["attempted_at"].active}
+        sort_dir={@sort_info["attempted_at"].dir}
       >
-        {format_datetime(log.dispatched_at, @timezone)}
+        {format_datetime(job.attempted_at, @timezone)}
       </:col>
       <:col
-        :let={log}
+        :let={job}
         label={gettext("Status")}
-        sort_url={@sort_info["status"].url}
-        sort_active={@sort_info["status"].active}
-        sort_dir={@sort_info["status"].dir}
+        sort_url={@sort_info["state"].url}
+        sort_active={@sort_info["state"].active}
+        sort_dir={@sort_info["state"].dir}
       >
-        <span data-role="log-status" data-status={log.status}>
-          {log.status}
+        <span data-role="log-status" data-status={classify_delivery_status(job)}>
+          {classify_delivery_status(job)}
         </span>
       </:col>
-      <:col :let={log} label={gettext("Event")}>
-        {log.event_type}
+      <:col :let={job} label={gettext("Event")}>
+        {format_event_type(job)}
       </:col>
-      <:col :let={log} label={gettext("Details")}>
+      <:col :let={job} label={gettext("Details")}>
         <.link
-          navigate={~p"/delivery/channel-logs/#{log.id}"}
+          navigate={~p"/delivery/channel-logs/#{job.id}"}
           class="h-btn h-btn-soft h-text-sm"
         >
           {gettext("View Details")}

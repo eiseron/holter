@@ -77,7 +77,7 @@ config :holter, :api_specs, [
 config :holter, Oban,
   repo: Holter.Repo,
   plugins: [
-    Oban.Plugins.Pruner,
+    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 90},
     {Oban.Plugins.Cron,
      crontab: [
        {"* * * * *", Holter.Monitoring.Workers.MonitorDispatcher},

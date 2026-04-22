@@ -27,5 +27,4 @@ defmodule Holter.Delivery do
 
   defdelegate list_channel_logs(channel, filters), to: ChannelLogs
   defdelegate get_channel_log!(id), to: ChannelLogs
-  defdelegate create_channel_log(attrs), to: ChannelLogs
 end
