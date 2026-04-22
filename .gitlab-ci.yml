@@ -96,8 +96,6 @@ publish-docs:
     - VERSION="v$(echo "$CI_COMMIT_TAG" | sed 's/^v\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')"
     - git clone "https://oauth2:${GITLAB_TOKEN}@gitlab.com/eiseron/holter/holter-docs.git" /tmp/holter-docs
     - cd /tmp/holter-docs
-    # Update latest English docs (root locale)
-    - find src -maxdepth 1 -mindepth 1 ! -name 'pt_BR' ! -name 'v*' -exec rm -rf {} +
     - cp -r "$CI_PROJECT_DIR/docs/en/." src/
     # Update latest PT BR docs
     - rm -rf src/pt_BR
@@ -114,7 +112,7 @@ publish-docs:
     - git config user.email "ci@holter.dev"
     - git config user.name "Holter CI"
     - git add -A
-    - git diff --cached --quiet || git commit -m "chore: freeze docs for $CI_COMMIT_TAG"
+    - "git diff --cached --quiet || git commit -m \"chore: freeze docs for $CI_COMMIT_TAG\""
     - git push origin main
   rules:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
