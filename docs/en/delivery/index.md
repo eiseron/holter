@@ -12,6 +12,8 @@ The delivery module lets you receive alerts when monitors go down or recover. Yo
 | Page | Description |
 |------|-------------|
 | [Notification Channels](notification-channels.md) | Create, edit, test, and delete notification channels for your workspace |
+| [Delivery Logs](channel-logs.md) | Per-channel history of every notification dispatch attempt |
+| [Delivery Log Detail](channel-log-detail.md) | Full detail for a single dispatch attempt |
 
 ## How It Works
 

@@ -32,6 +32,12 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 Clique no nome do canal na lista de Canais (`/delivery/workspaces/{workspace_slug}/channels`) para abrir sua página de configurações em `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
 
+## Logs de Entrega
+
+Cada tentativa de envio de notificação é registrada e pode ser consultada na página de configurações do canal. Clique em **Ver Logs** para abrir a lista de [Logs de Entrega](channel-logs.md), que exibe o resultado de cada envio com filtros por status e intervalo de datas.
+
+Os logs são mantidos por 90 dias.
+
 ## Enviando uma Notificação de Teste
 
 Na página de configurações do canal, clique em **Enviar Teste** para enfileirar uma notificação de teste. O payload de teste inclui o nome do canal e um timestamp. Isso é útil para verificar se o destino está acessível antes de vincular o canal a um monitor.

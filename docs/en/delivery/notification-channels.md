@@ -32,6 +32,12 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 Click the channel name in the Channels list (`/delivery/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. You can update the name and target. The channel type cannot be changed after creation.
 
+## Delivery Logs
+
+Every notification dispatch attempt is recorded and visible from the channel settings page. Click **View Logs** to open the [Delivery Logs](channel-logs.md) list, which shows the outcome of each dispatch with filters by status and date range.
+
+Logs are retained for 90 days.
+
 ## Sending a Test Notification
 
 On the channel settings page, click **Send Test** to enqueue a test notification. The test payload includes the channel name and a timestamp. This is useful to verify that the target is reachable before linking the channel to a monitor.

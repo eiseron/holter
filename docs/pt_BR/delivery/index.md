@@ -12,6 +12,8 @@ O módulo de entrega permite que você receba alertas quando monitores caem ou s
 | Página | Descrição |
 |--------|-----------|
 | [Canais de Notificação](notification-channels.md) | Crie, edite, teste e exclua canais de notificação para seu workspace |
+| [Logs de Entrega](channel-logs.md) | Histórico de cada tentativa de envio de notificação por canal |
+| [Detalhe do Log de Entrega](channel-log-detail.md) | Detalhes completos de uma tentativa de envio |
 
 ## Como Funciona
 
