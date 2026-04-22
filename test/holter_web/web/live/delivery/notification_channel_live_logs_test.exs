@@ -57,6 +57,13 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveLogsTest do
       assert html =~ channel.name
     end
 
+    test "shows 90-day retention notice", %{conn: conn, channel: channel} do
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}/logs")
+
+      assert html =~ "90 days"
+    end
+
     test "renders log entries with status indicators", %{conn: conn, channel: channel} do
       job_fixture(channel.id, %{state: "completed"})
 

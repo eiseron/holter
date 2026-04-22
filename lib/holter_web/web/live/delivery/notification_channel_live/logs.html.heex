@@ -57,6 +57,10 @@
     </.form>
   </div>
 
+  <p class="h-text-muted h-text-sm h-mt-4">
+    {gettext("Logs are retained for 90 days.")}
+  </p>
+
   <div class="h-mt-6 h-logs-table-container">
     <.table id="channel-logs-table" rows={@logs}>
       <:col
