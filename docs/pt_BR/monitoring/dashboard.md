@@ -9,7 +9,7 @@ A página Monitores é a tela principal do módulo de monitoramento. Ela exibe t
 
 ## Acessando a Página
 
-Clique em **Monitores** na barra lateral esquerda, ou navegue diretamente para `/workspaces/{workspace_slug}/monitors`.
+Clique em **Monitores** na barra lateral esquerda, ou navegue diretamente para `/monitoring/workspaces/{workspace_slug}/monitors`.
 
 ## Cards de Monitor
 

@@ -30,7 +30,7 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 ## Editando um Canal
 
-Clique no nome do canal na lista de Canais (`/workspaces/{workspace_slug}/channels`) para abrir sua página de configurações em `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
+Clique no nome do canal na lista de Canais (`/delivery/workspaces/{workspace_slug}/channels`) para abrir sua página de configurações em `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
 
 ## Enviando uma Notificação de Teste
 

@@ -30,7 +30,7 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 ## Editing a Channel
 
-Click the channel name in the Channels list (`/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. You can update the name and target. The channel type cannot be changed after creation.
+Click the channel name in the Channels list (`/delivery/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. You can update the name and target. The channel type cannot be changed after creation.
 
 ## Sending a Test Notification
 

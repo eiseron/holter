@@ -9,7 +9,7 @@ The Monitors page is the main view of the monitoring module. It shows all monito
 
 ## Accessing the Page
 
-Click **Monitors** in the left sidebar, or navigate directly to `/workspaces/{workspace_slug}/monitors`.
+Click **Monitors** in the left sidebar, or navigate directly to `/monitoring/workspaces/{workspace_slug}/monitors`.
 
 ## Monitor Cards
 
