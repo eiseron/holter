@@ -38,6 +38,21 @@ defmodule Holter.Delivery.ChannelLogs do
   def format_event_type(%Oban.Job{args: %{"test" => true}}), do: "test"
   def format_event_type(%Oban.Job{args: %{"event" => event}}), do: event
 
+  def get_channel_log(channel_id, job_id) do
+    query =
+      from(j in Oban.Job,
+        where: j.id == ^job_id,
+        where: j.worker in ^@delivery_workers,
+        where: j.state in ^@terminal_states,
+        where: fragment("? @> jsonb_build_object('channel_id', ?::text)", j.args, ^channel_id)
+      )
+
+    case Repo.one(query) do
+      nil -> {:error, :not_found}
+      job -> {:ok, job}
+    end
+  end
+
   defp build_base_query(channel_id, filters) do
     timezone = filters[:timezone] || "Etc/UTC"
 

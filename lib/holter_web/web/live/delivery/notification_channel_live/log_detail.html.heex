@@ -1,0 +1,46 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/delivery/notification-channels/#{@channel.id}/logs"} />
+    {gettext("Delivery Log")}
+  </:title>
+  <:subtitle>
+    <span class="h-text-muted">{@channel.name}</span>
+  </:subtitle>
+
+  <article class="h-log-detail-content">
+    <dl class="h-evidence-meta">
+      <div class="h-meta-item">
+        <dt>{gettext("Status")}</dt>
+        <dd data-role="log-status" data-status={classify_delivery_status(@job)}>
+          {classify_delivery_status(@job)}
+        </dd>
+      </div>
+      <div class="h-meta-item">
+        <dt>{gettext("Event")}</dt>
+        <dd>{format_event_type(@job)}</dd>
+      </div>
+      <div class="h-meta-item">
+        <dt>{gettext("Attempted at")}</dt>
+        <dd>{format_datetime(@job.attempted_at, @timezone)}</dd>
+      </div>
+      <div class="h-meta-item">
+        <dt>{gettext("Worker")}</dt>
+        <dd><code>{@job.worker}</code></dd>
+      </div>
+    </dl>
+
+    <%= if @job.errors != [] do %>
+      <section class="h-evidence-block h-evidence-error">
+        <h3 class="h-evidence-block-title">{gettext("Errors")}</h3>
+        <%= for error <- @job.errors do %>
+          <pre>{error["error"]}</pre>
+        <% end %>
+      </section>
+    <% end %>
+
+    <section class="h-evidence-block">
+      <h3 class="h-evidence-block-title">{gettext("Payload")}</h3>
+      <pre>{Jason.encode!(@job.args, pretty: true)}</pre>
+    </section>
+  </article>
+</.page_container>
