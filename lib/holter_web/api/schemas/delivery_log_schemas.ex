@@ -1,19 +1,19 @@
-defmodule HolterWeb.Api.ChannelLogSchemas do
+defmodule HolterWeb.Api.DeliveryLogSchemas do
   @moduledoc """
-  OpenAPI schemas for the ChannelLog resource.
+  OpenAPI schemas for the DeliveryLog resource.
   """
   alias OpenApiSpex.Schema
 
   def all do
     %{
-      "ChannelLog" => channel_log(),
-      "ChannelLogList" => channel_log_list()
+      "DeliveryLog" => delivery_log(),
+      "DeliveryLogList" => delivery_log_list()
     }
   end
 
-  def channel_log do
+  def delivery_log do
     %Schema{
-      title: "ChannelLog",
+      title: "DeliveryLog",
       description: "A delivery job log entry for a notification channel.",
       type: :object,
       additionalProperties: false,
@@ -30,14 +30,14 @@ defmodule HolterWeb.Api.ChannelLogSchemas do
     }
   end
 
-  def channel_log_list do
+  def delivery_log_list do
     %Schema{
-      title: "ChannelLogList",
-      description: "A paginated list of channel delivery log entries.",
+      title: "DeliveryLogList",
+      description: "A paginated list of delivery log entries for a notification channel.",
       type: :object,
       additionalProperties: false,
       properties: %{
-        data: %Schema{type: :array, items: channel_log()},
+        data: %Schema{type: :array, items: delivery_log()},
         meta: %Schema{
           type: :object,
           additionalProperties: false,

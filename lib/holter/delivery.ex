@@ -26,5 +26,4 @@ defmodule Holter.Delivery do
   defdelegate list_verified_emails(channel_id), to: NotificationChannels
 
   defdelegate list_channel_logs(channel, filters), to: ChannelLogs
-  defdelegate get_channel_log(channel_id, job_id), to: ChannelLogs
 end

@@ -1,4 +1,4 @@
-defmodule HolterWeb.Api.ChannelLogJSON do
+defmodule HolterWeb.Api.DeliveryLogJSON do
   alias Holter.Delivery.ChannelLogs
 
   def index(%{

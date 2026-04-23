@@ -8,8 +8,8 @@ defmodule HolterWeb.Api.ApiSpec do
   @behaviour OpenApiSpex.OpenApi
 
   alias HolterWeb.Api.{
-    ChannelLogSchemas,
     DailyMetricSchemas,
+    DeliveryLogSchemas,
     IncidentSchemas,
     MonitorLogSchemas,
     MonitorSchemas,
@@ -40,7 +40,7 @@ defmodule HolterWeb.Api.ApiSpec do
           |> Map.merge(DailyMetricSchemas.all())
           |> Map.merge(IncidentSchemas.all())
           |> Map.merge(NotificationChannelSchemas.all())
-          |> Map.merge(ChannelLogSchemas.all())
+          |> Map.merge(DeliveryLogSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()

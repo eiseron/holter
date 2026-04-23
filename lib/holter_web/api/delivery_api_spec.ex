@@ -4,7 +4,7 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
   """
   @behaviour OpenApiSpex.OpenApi
 
-  alias HolterWeb.Api.{ChannelLogSchemas, NotificationChannelSchemas}
+  alias HolterWeb.Api.{DeliveryLogSchemas, NotificationChannelSchemas}
   alias HolterWeb.Router
   alias OpenApiSpex.{Info, OpenApi, Paths, Server}
 
@@ -28,7 +28,7 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
       components: %OpenApiSpex.Components{
         schemas:
           NotificationChannelSchemas.all()
-          |> Map.merge(ChannelLogSchemas.all())
+          |> Map.merge(DeliveryLogSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()

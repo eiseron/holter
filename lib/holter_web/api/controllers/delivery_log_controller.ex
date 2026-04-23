@@ -1,11 +1,11 @@
-defmodule HolterWeb.Api.ChannelLogController do
+defmodule HolterWeb.Api.DeliveryLogController do
   use HolterWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
   import HolterWeb.Api.ParamHelpers
 
   alias Holter.Delivery
-  alias HolterWeb.Api.ChannelLogSchemas
+  alias HolterWeb.Api.DeliveryLogSchemas
 
   action_fallback HolterWeb.Api.FallbackController
 
@@ -38,8 +38,8 @@ defmodule HolterWeb.Api.ChannelLogController do
       sort_dir: [in: :query, description: "Sort direction: asc or desc", type: :string]
     ],
     responses: [
-      ok: {"Log list", "application/json", ChannelLogSchemas.channel_log_list()},
-      not_found: {"Channel not found", "application/json", ChannelLogSchemas.error()}
+      ok: {"Log list", "application/json", DeliveryLogSchemas.delivery_log_list()},
+      not_found: {"Channel not found", "application/json", DeliveryLogSchemas.error()}
     ]
   )
 
@@ -53,10 +53,10 @@ defmodule HolterWeb.Api.ChannelLogController do
 
   defp sanitize_filters(params) do
     %{}
-    |> maybe_put_integer(params, {"page", :page})
-    |> maybe_put_integer(params, {"page_size", :page_size})
-    |> maybe_put_string(params, {"status", :status})
-    |> maybe_put_string(params, {"sort_by", :sort_by})
-    |> maybe_put_string(params, {"sort_dir", :sort_dir})
+    |> maybe_put_integer(params, {:page, :page})
+    |> maybe_put_integer(params, {:page_size, :page_size})
+    |> maybe_put_string(params, {:status, :status})
+    |> maybe_put_string(params, {:sort_by, :sort_by})
+    |> maybe_put_string(params, {:sort_dir, :sort_dir})
   end
 end

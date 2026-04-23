@@ -51,7 +51,7 @@ defmodule HolterWeb.Router do
 
     resources "/notification_channels", NotificationChannelController, only: [] do
       post "/test", NotificationChannelController, :test
-      resources "/logs", ChannelLogController, only: [:index]
+      resources "/logs", DeliveryLogController, only: [:index]
     end
   end
 
@@ -71,7 +71,6 @@ defmodule HolterWeb.Router do
 
     live "/notification-channels/:id", NotificationChannelLive.Show, :show
     live "/notification-channels/:id/logs", NotificationChannelLive.Logs, :index
-    live "/notification-channels/:id/logs/:log_id", NotificationChannelLive.LogDetail, :show
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
