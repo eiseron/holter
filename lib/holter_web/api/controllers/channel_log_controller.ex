@@ -15,15 +15,24 @@ defmodule HolterWeb.Api.ChannelLogController do
 
   operation(:index,
     summary: "List channel delivery logs",
-    description: "List delivery job logs for a notification channel with pagination and filtering.",
+    description:
+      "List delivery job logs for a notification channel with pagination and filtering.",
     parameters: [
       notification_channel_id: [
         in: :path,
         description: "Channel UUID",
         schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
       ],
-      page: [in: :query, description: "Page number", schema: %OpenApiSpex.Schema{type: :integer, default: 1}],
-      page_size: [in: :query, description: "Items per page", schema: %OpenApiSpex.Schema{type: :integer, default: 50}],
+      page: [
+        in: :query,
+        description: "Page number",
+        schema: %OpenApiSpex.Schema{type: :integer, default: 1}
+      ],
+      page_size: [
+        in: :query,
+        description: "Items per page",
+        schema: %OpenApiSpex.Schema{type: :integer, default: 50}
+      ],
       status: [in: :query, description: "Filter by status: success or failed", type: :string],
       sort_by: [in: :query, description: "Sort column: attempted_at or state", type: :string],
       sort_dir: [in: :query, description: "Sort direction: asc or desc", type: :string]
