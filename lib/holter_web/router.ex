@@ -46,12 +46,13 @@ defmodule HolterWeb.Router do
     resources "/incidents", IncidentController, only: [:show]
 
     scope "/workspaces/:workspace_slug" do
-      resources "/notification_channels", NotificationChannelController, except: [:new, :edit]
+      resources "/notification_channels", NotificationChannelController, only: [:index, :create]
     end
 
-    resources "/notification_channels", NotificationChannelController, only: [] do
-      post "/test", NotificationChannelController, :test
-      resources "/logs", DeliveryLogController, only: [:index]
+    resources "/notification_channels", NotificationChannelController,
+      only: [:show, :update, :delete] do
+      post "/pings", NotificationChannelController, :ping
+      resources "/delivery_logs", DeliveryLogController, only: [:index]
     end
   end
 

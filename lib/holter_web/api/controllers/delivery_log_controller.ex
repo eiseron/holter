@@ -11,16 +11,16 @@ defmodule HolterWeb.Api.DeliveryLogController do
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: HolterWeb.Api.OpenApiError
 
-  tags(["Notification Channels"])
+  tags(["Delivery Logs"])
 
   operation(:index,
-    summary: "List channel delivery logs",
+    summary: "List delivery logs",
     description:
       "List delivery job logs for a notification channel with pagination and filtering.",
     parameters: [
       notification_channel_id: [
         in: :path,
-        description: "Channel UUID",
+        description: "Notification channel UUID",
         schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
       ],
       page: [

@@ -42,7 +42,6 @@ defmodule HolterWeb.Api.NotificationChannelController do
     summary: "Get notification channel",
     description: "Fetch a single notification channel by its UUID.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Channel UUID",
@@ -57,7 +56,7 @@ defmodule HolterWeb.Api.NotificationChannelController do
     ]
   )
 
-  def show(conn, %{id: id, workspace_slug: _}) do
+  def show(conn, %{id: id}) do
     with {:ok, channel} <- Delivery.get_channel(id) do
       render(conn, :show, channel: channel)
     end
@@ -95,7 +94,6 @@ defmodule HolterWeb.Api.NotificationChannelController do
     summary: "Update notification channel",
     description: "Update an existing notification channel.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Channel UUID",
@@ -115,7 +113,7 @@ defmodule HolterWeb.Api.NotificationChannelController do
     ]
   )
 
-  def update(conn, %{id: id, workspace_slug: _}) do
+  def update(conn, %{id: id}) do
     with {:ok, channel} <- Delivery.get_channel(id),
          {:ok, updated} <- Delivery.update_channel(channel, conn.body_params) do
       render(conn, :show, channel: updated)
@@ -126,7 +124,6 @@ defmodule HolterWeb.Api.NotificationChannelController do
     summary: "Delete notification channel",
     description: "Permanently delete a notification channel.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
       id: [
         in: :path,
         description: "Channel UUID",
@@ -139,16 +136,16 @@ defmodule HolterWeb.Api.NotificationChannelController do
     ]
   )
 
-  def delete(conn, %{id: id, workspace_slug: _}) do
+  def delete(conn, %{id: id}) do
     with {:ok, channel} <- Delivery.get_channel(id),
          {:ok, _} <- Delivery.delete_channel(channel) do
       send_resp(conn, :no_content, "")
     end
   end
 
-  operation(:test,
-    summary: "Send test notification",
-    description: "Enqueue a test notification for this channel.",
+  operation(:ping,
+    summary: "Send a channel ping",
+    description: "Enqueue a test notification to verify the channel is reachable.",
     parameters: [
       notification_channel_id: [
         in: :path,
@@ -157,12 +154,12 @@ defmodule HolterWeb.Api.NotificationChannelController do
       ]
     ],
     responses: [
-      accepted: {"Test enqueued", "application/json", nil},
+      accepted: {"Ping enqueued", "application/json", nil},
       not_found: {"Channel not found", "application/json", NotificationChannelSchemas.error()}
     ]
   )
 
-  def test(conn, %{notification_channel_id: id}) do
+  def ping(conn, %{notification_channel_id: id}) do
     with {:ok, _channel} <- Delivery.get_channel(id),
          {:ok, _job} <- Engine.dispatch_test(id) do
       send_resp(conn, :accepted, "")

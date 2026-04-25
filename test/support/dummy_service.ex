@@ -30,7 +30,28 @@ defmodule Holter.Test.DummyService do
     Agent.update(__MODULE__, fn _ -> %{responses: %{}, requests: []} end)
   end
 
+  def start_link(_) do
+    Agent.start_link(fn -> %{responses: %{}, requests: []} end, name: __MODULE__)
+  end
+
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
   get "/probe/:call_id" do
+    dispatch_probe(conn, call_id)
+  end
+
+  post "/probe/:call_id" do
+    dispatch_probe(conn, call_id)
+  end
+
+  match(_, do: send_resp(conn, 404, "Not Found: #{conn.request_path}"))
+
+  defp dispatch_probe(conn, call_id) do
     Agent.update(__MODULE__, fn state ->
       %{state | requests: state.requests ++ [conn]}
     end)
@@ -46,6 +67,9 @@ defmodule Holter.Test.DummyService do
         status = Keyword.get(next, :status, 200)
         body = Keyword.get(next, :body, "OK")
         headers = Keyword.get(next, :headers, [])
+        delay = Keyword.get(next, :delay, 0)
+
+        if delay > 0, do: Process.sleep(delay)
 
         conn
         |> merge_resp_headers(headers)
@@ -54,18 +78,5 @@ defmodule Holter.Test.DummyService do
       _ ->
         send_resp(conn, 404, "No responses queued for: #{call_id}")
     end
-  end
-
-  match(_, do: send_resp(conn, 404, "Not Found: #{conn.request_path}"))
-
-  def start_link(_) do
-    Agent.start_link(fn -> %{responses: %{}, requests: []} end, name: __MODULE__)
-  end
-
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]}
-    }
   end
 end

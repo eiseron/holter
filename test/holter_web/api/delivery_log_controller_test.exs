@@ -43,7 +43,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     )
   end
 
-  describe "GET /api/v1/notification_channels/:id/logs" do
+  describe "GET /api/v1/notification_channels/:id/delivery_logs" do
     test "returns paginated delivery logs matching DeliveryLogList schema", %{
       conn: conn,
       channel: channel,
@@ -51,7 +51,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     } do
       job_fixture(channel.id)
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs")
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
       body = json_response(conn, 200)
 
       assert %{"data" => [_], "meta" => %{"page" => 1}} = body
@@ -59,12 +59,17 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     end
 
     test "returns empty list when channel has no logs", %{conn: conn, channel: channel} do
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs")
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
       assert %{"data" => [], "meta" => %{"total_pages" => 1}} = json_response(conn, 200)
     end
 
     test "returns 404 for unknown channel", %{conn: conn} do
-      conn = get(conn, ~p"/api/v1/notification_channels/#{Ecto.UUID.generate()}/logs")
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/delivery_logs"
+        )
+
       assert json_response(conn, 404)
     end
 
@@ -76,7 +81,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       job_fixture(channel.id, "completed")
       job_fixture(channel.id, "discarded")
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs")
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
       body = json_response(conn, 200)
 
       assert length(body["data"]) == 2
@@ -91,7 +96,9 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       job_fixture(channel.id, "discarded")
 
       conn =
-        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs", %{status: "success"})
+        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs", %{
+          status: "success"
+        })
 
       body = json_response(conn, 200)
 
@@ -107,7 +114,9 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       job_fixture(channel.id, "discarded")
 
       conn =
-        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs", %{status: "failed"})
+        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs", %{
+          status: "failed"
+        })
 
       body = json_response(conn, 200)
 
@@ -128,7 +137,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
 
       job_fixture(other_channel.id)
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/logs")
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
       assert %{"data" => []} = json_response(conn, 200)
     end
   end

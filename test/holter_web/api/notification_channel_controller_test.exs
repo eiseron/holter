@@ -65,26 +65,19 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
     end
   end
 
-  describe "GET /api/v1/workspaces/:workspace_slug/notification_channels/:id" do
+  describe "GET /api/v1/notification_channels/:id" do
     test "returns the channel", %{conn: conn, workspace: workspace, api_spec: spec} do
       channel = channel_fixture(workspace.id)
 
-      conn =
-        get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/#{channel.id}")
-
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
       body = json_response(conn, 200)
 
       assert body["data"]["id"] == channel.id
       assert_schema(body, "NotificationChannelResponse", spec)
     end
 
-    test "returns 404 for unknown channel id", %{conn: conn, workspace: workspace} do
-      conn =
-        get(
-          conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/00000000-0000-0000-0000-000000000000"
-        )
-
+    test "returns 404 for unknown channel id", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000")
       assert json_response(conn, 404)
     end
   end
@@ -128,16 +121,12 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
     end
   end
 
-  describe "PUT /api/v1/workspaces/:workspace_slug/notification_channels/:id" do
+  describe "PUT /api/v1/notification_channels/:id" do
     test "updates the channel name", %{conn: conn, workspace: workspace, api_spec: spec} do
       channel = channel_fixture(workspace.id)
 
       conn =
-        json_put(
-          conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/#{channel.id}",
-          %{name: "Updated Name"}
-        )
+        json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}", %{name: "Updated Name"})
 
       body = json_response(conn, 200)
 
@@ -145,11 +134,11 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
       assert_schema(body, "NotificationChannelResponse", spec)
     end
 
-    test "returns 404 for unknown channel", %{conn: conn, workspace: workspace} do
+    test "returns 404 for unknown channel", %{conn: conn} do
       conn =
         json_put(
           conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/00000000-0000-0000-0000-000000000000",
+          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000",
           %{name: "X"}
         )
 
@@ -157,36 +146,29 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
     end
   end
 
-  describe "DELETE /api/v1/workspaces/:workspace_slug/notification_channels/:id" do
+  describe "DELETE /api/v1/notification_channels/:id" do
     test "deletes the channel and returns 204", %{conn: conn, workspace: workspace} do
       channel = channel_fixture(workspace.id)
 
-      conn =
-        delete(
-          conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/#{channel.id}"
-        )
+      conn = delete(conn, ~p"/api/v1/notification_channels/#{channel.id}")
 
       assert response(conn, 204)
       assert {:error, :not_found} = Delivery.get_channel(channel.id)
     end
 
-    test "returns 404 for unknown channel", %{conn: conn, workspace: workspace} do
+    test "returns 404 for unknown channel", %{conn: conn} do
       conn =
-        delete(
-          conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels/00000000-0000-0000-0000-000000000000"
-        )
+        delete(conn, ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000")
 
       assert json_response(conn, 404)
     end
   end
 
-  describe "POST /api/v1/notification_channels/:id/test" do
-    test "enqueues a test job and returns 202", %{conn: conn, workspace: workspace} do
+  describe "POST /api/v1/notification_channels/:id/pings" do
+    test "enqueues a ping and returns 202", %{conn: conn, workspace: workspace} do
       channel = channel_fixture(workspace.id)
 
-      conn = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/test")
+      conn = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
 
       assert response(conn, 202)
       assert_enqueued(worker: Holter.Delivery.Workers.WebhookDispatcher, args: %{"test" => true})
@@ -194,7 +176,10 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
 
     test "returns 404 for unknown channel", %{conn: conn} do
       conn =
-        post(conn, ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/test")
+        post(
+          conn,
+          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/pings"
+        )
 
       assert json_response(conn, 404)
     end

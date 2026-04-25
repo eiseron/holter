@@ -52,6 +52,7 @@ config :holter, dev_routes: true
 
 config :holter, :sql_sandbox, true
 
+config :holter, http_receive_timeout: 500
 config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
 config :holter, delivery_http_client: Holter.Delivery.HttpClientMock
 config :holter, start_delivery_event_consumer: false

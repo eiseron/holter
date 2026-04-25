@@ -61,10 +61,32 @@ defmodule Holter.Delivery.NotificationChannel do
   defp valid_http_url?(target) do
     case URI.parse(target) do
       %URI{scheme: scheme, host: host} when scheme in ["http", "https"] and not is_nil(host) ->
-        true
+        not private_host?(host)
 
       _ ->
         false
     end
   end
+
+  defp private_host?(host) do
+    normalized = String.downcase(host)
+    normalized in ~w(localhost 0.0.0.0) or private_ip?(normalized)
+  end
+
+  defp private_ip?(host) do
+    case :inet.parse_address(String.to_charlist(host)) do
+      {:ok, ip} -> private_ip_tuple?(ip)
+      _ -> false
+    end
+  end
+
+  defp private_ip_tuple?({127, _, _, _}), do: true
+  defp private_ip_tuple?({10, _, _, _}), do: true
+  defp private_ip_tuple?({172, b, _, _}) when b in 16..31, do: true
+  defp private_ip_tuple?({192, 168, _, _}), do: true
+  defp private_ip_tuple?({169, 254, _, _}), do: true
+  defp private_ip_tuple?({0, _, _, _}), do: true
+  defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
+  defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 0}), do: true
+  defp private_ip_tuple?(_), do: false
 end
