@@ -52,6 +52,25 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
       assert_email_sent(subject: "Alert: https://mysite.com is down")
     end
+
+    test "email body contains the channel's anti_phishing_code as a verification line" do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id)
+      code = channel.email_channel.anti_phishing_code
+
+      perform_job(EmailDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      assert_email_sent(fn email ->
+        assert email.text_body =~ "Verification code: #{code}"
+      end)
+    end
   end
 
   describe "perform/1 — test ping" do

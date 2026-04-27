@@ -48,4 +48,26 @@ defmodule HolterWeb.Api.FallbackController do
       }
     })
   end
+
+  def call(conn, {:error, :not_a_webhook_channel}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "not_a_webhook_channel",
+        message: "Operation is only valid on webhook channels."
+      }
+    })
+  end
+
+  def call(conn, {:error, :not_an_email_channel}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "not_an_email_channel",
+        message: "Operation is only valid on email channels."
+      }
+    })
+  end
 end

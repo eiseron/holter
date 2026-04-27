@@ -19,9 +19,15 @@ defmodule HolterWeb.Api.NotificationChannelController do
 
   operation(:index,
     summary: "List notification channels",
-    description: "List all notification channels for a workspace.",
+    description: "List all notification channels for a workspace. Optionally filter by `type`.",
     parameters: [
-      workspace_slug: [in: :path, description: "Workspace slug", type: :string]
+      workspace_slug: [in: :path, description: "Workspace slug", type: :string],
+      type: [
+        in: :query,
+        description: "Restrict results to channels of this type.",
+        required: false,
+        schema: %OpenApiSpex.Schema{type: :string, enum: ["webhook", "email"]}
+      ]
     ],
     responses: [
       ok:
@@ -31,9 +37,10 @@ defmodule HolterWeb.Api.NotificationChannelController do
     ]
   )
 
-  def index(conn, %{workspace_slug: workspace_slug}) do
+  def index(conn, %{workspace_slug: workspace_slug} = params) do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
-      channels = Delivery.list_channels(workspace.id)
+      filters = %{type: parse_type_filter(params[:type])}
+      channels = Delivery.list_channels(workspace.id, filters)
       render(conn, :index, channels: channels)
     end
   end
@@ -165,4 +172,66 @@ defmodule HolterWeb.Api.NotificationChannelController do
       send_resp(conn, :accepted, "")
     end
   end
+
+  operation(:rotate_signing_token,
+    summary: "Rotate the webhook signing token",
+    description:
+      "Generate a fresh HMAC signing token for a webhook channel. The previous token stops working at the next dispatch.",
+    parameters: [
+      notification_channel_id: [
+        in: :path,
+        description: "Channel UUID",
+        schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
+      ]
+    ],
+    responses: [
+      ok:
+        {"Channel with rotated signing_token", "application/json",
+         NotificationChannelSchemas.notification_channel_response()},
+      not_found: {"Channel not found", "application/json", NotificationChannelSchemas.error()},
+      unprocessable_entity:
+        {"Channel is not a webhook channel", "application/json",
+         NotificationChannelSchemas.error()}
+    ]
+  )
+
+  def rotate_signing_token(conn, %{notification_channel_id: id}) do
+    with {:ok, channel} <- Delivery.get_channel(id),
+         {:ok, updated} <- Delivery.regenerate_signing_token(channel) do
+      render(conn, :show, channel: updated)
+    end
+  end
+
+  operation(:rotate_anti_phishing_code,
+    summary: "Rotate the email anti-phishing code",
+    description:
+      "Generate a fresh anti-phishing code for an email channel. The next email through this channel will carry the new value.",
+    parameters: [
+      notification_channel_id: [
+        in: :path,
+        description: "Channel UUID",
+        schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
+      ]
+    ],
+    responses: [
+      ok:
+        {"Channel with rotated anti_phishing_code", "application/json",
+         NotificationChannelSchemas.notification_channel_response()},
+      not_found: {"Channel not found", "application/json", NotificationChannelSchemas.error()},
+      unprocessable_entity:
+        {"Channel is not an email channel", "application/json",
+         NotificationChannelSchemas.error()}
+    ]
+  )
+
+  def rotate_anti_phishing_code(conn, %{notification_channel_id: id}) do
+    with {:ok, channel} <- Delivery.get_channel(id),
+         {:ok, updated} <- Delivery.regenerate_anti_phishing_code(channel) do
+      render(conn, :show, channel: updated)
+    end
+  end
+
+  defp parse_type_filter("webhook"), do: :webhook
+  defp parse_type_filter("email"), do: :email
+  defp parse_type_filter(_), do: nil
 end

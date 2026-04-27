@@ -5,6 +5,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
   alias Holter.Delivery
   alias Holter.Delivery.HttpClientMock
+  alias Holter.Delivery.WebhookSignature
   alias Holter.Delivery.Workers.WebhookDispatcher
 
   defp webhook_channel_fixture(workspace_id) do
@@ -75,6 +76,87 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       expect(HttpClientMock, :post, fn _url, body, _headers ->
         {:ok, decoded} = Jason.decode(body)
         assert decoded["event"] == "monitor_down"
+        {:ok, %{status: 200}}
+      end)
+
+      perform_job(WebhookDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      verify!(HttpClientMock)
+    end
+  end
+
+  describe "perform/1 — webhook signature" do
+    setup do
+      ws = workspace_fixture()
+      monitor = monitor_fixture(workspace_id: ws.id)
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = webhook_channel_fixture(ws.id)
+
+      %{monitor: monitor, incident: incident, channel: channel}
+    end
+
+    test "POST headers include x-holter-signature when the channel has a signing_token", %{
+      monitor: monitor,
+      incident: incident,
+      channel: channel
+    } do
+      expect(HttpClientMock, :post, fn _url, _body, headers ->
+        assert List.keyfind(headers, WebhookSignature.header_name(), 0)
+        {:ok, %{status: 200}}
+      end)
+
+      perform_job(WebhookDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      verify!(HttpClientMock)
+    end
+
+    test "the signature value follows the t=<unix>,v1=<hex> format", %{
+      monitor: monitor,
+      incident: incident,
+      channel: channel
+    } do
+      expect(HttpClientMock, :post, fn _url, _body, headers ->
+        {_, value} = List.keyfind(headers, WebhookSignature.header_name(), 0)
+        assert value =~ ~r/^t=\d+,v1=[0-9a-f]{64}$/
+        {:ok, %{status: 200}}
+      end)
+
+      perform_job(WebhookDispatcher, %{
+        "channel_id" => channel.id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      verify!(HttpClientMock)
+    end
+
+    test "the signature verifies against the channel's signing_token and the body", %{
+      monitor: monitor,
+      incident: incident,
+      channel: channel
+    } do
+      token = channel.webhook_channel.signing_token
+
+      expect(HttpClientMock, :post, fn _url, body, headers ->
+        {_, value} = List.keyfind(headers, WebhookSignature.header_name(), 0)
+        ["t=" <> unix, "v1=" <> received_hex] = String.split(value, ",")
+
+        expected_hex =
+          :crypto.mac(:hmac, :sha256, token, "#{unix}.#{body}")
+          |> Base.encode16(case: :lower)
+
+        assert received_hex == expected_hex
         {:ok, %{status: 200}}
       end)
 

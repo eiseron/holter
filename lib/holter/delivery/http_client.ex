@@ -3,7 +3,7 @@ defmodule Holter.Delivery.HttpClient do
   Behaviour for the HTTP client used by the delivery engine.
   """
 
-  def impl, do: Application.get_env(:holter, :delivery_http_client, HTTP)
+  def impl, do: Application.get_env(:holter, :delivery_http_client, __MODULE__.HTTP)
 
   @callback post(url :: String.t(), body :: String.t(), headers :: list()) ::
               {:ok, %{status: integer()}} | {:error, Exception.t()}

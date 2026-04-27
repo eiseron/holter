@@ -2,6 +2,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   use HolterWeb, :delivery_live_view
 
   import HolterWeb.Components.Delivery.MonitorChannelSelect
+  import HolterWeb.Components.Delivery.SecretCard
 
   alias Holter.Delivery
   alias Holter.Delivery.Emails.RecipientVerification
@@ -120,6 +121,20 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
+  def handle_event("regenerate_secret", _params, socket) do
+    case regenerate_for(socket.assigns.channel) do
+      {:ok, updated} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, regenerate_secret_message(updated))
+         |> assign(:channel, updated)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Failed to regenerate the secret"))}
+    end
+  end
+
+  @impl true
   def handle_event("delete_channel", _params, socket) do
     channel = socket.assigns.channel
     workspace = socket.assigns.workspace
@@ -143,4 +158,36 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   defp load_recipients(_), do: []
 
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
+
+  defp regenerate_secret_message(%{type: :webhook}) do
+    gettext("Signing token regenerated. Update your receiver to avoid missed alerts.")
+  end
+
+  defp regenerate_secret_message(%{type: :email}) do
+    gettext("Anti-phishing code regenerated. The next email will contain the new code.")
+  end
+
+  defp regenerate_for(%{type: :webhook} = channel),
+    do: Delivery.regenerate_signing_token(channel)
+
+  defp regenerate_for(%{type: :email} = channel),
+    do: Delivery.regenerate_anti_phishing_code(channel)
+
+  defp regenerate_modal_title(%{type: :webhook}),
+    do: gettext("Regenerate signing token")
+
+  defp regenerate_modal_title(%{type: :email}),
+    do: gettext("Regenerate anti-phishing code")
+
+  defp regenerate_modal_warning(%{type: :webhook}) do
+    gettext(
+      "Regenerating invalidates the current signature. Update your receiver before regenerating to avoid missed alerts."
+    )
+  end
+
+  defp regenerate_modal_warning(%{type: :email}) do
+    gettext(
+      "Regenerating replaces the code shown in future emails. Recipients trained on the old code will see the new one in the next email."
+    )
+  end
 end

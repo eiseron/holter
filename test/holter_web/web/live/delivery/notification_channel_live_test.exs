@@ -367,6 +367,144 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       refute html =~ "CC Recipients"
     end
 
+    test "renders the webhook signing section for webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ ~s(id="signing-heading")
+    end
+
+    test "shows the channel's signing_token inside the webhook signing section", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ channel.webhook_channel.signing_token
+    end
+
+    test "does not render the webhook signing section for email channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      refute html =~ ~s(id="signing-heading")
+    end
+
+    test "regenerate_secret event rotates the signing_token displayed in the page", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      original = channel.webhook_channel.signing_token
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html = render_click(view, "regenerate_secret", %{})
+
+      refute html =~ original
+    end
+
+    test "regenerate_secret event persists the new signing_token to the database", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      original = channel.webhook_channel.signing_token
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      render_click(view, "regenerate_secret", %{})
+
+      reloaded =
+        Holter.Repo.get_by!(Holter.Delivery.WebhookChannel, notification_channel_id: channel.id)
+
+      assert reloaded.signing_token != original
+    end
+
+    test "renders the anti-phishing section for email channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ ~s(id="phishing-heading")
+    end
+
+    test "shows the channel's anti_phishing_code inside the anti-phishing section", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ channel.email_channel.anti_phishing_code
+    end
+
+    test "does not render the anti-phishing section for webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      refute html =~ ~s(id="phishing-heading")
+    end
+
+    test "regenerate_secret event rotates the anti_phishing_code displayed in the page", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      original = channel.email_channel.anti_phishing_code
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html = render_click(view, "regenerate_secret", %{})
+
+      refute html =~ original
+    end
+
+    test "regenerate_secret event persists the new anti_phishing_code to the database", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      original = channel.email_channel.anti_phishing_code
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      render_click(view, "regenerate_secret", %{})
+
+      reloaded =
+        Holter.Repo.get_by!(Holter.Delivery.EmailChannel, notification_channel_id: channel.id)
+
+      assert reloaded.anti_phishing_code != original
+    end
+
     test "adds recipient and shows pending badge after add_recipient event", %{
       conn: conn,
       workspace: workspace

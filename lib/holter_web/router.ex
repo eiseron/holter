@@ -52,6 +52,8 @@ defmodule HolterWeb.Router do
     resources "/notification_channels", NotificationChannelController,
       only: [:show, :update, :delete] do
       post "/pings", NotificationChannelController, :ping
+      put "/signing_token", NotificationChannelController, :rotate_signing_token
+      put "/anti_phishing_code", NotificationChannelController, :rotate_anti_phishing_code
       resources "/delivery_logs", DeliveryLogController, only: [:index]
     end
   end

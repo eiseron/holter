@@ -2,7 +2,8 @@ defmodule Holter.Delivery.NotificationChannelsTest do
   use Holter.DataCase, async: true
 
   alias Holter.Delivery
-  alias Holter.Delivery.{MonitorNotification, NotificationChannel}
+  alias Holter.Delivery.{EmailChannel, MonitorNotification, NotificationChannel, WebhookChannel}
+  alias Holter.Repo
 
   defp channel_attrs(workspace_id, overrides \\ %{}) do
     Map.merge(
@@ -106,6 +107,40 @@ defmodule Holter.Delivery.NotificationChannelsTest do
       {:error, changeset} = Delivery.create_channel(channel_attrs(ws.id, %{target: "not-a-url"}))
       assert "must be a valid http or https URL" in errors_on(changeset).target
     end
+
+    test "persists the URL on a webhook_channels row for webhook type" do
+      ws = workspace_fixture()
+      url = "https://hooks.example.com/abc"
+      {:ok, channel} = Delivery.create_channel(channel_attrs(ws.id, %{target: url}))
+      webhook = Repo.get_by!(WebhookChannel, notification_channel_id: channel.id)
+      assert webhook.url == url
+    end
+
+    test "does not create an email_channels row for webhook type" do
+      ws = workspace_fixture()
+      {:ok, channel} = Delivery.create_channel(channel_attrs(ws.id))
+      assert is_nil(Repo.get_by(EmailChannel, notification_channel_id: channel.id))
+    end
+
+    test "persists the address on an email_channels row for email type" do
+      ws = workspace_fixture()
+      address = "ops@example.com"
+
+      {:ok, channel} =
+        Delivery.create_channel(channel_attrs(ws.id, %{type: :email, target: address}))
+
+      email = Repo.get_by!(EmailChannel, notification_channel_id: channel.id)
+      assert email.address == address
+    end
+
+    test "does not create a webhook_channels row for email type" do
+      ws = workspace_fixture()
+
+      {:ok, channel} =
+        Delivery.create_channel(channel_attrs(ws.id, %{type: :email, target: "ops@example.com"}))
+
+      assert is_nil(Repo.get_by(WebhookChannel, notification_channel_id: channel.id))
+    end
   end
 
   describe "update_channel/2" do
@@ -124,6 +159,58 @@ defmodule Holter.Delivery.NotificationChannelsTest do
     end
   end
 
+  describe "regenerate_signing_token/1" do
+    test "produces a new signing_token on the webhook subtype" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id)
+      original = channel.webhook_channel.signing_token
+
+      {:ok, updated} = Delivery.regenerate_signing_token(channel)
+      assert updated.webhook_channel.signing_token != original
+    end
+
+    test "persists the rotated token to the webhook_channels row" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id)
+
+      {:ok, updated} = Delivery.regenerate_signing_token(channel)
+      reloaded = Repo.get_by!(WebhookChannel, notification_channel_id: channel.id)
+      assert reloaded.signing_token == updated.webhook_channel.signing_token
+    end
+
+    test "returns {:error, :not_a_webhook_channel} for an email channel" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      assert {:error, :not_a_webhook_channel} = Delivery.regenerate_signing_token(channel)
+    end
+  end
+
+  describe "regenerate_anti_phishing_code/1" do
+    test "produces a new anti_phishing_code on the email subtype" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      original = channel.email_channel.anti_phishing_code
+
+      {:ok, updated} = Delivery.regenerate_anti_phishing_code(channel)
+      assert updated.email_channel.anti_phishing_code != original
+    end
+
+    test "persists the rotated code to the email_channels row" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, updated} = Delivery.regenerate_anti_phishing_code(channel)
+      reloaded = Repo.get_by!(EmailChannel, notification_channel_id: channel.id)
+      assert reloaded.anti_phishing_code == updated.email_channel.anti_phishing_code
+    end
+
+    test "returns {:error, :not_an_email_channel} for a webhook channel" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id)
+      assert {:error, :not_an_email_channel} = Delivery.regenerate_anti_phishing_code(channel)
+    end
+  end
+
   describe "delete_channel/1" do
     test "removes the channel from the database" do
       ws = workspace_fixture()
@@ -136,6 +223,20 @@ defmodule Holter.Delivery.NotificationChannelsTest do
       ws = workspace_fixture()
       channel = channel_fixture(ws.id)
       assert {:ok, _} = Delivery.delete_channel(channel)
+    end
+
+    test "cascades and removes the webhook_channels row" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id)
+      Delivery.delete_channel(channel)
+      assert is_nil(Repo.get_by(WebhookChannel, notification_channel_id: channel.id))
+    end
+
+    test "cascades and removes the email_channels row" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      Delivery.delete_channel(channel)
+      assert is_nil(Repo.get_by(EmailChannel, notification_channel_id: channel.id))
     end
   end
 

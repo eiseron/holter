@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.Engine do
   @moduledoc false
 
-  alias Holter.Delivery.{Broadcaster, NotificationChannels}
+  alias Holter.Delivery.{Broadcaster, NotificationChannel, NotificationChannels}
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
 
   def dispatch_incident(monitor_id, incident_id, event) when event in [:down, :up] do
@@ -26,14 +26,18 @@ defmodule Holter.Delivery.Engine do
 
   defp enqueue_for_channel(channel, ctx) do
     args = Map.put(ctx, "channel_id", channel.id)
-    channel.type |> worker_module() |> then(fn w -> Oban.insert(w.new(args)) end)
+    channel |> worker_module() |> then(fn w -> Oban.insert(w.new(args)) end)
   end
 
   defp enqueue_test_for_channel(channel) do
     args = %{"channel_id" => channel.id, "test" => true}
-    channel.type |> worker_module() |> then(fn w -> Oban.insert(w.new(args)) end)
+    channel |> worker_module() |> then(fn w -> Oban.insert(w.new(args)) end)
   end
 
-  defp worker_module(:email), do: EmailDispatcher
-  defp worker_module(_), do: WebhookDispatcher
+  defp worker_module(%NotificationChannel{} = channel) do
+    case NotificationChannel.type(channel) do
+      :email -> EmailDispatcher
+      :webhook -> WebhookDispatcher
+    end
+  end
 end

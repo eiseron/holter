@@ -10,14 +10,17 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
       "NotificationChannelResponse" => notification_channel_response(),
       "NotificationChannelList" => notification_channel_list(),
       "NotificationChannelCreateRequest" => notification_channel_create_request(),
-      "NotificationChannelUpdateRequest" => notification_channel_update_request()
+      "NotificationChannelUpdateRequest" => notification_channel_update_request(),
+      "WebhookChannel" => webhook_channel(),
+      "EmailChannel" => email_channel()
     }
   end
 
   def notification_channel do
     %Schema{
       title: "NotificationChannel",
-      description: "A notification delivery channel (webhook, email, Slack, or Discord).",
+      description:
+        "A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.",
       type: :object,
       additionalProperties: false,
       properties: %{
@@ -25,12 +28,59 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
         workspace_id: %Schema{type: :string, format: :uuid},
         name: %Schema{type: :string},
         type: %Schema{type: :string, enum: ["email", "webhook"]},
-        target: %Schema{type: :string},
-        settings: %Schema{type: :object, additionalProperties: true, nullable: true},
+        webhook_channel: %{webhook_channel() | nullable: true},
+        email_channel: %{email_channel() | nullable: true},
         inserted_at: %Schema{type: :string, format: :"date-time"},
         updated_at: %Schema{type: :string, format: :"date-time"}
       },
-      required: [:id, :workspace_id, :name, :type, :target, :inserted_at, :updated_at]
+      required: [
+        :id,
+        :workspace_id,
+        :name,
+        :type,
+        :webhook_channel,
+        :email_channel,
+        :inserted_at,
+        :updated_at
+      ]
+    }
+  end
+
+  def webhook_channel do
+    %Schema{
+      title: "WebhookChannel",
+      description: "Webhook-specific configuration.",
+      type: :object,
+      additionalProperties: false,
+      properties: %{
+        url: %Schema{type: :string},
+        settings: %Schema{type: :object, additionalProperties: true},
+        signing_token: %Schema{
+          type: :string,
+          description:
+            "HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token."
+        }
+      },
+      required: [:url, :settings, :signing_token]
+    }
+  end
+
+  def email_channel do
+    %Schema{
+      title: "EmailChannel",
+      description: "Email-specific configuration.",
+      type: :object,
+      additionalProperties: false,
+      properties: %{
+        address: %Schema{type: :string},
+        settings: %Schema{type: :object, additionalProperties: true},
+        anti_phishing_code: %Schema{
+          type: :string,
+          description:
+            "Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code."
+        }
+      },
+      required: [:address, :settings, :anti_phishing_code]
     }
   end
 

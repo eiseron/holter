@@ -72,7 +72,7 @@ msgid "Must Not Contain (Defacement)"
 msgstr "Não Deve Conter (Desfigurações)"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:80
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:109
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:139
 #: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:23
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:76
 #, elixir-autogen, elixir-format
@@ -194,7 +194,8 @@ msgstr "hacked, database error"
 msgid "Are you absolutely sure you want to delete this monitor? This action cannot be undone and you will lose all tracking history."
 msgstr "Tem certeza de que deseja excluir este monitor? Esta ação não pode ser desfeita e você perderá todo o histórico de rastreamento."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:126
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:171
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:197
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Cancel"
@@ -206,7 +207,7 @@ msgstr "Cancelar"
 msgid "Delete Monitor"
 msgstr "Excluir Monitor"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:132
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:203
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:101
 #, elixir-autogen, elixir-format
 msgid "Deleting..."
@@ -227,13 +228,13 @@ msgstr "Monitor excluído com sucesso"
 msgid "Monitor updated successfully"
 msgstr "Monitor atualizado com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:110
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:140
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:77
 #, elixir-autogen, elixir-format
 msgid "Save Changes"
 msgstr "Salvar Alterações"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:134
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:205
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Yes, Delete Completely"
@@ -273,7 +274,6 @@ msgstr "Data"
 msgid "Downtime"
 msgstr "Indisponibilidade"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:65
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:98
 #, elixir-autogen, elixir-format
 msgid "Error Message"
@@ -323,7 +323,6 @@ msgstr "Cabeçalhos de Resposta"
 msgid "Run Now"
 msgstr "Executar Agora"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:14
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:33
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:77
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:19
@@ -376,7 +375,6 @@ msgid "Content Snippet"
 msgstr "Snippet de Conteúdo"
 
 #: lib/holter_web/components/monitoring/monitor_card.ex:46
-#: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:89
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:117
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:46
 #, elixir-autogen, elixir-format
@@ -619,7 +617,6 @@ msgstr "Nenhuma nova evidência foi capturada para esta verificação porque a r
 msgid "Redirect Chain"
 msgstr "Cadeia de Redirecionamentos"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:94
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:107
 #, elixir-autogen, elixir-format
 msgid "View Details"
@@ -857,7 +854,6 @@ msgstr "Logs Associados"
 msgid "Found forbidden keywords: %{keywords}"
 msgstr "Palavras-chave proibidas encontradas: %{keywords}"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:50
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Incident"
@@ -893,7 +889,7 @@ msgstr "Detalhes do Canal"
 msgid "Channel created successfully"
 msgstr "Canal criado com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:62
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:63
 #, elixir-autogen, elixir-format
 msgid "Channel updated successfully"
 msgstr "Canal atualizado com sucesso"
@@ -908,7 +904,7 @@ msgstr "Criar Canal"
 msgid "Email"
 msgstr "E-mail"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:82
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:83
 #, elixir-autogen, elixir-format
 msgid "Failed to enqueue test notification"
 msgstr "Falha ao enfileirar notificação de teste"
@@ -946,7 +942,7 @@ msgid "New Notification Channel"
 msgstr "Novo Canal de Notificação"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.ex:34
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:36
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:37
 #, elixir-autogen, elixir-format
 msgid "Not found"
 msgstr "Não encontrado"
@@ -973,7 +969,7 @@ msgstr "Enviar Teste"
 msgid "Target"
 msgstr "Destino"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:78
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:79
 #, elixir-autogen, elixir-format
 msgid "Test notification enqueued"
 msgstr "Notificação de teste enfileirada"
@@ -1036,7 +1032,7 @@ msgid "Alert delivery channels"
 msgstr "Canais de entrega de alertas"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:47
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:60
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "Add CC Email"
 msgstr "Adicionar Email em Cópia"
@@ -1046,12 +1042,12 @@ msgstr "Adicionar Email em Cópia"
 msgid "Additional addresses that receive a copy of each alert. Each address must be verified after the channel is created."
 msgstr "Endereços adicionais que recebem uma cópia de cada alerta. Cada endereço deve ser verificado após a criação do canal."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:38
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:68
 #, elixir-autogen, elixir-format
 msgid "Additional addresses that receive a copy of each alert. Each address must be verified before receiving notifications."
 msgstr "Endereços adicionais que recebem uma cópia de cada alerta. Cada endereço deve ser verificado antes de receber notificações."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:118
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:189
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to delete this channel? This action cannot be undone."
 msgstr "Tem certeza que deseja excluir este canal? Esta ação não pode ser desfeita."
@@ -1062,18 +1058,18 @@ msgid "Back to channel settings"
 msgstr "Voltar para configurações do canal"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:23
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:36
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:66
 #, elixir-autogen, elixir-format
 msgid "CC Recipients"
 msgstr "Destinatários em Cópia"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:130
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:145
 #, elixir-autogen, elixir-format
 msgid "Channel deleted successfully"
 msgstr "Canal excluído com sucesso"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:107
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:116
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:137
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:187
 #, elixir-autogen, elixir-format
 msgid "Delete Channel"
 msgstr "Excluir Canal"
@@ -1098,7 +1094,7 @@ msgstr "Link não encontrado"
 msgid "No CC recipients added yet."
 msgstr "Nenhum destinatário em cópia adicionado ainda."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:65
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "No CC recipients yet."
 msgstr "Nenhum destinatário em cópia ainda."
@@ -1108,7 +1104,7 @@ msgstr "Nenhum destinatário em cópia ainda."
 msgid "No monitors in this workspace yet."
 msgstr "Nenhum monitor neste workspace ainda."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:77
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:107
 #, elixir-autogen, elixir-format
 msgid "Pending"
 msgstr "Pendente"
@@ -1119,7 +1115,7 @@ msgid "Pending verification"
 msgstr "Verificação pendente"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:66
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:85
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:115
 #, elixir-autogen, elixir-format
 msgid "Remove %{email}"
 msgstr "Remover %{email}"
@@ -1144,12 +1140,12 @@ msgstr "Este link de verificação expirou. Por favor, peça ao proprietário do
 msgid "This verification link is invalid or has already been used."
 msgstr "Este link de verificação é inválido ou já foi utilizado."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:110
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:111
 #, elixir-autogen, elixir-format
 msgid "Verification email sent to %{email}"
 msgstr "Email de verificação enviado para %{email}"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:73
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Verified"
 msgstr "Verificado"
@@ -1160,7 +1156,7 @@ msgid "Your email address has been verified. You will now receive notifications 
 msgstr "Seu endereço de email foi verificado. Você receberá notificações por este canal."
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/new.html.heex:35
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:48
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:78
 #, elixir-autogen, elixir-format
 msgid "cc@example.com"
 msgstr "cc@exemplo.com"
@@ -1175,37 +1171,16 @@ msgstr "ex.: Alertas de Produção"
 msgid "Notifications"
 msgstr "Notificações"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:28
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Channel"
-msgstr "Cancelar"
-
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.ex:19
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:4
-#, elixir-autogen, elixir-format
-msgid "Delivery Log Detail"
-msgstr "Detalhe do Log de Entrega"
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.ex:24
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "Delivery Logs"
 msgstr "Logs de Entrega"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:24
-#, elixir-autogen, elixir-format
-msgid "Dispatched At"
-msgstr "Enviado em"
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:86
 #, elixir-autogen, elixir-format
 msgid "Event"
 msgstr "Evento"
-
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:20
-#, elixir-autogen, elixir-format
-msgid "Event Type"
-msgstr "Tipo de Evento"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:37
 #, elixir-autogen, elixir-format
@@ -1217,27 +1192,117 @@ msgstr "Falhou"
 msgid "Logs are retained for 90 days."
 msgstr "Os logs são mantidos por 90 dias."
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:37
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Monitor"
-msgstr "Monitores"
-
 #: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "Success"
 msgstr "Sucesso"
-
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:56
-#, elixir-autogen, elixir-format, fuzzy
-msgid "View Incident"
-msgstr "Ver incidente"
 
 #: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:14
 #, elixir-autogen, elixir-format, fuzzy
 msgid "View Logs"
 msgstr "Ver log"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/log_detail.html.heex:43
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "Anti-phishing code"
+msgstr "Código antiphishing"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:167
+#, elixir-autogen, elixir-format
+msgid "Anti-phishing code regenerated. The next email will contain the new code."
+msgstr "Código antiphishing regenerado. O próximo e-mail conterá o novo código."
+
+#: lib/holter_web/components/delivery/secret_card.ex:49
+#, elixir-autogen, elixir-format
+msgid "Copy"
+msgstr "Copiar"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:133
+#, elixir-autogen, elixir-format
+msgid "Failed to regenerate the secret"
+msgstr "Falha ao regenerar o segredo"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "Holter signs every outbound webhook with HMAC-SHA256. Recompute the signature on your side over \"<unix>.<body>\" using this token as the HMAC key, and compare with the X-Holter-Signature header."
+msgstr "O Holter assina cada webhook de saída com HMAC-SHA256. Recalcule a assinatura no seu lado sobre \"<unix>.<body>\" usando este token como chave HMAC, e compare com o cabeçalho X-Holter-Signature."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:10
 #, elixir-autogen, elixir-format, fuzzy
-msgid "View Monitor"
-msgstr "Novo Monitor"
+msgid "Log filters"
+msgstr "Detalhes do Log"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/logs.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "Logs"
+msgstr "Logs"
+
+#: lib/holter_web/components/delivery/secret_card.ex:56
+#, elixir-autogen, elixir-format
+msgid "Regenerate"
+msgstr "Regenerar"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:156
+#, elixir-autogen, elixir-format
+msgid "Regenerating invalidates the current signature. Update your receiver before regenerating to avoid missed alerts."
+msgstr "Regenerar invalida a assinatura atual. Atualize seu receptor antes de regenerar para evitar alertas perdidos."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:160
+#, elixir-autogen, elixir-format
+msgid "Regenerating replaces the code shown in future emails. Recipients trained on the old code will see the new one in the next email."
+msgstr "Regenerar substitui o código mostrado em e-mails futuros. Destinatários treinados no código antigo verão o novo no próximo e-mail."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Show anti-phishing code"
+msgstr "Mostrar código antiphishing"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "Show signing token"
+msgstr "Mostrar token de assinatura"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:163
+#, elixir-autogen, elixir-format
+msgid "Signing token regenerated. Update your receiver to avoid missed alerts."
+msgstr "Token de assinatura regenerado. Atualize seu receptor para evitar alertas perdidos."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "This code appears at the bottom of every email Holter sends through this channel. Save it. If a future email claims to be from Holter and the code is missing or different, it's a phishing attempt."
+msgstr "Este código aparece no rodapé de todos os e-mails que o Holter envia por este canal. Salve-o. Se um e-mail futuro afirmar ser do Holter e o código estiver ausente ou for diferente, é uma tentativa de phishing."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "Webhook signing"
+msgstr "Assinatura de webhook"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:151
+#, elixir-autogen, elixir-format
+msgid "Regenerate anti-phishing code"
+msgstr "Regenerar código antiphishing"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:150
+#, elixir-autogen, elixir-format
+msgid "Regenerate signing token"
+msgstr "Regenerar token de assinatura"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:180
+#, elixir-autogen, elixir-format
+msgid "Regenerating..."
+msgstr "Regenerando..."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:182
+#, elixir-autogen, elixir-format
+msgid "Yes, Regenerate"
+msgstr "Sim, Regenerar"
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:43
+#, elixir-autogen, elixir-format
+msgid "Keep the token private; regenerate if leaked."
+msgstr "Mantenha o token em segredo; regenere se for exposto."
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Regenerate if leaked."
+msgstr "Regenere se for exposto."

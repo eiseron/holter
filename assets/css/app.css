@@ -47,5 +47,6 @@
 
 @import "./components/delivery/monitor_channel_select.css";
 @import "./components/delivery/notification_channel_recipients.css";
+@import "./components/delivery/secret_card.css";
 
 .hidden { display: none !important; }

@@ -31,6 +31,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
       })
 
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
+    body = ChannelFormatter.append_anti_phishing_footer(body, channel.email_channel)
     cc_emails = NotificationChannels.list_verified_emails(channel_id)
 
     new()
@@ -50,6 +51,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
     payload = PayloadBuilder.build_test_payload(channel, now)
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
+    body = ChannelFormatter.append_anti_phishing_footer(body, channel.email_channel)
     cc_emails = NotificationChannels.list_verified_emails(channel_id)
 
     new()

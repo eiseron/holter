@@ -63,6 +63,61 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
       conn = get(conn, ~p"/api/v1/workspaces/does-not-exist/notification_channels")
       assert json_response(conn, 404)
     end
+
+    test "type=webhook filter only returns webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel_fixture(workspace.id, %{name: "Hook A"})
+      channel_fixture(workspace.id, %{name: "Email A", type: :email, target: "a@example.com"})
+
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels?type=webhook"
+        )
+
+      types = json_response(conn, 200)["data"] |> Enum.map(& &1["type"])
+      assert types == ["webhook"]
+    end
+
+    test "type=email filter only returns email channels", %{conn: conn, workspace: workspace} do
+      channel_fixture(workspace.id, %{name: "Hook B"})
+      channel_fixture(workspace.id, %{name: "Email B", type: :email, target: "b@example.com"})
+
+      conn =
+        get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels?type=email")
+
+      types = json_response(conn, 200)["data"] |> Enum.map(& &1["type"])
+      assert types == ["email"]
+    end
+
+    test "no type filter returns channels of all types", %{conn: conn, workspace: workspace} do
+      channel_fixture(workspace.id, %{name: "Hook C"})
+      channel_fixture(workspace.id, %{name: "Email C", type: :email, target: "c@example.com"})
+
+      conn = get(conn, ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels")
+
+      types =
+        json_response(conn, 200)["data"]
+        |> Enum.map(& &1["type"])
+        |> Enum.sort()
+
+      assert types == ["email", "webhook"]
+    end
+
+    test "an unknown type value is rejected by request validation", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels?type=slack"
+        )
+
+      assert response(conn, 422)
+    end
   end
 
   describe "GET /api/v1/notification_channels/:id" do
@@ -179,6 +234,177 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
         post(
           conn,
           ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/pings"
+        )
+
+      assert json_response(conn, 404)
+    end
+  end
+
+  describe "GET /api/v1/notification_channels/:id — nested subtype payload" do
+    test "nests webhook fields under webhook_channel for webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      assert body["data"]["webhook_channel"]["url"] == channel.webhook_channel.url
+    end
+
+    test "exposes signing_token inside webhook_channel", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      assert body["data"]["webhook_channel"]["signing_token"] ==
+               channel.webhook_channel.signing_token
+    end
+
+    test "renders email_channel as null on a webhook channel", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      assert json_response(conn, 200)["data"]["email_channel"] == nil
+    end
+
+    test "nests email fields under email_channel for email channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      assert body["data"]["email_channel"]["address"] == channel.email_channel.address
+    end
+
+    test "exposes anti_phishing_code inside email_channel", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      assert body["data"]["email_channel"]["anti_phishing_code"] ==
+               channel.email_channel.anti_phishing_code
+    end
+
+    test "renders webhook_channel as null on an email channel", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      assert json_response(conn, 200)["data"]["webhook_channel"] == nil
+    end
+  end
+
+  describe "PUT /api/v1/notification_channels/:id/signing_token" do
+    test "rotates the signing token and returns the new value", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+      original = channel.webhook_channel.signing_token
+
+      conn = json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}/signing_token", %{})
+
+      body = json_response(conn, 200)
+      assert is_binary(body["data"]["webhook_channel"]["signing_token"])
+      assert body["data"]["webhook_channel"]["signing_token"] != original
+    end
+
+    test "persists the rotated signing_token to the database", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}/signing_token", %{})
+
+      reloaded =
+        Holter.Repo.get_by!(Holter.Delivery.WebhookChannel, notification_channel_id: channel.id)
+
+      refute reloaded.signing_token == channel.webhook_channel.signing_token
+    end
+
+    test "returns 422 with not_a_webhook_channel for an email channel", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+
+      conn = json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}/signing_token", %{})
+
+      body = json_response(conn, 422)
+      assert body["error"]["code"] == "not_a_webhook_channel"
+    end
+
+    test "returns 404 for unknown channel id", %{conn: conn} do
+      conn =
+        json_put(
+          conn,
+          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/signing_token",
+          %{}
+        )
+
+      assert json_response(conn, 404)
+    end
+  end
+
+  describe "PUT /api/v1/notification_channels/:id/anti_phishing_code" do
+    test "rotates the anti_phishing_code and returns the new value", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      original = channel.email_channel.anti_phishing_code
+
+      conn =
+        json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}/anti_phishing_code", %{})
+
+      body = json_response(conn, 200)
+      assert body["data"]["email_channel"]["anti_phishing_code"] != original
+    end
+
+    test "persists the rotated anti_phishing_code to the database", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+
+      json_put(
+        conn,
+        ~p"/api/v1/notification_channels/#{channel.id}/anti_phishing_code",
+        %{}
+      )
+
+      reloaded =
+        Holter.Repo.get_by!(Holter.Delivery.EmailChannel, notification_channel_id: channel.id)
+
+      refute reloaded.anti_phishing_code == channel.email_channel.anti_phishing_code
+    end
+
+    test "returns 422 with not_an_email_channel for a webhook channel", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      conn =
+        json_put(conn, ~p"/api/v1/notification_channels/#{channel.id}/anti_phishing_code", %{})
+
+      body = json_response(conn, 422)
+      assert body["error"]["code"] == "not_an_email_channel"
+    end
+
+    test "returns 404 for unknown channel id", %{conn: conn} do
+      conn =
+        json_put(
+          conn,
+          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/anti_phishing_code",
+          %{}
         )
 
       assert json_response(conn, 404)

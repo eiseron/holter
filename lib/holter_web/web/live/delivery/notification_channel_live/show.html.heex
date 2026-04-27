@@ -31,7 +31,37 @@
       selected_type={@selected_type}
     />
 
+    <%= if @channel.type == :webhook do %>
+      <.secret_card
+        id="signing"
+        title={gettext("Webhook signing")}
+        help={
+          gettext(
+            "Holter signs every outbound webhook with HMAC-SHA256. Recompute the signature on your side over \"<unix>.<body>\" using this token as the HMAC key, and compare with the X-Holter-Signature header."
+          ) <>
+            " " <>
+            gettext("Keep the token private; regenerate if leaked.")
+        }
+        reveal_label={gettext("Show signing token")}
+        value={@channel.webhook_channel.signing_token}
+      />
+    <% end %>
+
     <%= if @channel.type == :email do %>
+      <.secret_card
+        id="phishing"
+        title={gettext("Anti-phishing code")}
+        help={
+          gettext(
+            "This code appears at the bottom of every email Holter sends through this channel. Save it. If a future email claims to be from Holter and the code is missing or different, it's a phishing attempt."
+          ) <>
+            " " <>
+            gettext("Regenerate if leaked.")
+        }
+        reveal_label={gettext("Show anti-phishing code")}
+        value={@channel.email_channel.anti_phishing_code}
+      />
+
       <section class="h-fieldset-card">
         <h3 class="h-fieldset-legend">{gettext("CC Recipients")}</h3>
         <p class="h-help-text h-mb-4">
@@ -112,6 +142,30 @@
     </div>
   </.form>
 </.page_container>
+
+<.modal id="regenerate-secret-modal" title={regenerate_modal_title(@channel)}>
+  <p>{regenerate_modal_warning(@channel)}</p>
+  <:footer>
+    <button
+      type="button"
+      class="h-btn h-btn-soft"
+      phx-click={JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")}
+    >
+      {gettext("Cancel")}
+    </button>
+    <button
+      type="button"
+      class="h-btn h-btn-danger"
+      phx-click={
+        JS.push("regenerate_secret")
+        |> JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")
+      }
+      phx-disable-with={gettext("Regenerating...")}
+    >
+      {gettext("Yes, Regenerate")}
+    </button>
+  </:footer>
+</.modal>
 
 <.modal id="delete-channel-modal" title={gettext("Delete Channel")}>
   <p>

@@ -42,6 +42,126 @@ Logs are retained for 90 days.
 
 On the channel settings page, click **Send Test** to enqueue a test notification. The test payload includes the channel name and a timestamp. This is useful to verify that the target is reachable before linking the channel to a monitor.
 
+## Webhook Signing
+
+Webhook channels carry an auto-generated signing token that authenticates Holter to your receiver. Every outbound delivery is signed with HMAC-SHA256 and sent in the `X-Holter-Signature` header — the secret never travels the wire.
+
+### Header format
+
+```
+X-Holter-Signature: t=<unix>,v1=<hex>
+```
+
+- `t=<unix>`: the dispatch timestamp as a Unix integer.
+- `v1=<hex>`: lowercase hex of `HMAC-SHA256(token, "<unix>.<body>")`.
+
+The leading timestamp lets you reject stale deliveries on the receiver side.
+
+### Verifying a signature
+
+Read the channel's signing token from the channel settings page (see [Managing the token](#managing-the-token) below), then on every incoming POST:
+
+1. Read the `X-Holter-Signature` header and split it into `t` and `v1` parts.
+2. Optionally reject the request if `t` is more than your tolerance window away from "now" (5 minutes is a reasonable default).
+3. Compute `HMAC-SHA256(token, "<t>.<raw_body>")` and lowercase-hex encode it.
+4. Compare in constant time with `v1`. Reject on mismatch.
+
+Sample verifiers:
+
+```js
+// Node 18+
+import crypto from "node:crypto"
+
+function verify(rawBody, header, token, toleranceSec = 300) {
+  const parts = Object.fromEntries(header.split(",").map((p) => p.split("=")))
+  const t = Number(parts.t)
+  if (!Number.isInteger(t)) return false
+  if (Math.abs(Date.now() / 1000 - t) > toleranceSec) return false
+
+  const expected = crypto
+    .createHmac("sha256", token)
+    .update(`${t}.${rawBody}`)
+    .digest("hex")
+
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1))
+}
+```
+
+```python
+# Python 3.6+
+import hmac, hashlib, time
+
+def verify(raw_body: bytes, header: str, token: str, tolerance_sec: int = 300) -> bool:
+    parts = dict(p.split("=", 1) for p in header.split(","))
+    try:
+        t = int(parts["t"])
+    except (KeyError, ValueError):
+        return False
+    if abs(time.time() - t) > tolerance_sec:
+        return False
+
+    signed = f"{t}.".encode() + raw_body
+    expected = hmac.new(token.encode(), signed, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, parts.get("v1", ""))
+```
+
+```sh
+# Quick check from the shell
+printf '%s.%s' "$T" "$BODY" | openssl dgst -sha256 -hmac "$TOKEN"
+```
+
+Always verify against the **raw** request body — re-serialised JSON with reordered keys or different whitespace will not match.
+
+### Managing the token
+
+On the channel settings page, the **Webhook signing** section shows a "Show signing token" toggle. Click to reveal, **Copy** to copy the value to the clipboard, and **Regenerate** to rotate the token.
+
+Rotation is **immediate**: once you confirm, the previous token stops working at the next dispatch. Update your receiver's stored copy before regenerating, or expect a brief window of failed verifications until both sides match.
+
+::: danger Security disclaimer
+The signing token is a shared secret between Holter and your receiver. If it leaks — emailed in plain text, committed to source control, captured by an unauthorised viewer of this page, etc. — anyone with the value can sign requests **indistinguishable from Holter's**. Holter cannot detect such leaks and has no recovery path other than regeneration.
+
+You are responsible for protecting the value once it is generated. If you suspect the token has been exposed, **regenerate it immediately**.
+
+If you lose the token (forgot to save it after creation, lost the password manager entry, etc.), you must regenerate it — Holter does not store the value in any retrievable form for you, and stores it only as the live signing key.
+
+Holter accepts no liability for losses, breaches, or misuse resulting from a compromised or lost signing token.
+:::
+
+## Email Anti-phishing Code
+
+Every email channel carries an auto-generated, human-readable code (e.g. `A7K9-X2B3`) drawn from a no-confusion alphabet (no `0`/`O`/`1`/`I`/`L`). The code is printed at the bottom of every email Holter sends through that channel:
+
+```
+Verification code: A7K9-X2B3
+If you did not expect this email, do not trust messages claiming to be from
+Holter that omit this code.
+Do not forward this email to anyone you do not trust — the verification code
+above is a shared secret that lets the recipient impersonate Holter.
+```
+
+Treat the code like a shared secret you can recognise at a glance: an email impersonating Holter that does not include this exact code is almost certainly a phishing attempt.
+
+::: warning
+**Do not forward Holter alerts to untrusted parties.** Anyone who reads the verification code above can craft a phishing email that passes your visual check. If you need to share an alert externally, redact the verification code line or paste only the relevant body text — never the full message including the footer.
+:::
+
+### Managing the code
+
+On the channel settings page, the **Anti-phishing code** section shows a "Show anti-phishing code" toggle plus **Copy** and **Regenerate** buttons.
+
+Rotation is **immediate**: the next email Holter sends through this channel will carry the new code. Recipients who memorised or saved the previous code will see the new one in the next email — train them again or warn them in advance.
+
+::: danger Security disclaimer
+The anti-phishing code is a shared visual secret. If it leaks (forwarded alerts, screenshots posted publicly, email archive exfiltration), anyone with the value can forge phishing emails that **pass your recipients' visual check**. Holter cannot detect such leaks and has no recovery path other than regeneration.
+
+You are responsible for protecting the code once it is generated. If you suspect exposure, **regenerate it immediately**.
+
+If you lose track of the current code, regenerate it — the next email will carry the new value, and you can train recipients on it.
+
+Holter accepts no liability for losses, breaches, or phishing impersonation resulting from a compromised or lost anti-phishing code.
+:::
+
 ## Deleting a Channel
 
 On the channel list page, click **Delete** next to the channel. This removes the channel and all monitor links. Monitors linked to a deleted channel will no longer receive notifications for that channel.

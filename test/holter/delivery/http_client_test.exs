@@ -1,6 +1,7 @@
 defmodule Holter.Delivery.HttpClientTest do
   use ExUnit.Case, async: false
 
+  alias Holter.Delivery.HttpClient
   alias Holter.Delivery.HttpClient.HTTP
   alias Holter.Test.DummyService
 
@@ -10,6 +11,36 @@ defmodule Holter.Delivery.HttpClientTest do
   setup do
     DummyService.reset()
     :ok
+  end
+
+  describe "impl/0 default" do
+    test "default impl is a loaded module" do
+      original = Application.get_env(:holter, :delivery_http_client)
+      Application.delete_env(:holter, :delivery_http_client)
+
+      try do
+        assert Code.ensure_loaded?(HttpClient.impl())
+      after
+        unless is_nil(original) do
+          Application.put_env(:holter, :delivery_http_client, original)
+        end
+      end
+    end
+
+    test "default impl exports post/3 — guards against unqualified module aliases" do
+      original = Application.get_env(:holter, :delivery_http_client)
+      Application.delete_env(:holter, :delivery_http_client)
+
+      try do
+        impl = HttpClient.impl()
+        Code.ensure_loaded(impl)
+        assert function_exported?(impl, :post, 3)
+      after
+        unless is_nil(original) do
+          Application.put_env(:holter, :delivery_http_client, original)
+        end
+      end
+    end
   end
 
   describe "redirect following" do

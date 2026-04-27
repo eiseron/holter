@@ -6,6 +6,7 @@ defmodule Holter.Delivery do
   alias Holter.Delivery.{ChannelLogs, NotificationChannels}
 
   defdelegate list_channels(workspace_id), to: NotificationChannels
+  defdelegate list_channels(workspace_id, filters), to: NotificationChannels
   defdelegate count_channels(workspace_id), to: NotificationChannels
   defdelegate get_channel!(id), to: NotificationChannels
   defdelegate get_channel(id), to: NotificationChannels
@@ -13,6 +14,8 @@ defmodule Holter.Delivery do
   defdelegate update_channel(channel, attrs), to: NotificationChannels
   defdelegate delete_channel(channel), to: NotificationChannels
   defdelegate change_channel(channel, attrs \\ %{}), to: NotificationChannels
+  defdelegate regenerate_signing_token(channel), to: NotificationChannels
+  defdelegate regenerate_anti_phishing_code(channel), to: NotificationChannels
   defdelegate link_monitor(monitor_id, channel_id), to: NotificationChannels
   defdelegate unlink_monitor(monitor_id, channel_id), to: NotificationChannels
   defdelegate list_channels_for_monitor(monitor_id), to: NotificationChannels

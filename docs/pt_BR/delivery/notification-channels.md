@@ -42,6 +42,126 @@ Os logs são mantidos por 90 dias.
 
 Na página de configurações do canal, clique em **Enviar Teste** para enfileirar uma notificação de teste. O payload de teste inclui o nome do canal e um timestamp. Isso é útil para verificar se o destino está acessível antes de vincular o canal a um monitor.
 
+## Assinatura de Webhook
+
+Canais webhook carregam um token de assinatura gerado automaticamente que autentica o Holter perante o seu receptor. Toda entrega de saída é assinada com HMAC-SHA256 e enviada no cabeçalho `X-Holter-Signature` — o segredo nunca trafega na rede.
+
+### Formato do cabeçalho
+
+```
+X-Holter-Signature: t=<unix>,v1=<hex>
+```
+
+- `t=<unix>`: o timestamp do envio como inteiro Unix.
+- `v1=<hex>`: hex em minúsculas de `HMAC-SHA256(token, "<unix>.<body>")`.
+
+O timestamp inicial permite que você rejeite entregas antigas no lado do receptor.
+
+### Verificando uma assinatura
+
+Leia o token de assinatura do canal na página de configurações (veja [Gerenciando o token](#gerenciando-o-token) abaixo); a cada POST recebido:
+
+1. Leia o cabeçalho `X-Holter-Signature` e divida em `t` e `v1`.
+2. Opcionalmente rejeite a requisição se `t` estiver mais distante do "agora" do que sua janela de tolerância (5 minutos é um padrão razoável).
+3. Calcule `HMAC-SHA256(token, "<t>.<raw_body>")` e codifique em hex minúsculo.
+4. Compare em tempo constante com `v1`. Rejeite se não bater.
+
+Exemplos de verificadores:
+
+```js
+// Node 18+
+import crypto from "node:crypto"
+
+function verify(rawBody, header, token, toleranceSec = 300) {
+  const parts = Object.fromEntries(header.split(",").map((p) => p.split("=")))
+  const t = Number(parts.t)
+  if (!Number.isInteger(t)) return false
+  if (Math.abs(Date.now() / 1000 - t) > toleranceSec) return false
+
+  const expected = crypto
+    .createHmac("sha256", token)
+    .update(`${t}.${rawBody}`)
+    .digest("hex")
+
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1))
+}
+```
+
+```python
+# Python 3.6+
+import hmac, hashlib, time
+
+def verify(raw_body: bytes, header: str, token: str, tolerance_sec: int = 300) -> bool:
+    parts = dict(p.split("=", 1) for p in header.split(","))
+    try:
+        t = int(parts["t"])
+    except (KeyError, ValueError):
+        return False
+    if abs(time.time() - t) > tolerance_sec:
+        return False
+
+    signed = f"{t}.".encode() + raw_body
+    expected = hmac.new(token.encode(), signed, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, parts.get("v1", ""))
+```
+
+```sh
+# Verificação rápida pelo shell
+printf '%s.%s' "$T" "$BODY" | openssl dgst -sha256 -hmac "$TOKEN"
+```
+
+Sempre verifique contra o corpo **bruto** da requisição — JSON reserializado com chaves reordenadas ou espaçamento diferente não vai bater.
+
+### Gerenciando o token
+
+Na página de configurações do canal, a seção **Assinatura de webhook** mostra um botão "Mostrar token de assinatura". Clique para revelar, **Copiar** para copiar o valor para a área de transferência, e **Regenerar** para rotacionar o token.
+
+A rotação é **imediata**: ao confirmar, o token anterior deixa de funcionar no próximo envio. Atualize a cópia armazenada no seu receptor antes de regenerar, ou conte com uma janela curta de verificações que falham até os dois lados baterem.
+
+::: danger Aviso de segurança
+O token de assinatura é um segredo compartilhado entre o Holter e seu receptor. Se ele vazar — enviado em texto plano por e-mail, commitado em controle de versão, capturado por um observador não autorizado desta página, etc. —, qualquer pessoa com o valor pode assinar requisições **indistinguíveis das do Holter**. O Holter não consegue detectar tais vazamentos e não há caminho de recuperação além da regeneração.
+
+Você é responsável por proteger o valor depois que ele é gerado. Se suspeitar que o token foi exposto, **regenere imediatamente**.
+
+Se você perder o token (esqueceu de salvá-lo após a criação, perdeu a entrada no gerenciador de senhas, etc.), precisa regenerar — o Holter não guarda o valor em forma recuperável para você; armazena somente como a chave de assinatura viva.
+
+O Holter não aceita responsabilidade por perdas, incidentes ou uso indevido decorrentes de um token de assinatura comprometido ou perdido.
+:::
+
+## Código Antiphishing de E-mail
+
+Todo canal de e-mail carrega um código legível gerado automaticamente (ex: `A7K9-X2B3`) tirado de um alfabeto sem ambiguidade (sem `0`/`O`/`1`/`I`/`L`). O código é impresso no rodapé de todos os e-mails que o Holter envia por aquele canal:
+
+```
+Verification code: A7K9-X2B3
+If you did not expect this email, do not trust messages claiming to be from
+Holter that omit this code.
+Do not forward this email to anyone you do not trust — the verification code
+above is a shared secret that lets the recipient impersonate Holter.
+```
+
+Trate o código como um segredo compartilhado que você reconhece de relance: um e-mail se passando pelo Holter que não traga exatamente este código é quase certamente uma tentativa de phishing.
+
+::: warning
+**Não encaminhe alertas do Holter para terceiros não confiáveis.** Qualquer pessoa que leia o código de verificação acima pode forjar um e-mail de phishing que passa na sua checagem visual. Se precisar compartilhar um alerta externamente, oculte a linha do código de verificação ou cole apenas o texto relevante do corpo — nunca a mensagem completa incluindo o rodapé.
+:::
+
+### Gerenciando o código
+
+Na página de configurações do canal, a seção **Código antiphishing** mostra um botão "Mostrar código antiphishing" mais botões **Copiar** e **Regenerar**.
+
+A rotação é **imediata**: o próximo e-mail que o Holter enviar por este canal já carregará o novo código. Destinatários que memorizaram ou salvaram o código anterior verão o novo no próximo e-mail — treine-os de novo ou avise com antecedência.
+
+::: danger Aviso de segurança
+O código antiphishing é um segredo visual compartilhado. Se ele vazar (alertas encaminhados, prints publicados em redes, exfiltração de arquivos de e-mail), qualquer pessoa com o valor pode forjar e-mails de phishing que **passam na checagem visual dos seus destinatários**. O Holter não consegue detectar tais vazamentos e não há caminho de recuperação além da regeneração.
+
+Você é responsável por proteger o código depois que ele é gerado. Se suspeitar de exposição, **regenere imediatamente**.
+
+Se você perder o controle do código atual, regenere — o próximo e-mail carregará o novo valor e você pode treinar os destinatários nele.
+
+O Holter não aceita responsabilidade por perdas, incidentes ou suplantação por phishing decorrentes de um código antiphishing comprometido ou perdido.
+:::
+
 ## Excluindo um Canal
 
 Na página de lista de canais, clique em **Excluir** ao lado do canal. Isso remove o canal e todos os vínculos com monitores. Monitores vinculados a um canal excluído não receberão mais notificações por aquele canal.

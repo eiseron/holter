@@ -1,6 +1,8 @@
 defmodule Holter.Delivery.Engine.ChannelFormatter do
   @moduledoc false
 
+  alias Holter.Delivery.EmailChannel
+
   def format_payload(payload, :webhook) do
     {:ok, json} = Jason.encode(payload)
     {json, [{"content-type", "application/json"}]}
@@ -11,6 +13,21 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
     body = build_email_body(payload)
     {subject, body}
   end
+
+  @doc """
+  Appends the channel's anti-phishing footer to an email body. Recipients
+  use the printed code as a sanity check that the message is genuinely
+  from Holter and not a spoofed phishing attempt.
+  """
+  def append_anti_phishing_footer(body, %EmailChannel{anti_phishing_code: code})
+      when is_binary(code) do
+    body <>
+      "\n\nVerification code: #{code}\n" <>
+      "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code.\n" <>
+      "Do not forward this email to anyone you do not trust — the verification code above is a shared secret that lets the recipient impersonate Holter."
+  end
+
+  def append_anti_phishing_footer(body, _), do: body
 
   defp build_email_subject(%{event: "test_ping", channel: %{name: name}}) do
     "Test notification from #{name}"
