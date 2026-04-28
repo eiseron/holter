@@ -28,7 +28,7 @@ defmodule Holter.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [precommit: :test, "test.ci": :test]
     ]
   end
 
@@ -100,8 +100,15 @@ defmodule Holter.MixProject do
         "deps.audit",
         "credo --strict",
         "gen.api.docs",
-        "test --cover"
+        "test --cover --warnings-as-errors"
       ],
+      "lint.ci": [
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "credo --strict",
+        "deps.audit"
+      ],
+      "test.ci": ["test --cover --warnings-as-errors"],
       mutation: ["muex --fail-at 50 --optimize lib/holter/monitoring"]
     ]
   end
