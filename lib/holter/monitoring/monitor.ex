@@ -8,7 +8,7 @@ defmodule Holter.Monitoring.Monitor do
   @manual_check_cooldown 60
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]
   @interval_min_seconds 60
-  @interval_max_seconds 7200
+  @interval_max_seconds 86_400
 
   @bodyless_methods [:get, :head]
   @body_methods [:post, :put, :patch, :delete, :options]
@@ -130,7 +130,7 @@ defmodule Holter.Monitoring.Monitor do
     |> validate_required([:url, :method, :interval_seconds, :timeout_seconds, :workspace_id])
     |> validate_number(:interval_seconds,
       greater_than_or_equal_to: 1,
-      less_than_or_equal_to: 86_400
+      less_than_or_equal_to: @interval_max_seconds
     )
     |> validate_number(:timeout_seconds, greater_than_or_equal_to: 1, less_than_or_equal_to: 30)
     |> validate_number(:max_redirects, greater_than_or_equal_to: 1, less_than_or_equal_to: 20)

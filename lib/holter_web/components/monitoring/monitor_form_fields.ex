@@ -5,6 +5,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
   import HolterWeb.Components.Input
 
   alias Holter.Monitoring.Monitor
+  alias HolterWeb.Components.Monitoring.IntervalFormat
 
   @doc """
   Renders the technical configuration fieldset for a monitor form.
@@ -167,7 +168,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
     <div class="h-fieldset-card">
       <h3 class="h-fieldset-legend">{gettext("Interval Defaults")}</h3>
       <div class={"h-form-grid #{if @show_logical_state, do: "h-grid-cols-3", else: "h-grid-cols-2"}"}>
-        <div>
+        <div class="h-col-span-2">
           <label class="h-label-text">{gettext("Check Interval")}</label>
           <div class="h-range-field">
             <input
@@ -180,10 +181,14 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
               value={field_integer(@form[:interval_seconds], @effective_min)}
               class="h-range-input"
               phx-debounce="300"
-              oninput="this.nextElementSibling.textContent = (this.value / 60) + ' min'"
+              oninput={"const s=parseInt(this.value);" <>
+                "const h=Math.floor(s/3600);" <>
+                "const m=Math.floor((s%3600)/60);" <>
+                "this.nextElementSibling.textContent=" <>
+                "h&&m?h+' h '+m+' min':h?h+' h':m+' min';"}
             />
             <span class="h-range-value">
-              {div(field_integer(@form[:interval_seconds], @effective_min), 60)} min
+              {IntervalFormat.format_label(field_integer(@form[:interval_seconds], @effective_min))}
             </span>
           </div>
           <p class="h-help-text">
@@ -191,13 +196,25 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
           </p>
         </div>
 
-        <div>
-          <.input
-            field={@form[:timeout_seconds]}
-            type="number"
-            label={gettext("Timeout Threshold (Seconds)")}
-            required
-          />
+        <div class="h-col-span-2">
+          <label class="h-label-text">{gettext("Timeout Threshold (Seconds)")}</label>
+          <div class="h-range-field">
+            <input
+              type="range"
+              id={@form[:timeout_seconds].id}
+              name={@form[:timeout_seconds].name}
+              min="1"
+              max="30"
+              step="1"
+              value={field_integer(@form[:timeout_seconds], 30)}
+              class="h-range-input"
+              phx-debounce="300"
+              oninput="this.nextElementSibling.textContent = this.value + ' s'"
+            />
+            <span class="h-range-value">
+              {field_integer(@form[:timeout_seconds], 30)} s
+            </span>
+          </div>
           <p class="h-help-text">
             {gettext("Maximum time to wait for a response before declaring the endpoint DOWN.")}
           </p>

@@ -103,5 +103,25 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFieldsTest do
 
       assert html =~ "2 min"
     end
+
+    test "allows a 24-hour interval as the slider maximum" do
+      html = render_component(&monitor_form_interval/1, form: form())
+
+      assert html =~ ~s(max="86400")
+    end
+
+    test "renders mixed hour-and-minute intervals using the compact label" do
+      html =
+        render_component(&monitor_form_interval/1, form: form(%{"interval_seconds" => "5400"}))
+
+      assert html =~ "1 h 30 min"
+    end
+
+    test "renders 24-hour intervals as a clean hour label" do
+      html =
+        render_component(&monitor_form_interval/1, form: form(%{"interval_seconds" => "86400"}))
+
+      assert html =~ "24 h"
+    end
   end
 end

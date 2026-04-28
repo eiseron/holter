@@ -131,7 +131,7 @@
 }
 
 .h-range-value {
-  min-width: 4rem;
+  min-width: 7rem;
   text-align: right;
   font-size: var(--font-size-sm);
   font-weight: 600;
