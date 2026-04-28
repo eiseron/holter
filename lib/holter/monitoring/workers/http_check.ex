@@ -10,7 +10,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
-  alias Holter.Network.Guard, as: NetworkGuard
+  alias Holter.Network.Guard
 
   @max_timeout_seconds 30
 
@@ -48,9 +48,16 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     start_time = state.start_time || System.monotonic_time()
     state = %{state | start_time: start_time}
 
-    case validate_destination(state.url) do
-      {:error, reason} ->
-        {:failure, {%RuntimeError{message: reason}, calculate_duration(start_time)}}
+    case Guard.validate_destination(state.url) do
+      {:error, :unresolved} ->
+        {:failure,
+         {%RuntimeError{message: "DNS resolution failed"}, calculate_duration(start_time)}}
+
+      {:error, _reason} ->
+        {:failure,
+         {%RuntimeError{
+            message: "Access to restricted internal address blocked (DNS Validation)"
+          }, calculate_duration(start_time)}}
 
       {:ok, safe_ip} ->
         hop = %{"url" => state.url, "ip" => safe_ip}
@@ -130,33 +137,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   defp get_header(headers, key) do
     headers |> Enum.find_value(fn {k, v} -> if String.downcase(k) == key, do: v end)
   end
-
-  defp resolve_host(nil), do: {:error, :no_host}
-
-  defp resolve_host(host) do
-    case :inet.getaddrs(to_charlist(host), :inet) do
-      {:ok, addrs} -> {:ok, Enum.map(addrs, fn addr -> :inet.ntoa(addr) |> to_string() end)}
-      error -> error
-    end
-  end
-
-  defp validate_destination(url) do
-    host = URI.parse(url).host
-
-    case resolve_host(host) do
-      {:ok, ips} ->
-        if Enum.any?(ips, &restricted_ip?(&1)) do
-          {:error, "Access to restricted internal address blocked (DNS Validation)"}
-        else
-          {:ok, List.first(ips)}
-        end
-
-      {:error, _} ->
-        {:ok, host}
-    end
-  end
-
-  defp restricted_ip?(ip), do: NetworkGuard.restricted_ip?(ip)
 
   defp build_opts(monitor, params) do
     url = params.url

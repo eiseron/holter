@@ -149,7 +149,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{follow_redirects: true})
 
       expect(MonitorClientMock, :request, fn opts ->
-        assert opts[:url] == monitor.url
+        assert opts[:url] == "https://1.2.3.4"
 
         {:ok,
          %Req.Response{
@@ -160,7 +160,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
       end)
 
       expect(MonitorClientMock, :request, fn opts ->
-        assert opts[:url] == "https://redirected.local"
+        assert opts[:url] == "https://1.2.3.4"
         {:ok, %Req.Response{status: 200, body: "success"}}
       end)
 

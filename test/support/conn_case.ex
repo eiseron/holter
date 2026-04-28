@@ -34,6 +34,7 @@ defmodule HolterWeb.ConnCase do
     alias Phoenix.Ecto.SQL.Sandbox, as: SqlSandbox
 
     pid = Holter.DataCase.setup_sandbox(tags)
+    Mox.stub_with(Holter.Network.ResolverMock, Holter.Test.StubResolver)
     metadata = SqlSandbox.metadata_for(Holter.Repo, pid)
     encoded = SqlSandbox.encode_metadata(metadata)
 

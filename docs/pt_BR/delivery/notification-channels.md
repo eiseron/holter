@@ -73,9 +73,15 @@ Implantações self-hosted que precisam alcançar um host interno específico po
 config :holter, :network, trusted_hosts: ["localhost", "192.168.1.50"]
 ```
 
-As entradas da allowlist são comparadas por correspondência exata de string (após normalizar a caixa e remover colchetes de IPv6). A allowlist se aplica tanto a canais webhook quanto a URLs de monitor.
+As entradas da allowlist são comparadas por correspondência exata de string (após normalizar a caixa e remover colchetes de IPv6). A allowlist se aplica tanto a canais webhook quanto a URLs de monitor, e curto-circuita também a checagem de DNS abaixo.
 
-Estas verificações cobrem vetores de abuso conhecidos, mas não protegem contra DNS rebinding (um hostname público que resolve para um endereço privado apenas no momento do despacho). Essa classe de ataque é tratada separadamente.
+### Validação no momento da resolução de DNS
+
+Além da verificação estática de URL acima, o Holter resolve o hostname do webhook **antes de cada despacho** e recusa a requisição se algum IP resolvido cair na mesma blocklist. A requisição é então reescrita para conectar diretamente ao IP validado (com o hostname original preservado no cabeçalho `Host` e no SNI do TLS), de modo que o receptor enxerga a requisição normalmente e uma segunda resolução no momento da conexão TCP não consegue alcançar um endereço diferente.
+
+Isso protege contra ataques de DNS rebinding em que a resposta TTL-1 de um hostname público aponta para um endereço privado apenas no momento do despacho.
+
+Falhas de resolução de DNS são tratadas como falhas de despacho. Em **implantações self-hosted**, operadores que precisem legitimamente despachar para um host sem registro DNS público podem adicioná-lo à allowlist `trusted_hosts` acima — hosts liberados pulam tanto a resolução quanto a checagem de rebinding. A implantação gerenciada (SaaS) não expõe essa configuração: todo destino de webhook precisa ser alcançável via DNS público.
 
 ## Assinatura de Webhook
 

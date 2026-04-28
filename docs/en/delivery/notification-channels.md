@@ -73,9 +73,15 @@ Self-hosted deployments that need to reach a specific internal host can opt it o
 config :holter, :network, trusted_hosts: ["localhost", "192.168.1.50"]
 ```
 
-Allowlisted entries match by exact host string (after normalising case and stripping IPv6 brackets). The allowlist applies to both webhook channels and monitor URLs.
+Allowlisted entries match by exact host string (after normalising case and stripping IPv6 brackets). The allowlist applies to both webhook channels and monitor URLs, and short-circuits the DNS-time check below.
 
-These checks address known abuse vectors but do not protect against DNS rebinding (a public hostname that resolves to a private address only at dispatch time). That class of attack is tracked separately.
+### DNS-time validation
+
+In addition to the static URL check above, Holter resolves the webhook hostname **before each dispatch** and refuses to send the request if any resolved IP falls into the same blocklist. The request is then rewritten to connect directly to the validated IP (with the original hostname preserved in the `Host` header and TLS SNI) so the receiver sees the request normally and a second resolution at TCP-connect time cannot reach a different address.
+
+This protects against DNS-rebinding attacks where a public hostname's TTL-1 answer points at a private address only at dispatch time.
+
+DNS resolution failures are treated as dispatch failures. On **self-hosted deployments**, operators who legitimately need to dispatch to a host with no public DNS record can add it to the `trusted_hosts` allowlist above — allowlisted hosts skip both resolution and the rebinding check. The managed (SaaS) deployment doesn't expose this configuration: every webhook target must be reachable via public DNS.
 
 ## Webhook Signing
 

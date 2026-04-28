@@ -1,15 +1,29 @@
 defmodule Holter.Delivery.HttpClientTest do
   use ExUnit.Case, async: false
 
+  import ExUnit.CaptureLog
+  import Mox
+
   alias Holter.Delivery.HttpClient
   alias Holter.Delivery.HttpClient.HTTP
+  alias Holter.Network.ResolverMock
   alias Holter.Test.DummyService
 
   @port Application.compile_env(:holter, :dummy_port, 4001)
   @base "http://localhost:#{@port}"
 
+  setup :verify_on_exit!
+
   setup do
     DummyService.reset()
+    Application.put_env(:holter, :network, trusted_hosts: ["localhost", "127.0.0.1"])
+    stub_with(ResolverMock, Holter.Test.StubResolver)
+
+    on_exit(fn ->
+      DummyService.reset()
+      Application.put_env(:holter, :network, [])
+    end)
+
     :ok
   end
 
@@ -112,6 +126,122 @@ defmodule Holter.Delivery.HttpClientTest do
       {:ok, response} = HTTP.post("#{@base}/probe/with-body", "{}", [])
 
       assert Map.keys(response) == [:status]
+    end
+  end
+
+  describe "DNS-rebinding protection" do
+    setup do
+      capture_log(fn -> :ok end)
+      :ok
+    end
+
+    test "private resolved IP — error tuple carries :private_host" do
+      expect(ResolverMock, :getaddrs, fn _, :inet -> {:ok, [{10, 0, 0, 1}]} end)
+
+      capture_log(fn ->
+        assert {:error, %RuntimeError{message: "destination rejected: private_host"}} =
+                 HTTP.post("https://rebind.example.com/hook", "{}", [])
+      end)
+    end
+
+    test "private resolved IP — log mentions the rejected hostname" do
+      expect(ResolverMock, :getaddrs, fn ~c"rebind.example.com", :inet ->
+        {:ok, [{10, 0, 0, 1}]}
+      end)
+
+      log = capture_log(fn -> HTTP.post("https://rebind.example.com/hook", "{}", []) end)
+
+      assert log =~ "blocked dispatch"
+    end
+
+    test "private resolved IP — request never reaches the network" do
+      expect(ResolverMock, :getaddrs, fn _, :inet -> {:ok, [{10, 0, 0, 1}]} end)
+
+      capture_log(fn -> HTTP.post("https://rebind.example.com/hook", "{}", []) end)
+
+      assert DummyService.get_requests() == []
+    end
+
+    test "DNS yields mixed public + private — rejected as :private_host" do
+      expect(ResolverMock, :getaddrs, fn _, :inet ->
+        {:ok, [{1, 2, 3, 4}, {10, 0, 0, 1}]}
+      end)
+
+      capture_log(fn ->
+        assert {:error, %RuntimeError{message: "destination rejected: private_host"}} =
+                 HTTP.post("https://mixed.example.com/hook", "{}", [])
+      end)
+    end
+
+    test "DNS resolution failure — rejected as :unresolved" do
+      expect(ResolverMock, :getaddrs, fn _, :inet -> {:error, :nxdomain} end)
+
+      capture_log(fn ->
+        assert {:error, %RuntimeError{message: "destination rejected: unresolved"}} =
+                 HTTP.post("https://nope.example.invalid/hook", "{}", [])
+      end)
+    end
+
+    test "URL with embedded CRLF — rejected as :control_chars without calling the resolver" do
+      expect(ResolverMock, :getaddrs, 0, fn _, _ -> flunk("resolver must not be called") end)
+
+      capture_log(fn ->
+        assert {:error, %RuntimeError{message: "destination rejected: control_chars"}} =
+                 HTTP.post("https://example.com\r\n/hook", "{}", [])
+      end)
+    end
+
+    test "URL with userinfo — rejected as :credentials without calling the resolver" do
+      expect(ResolverMock, :getaddrs, 0, fn _, _ -> flunk("resolver must not be called") end)
+
+      capture_log(fn ->
+        assert {:error, %RuntimeError{message: "destination rejected: credentials"}} =
+                 HTTP.post("https://user:pass@example.com/hook", "{}", [])
+      end)
+    end
+  end
+
+  describe "successful dispatch via DNS" do
+    test "request URL is rewritten to the resolved IP" do
+      DummyService.enqueue("rebind-success", status: 200, body: "OK")
+
+      expect(ResolverMock, :getaddrs, fn ~c"safe.example.com", :inet ->
+        {:ok, [{127, 0, 0, 1}]}
+      end)
+
+      assert {:ok, %{status: 200}} =
+               HTTP.post(
+                 "http://safe.example.com:#{@port}/probe/rebind-success",
+                 "{}",
+                 []
+               )
+    end
+
+    test "Host header preserves the original hostname after URL rewrite" do
+      DummyService.enqueue("preserve-host", status: 200, body: "OK")
+
+      expect(ResolverMock, :getaddrs, fn ~c"safe.example.com", :inet ->
+        {:ok, [{127, 0, 0, 1}]}
+      end)
+
+      HTTP.post(
+        "http://safe.example.com:#{@port}/probe/preserve-host",
+        "{}",
+        []
+      )
+
+      [conn] = DummyService.get_requests()
+      assert conn.host == "safe.example.com"
+    end
+
+    test "trusted-host loopback IP is allowed and dispatched" do
+      DummyService.enqueue("trusted-host", status: 200, body: "OK")
+
+      expect(ResolverMock, :getaddrs, fn ~c"localhost", :inet ->
+        {:ok, [{127, 0, 0, 1}]}
+      end)
+
+      assert {:ok, %{status: 200}} = HTTP.post("#{@base}/probe/trusted-host", "{}", [])
     end
   end
 end

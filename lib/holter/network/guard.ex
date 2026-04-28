@@ -3,6 +3,18 @@ defmodule Holter.Network.Guard do
 
   import Bitwise
 
+  def validate_destination(url) when is_binary(url) do
+    with :ok <- restricted_url?(url),
+         %URI{host: host} when is_binary(host) and host != "" <- URI.parse(url) do
+      resolve_and_validate(host)
+    else
+      {:error, _} = err -> err
+      _ -> {:error, :invalid_url}
+    end
+  end
+
+  def validate_destination(_), do: {:error, :invalid_url}
+
   def restricted_url?(url) when is_binary(url) do
     if String.match?(url, ~r/[\s\x00-\x1f\x7f]/u) do
       {:error, :control_chars}
@@ -97,6 +109,24 @@ defmodule Holter.Network.Guard do
   end
 
   defp check_parsed_url(_uri), do: {:error, :invalid_scheme}
+
+  defp resolve_and_validate(host) do
+    case resolver().getaddrs(to_charlist(host), :inet) do
+      {:ok, addrs} ->
+        ips = Enum.map(addrs, &(&1 |> :inet.ntoa() |> to_string()))
+
+        if Enum.any?(ips, &restricted_ip?/1),
+          do: {:error, :private_host},
+          else: {:ok, List.first(ips)}
+
+      {:error, _} ->
+        if host in get_trusted_hosts(), do: {:ok, host}, else: {:error, :unresolved}
+    end
+  end
+
+  defp resolver do
+    Application.get_env(:holter, :network_resolver, Holter.Network.Resolver.Erlang)
+  end
 
   defp classify_normalized_host(normalized) do
     case :inet.parse_address(to_charlist(normalized)) do

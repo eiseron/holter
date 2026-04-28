@@ -3,7 +3,8 @@ import Config
 config :holter,
   ecto_repos: [Holter.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true],
-  monitor_client: Holter.Monitoring.MonitorClient.HTTP
+  monitor_client: Holter.Monitoring.MonitorClient.HTTP,
+  network_resolver: Holter.Network.Resolver.Erlang
 
 config :holter, HolterWeb.Gettext, default_locale: "pt_BR"
 
