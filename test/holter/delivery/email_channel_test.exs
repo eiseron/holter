@@ -41,6 +41,46 @@ defmodule Holter.Delivery.EmailChannelTest do
     end
   end
 
+  describe "generate_verification_token/0" do
+    test "returns a 43-character base64url string (32-byte CSPRNG, no padding)" do
+      assert EmailChannel.generate_verification_token() =~ ~r/^[A-Za-z0-9_-]{43}$/
+    end
+
+    test "two consecutive calls return different tokens" do
+      assert EmailChannel.generate_verification_token() !=
+               EmailChannel.generate_verification_token()
+    end
+  end
+
+  describe "verified?/1" do
+    test "returns true when verified_at is set" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      assert EmailChannel.verified?(%EmailChannel{verified_at: now})
+    end
+
+    test "returns false when verified_at is nil" do
+      refute EmailChannel.verified?(%EmailChannel{verified_at: nil})
+    end
+  end
+
+  describe "verification fields are server-managed" do
+    test "changeset/2 ignores verified_at, verification_token and expiry from external attrs" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      changeset =
+        EmailChannel.changeset(%EmailChannel{}, %{
+          address: "ops@example.com",
+          verified_at: now,
+          verification_token: "attempted-spoof",
+          verification_token_expires_at: now
+        })
+
+      refute Ecto.Changeset.get_change(changeset, :verified_at)
+      refute Ecto.Changeset.get_change(changeset, :verification_token)
+      refute Ecto.Changeset.get_change(changeset, :verification_token_expires_at)
+    end
+  end
+
   describe "uniqueness on notification_channel_id" do
     test "a duplicate insert returns an error tuple" do
       assert {:error, %Ecto.Changeset{}} = duplicate_insert()

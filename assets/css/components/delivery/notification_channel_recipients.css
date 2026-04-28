@@ -53,13 +53,13 @@
 }
 
 .h-recipient-badge--verified {
-  color: var(--color-success-text, #166534);
-  background: var(--color-success-bg, #dcfce7);
+  color: var(--color-status-up-text);
+  background: var(--color-status-up-bg);
 }
 
 .h-recipient-badge--pending {
-  color: var(--color-warning-text, #92400e);
-  background: var(--color-warning-bg, #fef3c7);
+  color: var(--color-badge-warning-text);
+  background: var(--color-badge-warning-bg);
 }
 
 .h-recipient-remove {
@@ -81,6 +81,23 @@
 .h-recipient-remove:hover {
   color: var(--color-danger, #dc2626);
   background: var(--color-danger-bg, #fee2e2);
+}
+
+.h-recipient-resend {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.h-recipient-resend:hover {
+  background: color-mix(in srgb, var(--color-accent), transparent 90%);
 }
 
 @media (max-width: 479px) {

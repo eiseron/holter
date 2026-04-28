@@ -16,7 +16,11 @@
     phx-submit="save"
     class="h-form-sections"
   >
-    <.notification_channel_form_fields form={@form} selected_type={@selected_type} />
+    <.notification_channel_form_fields
+      form={@form}
+      selected_type={@selected_type}
+      email_verification_status={if @selected_type == :email, do: :pending, else: nil}
+    />
 
     <%= if @selected_type == :email do %>
       <section class="h-fieldset-card">

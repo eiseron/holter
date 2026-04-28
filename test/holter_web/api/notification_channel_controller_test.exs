@@ -3,6 +3,7 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
   use Oban.Testing, repo: Holter.Repo
 
   import OpenApiSpex.TestAssertions
+  import Swoosh.TestAssertions
 
   alias Holter.Delivery
   alias HolterWeb.Api.ApiSpec
@@ -37,6 +38,22 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
       )
 
     channel
+  end
+
+  defp verified_email_channel_fixture(workspace_id, attrs \\ %{}) do
+    channel =
+      channel_fixture(
+        workspace_id,
+        Map.merge(%{name: "Email", type: :email, target: "ops@example.com"}, attrs)
+      )
+
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    channel.email_channel
+    |> Ecto.Changeset.change(verified_at: now)
+    |> Holter.Repo.update!()
+
+    Delivery.get_channel!(channel.id)
   end
 
   describe "GET /api/v1/workspaces/:workspace_slug/notification_channels" do
@@ -174,6 +191,33 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
       resp = json_response(conn, 422)
       assert resp["error"]["code"] == "validation_failed"
     end
+
+    test "ships a verification email when an email channel is created", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels", %{
+        name: "Ops Email",
+        type: "email",
+        target: "ops@example.com"
+      })
+
+      assert_email_sent(to: "ops@example.com")
+    end
+
+    test "newly created email channels are not yet verified", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      conn =
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels", %{
+          name: "Ops Email",
+          type: "email",
+          target: "ops@example.com"
+        })
+
+      assert is_nil(json_response(conn, 201)["data"]["email_channel"]["verified_at"])
+    end
   end
 
   describe "PUT /api/v1/notification_channels/:id" do
@@ -238,6 +282,33 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
 
       assert json_response(conn, 404)
     end
+
+    test "returns 422 with no_verified_recipients on an unverified email channel", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      assert json_response(conn, 422)["error"]["code"] == "no_verified_recipients"
+    end
+
+    test "does not enqueue a job when an email channel has no verified addresses", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      assert all_enqueued(queue: :notifications) == []
+    end
+
+    test "returns 202 when an email channel's primary is verified", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = verified_email_channel_fixture(workspace.id)
+      conn = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      assert response(conn, 202)
+    end
   end
 
   describe "GET /api/v1/notification_channels/:id — nested subtype payload" do
@@ -297,6 +368,71 @@ defmodule HolterWeb.Api.NotificationChannelControllerTest do
       channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
       conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
       assert json_response(conn, 200)["data"]["webhook_channel"] == nil
+    end
+
+    test "renders email_channel.verified_at as null while pending", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      assert is_nil(json_response(conn, 200)["data"]["email_channel"]["verified_at"])
+    end
+
+    test "renders email_channel.verified_at as a timestamp once verified", %{
+      conn: conn,
+      workspace: workspace,
+      api_spec: spec
+    } do
+      channel = verified_email_channel_fixture(workspace.id)
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      assert {:ok, %DateTime{}, _} =
+               DateTime.from_iso8601(body["data"]["email_channel"]["verified_at"])
+
+      assert_schema(body, "NotificationChannelResponse", spec)
+    end
+
+    test "renders an empty recipients array when no CCs have been added", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      assert json_response(conn, 200)["data"]["email_channel"]["recipients"] == []
+    end
+
+    test "exposes the CC recipient list with verified_at per row", %{
+      conn: conn,
+      workspace: workspace,
+      api_spec: spec
+    } do
+      channel = channel_fixture(workspace.id, %{type: :email, target: "ops@example.com"})
+      {:ok, pending} = Delivery.add_recipient(channel.id, "pending@example.com")
+      {:ok, verified} = Delivery.add_recipient(channel.id, "verified@example.com")
+      Delivery.verify_recipient(verified.token)
+
+      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}")
+      body = json_response(conn, 200)
+
+      recipients =
+        body["data"]["email_channel"]["recipients"]
+        |> Enum.sort_by(& &1["email"])
+
+      assert [
+               %{"email" => "pending@example.com", "verified_at" => nil, "id" => pending_id},
+               %{
+                 "email" => "verified@example.com",
+                 "verified_at" => verified_at_string,
+                 "id" => verified_id
+               }
+             ] = recipients
+
+      assert pending_id == pending.id
+      assert verified_id == verified.id
+      assert {:ok, %DateTime{}, _} = DateTime.from_iso8601(verified_at_string)
+      assert_schema(body, "NotificationChannelResponse", spec)
     end
   end
 

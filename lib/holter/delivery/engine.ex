@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.Engine do
   @moduledoc false
 
-  alias Holter.Delivery.{Broadcaster, NotificationChannel, NotificationChannels}
+  alias Holter.Delivery.{Broadcaster, EmailChannel, NotificationChannel, NotificationChannels}
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
 
   def dispatch_incident(monitor_id, incident_id, event) when event in [:down, :up] do
@@ -19,9 +19,29 @@ defmodule Holter.Delivery.Engine do
 
   def dispatch_test(channel_id) do
     channel = NotificationChannels.get_channel!(channel_id)
-    result = enqueue_test_for_channel(channel)
-    Broadcaster.broadcast_test_dispatched(channel_id)
-    result
+
+    case validate_test_dispatch(channel) do
+      :ok ->
+        result = enqueue_test_for_channel(channel)
+        Broadcaster.broadcast_test_dispatched(channel_id)
+        result
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  defp validate_test_dispatch(%NotificationChannel{type: :email} = channel) do
+    if has_any_verified_address?(channel),
+      do: :ok,
+      else: {:error, :no_verified_recipients}
+  end
+
+  defp validate_test_dispatch(_), do: :ok
+
+  defp has_any_verified_address?(%NotificationChannel{} = channel) do
+    primary_verified? = EmailChannel.verified?(channel.email_channel)
+    primary_verified? or NotificationChannels.list_verified_emails(channel.id) != []
   end
 
   defp enqueue_for_channel(channel, ctx) do

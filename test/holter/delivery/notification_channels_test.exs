@@ -1,6 +1,8 @@
 defmodule Holter.Delivery.NotificationChannelsTest do
   use Holter.DataCase, async: true
 
+  import Swoosh.TestAssertions
+
   alias Holter.Delivery
   alias Holter.Delivery.{EmailChannel, MonitorNotification, NotificationChannel, WebhookChannel}
   alias Holter.Repo
@@ -20,6 +22,12 @@ defmodule Holter.Delivery.NotificationChannelsTest do
   defp channel_fixture(workspace_id, overrides \\ %{}) do
     {:ok, channel} = Delivery.create_channel(channel_attrs(workspace_id, overrides))
     channel
+  end
+
+  defp verify_via_token(channel) do
+    {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+    {:ok, verified} = Delivery.verify_email_channel(with_token.email_channel.verification_token)
+    verified
   end
 
   describe "list_channels/1" do
@@ -182,6 +190,187 @@ defmodule Holter.Delivery.NotificationChannelsTest do
       ws = workspace_fixture()
       channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
       assert {:error, :not_a_webhook_channel} = Delivery.regenerate_signing_token(channel)
+    end
+  end
+
+  describe "send_email_channel_verification/1" do
+    test "rotates the verification token on the email_channels row" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, updated} = Delivery.send_email_channel_verification(channel)
+      assert is_binary(updated.email_channel.verification_token)
+    end
+
+    test "leaves verified_at nil until the user completes verification" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, updated} = Delivery.send_email_channel_verification(channel)
+      assert is_nil(updated.email_channel.verified_at)
+    end
+
+    test "sets a 48h expiry on the verification token" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, updated} = Delivery.send_email_channel_verification(channel)
+      now = DateTime.utc_now()
+      delta_hours = DateTime.diff(updated.email_channel.verification_token_expires_at, now) / 3600
+      assert_in_delta delta_hours, 48, 1
+    end
+
+    test "ships an email to the target address" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, _updated} = Delivery.send_email_channel_verification(channel)
+      assert_email_sent(to: "ops@example.com")
+    end
+
+    test "the verification email includes the freshly rotated token in the URL" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, updated} = Delivery.send_email_channel_verification(channel)
+      token = updated.email_channel.verification_token
+
+      assert_email_sent(fn email ->
+        assert email.text_body =~ token
+      end)
+    end
+
+    test "calling twice rotates the token (old token no longer resolves)" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      {:ok, first} = Delivery.send_email_channel_verification(channel)
+      {:ok, second} = Delivery.send_email_channel_verification(first)
+
+      assert first.email_channel.verification_token !=
+               second.email_channel.verification_token
+    end
+
+    test "returns {:error, :not_an_email_channel} for a webhook channel" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id)
+
+      assert {:error, :not_an_email_channel} =
+               Delivery.send_email_channel_verification(channel)
+    end
+  end
+
+  describe "workspace-scoped verification dedup" do
+    test "creating a second email channel with the same address in the same workspace inherits verification" do
+      ws = workspace_fixture()
+      first = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      verify_via_token(first)
+
+      second = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      assert %DateTime{} = second.email_channel.verified_at
+    end
+
+    test "creating an email channel with the same address in a different workspace stays unverified" do
+      ws_a = workspace_fixture()
+      ws_b = workspace_fixture()
+      first = channel_fixture(ws_a.id, %{type: :email, target: "ops@example.com"})
+      verify_via_token(first)
+
+      second = channel_fixture(ws_b.id, %{type: :email, target: "ops@example.com"})
+
+      assert is_nil(second.email_channel.verified_at)
+    end
+
+    test "verifying one channel propagates to siblings in the same workspace with the same address" do
+      ws = workspace_fixture()
+      first = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      second = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+
+      verify_via_token(first)
+
+      reloaded =
+        Repo.get_by!(EmailChannel, notification_channel_id: second.id)
+
+      assert %DateTime{} = reloaded.verified_at
+    end
+
+    test "verifying one channel does not propagate across workspaces" do
+      ws_a = workspace_fixture()
+      ws_b = workspace_fixture()
+      first = channel_fixture(ws_a.id, %{type: :email, target: "ops@example.com"})
+      second = channel_fixture(ws_b.id, %{type: :email, target: "ops@example.com"})
+
+      verify_via_token(first)
+
+      reloaded =
+        Repo.get_by!(EmailChannel, notification_channel_id: second.id)
+
+      assert is_nil(reloaded.verified_at)
+    end
+  end
+
+  describe "verify_email_channel/1" do
+    test "marks verified_at on success" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+
+      {:ok, verified} =
+        Delivery.verify_email_channel(with_token.email_channel.verification_token)
+
+      assert %DateTime{} = verified.email_channel.verified_at
+    end
+
+    test "clears the verification token on success" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+
+      {:ok, verified} =
+        Delivery.verify_email_channel(with_token.email_channel.verification_token)
+
+      assert is_nil(verified.email_channel.verification_token)
+    end
+
+    test "clears the verification expiry on success" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+
+      {:ok, verified} =
+        Delivery.verify_email_channel(with_token.email_channel.verification_token)
+
+      assert is_nil(verified.email_channel.verification_token_expires_at)
+    end
+
+    test "is idempotent: a second call with the same token returns :not_found" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+      token = with_token.email_channel.verification_token
+
+      {:ok, _} = Delivery.verify_email_channel(token)
+      assert {:error, :not_found} = Delivery.verify_email_channel(token)
+    end
+
+    test "returns {:error, :expired} for a token past its expiry" do
+      ws = workspace_fixture()
+      channel = channel_fixture(ws.id, %{type: :email, target: "ops@example.com"})
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+
+      past = DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
+
+      with_token.email_channel
+      |> Ecto.Changeset.change(verification_token_expires_at: past)
+      |> Repo.update!()
+
+      assert {:error, :expired} =
+               Delivery.verify_email_channel(with_token.email_channel.verification_token)
+    end
+
+    test "returns {:error, :not_found} for an unknown token" do
+      assert {:error, :not_found} = Delivery.verify_email_channel("not-a-real-token")
     end
   end
 

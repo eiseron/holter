@@ -7,7 +7,12 @@ defmodule HolterWeb.Api.NotificationChannelJSON do
   `webhook_channel` / `email_channel` populated with the type-specific
   data. The unused subtype is rendered as `null`.
   """
-  alias Holter.Delivery.{EmailChannel, NotificationChannel, WebhookChannel}
+  alias Holter.Delivery.{
+    EmailChannel,
+    NotificationChannel,
+    NotificationChannelRecipient,
+    WebhookChannel
+  }
 
   def index(%{channels: channels}) do
     %{data: for(channel <- channels, do: data(channel))}
@@ -24,7 +29,7 @@ defmodule HolterWeb.Api.NotificationChannelJSON do
       name: channel.name,
       type: NotificationChannel.type(channel),
       webhook_channel: webhook_data(channel.webhook_channel),
-      email_channel: email_data(channel.email_channel),
+      email_channel: email_data(channel),
       inserted_at: channel.inserted_at,
       updated_at: channel.updated_at
     }
@@ -40,13 +45,32 @@ defmodule HolterWeb.Api.NotificationChannelJSON do
 
   defp webhook_data(_), do: nil
 
-  defp email_data(%EmailChannel{} = ec) do
+  defp email_data(%NotificationChannel{
+         email_channel: %EmailChannel{} = ec,
+         recipients: recipients
+       }) do
     %{
       address: ec.address,
       settings: ec.settings,
-      anti_phishing_code: ec.anti_phishing_code
+      anti_phishing_code: ec.anti_phishing_code,
+      verified_at: ec.verified_at,
+      recipients: recipient_list(recipients)
     }
   end
 
   defp email_data(_), do: nil
+
+  defp recipient_list(recipients) when is_list(recipients) do
+    Enum.map(recipients, fn %NotificationChannelRecipient{} = r ->
+      %{id: r.id, email: r.email, verified_at: format_naive_as_utc(r.verified_at)}
+    end)
+  end
+
+  defp recipient_list(_), do: []
+
+  defp format_naive_as_utc(nil), do: nil
+
+  defp format_naive_as_utc(%NaiveDateTime{} = ndt) do
+    ndt |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
+  end
 end

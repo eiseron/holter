@@ -1,15 +1,15 @@
-defmodule Holter.Delivery.Emails.RecipientVerification do
+defmodule Holter.Delivery.Emails.EmailChannelVerification do
   @moduledoc false
 
   import Swoosh.Email
 
-  def build_verification_email(recipient, _channel, %{url: verification_url, from: from_address}) do
+  def build_verification_email(channel, %{url: verification_url, from: from_address}) do
     new()
-    |> to(recipient.email)
+    |> to(channel.email_channel.address)
     |> from(from_address)
     |> subject("Confirm this address to receive monitoring alerts")
     |> text_body(
-      "Someone added this address to receive copies of monitoring alerts from a Holter service.\n\n" <>
+      "Someone configured a Holter monitoring service to send alerts to this address.\n\n" <>
         "If you confirm, you will receive notifications when an external system being monitored goes down or recovers. " <>
         "We do not disclose what is being monitored in this email so you can decide based on whether you expected the request, not the target.\n\n" <>
         "Confirm this address: #{verification_url}\n\n" <>

@@ -162,6 +162,29 @@ Se você perder o controle do código atual, regenere — o próximo e-mail carr
 O Holter não aceita responsabilidade por perdas, incidentes ou suplantação por phishing decorrentes de um código antiphishing comprometido ou perdido.
 :::
 
+## Verificação de Endereço de E-mail
+
+Todo canal de e-mail precisa verificar o endereço de destino antes que a Holter entregue qualquer alerta por ele. Sem essa verificação, um membro do workspace poderia criar um canal apontando para a caixa de entrada de outra pessoa e usar a Holter para enviar testes ou alertas para lá.
+
+### Como funciona
+
+1. Ao criar um canal de e-mail, a Holter envia um e-mail de verificação a partir do endereço institucional para o destino. O link expira em 48 horas.
+2. O destinatário clica no link e cai em uma página de confirmação. O endereço passa a aparecer como **Verificado** na página do canal.
+3. Enquanto a verificação não acontecer, alertas para esse endereço são descartados na camada de entrega. O canal segue entregando para **destinatários em CC verificados**; se nenhum endereço do canal estiver verificado, a entrega é cancelada e registrada nos [logs de entrega](channel-logs.md) com o motivo `no_verified_recipients`.
+
+### Reenviando a verificação
+
+Abra a página do canal. Logo abaixo do nome, a seção **Verificação do e-mail principal** mostra o estado atual:
+
+- **Verificado** — os alertas serão entregues nesse endereço.
+- **Verificação pendente** — os alertas não serão entregues. Clique em **Reenviar verificação** para gerar um novo e-mail; o link anterior é invalidado.
+
+::: danger Aviso de segurança
+A verificação só comprova que *alguém com acesso à caixa de entrada* clicou no link. Ela **não** prova que o endereço pertence ao workspace, à equipe ou a uma pessoa específica. Trate canais de e-mail como entrega "melhor esforço": qualquer pessoa que estiver com a caixa aberta naquele momento começa a receber alertas.
+
+Se um destinatário sai da equipe ou perde acesso à caixa, **exclua o canal ou troque o endereço e verifique de novo** — a Holter não tem como invalidar a verificação automaticamente.
+:::
+
 ## Excluindo um Canal
 
 Na página de lista de canais, clique em **Excluir** ao lado do canal. Isso remove o canal e todos os vínculos com monitores. Monitores vinculados a um canal excluído não receberão mais notificações por aquele canal.

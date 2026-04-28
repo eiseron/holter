@@ -190,6 +190,28 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
       assert_email_sent(to: "cc@example.com")
     end
 
+    test "sends a verification email to the primary target when an email channel is created",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/workspaces/#{workspace.slug}/notification-channels/new")
+
+      view
+      |> form("#notification-channel-form", notification_channel: %{type: "email"})
+      |> render_change()
+
+      view
+      |> form("#notification-channel-form",
+        notification_channel: %{
+          name: "Ops",
+          type: "email",
+          target: "ops@example.com"
+        }
+      )
+      |> render_submit()
+
+      assert_email_sent(to: "ops@example.com")
+    end
+
     test "links selected monitors on channel creation", %{conn: conn, workspace: workspace} do
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
@@ -603,6 +625,156 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
         |> render_keydown(%{"key" => "Enter", "value" => "cc@example.com"})
 
       assert [_] = Regex.scan(~r/h-recipient-item/, html)
+    end
+  end
+
+  describe "Show — email channel verification" do
+    defp verified_email_channel_fixture(workspace_id) do
+      {:ok, channel} =
+        Delivery.create_channel(%{
+          workspace_id: workspace_id,
+          name: "Ops Email",
+          type: :email,
+          target: "ops@example.com"
+        })
+
+      {:ok, with_token} = Delivery.send_email_channel_verification(channel)
+
+      {:ok, verified} =
+        Delivery.verify_email_channel(with_token.email_channel.verification_token)
+
+      verified
+    end
+
+    test "renders the pending badge when the primary target is unverified", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ ~s(id="email-verification-heading")
+      assert html =~ "Pending verification"
+      assert html =~ "Resend verification"
+    end
+
+    test "renders the verified badge and hides the resend button when the primary is verified",
+         %{conn: conn, workspace: workspace} do
+      channel = verified_email_channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ "Verified"
+      refute html =~ "Resend verification"
+    end
+
+    test "does not render the verification section for webhook channels", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      refute html =~ ~s(id="email-verification-heading")
+    end
+
+    test "resend_email_verification event ships an email and rotates the token", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      original_token = channel.email_channel.verification_token
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      render_click(view, "resend_email_verification", %{})
+
+      assert_email_sent(to: "ops@example.com")
+
+      reloaded =
+        Holter.Repo.get_by!(Holter.Delivery.EmailChannel, notification_channel_id: channel.id)
+
+      assert reloaded.verification_token != original_token
+    end
+
+    test "Send Test on an unverified email channel surfaces a clear error flash", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      html = render_click(view, "test", %{})
+
+      assert html =~ "no recipient on this channel is verified"
+    end
+
+    test "renders the Resend button next to a pending CC recipient", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      Delivery.add_recipient(channel.id, "cc@example.com")
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ ~s(phx-click="resend_recipient_verification")
+    end
+
+    test "does not render the Resend button next to a verified CC recipient", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "verified@example.com")
+      Delivery.verify_recipient(recipient.token)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      refute html =~ ~s(phx-value-id="#{recipient.id}\" phx-disable-with)
+      refute html =~ ~s(phx-click="resend_recipient_verification" phx-value-id="#{recipient.id}")
+    end
+
+    test "resend_recipient_verification event ships a fresh email", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      render_click(view, "resend_recipient_verification", %{"id" => recipient.id})
+
+      assert_email_sent(to: "cc@example.com")
+    end
+
+    test "resend_recipient_verification rotates the recipient's token", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = email_channel_fixture(workspace.id)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "rot@example.com")
+      original_token = recipient.token
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      render_click(view, "resend_recipient_verification", %{"id" => recipient.id})
+
+      [reloaded] = Delivery.list_recipients(channel.id)
+      assert reloaded.token != original_token
     end
   end
 

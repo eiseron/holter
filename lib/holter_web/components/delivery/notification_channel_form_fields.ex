@@ -9,6 +9,7 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
   attr :form, :any, required: true
   attr :locked_type, :boolean, default: false
   attr :selected_type, :atom, default: :webhook
+  attr :email_verification_status, :atom, default: nil, values: [nil, :verified, :pending]
 
   def notification_channel_form_fields(assigns) do
     ~H"""
@@ -48,11 +49,22 @@ defmodule HolterWeb.Components.Delivery.NotificationChannelFormFields do
             required
           />
           <p class="h-help-text">{target_help_text(@selected_type)}</p>
+          <%= if @selected_type == :email and @email_verification_status do %>
+            <span class={"h-recipient-badge h-recipient-badge--#{badge_modifier(@email_verification_status)} h-mt-2"}>
+              {verification_label(@email_verification_status)}
+            </span>
+          <% end %>
         </div>
       </div>
     </div>
     """
   end
+
+  defp badge_modifier(:verified), do: "verified"
+  defp badge_modifier(:pending), do: "pending"
+
+  defp verification_label(:verified), do: gettext("Verified")
+  defp verification_label(:pending), do: gettext("Pending verification")
 
   defp channel_type_options do
     NotificationChannel.channel_types()

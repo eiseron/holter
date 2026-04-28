@@ -28,6 +28,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:available_monitors, available_monitors)
        |> assign(:linked_monitor_ids, linked_monitor_ids)
        |> assign(:recipients, load_recipients(channel))
+       |> assign(:email_verification_status, email_verification_status(channel))
        |> assign(:cc_input, "")
        |> assign(:test_sent, false)}
     else
@@ -63,6 +64,7 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
          |> put_flash(:info, gettext("Channel updated successfully"))
          |> assign(:channel, channel)
          |> assign(:linked_monitor_ids, linked_monitor_ids)
+         |> assign(:email_verification_status, email_verification_status(channel))
          |> assign(:form, to_form(Delivery.change_channel(channel)))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -78,6 +80,16 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
          socket
          |> put_flash(:info, gettext("Test notification enqueued"))
          |> assign(:test_sent, true)}
+
+      {:error, :no_verified_recipients} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext(
+             "Cannot send a test: no recipient on this channel is verified. Verify the primary email or at least one CC recipient first."
+           )
+         )}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to enqueue test notification"))}
@@ -121,6 +133,26 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   end
 
   @impl true
+  def handle_event("resend_email_verification", _params, socket) do
+    case Delivery.send_email_channel_verification(socket.assigns.channel) do
+      {:ok, updated} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           gettext("Verification email sent to %{email}.",
+             email: updated.email_channel.address
+           )
+         )
+         |> assign(:channel, updated)
+         |> assign(:email_verification_status, email_verification_status(updated))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Failed to send verification email"))}
+    end
+  end
+
+  @impl true
   def handle_event("regenerate_secret", _params, socket) do
     case regenerate_for(socket.assigns.channel) do
       {:ok, updated} ->
@@ -154,8 +186,34 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
     {:noreply, assign(socket, :recipients, Delivery.list_recipients(channel.id))}
   end
 
+  @impl true
+  def handle_event("resend_recipient_verification", %{"id" => id}, socket) do
+    case Delivery.resend_recipient_verification(id) do
+      {:ok, recipient} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           gettext("Verification email sent to %{email}", email: recipient.email)
+         )
+         |> assign(:recipients, Delivery.list_recipients(socket.assigns.channel.id))}
+
+      {:error, :already_verified} ->
+        {:noreply, put_flash(socket, :info, gettext("This recipient is already verified."))}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, gettext("Failed to send verification email"))}
+    end
+  end
+
   defp load_recipients(%{type: :email, id: id}), do: Delivery.list_recipients(id)
   defp load_recipients(_), do: []
+
+  defp email_verification_status(%{type: :email, email_channel: %{verified_at: %DateTime{}}}),
+    do: :verified
+
+  defp email_verification_status(%{type: :email}), do: :pending
+  defp email_verification_status(_), do: nil
 
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
 

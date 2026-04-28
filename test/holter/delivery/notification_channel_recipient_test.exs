@@ -129,4 +129,31 @@ defmodule Holter.Delivery.NotificationChannelRecipientTest do
       assert Delivery.list_recipients(channel.id) == []
     end
   end
+
+  describe "resend_recipient_verification/1" do
+    import Swoosh.TestAssertions
+
+    test "rotates the recipient's token", %{channel: channel} do
+      {:ok, original} = Delivery.add_recipient(channel.id, "rotate@example.com")
+      {:ok, refreshed} = Delivery.resend_recipient_verification(original.id)
+      assert refreshed.token != original.token
+    end
+
+    test "ships a fresh verification email to the recipient address", %{channel: channel} do
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "fresh@example.com")
+      {:ok, _} = Delivery.resend_recipient_verification(recipient.id)
+      assert_email_sent(to: "fresh@example.com")
+    end
+
+    test "returns {:error, :not_found} for an unknown recipient id" do
+      assert {:error, :not_found} =
+               Delivery.resend_recipient_verification(Ecto.UUID.generate())
+    end
+
+    test "returns {:error, :already_verified} for a verified recipient", %{channel: channel} do
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "done@example.com")
+      Delivery.verify_recipient(recipient.token)
+      assert {:error, :already_verified} = Delivery.resend_recipient_verification(recipient.id)
+    end
+  end
 end

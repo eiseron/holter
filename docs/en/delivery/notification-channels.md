@@ -162,6 +162,29 @@ If you lose track of the current code, regenerate it — the next email will car
 Holter accepts no liability for losses, breaches, or phishing impersonation resulting from a compromised or lost anti-phishing code.
 :::
 
+## Email Address Verification
+
+Every email channel must verify the address it points at before Holter delivers any alert through it. Without this gate, a workspace member could create an email channel pointing at a third party's inbox and use Holter to deliver tests or alerts there.
+
+### How it works
+
+1. Creating an email channel sends a verification email from the Holter info address to the target. The link in that email expires in 48 hours.
+2. The recipient clicks the link and lands on a small confirmation page. The address is now marked **Verified** on the channel settings page.
+3. Until verification completes, alerts targeting that address are dropped at the delivery layer. The channel still dispatches to **verified CC recipients**; if no addresses on the channel are verified, the dispatch is cancelled and recorded in the [delivery logs](channel-logs.md) with reason `no_verified_recipients`.
+
+### Resending verification
+
+Open the channel settings page. Below the channel name, the **Primary email verification** section shows the current state:
+
+- **Verified** — alerts will be delivered to this address.
+- **Pending verification** — alerts will not be delivered. Click **Resend verification** to send a fresh email; the previous link is invalidated.
+
+::: danger Security disclaimer
+Verification confirms only that *someone with access to the inbox* clicked the link. It does **not** prove the address belongs to the workspace, the team, or any specific individual. Treat email channels as best-effort delivery: anyone with the inbox open at click time will start receiving alerts.
+
+If a recipient leaves the team or loses access to their inbox, **delete the channel or rotate the address and re-verify** — Holter has no way to invalidate verification automatically.
+:::
+
 ## Deleting a Channel
 
 On the channel list page, click **Delete** next to the channel. This removes the channel and all monitor links. Monitors linked to a deleted channel will no longer receive notifications for that channel.

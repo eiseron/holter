@@ -23,7 +23,9 @@ defmodule Holter.Delivery.EngineTest do
     channel
   end
 
-  defp email_channel_fixture(workspace_id) do
+  defp email_channel_fixture(workspace_id, opts \\ []) do
+    verified? = Keyword.get(opts, :verified, true)
+
     {:ok, channel} =
       Delivery.create_channel(%{
         workspace_id: workspace_id,
@@ -32,7 +34,17 @@ defmodule Holter.Delivery.EngineTest do
         target: "ops@example.com"
       })
 
-    channel
+    if verified?, do: mark_channel_verified(channel), else: channel
+  end
+
+  defp mark_channel_verified(channel) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    channel.email_channel
+    |> Ecto.Changeset.change(verified_at: now)
+    |> Holter.Repo.update!()
+
+    Delivery.get_channel!(channel.id)
   end
 
   describe "dispatch_incident/3" do
@@ -149,6 +161,33 @@ defmodule Holter.Delivery.EngineTest do
       Engine.dispatch_test(channel.id)
 
       assert_receive {:test_dispatched, %{channel_id: ^channel_id}}
+    end
+
+    test "returns {:error, :no_verified_recipients} for an email channel with no verified addresses" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id, verified: false)
+
+      assert {:error, :no_verified_recipients} = Engine.dispatch_test(channel.id)
+    end
+
+    test "does not enqueue a job when an email channel has no verified addresses" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id, verified: false)
+
+      Engine.dispatch_test(channel.id)
+
+      assert all_enqueued(queue: :notifications) == []
+    end
+
+    test "enqueues a job for an email channel whose primary is unverified but has a verified CC" do
+      ws = workspace_fixture()
+      channel = email_channel_fixture(ws.id, verified: false)
+      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
+      Delivery.verify_recipient(recipient.token)
+
+      Engine.dispatch_test(channel.id)
+
+      assert_enqueued(worker: EmailDispatcher, args: %{"test" => true})
     end
   end
 end

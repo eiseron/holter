@@ -27,6 +27,10 @@ defmodule Holter.Delivery do
   defdelegate get_recipient_by_token(token), to: NotificationChannels
   defdelegate verify_recipient(token), to: NotificationChannels
   defdelegate list_verified_emails(channel_id), to: NotificationChannels
+  defdelegate send_email_channel_verification(channel), to: NotificationChannels
+  defdelegate verify_email_channel(token), to: NotificationChannels
+  defdelegate get_email_channel_by_verification_token(token), to: NotificationChannels
+  defdelegate resend_recipient_verification(recipient_id), to: NotificationChannels
 
   defdelegate list_channel_logs(channel, filters), to: ChannelLogs
 end

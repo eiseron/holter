@@ -152,16 +152,86 @@ components:
           type: string
           x-struct:
           x-validate:
+        recipients:
+          description: CC recipients on the channel. Each carries its own verification state.
+          items:
+            additionalProperties: false
+            description: A CC recipient on an email channel.
+            properties:
+              email:
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              verified_at:
+                description: Timestamp the recipient verified the address. `null` while pending.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - email
+              - verified_at
+            title: EmailRecipient
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
         settings:
           additionalProperties: true
           type: object
+          x-struct:
+          x-validate:
+        verified_at:
+          description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+          format: date-time
+          nullable: true
+          type: string
           x-struct:
           x-validate:
       required:
         - address
         - settings
         - anti_phishing_code
+        - verified_at
+        - recipients
       title: EmailChannel
+      type: object
+      x-struct:
+      x-validate:
+    EmailRecipient:
+      additionalProperties: false
+      description: A CC recipient on an email channel.
+      properties:
+        email:
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        verified_at:
+          description: Timestamp the recipient verified the address. `null` while pending.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - email
+        - verified_at
+      title: EmailRecipient
       type: object
       x-struct:
       x-validate:
@@ -202,15 +272,57 @@ components:
               type: string
               x-struct:
               x-validate:
+            recipients:
+              description: CC recipients on the channel. Each carries its own verification state.
+              items:
+                additionalProperties: false
+                description: A CC recipient on an email channel.
+                properties:
+                  email:
+                    type: string
+                    x-struct:
+                    x-validate:
+                  id:
+                    format: uuid
+                    type: string
+                    x-struct:
+                    x-validate:
+                  verified_at:
+                    description: Timestamp the recipient verified the address. `null` while pending.
+                    format: date-time
+                    nullable: true
+                    type: string
+                    x-struct:
+                    x-validate:
+                required:
+                  - id
+                  - email
+                  - verified_at
+                title: EmailRecipient
+                type: object
+                x-struct:
+                x-validate:
+              type: array
+              x-struct:
+              x-validate:
             settings:
               additionalProperties: true
               type: object
+              x-struct:
+              x-validate:
+            verified_at:
+              description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+              format: date-time
+              nullable: true
+              type: string
               x-struct:
               x-validate:
           required:
             - address
             - settings
             - anti_phishing_code
+            - verified_at
+            - recipients
           title: EmailChannel
           type: object
           x-struct:
@@ -345,15 +457,57 @@ components:
                     type: string
                     x-struct:
                     x-validate:
+                  recipients:
+                    description: CC recipients on the channel. Each carries its own verification state.
+                    items:
+                      additionalProperties: false
+                      description: A CC recipient on an email channel.
+                      properties:
+                        email:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        verified_at:
+                          description: Timestamp the recipient verified the address. `null` while pending.
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - email
+                        - verified_at
+                      title: EmailRecipient
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
                   settings:
                     additionalProperties: true
                     type: object
+                    x-struct:
+                    x-validate:
+                  verified_at:
+                    description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                    format: date-time
+                    nullable: true
+                    type: string
                     x-struct:
                     x-validate:
                 required:
                   - address
                   - settings
                   - anti_phishing_code
+                  - verified_at
+                  - recipients
                 title: EmailChannel
                 type: object
                 x-struct:
@@ -459,15 +613,57 @@ components:
                   type: string
                   x-struct:
                   x-validate:
+                recipients:
+                  description: CC recipients on the channel. Each carries its own verification state.
+                  items:
+                    additionalProperties: false
+                    description: A CC recipient on an email channel.
+                    properties:
+                      email:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the recipient verified the address. `null` while pending.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - email
+                      - verified_at
+                    title: EmailRecipient
+                    type: object
+                    x-struct:
+                    x-validate:
+                  type: array
+                  x-struct:
+                  x-validate:
                 settings:
                   additionalProperties: true
                   type: object
+                  x-struct:
+                  x-validate:
+                verified_at:
+                  description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                  format: date-time
+                  nullable: true
+                  type: string
                   x-struct:
                   x-validate:
               required:
                 - address
                 - settings
                 - anti_phishing_code
+                - verified_at
+                - recipients
               title: EmailChannel
               type: object
               x-struct:
@@ -693,15 +889,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:
@@ -880,15 +1118,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:
@@ -1090,15 +1370,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:
@@ -1270,15 +1592,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:
@@ -1674,15 +2038,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:
@@ -1865,15 +2271,57 @@ paths:
                               type: string
                               x-struct:
                               x-validate:
+                            recipients:
+                              description: CC recipients on the channel. Each carries its own verification state.
+                              items:
+                                additionalProperties: false
+                                description: A CC recipient on an email channel.
+                                properties:
+                                  email:
+                                    type: string
+                                    x-struct:
+                                    x-validate:
+                                  id:
+                                    format: uuid
+                                    type: string
+                                    x-struct:
+                                    x-validate:
+                                  verified_at:
+                                    description: Timestamp the recipient verified the address. `null` while pending.
+                                    format: date-time
+                                    nullable: true
+                                    type: string
+                                    x-struct:
+                                    x-validate:
+                                required:
+                                  - id
+                                  - email
+                                  - verified_at
+                                title: EmailRecipient
+                                type: object
+                                x-struct:
+                                x-validate:
+                              type: array
+                              x-struct:
+                              x-validate:
                             settings:
                               additionalProperties: true
                               type: object
+                              x-struct:
+                              x-validate:
+                            verified_at:
+                              description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                              format: date-time
+                              nullable: true
+                              type: string
                               x-struct:
                               x-validate:
                           required:
                             - address
                             - settings
                             - anti_phishing_code
+                            - verified_at
+                            - recipients
                           title: EmailChannel
                           type: object
                           x-struct:
@@ -2065,15 +2513,57 @@ paths:
                             type: string
                             x-struct:
                             x-validate:
+                          recipients:
+                            description: CC recipients on the channel. Each carries its own verification state.
+                            items:
+                              additionalProperties: false
+                              description: A CC recipient on an email channel.
+                              properties:
+                                email:
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                id:
+                                  format: uuid
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                                verified_at:
+                                  description: Timestamp the recipient verified the address. `null` while pending.
+                                  format: date-time
+                                  nullable: true
+                                  type: string
+                                  x-struct:
+                                  x-validate:
+                              required:
+                                - id
+                                - email
+                                - verified_at
+                              title: EmailRecipient
+                              type: object
+                              x-struct:
+                              x-validate:
+                            type: array
+                            x-struct:
+                            x-validate:
                           settings:
                             additionalProperties: true
                             type: object
+                            x-struct:
+                            x-validate:
+                          verified_at:
+                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
+                            format: date-time
+                            nullable: true
+                            type: string
                             x-struct:
                             x-validate:
                         required:
                           - address
                           - settings
                           - anti_phishing_code
+                          - verified_at
+                          - recipients
                         title: EmailChannel
                         type: object
                         x-struct:

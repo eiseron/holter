@@ -13,10 +13,20 @@ defmodule Holter.Delivery.EmailChannel do
     field :address, :string
     field :settings, :map, default: %{}
     field :anti_phishing_code, :string
+    field :verified_at, :utc_datetime
+    field :verification_token, :string
+    field :verification_token_expires_at, :utc_datetime
 
     belongs_to :notification_channel, Holter.Delivery.NotificationChannel
 
     timestamps(type: :utc_datetime)
+  end
+
+  def verified?(%__MODULE__{verified_at: %DateTime{}}), do: true
+  def verified?(%__MODULE__{}), do: false
+
+  def generate_verification_token do
+    :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
   end
 
   def changeset(email, attrs) do

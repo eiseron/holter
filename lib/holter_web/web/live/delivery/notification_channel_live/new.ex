@@ -88,16 +88,31 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.New do
       {:ok, channel} ->
         Delivery.sync_monitors_for_channel(channel.id, monitor_ids)
         add_pending_cc_recipients(channel, socket.assigns.pending_cc_emails)
+        maybe_send_email_channel_verification(channel)
 
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Channel created successfully"))
+         |> put_flash(:info, channel_created_flash(channel))
          |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
+
+  defp maybe_send_email_channel_verification(%{type: :email} = channel) do
+    Delivery.send_email_channel_verification(channel)
+  end
+
+  defp maybe_send_email_channel_verification(_), do: :ok
+
+  defp channel_created_flash(%{type: :email} = channel) do
+    gettext("Channel created. Verification email sent to %{email}.",
+      email: channel.email_channel.address
+    )
+  end
+
+  defp channel_created_flash(_), do: gettext("Channel created successfully")
 
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
 

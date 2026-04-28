@@ -91,6 +91,8 @@ defmodule HolterWeb.Api.NotificationChannelController do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          attrs = Map.put(conn.body_params, :workspace_id, workspace.id),
          {:ok, channel} <- Delivery.create_channel(attrs) do
+      maybe_send_email_channel_verification(channel)
+
       conn
       |> put_status(:created)
       |> render(:show, channel: channel)
@@ -170,6 +172,19 @@ defmodule HolterWeb.Api.NotificationChannelController do
     with {:ok, _channel} <- Delivery.get_channel(id),
          {:ok, _job} <- Engine.dispatch_test(id) do
       send_resp(conn, :accepted, "")
+    else
+      {:error, :no_verified_recipients} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{
+          error: %{
+            code: "no_verified_recipients",
+            message: "No verified recipient on this channel"
+          }
+        })
+
+      other ->
+        other
     end
   end
 
@@ -234,4 +249,10 @@ defmodule HolterWeb.Api.NotificationChannelController do
   defp parse_type_filter("webhook"), do: :webhook
   defp parse_type_filter("email"), do: :email
   defp parse_type_filter(_), do: nil
+
+  defp maybe_send_email_channel_verification(%{type: :email} = channel) do
+    Delivery.send_email_channel_verification(channel)
+  end
+
+  defp maybe_send_email_channel_verification(_), do: :ok
 end

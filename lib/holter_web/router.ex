@@ -72,6 +72,10 @@ defmodule HolterWeb.Router do
          NotificationChannelRecipientLive.Verify,
          :verify
 
+    live "/notification-channels/email-channels/verify/:token",
+         EmailChannelLive.Verify,
+         :verify
+
     live "/notification-channels/:id", NotificationChannelLive.Show, :show
     live "/notification-channels/:id/logs", NotificationChannelLive.Logs, :index
   end

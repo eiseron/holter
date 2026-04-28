@@ -12,7 +12,8 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
       "NotificationChannelCreateRequest" => notification_channel_create_request(),
       "NotificationChannelUpdateRequest" => notification_channel_update_request(),
       "WebhookChannel" => webhook_channel(),
-      "EmailChannel" => email_channel()
+      "EmailChannel" => email_channel(),
+      "EmailRecipient" => email_recipient()
     }
   end
 
@@ -78,9 +79,41 @@ defmodule HolterWeb.Api.NotificationChannelSchemas do
           type: :string,
           description:
             "Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code."
+        },
+        verified_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          nullable: true,
+          description:
+            "Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set."
+        },
+        recipients: %Schema{
+          type: :array,
+          description: "CC recipients on the channel. Each carries its own verification state.",
+          items: email_recipient()
         }
       },
-      required: [:address, :settings, :anti_phishing_code]
+      required: [:address, :settings, :anti_phishing_code, :verified_at, :recipients]
+    }
+  end
+
+  def email_recipient do
+    %Schema{
+      title: "EmailRecipient",
+      description: "A CC recipient on an email channel.",
+      type: :object,
+      additionalProperties: false,
+      properties: %{
+        id: %Schema{type: :string, format: :uuid},
+        email: %Schema{type: :string},
+        verified_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          nullable: true,
+          description: "Timestamp the recipient verified the address. `null` while pending."
+        }
+      },
+      required: [:id, :email, :verified_at]
     }
   end
 

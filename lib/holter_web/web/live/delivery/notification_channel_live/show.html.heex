@@ -29,6 +29,7 @@
       form={@form}
       locked_type={true}
       selected_type={@selected_type}
+      email_verification_status={@email_verification_status}
     />
 
     <%= if @channel.type == :webhook do %>
@@ -45,6 +46,30 @@
         reveal_label={gettext("Show signing token")}
         value={@channel.webhook_channel.signing_token}
       />
+    <% end %>
+
+    <%= if @channel.type == :email and !@channel.email_channel.verified_at do %>
+      <section
+        class="h-fieldset-card"
+        aria-labelledby="email-verification-heading"
+      >
+        <h3 id="email-verification-heading" class="h-fieldset-legend">
+          {gettext("Verify primary email")}
+        </h3>
+        <p class="h-help-text">
+          {gettext(
+            "Alerts will not be delivered to %{email} until the address is verified. Click the link in the verification email; the link expires in 48 hours.",
+            email: @channel.email_channel.address
+          )}
+        </p>
+        <.button
+          type="button"
+          phx-click="resend_email_verification"
+          phx-disable-with={gettext("Sending...")}
+        >
+          {gettext("Resend verification")}
+        </.button>
+      </section>
     <% end %>
 
     <%= if @channel.type == :email do %>
@@ -104,8 +129,20 @@
                   </span>
                 <% else %>
                   <span class="h-recipient-badge h-recipient-badge--pending">
-                    {gettext("Pending")}
+                    {gettext("Pending verification")}
                   </span>
+                  <button
+                    type="button"
+                    phx-click="resend_recipient_verification"
+                    phx-value-id={recipient.id}
+                    phx-disable-with={gettext("Sending...")}
+                    class="h-recipient-resend"
+                    aria-label={
+                      gettext("Resend verification email to %{email}", email: recipient.email)
+                    }
+                  >
+                    {gettext("Resend")}
+                  </button>
                 <% end %>
                 <button
                   type="button"
