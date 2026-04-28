@@ -345,6 +345,50 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     end
   end
 
+  describe "Mobile overflow containment (regression #32)" do
+    @valid_attrs_overflow %{
+      url: "https://example.local",
+      method: :get,
+      interval_seconds: 300,
+      timeout_seconds: 10,
+      ssl_ignore: false,
+      raw_keyword_positive: "success",
+      raw_keyword_negative: "hacked"
+    }
+
+    setup do
+      monitor = monitor_fixture(@valid_attrs_overflow)
+      %{monitor: monitor}
+    end
+
+    test "wraps the detail page in main.h-workspace-main so child overflow cannot push the body",
+         %{conn: conn, monitor: monitor} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(view, "main.h-workspace-main")
+    end
+
+    test "renders the overview chart inside its scroll-overflow container so the wide SVG scrolls inside",
+         %{conn: conn, monitor: monitor} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(view, ".ovw-chart-container")
+    end
+
+    test "renders the active-incidents table inside figure.h-table-wrapper so wide rows scroll inside",
+         %{conn: conn, monitor: monitor} do
+      Monitoring.create_incident(%{
+        monitor_id: monitor.id,
+        type: :downtime,
+        started_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(view, "figure.h-table-wrapper")
+    end
+  end
+
   describe "Monitor LiveView Show/Edit User Flow (continued)" do
     @valid_attrs_2 %{
       url: "https://example.local",

@@ -73,7 +73,9 @@
   .h-workspace-sidebar {
     width: 100%;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
+    row-gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -89,6 +91,7 @@
 
   .h-sidebar-nav {
     flex-direction: row;
+    flex-wrap: wrap;
     padding: 0;
     gap: var(--space-2);
   }
