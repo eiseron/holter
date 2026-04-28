@@ -1,8 +1,8 @@
 image: elixir:1.19-otp-28-slim
 
 stages:
-  - setup
-  - validate
+  - lint
+  - test
   - sync
   - publish
 
@@ -12,49 +12,33 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
 
-.elixir_cache: &elixir_cache
+cache:
   key:
     files:
       - mix.lock
   paths:
     - deps/
-    - _build/
+    - _build/test/
 
 default:
   before_script:
     - apt-get update -qq && apt-get install -y -qq git build-essential
     - mix local.hex --force --quiet
     - mix local.rebar --force --quiet
-
-deps:
-  stage: setup
-  cache:
-    <<: *elixir_cache
-    policy: pull-push
-  script:
     - mix deps.get
-    - MIX_ENV=dev mix deps.compile
-    - MIX_ENV=test mix deps.compile
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 lint:
-  stage: validate
-  needs: [deps]
-  cache:
-    <<: *elixir_cache
-    policy: pull
+  stage: lint
   script:
-    - mix lint.ci
+    - mix format --check-formatted
+    - mix compile --warnings-as-errors
+    - mix credo --strict
+    - mix deps.audit
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 test:
-  stage: validate
-  needs: [deps]
-  cache:
-    <<: *elixir_cache
-    policy: pull
+  stage: test
   services:
     - name: postgres:16-alpine
       alias: postgres
@@ -67,7 +51,7 @@ test:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
   script:
-    - mix test.ci
+    - mix test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 

@@ -15,7 +15,7 @@ defmodule HolterWeb.Components.Delivery.SecretCardTest do
     }
   end
 
-  defp render_card(overrides) do
+  defp render_card(overrides \\ %{}) do
     render_component(&secret_card/1, Map.merge(default_assigns(), overrides))
   end
 
