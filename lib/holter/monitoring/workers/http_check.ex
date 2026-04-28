@@ -9,8 +9,8 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
-  alias Holter.Monitoring.Engine.NetworkGuard
   alias Holter.Monitoring.MonitorClient.HTTP
+  alias Holter.Network.Guard, as: NetworkGuard
 
   @max_timeout_seconds 30
 

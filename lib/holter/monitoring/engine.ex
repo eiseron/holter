@@ -7,8 +7,9 @@ defmodule Holter.Monitoring.Engine do
   use Gettext, backend: HolterWeb.Gettext
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Engine.{IncidentManager, NetworkGuard, ResponseValidator}
+  alias Holter.Monitoring.Engine.{IncidentManager, ResponseValidator}
   alias Holter.Monitoring.{Monitor, Monitors}
+  alias Holter.Network.Guard, as: NetworkGuard
 
   def process_response(monitor, response, metadata) do
     Logger.metadata(

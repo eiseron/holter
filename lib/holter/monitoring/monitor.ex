@@ -3,7 +3,7 @@ defmodule Holter.Monitoring.Monitor do
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
 
-  alias Holter.Monitoring.Engine.NetworkGuard
+  alias Holter.Network.Guard, as: NetworkGuard
 
   @manual_check_cooldown 60
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]

@@ -108,6 +108,26 @@ defmodule Holter.Delivery.NotificationChannelSsrfTest do
       cs = webhook_changeset("http://[fe80::1]/hook")
       assert "must be a valid http or https URL" in errors_on(cs).target
     end
+
+    test "hex-encoded IPv4 (0x7f000001) is rejected" do
+      cs = webhook_changeset("http://0x7f000001/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "decimal-encoded IPv4 (2130706433) is rejected" do
+      cs = webhook_changeset("http://2130706433/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "two-part short-form IPv4 (127.1) is rejected" do
+      cs = webhook_changeset("http://127.1/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "single-token host without a dot (intranet) is rejected" do
+      cs = webhook_changeset("http://intranet/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
   end
 
   describe "webhook URL credentials — blocked" do

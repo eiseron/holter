@@ -33,6 +33,10 @@ Se o workspace estiver na cota máxima, o botão estará desabilitado. Exclua ou
 |-------|-----------|
 | Ignorar Erros SSL | Quando habilitado, problemas de certificado SSL (expirado, inválido, autoassinado) não causam falha nas verificações. Útil para serviços internos com certificados autoassinados. |
 
+### Segurança de URLs
+
+URLs de monitor que apontam para endereços privados ou internos são rejeitadas para prevenir SSRF: loopback, faixas RFC 1918, link-local, IPv6 ULA, IPv6 mapeado para IPv4, IPs codificados ou em forma curta (`0x7f000001`, `127.1`) e hosts de um único token sem ponto. Para permitir hosts internos específicos em uma implantação self-hosted, adicione-os à allowlist `:trusted_hosts` (veja [Canais de Notificação — Segurança da URL do webhook](../delivery/notification-channels.md#segurança-da-url-do-webhook) para o conjunto completo de regras e o snippet de configuração).
+
 ## Configurações de Intervalo
 
 | Campo | Descrição |

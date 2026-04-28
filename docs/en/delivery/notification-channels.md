@@ -56,10 +56,24 @@ Webhook URLs are validated at create and update time to prevent the channel from
 - RFC 1918 private ranges (`10/8`, `172.16/12`, `192.168/16`).
 - Link-local IPv4 (`169.254/16`, including the `169.254.169.254` cloud metadata endpoint).
 - IPv6 loopback (`::1`), unspecified (`::`), unique-local (`fc00::/7`), link-local (`fe80::/10`), and IPv4-mapped IPv6 forms whose embedded address falls into any of the above.
+- Encoded or short-form IPv4 (`0x7f000001`, `2130706433`, `127.1`).
+- Single-token hosts without a dot (`intranet`, `metadata`).
 - URLs with embedded credentials (`http://user:pass@host/`).
 - URLs containing whitespace or control characters (CRLF, tab, etc.).
 
+The same rules apply to monitor URLs — the validator is shared between modules.
+
 The `settings` field on a webhook channel is capped at **4096 bytes** when JSON-encoded.
+
+### Trusting internal hosts
+
+Self-hosted deployments that need to reach a specific internal host can opt it out of the blocklist by setting the `trusted_hosts` allowlist:
+
+```elixir
+config :holter, :network, trusted_hosts: ["localhost", "192.168.1.50"]
+```
+
+Allowlisted entries match by exact host string (after normalising case and stripping IPv6 brackets). The allowlist applies to both webhook channels and monitor URLs.
 
 These checks address known abuse vectors but do not protect against DNS rebinding (a public hostname that resolves to a private address only at dispatch time). That class of attack is tracked separately.
 

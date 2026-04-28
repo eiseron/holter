@@ -2,8 +2,9 @@ defmodule Holter.Delivery.WebhookChannel do
   @moduledoc false
   use Ecto.Schema
 
-  import Bitwise
   import Ecto.Changeset
+
+  alias Holter.Network.Guard
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -46,26 +47,17 @@ defmodule Holter.Delivery.WebhookChannel do
   end
 
   defp validate_url_format(changeset) do
-    validate_change(changeset, :url, fn :url, url -> url_errors(url) end)
+    validate_change(changeset, :url, fn :url, url ->
+      case Guard.restricted_url?(url) do
+        :ok -> []
+        {:error, reason} -> [url: error_message(reason)]
+      end
+    end)
   end
 
-  defp url_errors(url) do
-    if String.match?(url, ~r/[\s\x00-\x1f\x7f]/u),
-      do: [url: "must not contain whitespace or control characters"],
-      else: parse_url_errors(URI.parse(url))
-  end
-
-  defp parse_url_errors(%URI{userinfo: u}) when is_binary(u) and u != "",
-    do: [url: "must not include credentials"]
-
-  defp parse_url_errors(%URI{scheme: scheme, host: host})
-       when scheme in ["http", "https"] and not is_nil(host) do
-    if private_host?(host),
-      do: [url: "must be a valid http or https URL"],
-      else: []
-  end
-
-  defp parse_url_errors(_uri), do: [url: "must be a valid http or https URL"]
+  defp error_message(:control_chars), do: "must not contain whitespace or control characters"
+  defp error_message(:credentials), do: "must not include credentials"
+  defp error_message(_), do: "must be a valid http or https URL"
 
   defp validate_settings_size(changeset) do
     validate_change(changeset, :settings, fn :settings, value ->
@@ -78,46 +70,4 @@ defmodule Holter.Delivery.WebhookChannel do
       end
     end)
   end
-
-  defp private_host?(host) do
-    normalized =
-      host |> String.trim_leading("[") |> String.trim_trailing("]") |> String.downcase()
-
-    normalized in ~w(localhost 0.0.0.0) or private_ip?(normalized)
-  end
-
-  defp private_ip?(host) do
-    case :inet.parse_address(String.to_charlist(host)) do
-      {:ok, ip} -> private_ip_tuple?(ip)
-      _ -> false
-    end
-  end
-
-  defp private_ip_tuple?({127, _, _, _}), do: true
-  defp private_ip_tuple?({10, _, _, _}), do: true
-  defp private_ip_tuple?({172, b, _, _}) when b in 16..31, do: true
-  defp private_ip_tuple?({192, 168, _, _}), do: true
-  defp private_ip_tuple?({169, 254, _, _}), do: true
-  defp private_ip_tuple?({0, _, _, _}), do: true
-
-  defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
-  defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 0}), do: true
-
-  defp private_ip_tuple?({0, 0, 0, 0, 0, 0xFFFF, ab, cd}) do
-    a = ab >>> 8 &&& 0xFF
-    b = ab &&& 0xFF
-    c = cd >>> 8 &&& 0xFF
-    d = cd &&& 0xFF
-    private_ip_tuple?({a, b, c, d})
-  end
-
-  defp private_ip_tuple?({first, _, _, _, _, _, _, _})
-       when (first &&& 0xFFC0) == 0xFE80,
-       do: true
-
-  defp private_ip_tuple?({first, _, _, _, _, _, _, _})
-       when (first &&& 0xFE00) == 0xFC00,
-       do: true
-
-  defp private_ip_tuple?(_), do: false
 end

@@ -33,6 +33,10 @@ If your workspace is at quota, the button is disabled. Delete or archive an exis
 |-------|-------------|
 | Ignore SSL Errors | When enabled, SSL certificate issues (expired, invalid, self-signed) do not cause check failures. Useful for internal services with self-signed certs. |
 
+### URL safety
+
+Monitor URLs targeting private or internal addresses are rejected to prevent SSRF: loopback, RFC 1918 ranges, link-local, IPv6 ULA, IPv4-mapped IPv6, encoded or short-form IPs (`0x7f000001`, `127.1`), and single-token hosts without a dot. To allow specific internal hosts on a self-hosted deployment, add them to the `:trusted_hosts` allowlist (see [Notification Channels — Webhook URL safety](../delivery/notification-channels.md#webhook-url-safety) for the full rule set and config snippet).
+
 ## Interval Settings
 
 | Field | Description |
