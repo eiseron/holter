@@ -10,6 +10,7 @@ defmodule Holter.Delivery.NotificationChannel do
   @foreign_key_type :binary_id
   schema "notification_channels" do
     field :name, :string
+    field :last_test_dispatched_at, :utc_datetime
 
     field :type, Ecto.Enum, values: @channel_types, virtual: true
     field :target, :string, virtual: true

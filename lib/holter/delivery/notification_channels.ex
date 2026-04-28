@@ -75,6 +75,18 @@ defmodule Holter.Delivery.NotificationChannels do
   end
 
   @doc """
+  Records the timestamp of the most recent test ping for a channel,
+  used by the cooldown gate in `Holter.Delivery.Engine.dispatch_test/1`.
+  """
+  def touch_test_dispatched_at(%NotificationChannel{id: id}, %DateTime{} = now) do
+    NotificationChannel
+    |> where([nc], nc.id == ^id)
+    |> Repo.update_all(set: [last_test_dispatched_at: now, updated_at: now])
+
+    :ok
+  end
+
+  @doc """
   Rotates a webhook channel's HMAC signing token. Returns
   `{:error, :not_a_webhook_channel}` for email channels.
   """

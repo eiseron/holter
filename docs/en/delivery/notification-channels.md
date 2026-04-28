@@ -42,6 +42,27 @@ Logs are retained for 90 days.
 
 On the channel settings page, click **Send Test** to enqueue a test notification. The test payload includes the channel name and a timestamp. This is useful to verify that the target is reachable before linking the channel to a monitor.
 
+### Rate limit
+
+Test pings are throttled to **one per channel every 60 seconds**. The cooldown is enforced server-side and applies equally to the **Send Test** button on the channel page and the API endpoint `POST /api/v1/notification_channels/{id}/pings`. Calls inside the cooldown window return HTTP 429 with `error.code == "test_dispatch_rate_limited"` and do not enqueue a job.
+
+The cooldown is per-channel: pinging one channel does not prevent pinging another in the same workspace.
+
+## Webhook URL safety
+
+Webhook URLs are validated at create and update time to prevent the channel from being used as an SSRF probe or a credential leak. The following are rejected:
+
+- Loopback and unspecified IPv4 addresses (`127.0.0.0/8`, `0.0.0.0/8`, `localhost`).
+- RFC 1918 private ranges (`10/8`, `172.16/12`, `192.168/16`).
+- Link-local IPv4 (`169.254/16`, including the `169.254.169.254` cloud metadata endpoint).
+- IPv6 loopback (`::1`), unspecified (`::`), unique-local (`fc00::/7`), link-local (`fe80::/10`), and IPv4-mapped IPv6 forms whose embedded address falls into any of the above.
+- URLs with embedded credentials (`http://user:pass@host/`).
+- URLs containing whitespace or control characters (CRLF, tab, etc.).
+
+The `settings` field on a webhook channel is capped at **4096 bytes** when JSON-encoded.
+
+These checks address known abuse vectors but do not protect against DNS rebinding (a public hostname that resolves to a private address only at dispatch time). That class of attack is tracked separately.
+
 ## Webhook Signing
 
 Webhook channels carry an auto-generated signing token that authenticates Holter to your receiver. Every outbound delivery is signed with HMAC-SHA256 and sent in the `X-Holter-Signature` header — the secret never travels the wire.

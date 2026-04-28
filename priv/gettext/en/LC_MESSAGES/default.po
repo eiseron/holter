@@ -904,7 +904,7 @@ msgstr "Create Channel"
 msgid "Email"
 msgstr "Email"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:95
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:103
 #, elixir-autogen, elixir-format
 msgid "Failed to enqueue test notification"
 msgstr "Failed to enqueue test notification"
@@ -1064,7 +1064,7 @@ msgstr ""
 msgid "CC Recipients"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:177
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:185
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Channel deleted successfully"
 msgstr "Channel created successfully"
@@ -1141,8 +1141,8 @@ msgstr ""
 msgid "This verification link is invalid or has already been used."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:123
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:197
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:131
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:205
 #, elixir-autogen, elixir-format
 msgid "Verification email sent to %{email}"
 msgstr ""
@@ -1210,7 +1210,7 @@ msgstr "View log"
 msgid "Anti-phishing code"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:225
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:233
 #, elixir-autogen, elixir-format
 msgid "Anti-phishing code regenerated. The next email will contain the new code."
 msgstr ""
@@ -1220,7 +1220,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:165
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:173
 #, elixir-autogen, elixir-format
 msgid "Failed to regenerate the secret"
 msgstr ""
@@ -1245,12 +1245,12 @@ msgstr ""
 msgid "Regenerate"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:241
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:249
 #, elixir-autogen, elixir-format
 msgid "Regenerating invalidates the current signature. Update your receiver before regenerating to avoid missed alerts."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:247
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:255
 #, elixir-autogen, elixir-format
 msgid "Regenerating replaces the code shown in future emails. Recipients trained on the old code will see the new one in the next email."
 msgstr ""
@@ -1265,7 +1265,7 @@ msgstr ""
 msgid "Show signing token"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:221
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:229
 #, elixir-autogen, elixir-format
 msgid "Signing token regenerated. Update your receiver to avoid missed alerts."
 msgstr ""
@@ -1280,12 +1280,12 @@ msgstr ""
 msgid "Webhook signing"
 msgstr "Webhook"
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:238
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:246
 #, elixir-autogen, elixir-format
 msgid "Regenerate anti-phishing code"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:235
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:243
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Regenerate signing token"
 msgstr ""
@@ -1325,8 +1325,8 @@ msgstr ""
 msgid "Email channel verified"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:151
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:205
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:159
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:213
 #, elixir-autogen, elixir-format
 msgid "Failed to send verification email"
 msgstr ""
@@ -1352,7 +1352,7 @@ msgstr ""
 msgid "This verification link has expired. Open the channel settings and click \"Resend verification\" to request a new link."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:143
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:151
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Verification email sent to %{email}."
 msgstr ""
@@ -1372,7 +1372,7 @@ msgstr "Resolved"
 msgid "Resend verification email to %{email}"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:202
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:210
 #, elixir-autogen, elixir-format
 msgid "This recipient is already verified."
 msgstr ""
@@ -1380,4 +1380,9 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/notification_channel_live/show.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Verify primary email"
+msgstr ""
+
+#: lib/holter_web/web/live/delivery/notification_channel_live/show.ex:99
+#, elixir-autogen, elixir-format
+msgid "Wait before sending another test ping for this channel."
 msgstr ""

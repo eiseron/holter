@@ -30,7 +30,8 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
        |> assign(:recipients, load_recipients(channel))
        |> assign(:email_verification_status, email_verification_status(channel))
        |> assign(:cc_input, "")
-       |> assign(:test_sent, false)}
+       |> assign(:test_sent, false)
+       |> assign_test_cooldown(channel.last_test_dispatched_at)}
     else
       {:error, :not_found} ->
         {:ok,
@@ -76,10 +77,14 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
   def handle_event("test", _params, socket) do
     case Engine.dispatch_test(socket.assigns.channel.id) do
       {:ok, _} ->
+        {:ok, refreshed} = Delivery.get_channel(socket.assigns.channel.id)
+
         {:noreply,
          socket
          |> put_flash(:info, gettext("Test notification enqueued"))
-         |> assign(:test_sent, true)}
+         |> assign(:test_sent, true)
+         |> assign(:channel, refreshed)
+         |> assign_test_cooldown(refreshed.last_test_dispatched_at)}
 
       {:error, :no_verified_recipients} ->
         {:noreply,
@@ -89,6 +94,14 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
            gettext(
              "Cannot send a test: no recipient on this channel is verified. Verify the primary email or at least one CC recipient first."
            )
+         )}
+
+      {:error, :test_dispatch_rate_limited} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Wait before sending another test ping for this channel.")
          )}
 
       {:error, _} ->
@@ -206,8 +219,33 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLive.Show do
     end
   end
 
+  @impl true
+  def handle_info(:tick, socket) do
+    new_cooldown = max(0, socket.assigns.cooldown_remaining - 1)
+
+    if new_cooldown > 0, do: Process.send_after(self(), :tick, 1000)
+
+    {:noreply, assign(socket, :cooldown_remaining, new_cooldown)}
+  end
+
+  def handle_info(_message, socket), do: {:noreply, socket}
+
   defp load_recipients(%{type: :email, id: id}), do: Delivery.list_recipients(id)
   defp load_recipients(_), do: []
+
+  defp assign_test_cooldown(socket, nil), do: assign(socket, :cooldown_remaining, 0)
+
+  defp assign_test_cooldown(socket, %DateTime{} = last) do
+    diff = DateTime.diff(DateTime.utc_now(), last, :second)
+    remaining = max(0, Engine.test_dispatch_cooldown() - diff)
+    already_ticking = Map.get(socket.assigns, :cooldown_remaining, 0) > 0
+
+    if remaining > 0 and not already_ticking and connected?(socket) do
+      Process.send_after(self(), :tick, 1000)
+    end
+
+    assign(socket, :cooldown_remaining, remaining)
+  end
 
   defp email_verification_status(%{type: :email, email_channel: %{verified_at: %DateTime{}}}),
     do: :verified

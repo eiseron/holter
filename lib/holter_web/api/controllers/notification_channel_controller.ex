@@ -164,7 +164,13 @@ defmodule HolterWeb.Api.NotificationChannelController do
     ],
     responses: [
       accepted: {"Ping enqueued", "application/json", nil},
-      not_found: {"Channel not found", "application/json", NotificationChannelSchemas.error()}
+      not_found: {"Channel not found", "application/json", NotificationChannelSchemas.error()},
+      unprocessable_entity:
+        {"No verified recipient on this channel", "application/json",
+         NotificationChannelSchemas.error()},
+      too_many_requests:
+        {"Test ping rate limited for this channel", "application/json",
+         NotificationChannelSchemas.error()}
     ]
   )
 

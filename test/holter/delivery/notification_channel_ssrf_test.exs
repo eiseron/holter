@@ -83,6 +83,43 @@ defmodule Holter.Delivery.NotificationChannelSsrfTest do
       cs = webhook_changeset("http://[::]/hook")
       assert "must be a valid http or https URL" in errors_on(cs).target
     end
+
+    test "IPv4-mapped IPv6 ::ffff:127.0.0.1 is rejected" do
+      cs = webhook_changeset("http://[::ffff:127.0.0.1]/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "IPv4-mapped IPv6 ::ffff:10.0.0.1 (RFC1918) is rejected" do
+      cs = webhook_changeset("http://[::ffff:10.0.0.1]/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "IPv6 ULA fc00::/7 is rejected" do
+      cs = webhook_changeset("http://[fc00::1]/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "IPv6 ULA fd00::/8 (also under fc00::/7) is rejected" do
+      cs = webhook_changeset("http://[fd12:3456:789a::1]/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+
+    test "IPv6 link-local fe80::/10 is rejected" do
+      cs = webhook_changeset("http://[fe80::1]/hook")
+      assert "must be a valid http or https URL" in errors_on(cs).target
+    end
+  end
+
+  describe "webhook URL credentials — blocked" do
+    test "URL with userinfo (basic auth) is rejected" do
+      cs = webhook_changeset("http://user:pass@hooks.example.com/hook")
+      assert "must not include credentials" in errors_on(cs).target
+    end
+
+    test "URL with userinfo (no password) is rejected" do
+      cs = webhook_changeset("http://attacker@hooks.example.com/hook")
+      assert "must not include credentials" in errors_on(cs).target
+    end
   end
 
   describe "webhook SSRF — allowed targets" do
@@ -108,6 +145,11 @@ defmodule Holter.Delivery.NotificationChannelSsrfTest do
 
     test "172.32.x.x (just above RFC1918 range) is accepted" do
       cs = webhook_changeset("http://172.32.0.1/hook")
+      assert cs.valid?
+    end
+
+    test "public IPv6 (Cloudflare DNS) is accepted" do
+      cs = webhook_changeset("http://[2606:4700:4700::1111]/hook")
       assert cs.valid?
     end
   end

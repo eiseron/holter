@@ -13,8 +13,12 @@
     >
       {gettext("View Logs")}
     </.link>
-    <.button type="button" phx-click="test">
-      {gettext("Send Test")}
+    <.button type="button" phx-click="test" disabled={@cooldown_remaining > 0}>
+      <%= if @cooldown_remaining > 0 do %>
+        {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
+      <% else %>
+        {gettext("Send Test")}
+      <% end %>
     </.button>
   </:actions>
 

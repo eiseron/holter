@@ -353,6 +353,51 @@ defmodule HolterWeb.Web.Delivery.NotificationChannelLiveTest do
 
       assert {:ok, _} = Delivery.get_channel(channel.id)
     end
+
+    test "Send Test button is enabled by default", %{conn: conn, workspace: workspace} do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ "Send Test"
+      refute html =~ ~r/Wait \d+s/
+    end
+
+    test "Send Test button shows the wait countdown after a successful dispatch", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      {:ok, view, _html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      view |> element("button[phx-click='test']") |> render_click()
+
+      html = render(view)
+      assert html =~ ~r/Wait \d+s/
+      assert html =~ "disabled"
+    end
+
+    test "Send Test button shows the cooldown if the channel was pinged recently before mount", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      channel = channel_fixture(workspace.id)
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Holter.Delivery.NotificationChannel
+      |> Holter.Repo.get!(channel.id)
+      |> Ecto.Changeset.change(last_test_dispatched_at: now)
+      |> Holter.Repo.update!()
+
+      {:ok, _view, html} =
+        live(conn, ~p"/delivery/notification-channels/#{channel.id}")
+
+      assert html =~ ~r/Wait \d+s/
+    end
   end
 
   describe "Show — CC recipients (email channel)" do

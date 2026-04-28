@@ -43,7 +43,65 @@ defmodule Holter.Delivery.WebhookChannelTest do
 
       refute Map.has_key?(errors_on(changeset), :url)
     end
+
+    test "rejects a url that embeds credentials in its userinfo" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "http://attacker:pwd@hooks.example.com/abc"
+        })
+
+      assert "must not include credentials" in errors_on(changeset).url
+    end
+
+    test "rejects a url with embedded CRLF (header-injection shape)" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "https://hooks.example.com/abc\r\nX-Inject: 1"
+        })
+
+      assert "must not contain whitespace or control characters" in errors_on(changeset).url
+    end
+
+    test "rejects a url with a tab character" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "https://hooks.example.com/\tabc"
+        })
+
+      assert "must not contain whitespace or control characters" in errors_on(changeset).url
+    end
   end
+
+  describe "settings size validation" do
+    test "accepts a settings map encoding to under 4 KB" do
+      settings = %{"headers" => %{"x-custom" => String.duplicate("a", 1000)}}
+      changeset = WebhookChannel.changeset(%WebhookChannel{}, settings_attrs(settings))
+      refute Map.has_key?(errors_on(changeset), :settings)
+    end
+
+    test "rejects a settings map encoding to more than 4 KB" do
+      settings = %{"headers" => %{"x-custom" => String.duplicate("a", 5000)}}
+      changeset = WebhookChannel.changeset(%WebhookChannel{}, settings_attrs(settings))
+
+      assert Enum.any?(
+               errors_on(changeset).settings,
+               &String.contains?(&1, "must be at most 4096 bytes")
+             )
+    end
+
+    test "accepts a deeply nested settings map of small total size" do
+      settings = build_nested(%{}, 50)
+      changeset = WebhookChannel.changeset(%WebhookChannel{}, settings_attrs(settings))
+      refute Map.has_key?(errors_on(changeset), :settings)
+    end
+  end
+
+  defp settings_attrs(settings) do
+    %{url: "https://hooks.example.com/abc", settings: settings}
+  end
+
+  defp build_nested(acc, 0), do: acc
+  defp build_nested(acc, n), do: build_nested(%{"k" => acc}, n - 1)
 
   describe "uniqueness on notification_channel_id" do
     test "a duplicate insert returns an error tuple" do

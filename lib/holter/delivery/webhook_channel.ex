@@ -2,10 +2,13 @@ defmodule Holter.Delivery.WebhookChannel do
   @moduledoc false
   use Ecto.Schema
 
+  import Bitwise
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @settings_max_bytes 4096
 
   schema "webhook_channels" do
     field :url, :string
@@ -23,6 +26,7 @@ defmodule Holter.Delivery.WebhookChannel do
     |> validate_required([:url])
     |> validate_length(:url, min: 1, max: 2048)
     |> validate_url_format()
+    |> validate_settings_size()
     |> ensure_signing_token()
     |> unique_constraint(:notification_channel_id)
     |> foreign_key_constraint(:notification_channel_id)
@@ -32,6 +36,8 @@ defmodule Holter.Delivery.WebhookChannel do
     :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
   end
 
+  def settings_max_bytes, do: @settings_max_bytes
+
   defp ensure_signing_token(changeset) do
     case get_field(changeset, :signing_token) do
       nil -> put_change(changeset, :signing_token, generate_signing_token())
@@ -40,23 +46,43 @@ defmodule Holter.Delivery.WebhookChannel do
   end
 
   defp validate_url_format(changeset) do
-    validate_change(changeset, :url, fn :url, url ->
-      if valid_http_url?(url), do: [], else: [url: "must be a valid http or https URL"]
+    validate_change(changeset, :url, fn :url, url -> url_errors(url) end)
+  end
+
+  defp url_errors(url) do
+    if String.match?(url, ~r/[\s\x00-\x1f\x7f]/u),
+      do: [url: "must not contain whitespace or control characters"],
+      else: parse_url_errors(URI.parse(url))
+  end
+
+  defp parse_url_errors(%URI{userinfo: u}) when is_binary(u) and u != "",
+    do: [url: "must not include credentials"]
+
+  defp parse_url_errors(%URI{scheme: scheme, host: host})
+       when scheme in ["http", "https"] and not is_nil(host) do
+    if private_host?(host),
+      do: [url: "must be a valid http or https URL"],
+      else: []
+  end
+
+  defp parse_url_errors(_uri), do: [url: "must be a valid http or https URL"]
+
+  defp validate_settings_size(changeset) do
+    validate_change(changeset, :settings, fn :settings, value ->
+      case Jason.encode(value) do
+        {:ok, json} when byte_size(json) > @settings_max_bytes ->
+          [settings: "must be at most #{@settings_max_bytes} bytes when encoded"]
+
+        _ ->
+          []
+      end
     end)
   end
 
-  defp valid_http_url?(url) do
-    case URI.parse(url) do
-      %URI{scheme: scheme, host: host} when scheme in ["http", "https"] and not is_nil(host) ->
-        not private_host?(host)
-
-      _ ->
-        false
-    end
-  end
-
   defp private_host?(host) do
-    normalized = String.downcase(host)
+    normalized =
+      host |> String.trim_leading("[") |> String.trim_trailing("]") |> String.downcase()
+
     normalized in ~w(localhost 0.0.0.0) or private_ip?(normalized)
   end
 
@@ -73,7 +99,25 @@ defmodule Holter.Delivery.WebhookChannel do
   defp private_ip_tuple?({192, 168, _, _}), do: true
   defp private_ip_tuple?({169, 254, _, _}), do: true
   defp private_ip_tuple?({0, _, _, _}), do: true
+
   defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
   defp private_ip_tuple?({0, 0, 0, 0, 0, 0, 0, 0}), do: true
+
+  defp private_ip_tuple?({0, 0, 0, 0, 0, 0xFFFF, ab, cd}) do
+    a = ab >>> 8 &&& 0xFF
+    b = ab &&& 0xFF
+    c = cd >>> 8 &&& 0xFF
+    d = cd &&& 0xFF
+    private_ip_tuple?({a, b, c, d})
+  end
+
+  defp private_ip_tuple?({first, _, _, _, _, _, _, _})
+       when (first &&& 0xFFC0) == 0xFE80,
+       do: true
+
+  defp private_ip_tuple?({first, _, _, _, _, _, _, _})
+       when (first &&& 0xFE00) == 0xFC00,
+       do: true
+
   defp private_ip_tuple?(_), do: false
 end

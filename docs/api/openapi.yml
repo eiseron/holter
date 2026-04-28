@@ -5460,6 +5460,52 @@ paths:
                 x-struct:
                 x-validate:
           description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: No verified recipient on this channel
+        '429':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Test ping rate limited for this channel
       summary: Send a channel ping
       tags:
         - Notification Channels

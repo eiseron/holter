@@ -42,6 +42,27 @@ Os logs são mantidos por 90 dias.
 
 Na página de configurações do canal, clique em **Enviar Teste** para enfileirar uma notificação de teste. O payload de teste inclui o nome do canal e um timestamp. Isso é útil para verificar se o destino está acessível antes de vincular o canal a um monitor.
 
+### Limite de taxa
+
+Pings de teste são limitados a **um por canal a cada 60 segundos**. O cooldown é aplicado no servidor e vale tanto para o botão **Enviar Teste** na página do canal quanto para o endpoint da API `POST /api/v1/notification_channels/{id}/pings`. Chamadas dentro da janela de cooldown retornam HTTP 429 com `error.code == "test_dispatch_rate_limited"` e não enfileiram um job.
+
+O cooldown é por canal: enviar um ping para um canal não impede enviar para outro no mesmo workspace.
+
+## Segurança da URL do webhook
+
+URLs de webhook são validadas no momento de criação e atualização para impedir que o canal seja usado como sonda de SSRF ou veículo de vazamento de credenciais. As seguintes são rejeitadas:
+
+- Endereços IPv4 de loopback e não especificados (`127.0.0.0/8`, `0.0.0.0/8`, `localhost`).
+- Faixas privadas RFC 1918 (`10/8`, `172.16/12`, `192.168/16`).
+- Link-local IPv4 (`169.254/16`, incluindo o endpoint de metadados de nuvem `169.254.169.254`).
+- IPv6 loopback (`::1`), não especificado (`::`), unique-local (`fc00::/7`), link-local (`fe80::/10`) e formas IPv4-mapeadas em IPv6 cujo endereço embutido caia em qualquer das categorias acima.
+- URLs com credenciais embutidas (`http://user:pass@host/`).
+- URLs contendo espaços em branco ou caracteres de controle (CRLF, tab etc.).
+
+O campo `settings` de um canal webhook é limitado a **4096 bytes** quando codificado em JSON.
+
+Estas verificações cobrem vetores de abuso conhecidos, mas não protegem contra DNS rebinding (um hostname público que resolve para um endereço privado apenas no momento do despacho). Essa classe de ataque é tratada separadamente.
+
 ## Assinatura de Webhook
 
 Canais webhook carregam um token de assinatura gerado automaticamente que autentica o Holter perante o seu receptor. Toda entrega de saída é assinada com HMAC-SHA256 e enviada no cabeçalho `X-Holter-Signature` — o segredo nunca trafega na rede.

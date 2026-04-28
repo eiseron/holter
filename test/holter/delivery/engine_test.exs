@@ -190,4 +190,84 @@ defmodule Holter.Delivery.EngineTest do
       assert_enqueued(worker: EmailDispatcher, args: %{"test" => true})
     end
   end
+
+  describe "dispatch_test/1 — per-channel cooldown" do
+    test "first dispatch records last_test_dispatched_at on the channel" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+
+      Engine.dispatch_test(channel.id)
+
+      reloaded = Holter.Repo.get!(Holter.Delivery.NotificationChannel, channel.id)
+      assert %DateTime{} = reloaded.last_test_dispatched_at
+    end
+
+    test "second dispatch within the cooldown returns :test_dispatch_rate_limited" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+
+      Engine.dispatch_test(channel.id)
+
+      assert {:error, :test_dispatch_rate_limited} = Engine.dispatch_test(channel.id)
+    end
+
+    test "rate-limited dispatch enqueues no additional Oban job" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+
+      Engine.dispatch_test(channel.id)
+      Engine.dispatch_test(channel.id)
+      Engine.dispatch_test(channel.id)
+
+      assert length(all_enqueued(queue: :notifications)) == 1
+    end
+
+    test "rate-limited dispatch does not broadcast test_dispatched" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+      channel_id = channel.id
+
+      Engine.dispatch_test(channel.id)
+      assert_receive {:test_dispatched, %{channel_id: ^channel_id}}
+
+      Engine.dispatch_test(channel.id)
+      refute_receive {:test_dispatched, _}, 100
+    end
+
+    test "dispatch is allowed again once the cooldown has elapsed" do
+      ws = workspace_fixture()
+      channel = webhook_channel_fixture(ws.id)
+
+      Engine.dispatch_test(channel.id)
+      backdate_test_dispatch(channel.id, Engine.test_dispatch_cooldown() + 1)
+
+      assert {:ok, %Oban.Job{}} = Engine.dispatch_test(channel.id)
+    end
+
+    test "cooldown is tracked per channel — pinging A does not block B" do
+      ws = workspace_fixture()
+      channel_a = webhook_channel_fixture(ws.id)
+
+      {:ok, channel_b} =
+        Delivery.create_channel(%{
+          workspace_id: ws.id,
+          name: "Other Webhook",
+          type: :webhook,
+          target: "https://example.com/other"
+        })
+
+      Engine.dispatch_test(channel_a.id)
+
+      assert {:ok, %Oban.Job{}} = Engine.dispatch_test(channel_b.id)
+    end
+  end
+
+  defp backdate_test_dispatch(channel_id, seconds_ago) do
+    past = DateTime.utc_now() |> DateTime.add(-seconds_ago, :second) |> DateTime.truncate(:second)
+
+    Holter.Delivery.NotificationChannel
+    |> Holter.Repo.get!(channel_id)
+    |> Ecto.Changeset.change(last_test_dispatched_at: past)
+    |> Holter.Repo.update!()
+  end
 end

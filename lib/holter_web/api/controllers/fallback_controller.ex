@@ -49,6 +49,17 @@ defmodule HolterWeb.Api.FallbackController do
     })
   end
 
+  def call(conn, {:error, :test_dispatch_rate_limited}) do
+    conn
+    |> put_status(:too_many_requests)
+    |> json(%{
+      error: %{
+        code: "test_dispatch_rate_limited",
+        message: "Wait before sending another test ping for this channel."
+      }
+    })
+  end
+
   def call(conn, {:error, :not_a_webhook_channel}) do
     conn
     |> put_status(:unprocessable_entity)
