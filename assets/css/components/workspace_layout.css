@@ -1,6 +1,7 @@
 .h-workspace-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background-color: var(--color-monitor-bg);
   color: var(--color-monitor-text);
 }
@@ -18,6 +19,9 @@
 @media (max-width: 767px) {
   .h-workspace-layout {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .h-workspace-content {

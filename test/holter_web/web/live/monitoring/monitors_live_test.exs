@@ -180,4 +180,25 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
       assert html =~ "2 incidents"
     end
   end
+
+  describe "Workspace layout structure (regression #30)" do
+    setup do
+      workspace = workspace_fixture()
+      %{workspace: workspace}
+    end
+
+    test "wraps the page in div.h-workspace-layout so the shell can be height-constrained",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+      assert has_element?(view, "div.h-workspace-layout")
+    end
+
+    test "renders the sidebar as nav.h-workspace-sidebar so it can scroll independently of main",
+         %{conn: conn, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+      assert has_element?(view, "nav.h-workspace-sidebar")
+    end
+  end
 end
