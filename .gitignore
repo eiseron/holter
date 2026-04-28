@@ -64,3 +64,8 @@ Thumbs.db
 # Editor backups and temp files
 *.bak
 *.orig
+
+# Local docker compose overrides (per-developer, e.g. port remapping when
+# running multiple worktrees side-by-side).
+compose.override.yml
+docker-compose.override.yml
