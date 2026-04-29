@@ -19,14 +19,7 @@
           <dt>{gettext("Type")}</dt>
           <dd>
             <span class="h-badge h-badge-danger">
-              <%= case @incident.type do %>
-                <% :downtime -> %>
-                  {gettext("Downtime")}
-                <% :defacement -> %>
-                  {gettext("Defacement")}
-                <% :ssl_expiry -> %>
-                  {gettext("SSL Expiry")}
-              <% end %>
+              {Holter.Monitoring.Incidents.type_label(@incident.type)}
             </span>
           </dd>
         </div>

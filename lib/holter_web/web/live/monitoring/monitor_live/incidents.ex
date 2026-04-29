@@ -4,6 +4,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
   import HolterWeb.LiveView.SortPagination
 
   alias Holter.Monitoring
+  alias Holter.Monitoring.Incident
   alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @valid_filter_keys ~w(page page_size type state date_from date_to)
@@ -120,7 +121,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
     |> Map.merge(FilterParams.normalize(params, @valid_filter_keys))
     |> FilterParams.cast_integer(:page, 1)
     |> FilterParams.cast_integer(:page_size, 25)
-    |> cast_atom_param(:type, [:downtime, :defacement, :ssl_expiry])
+    |> cast_atom_param(:type, Incident.types())
     |> cast_atom_param(:state, [:open, :resolved])
     |> cast_date_param(:date_from)
     |> cast_date_param(:date_to)

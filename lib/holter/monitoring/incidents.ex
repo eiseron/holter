@@ -1,6 +1,8 @@
 defmodule Holter.Monitoring.Incidents do
   @moduledoc false
 
+  use Gettext, backend: HolterWeb.Gettext
+
   import Ecto.Query
   alias Holter.Monitoring.{Broadcaster, Incident, Pagination}
   alias Holter.Repo
@@ -49,7 +51,21 @@ defmodule Holter.Monitoring.Incidents do
     end
   end
 
+  def incident_to_health(%{type: :domain_expiry, root_cause: rc}) do
+    cond do
+      is_nil(rc) -> :degraded
+      String.contains?(rc, "Critical") -> :compromised
+      String.contains?(rc, "expired") -> :compromised
+      true -> :degraded
+    end
+  end
+
   def incident_to_health(_), do: :unknown
+
+  def type_label(:downtime), do: gettext("Downtime")
+  def type_label(:defacement), do: gettext("Defacement")
+  def type_label(:ssl_expiry), do: gettext("SSL Expiry")
+  def type_label(:domain_expiry), do: gettext("Domain Expiry")
 
   def list_incidents(monitor_id) do
     Incident
@@ -227,8 +243,10 @@ defmodule Holter.Monitoring.Incidents do
   defp lane_for(:downtime), do: 0
   defp lane_for(:defacement), do: 1
   defp lane_for(:ssl_expiry), do: 2
+  defp lane_for(:domain_expiry), do: 3
 
   defp fill_for(:downtime), do: "var(--color-status-down)"
   defp fill_for(:defacement), do: "var(--color-status-compromised)"
   defp fill_for(:ssl_expiry), do: "var(--color-status-degraded)"
+  defp fill_for(:domain_expiry), do: "var(--color-status-degraded)"
 end

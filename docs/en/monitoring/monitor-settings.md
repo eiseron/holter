@@ -59,6 +59,16 @@ The **Ignore SSL Errors** toggle in the configuration form instructs Holter to s
 
 This is useful for monitors on internal services that intentionally use self-signed certificates.
 
+## Skip Domain Expiration Checks
+
+The **Skip Domain Expiration Checks** toggle disables WHOIS/RDAP lookups for the monitor's domain. When enabled:
+
+- No domain expiry incidents are opened.
+- Any existing open domain expiry incident is resolved the next time a scheduled check runs.
+- SSL and HTTP checks still run normally.
+
+Domain checks run at most once every 24 hours per monitor and are silently skipped when the URL points at an IP literal or an internal host. Disable this toggle for monitors where the registration date is irrelevant (e.g. internal staging endpoints).
+
 ## Pausing and Resuming
 
 To pause monitoring, set the **State** field to **Paused** and save. The health badge switches to a PAUSED indicator and the monitor stops being checked. Set it back to **Active** to resume.

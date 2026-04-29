@@ -5,6 +5,7 @@ defmodule Holter.Monitoring.MonitorClient do
 
   @callback request(keyword()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   @callback get_ssl_expiration(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
+  @callback get_domain_expiration(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
 
   defmodule HTTP do
     @moduledoc """
@@ -12,7 +13,7 @@ defmodule Holter.Monitoring.MonitorClient do
     """
     @behaviour Holter.Monitoring.MonitorClient
 
-    alias Holter.Monitoring.CertificateParser
+    alias Holter.Monitoring.{CertificateParser, Rdap}
 
     @max_body_bytes 5 * 1024 * 1024
 
@@ -52,6 +53,10 @@ defmodule Holter.Monitoring.MonitorClient do
           {:error, reason}
       end
     end
+
+    @impl true
+    def get_domain_expiration(host) when is_binary(host),
+      do: Rdap.get_expiration(host)
 
     defp check_body_size({:ok, response}) do
       if body_within_limit?(response.body) do

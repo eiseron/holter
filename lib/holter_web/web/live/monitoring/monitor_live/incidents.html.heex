@@ -20,11 +20,11 @@
           type="select"
           label={gettext("Type")}
           prompt={gettext("All Types")}
-          options={[
-            {gettext("Downtime"), "downtime"},
-            {gettext("Defacement"), "defacement"},
-            {gettext("SSL Expiry"), "ssl_expiry"}
-          ]}
+          options={
+            Enum.map(Holter.Monitoring.Incident.types(), fn t ->
+              {Holter.Monitoring.Incidents.type_label(t), to_string(t)}
+            end)
+          }
         />
       </div>
 
@@ -78,14 +78,7 @@
           data-role="incident-type"
           data-incident-type={incident.type}
         >
-          <%= case incident.type do %>
-            <% :downtime -> %>
-              {gettext("Downtime")}
-            <% :defacement -> %>
-              {gettext("Defacement")}
-            <% :ssl_expiry -> %>
-              {gettext("SSL Expiry")}
-          <% end %>
+          {Holter.Monitoring.Incidents.type_label(incident.type)}
         </span>
       </:col>
       <:col :let={incident} label={gettext("State")}>

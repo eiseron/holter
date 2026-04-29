@@ -35,7 +35,7 @@ Um monitor pausado mantém seu último status de saúde conhecido, mas não é r
 
 ## Incidentes
 
-Um incidente é um problema aberto detectado pelo sistema. Há três tipos:
+Um incidente é um problema aberto detectado pelo sistema. Há quatro tipos:
 
 ### Indisponibilidade (Downtime)
 
@@ -57,6 +57,20 @@ Aberto quando uma verificação de certificado SSL detecta um problema:
 | Vencimento em até 15 dias (Aviso) | DEGRADED |
 
 Incidentes de expiração SSL são suprimidos quando o campo **Ignorar Erros de SSL** está habilitado no monitor. Qualquer incidente de expiração SSL aberto é resolvido na próxima verificação após salvar a configuração. Veja [Configurações do Monitor](monitor-settings.md#ssl-ignore).
+
+### Expiração de Domínio (Domain Expiry)
+
+Aberto quando uma verificação de registro de domínio (WHOIS/RDAP) detecta uma expiração próxima ou já ocorrida:
+
+| Causa Raiz | Saúde Resultante |
+|------------|-----------------|
+| Domínio expirado | COMPROMISED |
+| Vencimento em até 7 dias (Crítico) | COMPROMISED |
+| Vencimento em até 30 dias (Aviso) | DEGRADED |
+
+Os dados de expiração de domínio são consultados no máximo uma vez a cada 24 horas por monitor, via endpoint RDAP do registrador. As consultas são puladas quando a URL aponta para um IP literal ou um host interno. Erros transitórios de RDAP (limites de taxa, indisponibilidade do registrador) são apenas registrados em log e **não** abrem incidentes — apenas estados confirmados de expiração ou pré-expiração abrem.
+
+Incidentes de expiração de domínio são suprimidos quando o campo **Pular Verificações de Expiração de Domínio** está habilitado no monitor. Qualquer incidente de expiração de domínio aberto é resolvido na próxima verificação após salvar a configuração.
 
 ## Recálculo de Saúde
 

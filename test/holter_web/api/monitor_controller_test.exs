@@ -102,6 +102,46 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       assert body["data"]["url"] == "https://updated.local"
       assert_schema(body, "MonitorResponse", spec)
     end
+
+    test "Updates the domain_check_ignore flag", %{
+      conn: conn,
+      workspace: workspace,
+      api_spec: spec
+    } do
+      monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+      conn =
+        json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
+          "monitor" => %{"domain_check_ignore" => true}
+        })
+
+      body = json_response(conn, 200)
+      assert body["data"]["domain_check_ignore"] == true
+      assert_schema(body, "MonitorResponse", spec)
+    end
+
+    test "Surfaces domain_expires_at and last_domain_check_at in the response", %{
+      conn: conn,
+      workspace: workspace
+    } do
+      expires = ~U[2030-12-31 00:00:00Z]
+      checked = ~U[2026-04-28 12:00:00Z]
+
+      monitor =
+        monitor_fixture(%{
+          workspace_id: workspace.id,
+          domain_expires_at: expires,
+          last_domain_check_at: checked
+        })
+
+      conn = get(conn, ~p"/api/v1/monitors/#{monitor.id}")
+      body = json_response(conn, 200)
+
+      assert %{
+               "domain_expires_at" => "2030-12-31T00:00:00Z",
+               "last_domain_check_at" => "2026-04-28T12:00:00Z"
+             } = body["data"]
+    end
   end
 
   describe "POST /api/v1/workspaces/:workspace_slug/monitors — quota enforcement" do

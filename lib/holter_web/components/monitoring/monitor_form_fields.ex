@@ -121,6 +121,17 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
           </p>
         </div>
 
+        <div class="h-col-span-2">
+          <.input
+            field={@form[:domain_check_ignore]}
+            type="checkbox"
+            label={gettext("Skip Domain Expiration Checks")}
+          />
+          <p class="h-help-text">
+            {gettext("Check this to disable WHOIS/RDAP lookups for this monitor's domain.")}
+          </p>
+        </div>
+
         <div>
           <.input
             field={@form[:follow_redirects]}

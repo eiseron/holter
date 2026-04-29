@@ -35,7 +35,7 @@ A paused monitor retains its last known health status but is not re-evaluated un
 
 ## Incidents
 
-An incident is an open problem detected by the system. There are three types:
+An incident is an open problem detected by the system. There are four types:
 
 ### Downtime
 
@@ -57,6 +57,20 @@ Opened when an SSL certificate check detects a problem:
 | Expiry within 15 days (Warning) | DEGRADED |
 
 SSL expiry incidents are suppressed entirely when the **Ignore SSL Errors** toggle is enabled on the monitor. Any open SSL expiry incident is resolved the next time a check runs after the toggle is saved. See [Monitor Settings](monitor-settings.md#ssl-ignore).
+
+### Domain Expiry
+
+Opened when a domain registration (WHOIS/RDAP) check detects an upcoming or past expiration:
+
+| Root Cause | Resulting Health |
+|------------|-----------------|
+| Domain expired | COMPROMISED |
+| Expiry within 7 days (Critical) | COMPROMISED |
+| Expiry within 30 days (Warning) | DEGRADED |
+
+Domain expiry data is fetched once every 24 hours per monitor via the registry's RDAP endpoint. Lookups are skipped when the monitor URL points at an IP literal or an internal host. Transient RDAP errors (rate limits, registrar downtime) are logged but do **not** open incidents — only confirmed near-expiration or expired states do.
+
+Domain expiry incidents are suppressed entirely when the **Skip Domain Expiration Checks** toggle is enabled on the monitor. Any open domain expiry incident is resolved the next time a check runs after the toggle is saved.
 
 ## Health Recalculation
 

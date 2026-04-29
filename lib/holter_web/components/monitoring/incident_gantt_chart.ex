@@ -4,7 +4,7 @@ defmodule HolterWeb.Components.Monitoring.IncidentGanttChart do
 
   @bar_area_height 160
   @bar_height 16
-  @lane_count 3
+  @lane_count 4
 
   attr :monitor_id, :string, required: true
   attr :gantt_data, :map, default: %{bars: [], x_labels: [], has_incidents: false}
@@ -86,6 +86,10 @@ defmodule HolterWeb.Components.Monitoring.IncidentGanttChart do
             {gettext("SSL Expiry")}
           </li>
           <li class="chart-legend-item">
+            <span class="chart-legend-dot" style="background: var(--color-status-degraded)"></span>
+            {gettext("Domain Expiry")}
+          </li>
+          <li class="chart-legend-item">
             <span class="chart-legend-dash" style="border-top: 2px dashed currentColor; opacity: 0.6">
             </span>
             {gettext("Open")}
@@ -117,7 +121,8 @@ defmodule HolterWeb.Components.Monitoring.IncidentGanttChart do
     [
       {"Down.", Float.round(lane_height * 0.5, 1)},
       {"Defac.", Float.round(lane_height * 1.5, 1)},
-      {"SSL", Float.round(lane_height * 2.5, 1)}
+      {"SSL", Float.round(lane_height * 2.5, 1)},
+      {"Dom.", Float.round(lane_height * 3.5, 1)}
     ]
   end
 end

@@ -623,6 +623,17 @@ components:
           type: string
           x-struct:
           x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        domain_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
         follow_redirects:
           default: true
           type: boolean
@@ -677,6 +688,12 @@ components:
           x-struct:
           x-validate:
         last_checked_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_domain_check_at:
           format: date-time
           nullable: true
           type: string
@@ -778,6 +795,11 @@ components:
           type: string
           x-struct:
           x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
         follow_redirects:
           default: true
           type: boolean
@@ -861,6 +883,17 @@ components:
                 type: string
                 x-struct:
                 x-validate:
+              domain_check_ignore:
+                default: false
+                type: boolean
+                x-struct:
+                x-validate:
+              domain_expires_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
               follow_redirects:
                 default: true
                 type: boolean
@@ -915,6 +948,12 @@ components:
                 x-struct:
                 x-validate:
               last_checked_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_domain_check_at:
                 format: date-time
                 nullable: true
                 type: string
@@ -1449,6 +1488,17 @@ components:
               type: string
               x-struct:
               x-validate:
+            domain_check_ignore:
+              default: false
+              type: boolean
+              x-struct:
+              x-validate:
+            domain_expires_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
             follow_redirects:
               default: true
               type: boolean
@@ -1503,6 +1553,12 @@ components:
               x-struct:
               x-validate:
             last_checked_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_domain_check_at:
               format: date-time
               nullable: true
               type: string
@@ -1608,6 +1664,11 @@ components:
         body:
           nullable: true
           type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
           x-struct:
           x-validate:
         follow_redirects:
@@ -2554,6 +2615,17 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      domain_check_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      domain_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       follow_redirects:
                         default: true
                         type: boolean
@@ -2608,6 +2680,12 @@ paths:
                         x-struct:
                         x-validate:
                       last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_domain_check_at:
                         format: date-time
                         nullable: true
                         type: string
@@ -2773,6 +2851,11 @@ paths:
                   type: string
                   x-struct:
                   x-validate:
+                domain_check_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
                 follow_redirects:
                   default: true
                   type: boolean
@@ -2857,6 +2940,17 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      domain_check_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      domain_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       follow_redirects:
                         default: true
                         type: boolean
@@ -2911,6 +3005,12 @@ paths:
                         x-struct:
                         x-validate:
                       last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_domain_check_at:
                         format: date-time
                         nullable: true
                         type: string
@@ -3113,6 +3213,11 @@ paths:
                   type: string
                   x-struct:
                   x-validate:
+                domain_check_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
                 follow_redirects:
                   default: true
                   type: boolean
@@ -3197,6 +3302,17 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      domain_check_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      domain_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       follow_redirects:
                         default: true
                         type: boolean
@@ -3251,6 +3367,12 @@ paths:
                         x-struct:
                         x-validate:
                       last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_domain_check_at:
                         format: date-time
                         nullable: true
                         type: string
@@ -5921,6 +6043,17 @@ paths:
                           type: string
                           x-struct:
                           x-validate:
+                        domain_check_ignore:
+                          default: false
+                          type: boolean
+                          x-struct:
+                          x-validate:
+                        domain_expires_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
                         follow_redirects:
                           default: true
                           type: boolean
@@ -5975,6 +6108,12 @@ paths:
                           x-struct:
                           x-validate:
                         last_checked_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_domain_check_at:
                           format: date-time
                           nullable: true
                           type: string
@@ -6158,6 +6297,11 @@ paths:
                   type: string
                   x-struct:
                   x-validate:
+                domain_check_ignore:
+                  default: false
+                  type: boolean
+                  x-struct:
+                  x-validate:
                 follow_redirects:
                   default: true
                   type: boolean
@@ -6246,6 +6390,17 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      domain_check_ignore:
+                        default: false
+                        type: boolean
+                        x-struct:
+                        x-validate:
+                      domain_expires_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       follow_redirects:
                         default: true
                         type: boolean
@@ -6300,6 +6455,12 @@ paths:
                         x-struct:
                         x-validate:
                       last_checked_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_domain_check_at:
                         format: date-time
                         nullable: true
                         type: string

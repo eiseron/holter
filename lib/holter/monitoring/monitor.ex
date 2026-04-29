@@ -24,6 +24,7 @@ defmodule Holter.Monitoring.Monitor do
     :raw_headers,
     :body,
     :ssl_ignore,
+    :domain_check_ignore,
     :follow_redirects,
     :max_redirects,
     :raw_keyword_positive,
@@ -31,7 +32,9 @@ defmodule Holter.Monitoring.Monitor do
     :last_checked_at,
     :last_success_at,
     :last_manual_check_at,
-    :ssl_expires_at
+    :ssl_expires_at,
+    :domain_expires_at,
+    :last_domain_check_at
   ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -66,6 +69,7 @@ defmodule Holter.Monitoring.Monitor do
     field :body, :string
 
     field :ssl_ignore, :boolean, default: false
+    field :domain_check_ignore, :boolean, default: false
     field :follow_redirects, :boolean, default: true
     field :max_redirects, :integer, default: 5
 
@@ -78,6 +82,8 @@ defmodule Holter.Monitoring.Monitor do
     field :last_success_at, :utc_datetime
     field :last_manual_check_at, :utc_datetime
     field :ssl_expires_at, :utc_datetime
+    field :domain_expires_at, :utc_datetime
+    field :last_domain_check_at, :utc_datetime
 
     field :open_incidents_count, :integer, virtual: true, default: 0
 
@@ -105,6 +111,7 @@ defmodule Holter.Monitoring.Monitor do
       keyword_positive: monitor.keyword_positive,
       keyword_negative: monitor.keyword_negative,
       ssl_ignore: monitor.ssl_ignore,
+      domain_check_ignore: monitor.domain_check_ignore,
       follow_redirects: monitor.follow_redirects,
       max_redirects: monitor.max_redirects
     }

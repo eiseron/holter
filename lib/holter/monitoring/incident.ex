@@ -2,10 +2,12 @@ defmodule Holter.Monitoring.Incident do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @types [:downtime, :defacement, :ssl_expiry, :domain_expiry]
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "incidents" do
-    field :type, Ecto.Enum, values: [:downtime, :defacement, :ssl_expiry]
+    field :type, Ecto.Enum, values: @types
     field :started_at, :utc_datetime
     field :resolved_at, :utc_datetime
     field :duration_seconds, :integer
@@ -16,6 +18,8 @@ defmodule Holter.Monitoring.Incident do
 
     timestamps(type: :utc_datetime)
   end
+
+  def types, do: @types
 
   @doc false
   def changeset(incident, attrs) do

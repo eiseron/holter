@@ -59,6 +59,16 @@ O campo **Ignorar Erros de SSL** no formulário instrui o Holter a pular as veri
 
 Útil para monitores de serviços internos que intencionalmente usam certificados autoassinados.
 
+## Pular Verificações de Expiração de Domínio
+
+O campo **Pular Verificações de Expiração de Domínio** desabilita consultas WHOIS/RDAP no domínio do monitor. Quando habilitado:
+
+- Nenhum incidente de expiração de domínio é aberto.
+- Qualquer incidente de expiração de domínio aberto é resolvido na próxima verificação agendada.
+- As verificações de SSL e HTTP continuam normalmente.
+
+As verificações de domínio executam no máximo uma vez a cada 24 horas por monitor e são puladas silenciosamente quando a URL aponta para um IP literal ou para um host interno. Habilite este campo em monitores cujo domínio não é relevante (por exemplo, endpoints internos de staging).
+
 ## Pausar e Retomar
 
 Para pausar o monitoramento, defina o campo **Estado** como **Pausado** e salve. O badge muda para o indicador PAUSED e o monitor para de ser verificado. Defina como **Ativo** para retomar.

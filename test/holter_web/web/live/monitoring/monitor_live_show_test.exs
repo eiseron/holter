@@ -389,6 +389,41 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     end
   end
 
+  describe "Expirations card on monitor detail" do
+    test "renders the SSL expiration when ssl_expires_at is set", %{conn: conn} do
+      monitor = monitor_fixture(%{ssl_expires_at: ~U[2027-01-15 00:00:00Z]})
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(view, "time[data-role='ssl-expires-at']")
+    end
+
+    test "renders the domain expiration when domain_expires_at is set", %{conn: conn} do
+      monitor = monitor_fixture(%{domain_expires_at: ~U[2027-08-13 00:00:00Z]})
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(view, "time[data-role='domain-expires-at']")
+    end
+
+    test "hides the SSL row when ssl_expires_at is nil", %{conn: conn} do
+      monitor =
+        monitor_fixture(%{ssl_expires_at: nil, domain_expires_at: ~U[2027-08-13 00:00:00Z]})
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      refute has_element?(view, "time[data-role='ssl-expires-at']")
+    end
+
+    test "hides the entire card when both expirations are nil", %{conn: conn} do
+      monitor = monitor_fixture(%{ssl_expires_at: nil, domain_expires_at: nil})
+
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      refute has_element?(view, "time[data-role='domain-expires-at']")
+    end
+  end
+
   describe "Monitor LiveView Show/Edit User Flow (continued)" do
     @valid_attrs_2 %{
       url: "https://example.local",

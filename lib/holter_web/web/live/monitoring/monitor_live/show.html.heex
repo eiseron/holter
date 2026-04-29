@@ -24,6 +24,37 @@
 
   <.monitor_overview_chart monitor_id={@monitor.id} logs={@chart_logs} timezone={@timezone} />
 
+  <div
+    :if={@monitor.ssl_expires_at || @monitor.domain_expires_at}
+    class="h-fieldset-card"
+  >
+    <h3 class="h-fieldset-legend">{gettext("Expirations")}</h3>
+    <dl class="h-evidence-meta">
+      <div :if={@monitor.ssl_expires_at} class="h-meta-item">
+        <dt>{gettext("SSL certificate expires")}</dt>
+        <dd>
+          <time
+            datetime={DateTime.to_iso8601(@monitor.ssl_expires_at)}
+            data-role="ssl-expires-at"
+          >
+            {format_datetime(@monitor.ssl_expires_at, @timezone)}
+          </time>
+        </dd>
+      </div>
+      <div :if={@monitor.domain_expires_at} class="h-meta-item">
+        <dt>{gettext("Domain registration expires")}</dt>
+        <dd>
+          <time
+            datetime={DateTime.to_iso8601(@monitor.domain_expires_at)}
+            data-role="domain-expires-at"
+          >
+            {format_datetime(@monitor.domain_expires_at, @timezone)}
+          </time>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
   <div :if={@active_incidents != []} class="h-fieldset-card">
     <h3 class="h-fieldset-legend">{gettext("Active Incidents")}</h3>
     <.table id="active-incidents-table" rows={@active_incidents}>

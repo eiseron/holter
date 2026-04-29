@@ -8,6 +8,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   def incident_type_to_status(:downtime), do: :down
   def incident_type_to_status(:defacement), do: :compromised
   def incident_type_to_status(:ssl_expiry), do: :degraded
+  def incident_type_to_status(:domain_expiry), do: :degraded
   def incident_type_to_status(_), do: :unknown
 
   @impl true

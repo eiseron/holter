@@ -25,6 +25,7 @@ defmodule HolterWeb.Api.MonitorJSON do
       health_status: monitor.health_status,
       logical_state: monitor.logical_state,
       ssl_ignore: monitor.ssl_ignore,
+      domain_check_ignore: monitor.domain_check_ignore,
       follow_redirects: monitor.follow_redirects,
       max_redirects: monitor.max_redirects,
       headers: monitor.headers,
@@ -34,6 +35,8 @@ defmodule HolterWeb.Api.MonitorJSON do
       last_checked_at: monitor.last_checked_at,
       last_success_at: monitor.last_success_at,
       ssl_expires_at: monitor.ssl_expires_at,
+      domain_expires_at: monitor.domain_expires_at,
+      last_domain_check_at: monitor.last_domain_check_at,
       inserted_at: monitor.inserted_at,
       updated_at: monitor.updated_at
     }
