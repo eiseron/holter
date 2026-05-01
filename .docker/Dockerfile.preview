@@ -1,0 +1,10 @@
+FROM registry.gitlab.com/eiseron/holter/public-image-bases/elixir-tools:latest
+
+WORKDIR /usr/src/holter
+
+# Source + deps + _build are all populated by the build_image job under
+# GitLab runner cache (see .gitlab-ci.yml). Nothing to install at image
+# build time — kaniko just ships the already-resolved tree.
+COPY --chown=holter:holter . .
+
+CMD ["mix", "phx.server"]

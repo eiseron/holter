@@ -3,6 +3,8 @@ image: elixir:1.19-otp-28-slim
 stages:
   - lint
   - test
+  - build
+  - review
   - sync
   - publish
 
@@ -21,6 +23,12 @@ cache:
     - _build/test/
 
 default:
+  # Pin every job to the eiseron self-hosted runner. The runner is
+  # provisioned by eiseron-ops/runner/ and registered with tag list
+  # ["self-hosted", "eiseron-runner"]; pinning to "self-hosted" guarantees
+  # the eiseron-runner picks the job up rather than a SaaS shared runner.
+  tags:
+    - self-hosted
   before_script:
     - apt-get update -qq && apt-get install -y -qq git build-essential
     - mix local.hex --force --quiet
@@ -29,6 +37,7 @@ default:
 
 lint:
   stage: lint
+  needs: []
   script:
     - mix format --check-formatted
     - mix compile --warnings-as-errors
@@ -39,6 +48,7 @@ lint:
 
 test:
   stage: test
+  needs: []
   services:
     - name: postgres:16-alpine
       alias: postgres
@@ -54,6 +64,175 @@ test:
     - mix test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# Build the per-MR preview image and push to holter's own container
+# registry under /preview. The image becomes the deployment artifact
+# pulled by holter-ops's preview job.
+#
+# Single job that runs `mix deps.get` + `mix deps.compile` against the
+# GitLab runner cache (keyed on mix.lock so MRs sharing a lockfile share
+# the cache), then `kaniko/executor` builds Dockerfile.preview using the
+# resolved tree as context and pushes to
+# registry.gitlab.com/eiseron/holter/holter/preview:<slug>. The slug is
+# the same one the deploy uses for the subdomain, so an image tag and
+# the URL match by construction.
+#
+# Auth: holter_preview_registry deploy token (PREVIEW_REGISTRY_USER /
+# PREVIEW_REGISTRY_PASSWORD, provisioned by holter-ops Terraform). The
+# new (~800-char JWT-format) CI_JOB_TOKEN issued for MR pipelines does
+# not include write_registry on its own project's registry, so the
+# deploy token is the supported path.
+#
+# Image: elixir-builder from public-image-bases bundles elixir-tools +
+# kaniko's executor binary, so this single container can do mix work
+# under runner cache AND kaniko's build/push without a stage split.
+build_image:
+  stage: build
+  needs: []
+  # Preview infrastructure is convenience for reviewers — a flaky preview
+  # must never block a merge or a release. lint+test still gate the MR.
+  allow_failure: true
+  rules:
+    # Bootstrap guard: skip on MRs opened before holter-ops Terraform has
+    # provisioned the registry deploy-token CI vars (PREVIEW_REGISTRY_*).
+    - if: $PREVIEW_REGISTRY_PASSWORD == null || $PREVIEW_REGISTRY_PASSWORD == ""
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image:
+    name: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:latest
+  before_script: []
+  cache:
+    key:
+      files:
+        - mix.lock
+    paths:
+      - deps/
+      - _build/dev/
+    policy: pull-push
+  variables:
+    MIX_ENV: dev
+  script:
+    - mix deps.get
+    - mix deps.compile
+    - cp .docker/Dockerfile.preview Dockerfile
+    - AUTH_B64=$(printf '%s:%s' "$PREVIEW_REGISTRY_USER" "$PREVIEW_REGISTRY_PASSWORD" | base64 | tr -d '\n')
+    # elixir-builder ships DOCKER_CONFIG=/opt/kaniko/.docker/ (kaniko was
+    # COPYed there to avoid clobbering its own /kaniko/executor when this
+    # image was built by kaniko itself). Use $DOCKER_CONFIG so we stay
+    # path-agnostic.
+    - mkdir -p "$DOCKER_CONFIG"
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$AUTH_B64\"}}}" > "$DOCKER_CONFIG/config.json"
+    - executor
+        --context "$CI_PROJECT_DIR"
+        --dockerfile "$CI_PROJECT_DIR/Dockerfile"
+        --destination "$CI_REGISTRY_IMAGE/preview:$CI_COMMIT_REF_SLUG"
+        --push-retry=3
+
+# Three trigger jobs (deploy_review, deploy_main, stop_review) use a
+# Pipeline Trigger Token (PREVIEW_DEPLOYER_TRIGGER_TOKEN, injected by
+# holter-ops Terraform) instead of GitLab's native `trigger:project:`
+# bridge. holter-ops's main is push-protected ("No one"), and bridges
+# require source-user push access on the target branch — so the bridge
+# always failed with insufficient_bridge_permissions. Trigger tokens
+# bypass that check.
+#
+# Trade-off: lose the native MR environment widget linking the
+# downstream pipeline. We print the spawned pipeline URL to the job
+# log so reviewers can find it.
+
+.preview_trigger: &preview_trigger
+  # alpine-deploy from public-image-bases bundles bash, curl, jq, openssh-client,
+  # openssl, rsync, git — the trigger jobs only need curl + jq, but reusing the
+  # group's shared image saves the inline apk install on every MR push.
+  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
+  before_script: []
+
+deploy_review:
+  stage: review
+  needs: ["build_image"]
+  allow_failure: true
+  rules:
+    - if: $PREVIEW_DEPLOYER_PROJECT == null || $PREVIEW_DEPLOYER_PROJECT == ""
+      when: never
+    - if: $PREVIEW_DEPLOYER_TRIGGER_TOKEN == null || $PREVIEW_DEPLOYER_TRIGGER_TOKEN == ""
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  <<: *preview_trigger
+  script:
+    - |
+      PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
+      RESP=$(curl --fail --silent --show-error -X POST \
+        -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
+        -F "ref=main" \
+        -F "variables[PREVIEW_REF]=$CI_COMMIT_REF_SLUG" \
+        -F "variables[PREVIEW_SHA]=$CI_COMMIT_SHA" \
+        -F "variables[PREVIEW_MR_IID]=$CI_MERGE_REQUEST_IID" \
+        -F "variables[PREVIEW_KIND]=mr" \
+        -F "variables[PREVIEW_ACTION]=deploy" \
+        "https://gitlab.com/api/v4/projects/$PROJECT_ENC/trigger/pipeline")
+      echo "$RESP" | jq -r '"Downstream pipeline: \(.web_url)"'
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    url: https://$CI_COMMIT_REF_SLUG-$PREVIEW_DOMAIN_BASE
+    on_stop: stop_review
+    auto_stop_in: 7 days
+
+deploy_main:
+  stage: review
+  needs: ["build_image"]
+  allow_failure: true
+  rules:
+    - if: $PREVIEW_DEPLOYER_PROJECT == null || $PREVIEW_DEPLOYER_PROJECT == ""
+      when: never
+    - if: $PREVIEW_DEPLOYER_TRIGGER_TOKEN == null || $PREVIEW_DEPLOYER_TRIGGER_TOKEN == ""
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  <<: *preview_trigger
+  script:
+    - |
+      PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
+      RESP=$(curl --fail --silent --show-error -X POST \
+        -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
+        -F "ref=main" \
+        -F "variables[PREVIEW_REF]=main" \
+        -F "variables[PREVIEW_SHA]=$CI_COMMIT_SHA" \
+        -F "variables[PREVIEW_KIND]=main" \
+        -F "variables[PREVIEW_ACTION]=deploy" \
+        "https://gitlab.com/api/v4/projects/$PROJECT_ENC/trigger/pipeline")
+      echo "$RESP" | jq -r '"Downstream pipeline: \(.web_url)"'
+  environment:
+    name: main
+    url: https://main-$PREVIEW_DOMAIN_BASE
+
+stop_review:
+  stage: review
+  needs: []
+  allow_failure: true
+  rules:
+    - if: $PREVIEW_DEPLOYER_PROJECT == null || $PREVIEW_DEPLOYER_PROJECT == ""
+      when: never
+    - if: $PREVIEW_DEPLOYER_TRIGGER_TOKEN == null || $PREVIEW_DEPLOYER_TRIGGER_TOKEN == ""
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  <<: *preview_trigger
+  # PREVIEW_ACTION=stop (not sweep) — sweep is the reconciler that respects
+  # MR state and skips opened MRs, which makes on_stop a no-op while the MR
+  # is still open. Stop is the imperative per-ref teardown.
+  script:
+    - |
+      PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
+      RESP=$(curl --fail --silent --show-error -X POST \
+        -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
+        -F "ref=main" \
+        -F "variables[PREVIEW_REF]=$CI_COMMIT_REF_SLUG" \
+        -F "variables[PREVIEW_ACTION]=stop" \
+        "https://gitlab.com/api/v4/projects/$PROJECT_ENC/trigger/pipeline")
+      echo "$RESP" | jq -r '"Downstream pipeline: \(.web_url)"'
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    action: stop
 
 sync-github:
   stage: sync

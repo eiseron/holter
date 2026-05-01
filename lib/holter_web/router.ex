@@ -24,6 +24,8 @@ defmodule HolterWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
   end
 
+  get "/healthz", HolterWeb.HealthController, :show
+
   scope "/api/v1", HolterWeb.Api do
     pipe_through :browser_api
     post "/telemetry/logs", TelemetryController, :log
