@@ -1,6 +1,8 @@
 defmodule HolterWeb.Plugs.SessionMetadataPlugTest do
   use HolterWeb.ConnCase, async: true
 
+  @moduletag :guest
+
   alias HolterWeb.Plugs.SessionMetadataPlug
 
   describe "init/1" do

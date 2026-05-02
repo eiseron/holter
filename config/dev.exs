@@ -90,3 +90,8 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Identity pepper default for local development. Production must override
+# this via the IDENTITY_PEPPER environment variable; runtime.exs raises if
+# it is missing in :prod.
+config :holter, :identity, pepper: "dev-pepper-not-for-prod"

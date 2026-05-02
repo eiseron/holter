@@ -24,6 +24,13 @@ config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Local
 config :holter, :email, from_address: "noreply@alerts.holter.dev"
 config :holter, :info_email, from_address: "noreply@holter.dev"
 
+config :holter, :identity,
+  pepper: nil,
+  session_max_age_seconds: 60 * 60 * 24 * 30,
+  verify_email_token_max_age_seconds: 60 * 60
+
+config :argon2_elixir, argon2_type: 2
+
 config :esbuild,
   version: "0.25.4",
   holter: [

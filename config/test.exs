@@ -24,6 +24,10 @@ config :holter, HolterWeb.Endpoint,
 config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Test
 config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Test
 
+config :holter, :identity, pepper: "test-pepper-not-for-prod"
+
+config :argon2_elixir, t_cost: 1, m_cost: 8
+
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 

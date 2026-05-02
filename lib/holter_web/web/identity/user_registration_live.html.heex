@@ -1,0 +1,55 @@
+<section class="h-auth-screen">
+  <h1>{gettext("Create your Holter account")}</h1>
+
+  <.form for={@form} id="signup-form" phx-submit="save" class="h-form-sections">
+    <label>
+      <span>{gettext("Email")}</span>
+      <input
+        type="email"
+        name="user[email]"
+        value={Phoenix.HTML.Form.input_value(@form, :email)}
+        autocomplete="email"
+        required
+        phx-debounce="500"
+      />
+      <%= for msg <- translate_errors(@form.errors, :email) do %>
+        <span class="h-input-error">{msg}</span>
+      <% end %>
+    </label>
+
+    <label>
+      <span>{gettext("Password")}</span>
+      <input
+        type="password"
+        name="user[password]"
+        autocomplete="new-password"
+        minlength="12"
+        required
+        phx-debounce="500"
+      />
+      <%= for msg <- translate_errors(@form.errors, :password) do %>
+        <span class="h-input-error">{msg}</span>
+      <% end %>
+      <span class="h-help-text">
+        {gettext("At least 12 characters with uppercase, lowercase, and a digit.")}
+      </span>
+    </label>
+
+    <label class="h-checkbox">
+      <input type="checkbox" name="user[terms_accepted]" value="true" required />
+      <span>
+        {gettext("I have read and agree to the Terms of Use and Privacy Policy.")}
+      </span>
+      <%= for msg <- translate_errors(@form.errors, :terms_accepted_at) do %>
+        <span class="h-input-error">{msg}</span>
+      <% end %>
+    </label>
+
+    <button type="submit">{gettext("Create account")}</button>
+  </.form>
+
+  <p>
+    {gettext("Already have an account?")}
+    <.link navigate={~p"/identity/login"}>{gettext("Sign in")}</.link>
+  </p>
+</section>

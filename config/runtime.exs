@@ -20,6 +20,20 @@ if System.get_env("PHX_SERVER") do
   config :holter, HolterWeb.Endpoint, server: true
 end
 
+identity_pepper = System.get_env("IDENTITY_PEPPER")
+
+if config_env() == :prod and (is_nil(identity_pepper) or identity_pepper == "") do
+  raise """
+  environment variable IDENTITY_PEPPER is missing.
+  Generate one with: mix phx.gen.secret 64
+  This pepper is mixed into every password hash; rotating it invalidates all stored passwords.
+  """
+end
+
+if identity_pepper do
+  config :holter, :identity, pepper: identity_pepper
+end
+
 if from_address = System.get_env("DELIVERY_ALERT_FROM_EMAIL") do
   config :holter, :email, from_address: from_address
 end

@@ -1,0 +1,28 @@
+<section class="h-auth-screen">
+  <h1>{gettext("Sign in to Holter")}</h1>
+
+  <.form
+    for={@form}
+    id="login-form"
+    action={~p"/identity/login"}
+    method="post"
+    class="h-form-sections"
+  >
+    <label>
+      <span>{gettext("Email")}</span>
+      <input type="email" name="user[email]" autocomplete="email" required />
+    </label>
+
+    <label>
+      <span>{gettext("Password")}</span>
+      <input type="password" name="user[password]" autocomplete="current-password" required />
+    </label>
+
+    <button type="submit">{gettext("Sign in")}</button>
+  </.form>
+
+  <p>
+    {gettext("New to Holter?")}
+    <.link navigate={~p"/identity/new"}>{gettext("Create an account")}</.link>
+  </p>
+</section>

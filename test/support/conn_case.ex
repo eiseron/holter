@@ -26,6 +26,7 @@ defmodule HolterWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import HolterWeb.ConnCase
+      import Holter.IdentityFixtures
       import Holter.MonitoringFixtures
     end
   end
@@ -38,10 +39,38 @@ defmodule HolterWeb.ConnCase do
     metadata = SqlSandbox.metadata_for(Holter.Repo, pid)
     encoded = SqlSandbox.encode_metadata(metadata)
 
-    conn =
+    base_conn =
       Phoenix.ConnTest.build_conn()
       |> Plug.Conn.put_req_header("user-agent", encoded)
 
-    {:ok, conn: conn}
+    if tags[:guest] do
+      {:ok, conn: base_conn}
+    else
+      %{user: user, workspace: workspace} = Holter.IdentityFixtures.verified_user_fixture()
+      flush_test_mailbox()
+      conn = log_in_user(base_conn, user)
+      {:ok, conn: conn, current_user: user, current_workspace: workspace}
+    end
+  end
+
+  @doc """
+  Stamps a session token for `user` on `conn` so subsequent LiveView
+  mounts find a current user via `HolterWeb.Hooks.UserAuthHook` and
+  bypass the `:require_authenticated` gate.
+  """
+  def log_in_user(conn, user) do
+    token = Holter.IdentityFixtures.session_token_fixture(user)
+
+    conn
+    |> Plug.Test.init_test_session(%{})
+    |> Plug.Conn.put_session(:user_token, token)
+  end
+
+  defp flush_test_mailbox do
+    receive do
+      {:email, _} -> flush_test_mailbox()
+    after
+      0 -> :ok
+    end
   end
 end

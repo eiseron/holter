@@ -1,6 +1,8 @@
 defmodule HolterWeb.Web.ErrorHTMLTest do
   use HolterWeb.ConnCase, async: true
 
+  @moduletag :guest
+
   import Phoenix.Template, only: [render_to_string: 4]
 
   test "renders 404.html" do

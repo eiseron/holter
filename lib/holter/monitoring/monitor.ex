@@ -40,7 +40,6 @@ defmodule Holter.Monitoring.Monitor do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "monitors" do
-    field :user_id, :binary_id
     field :logical_state, Ecto.Enum, values: [:active, :paused, :archived], default: :active
 
     field :health_status, Ecto.Enum,

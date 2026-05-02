@@ -26,6 +26,12 @@ defmodule HolterWeb.Router do
 
   get "/healthz", HolterWeb.HealthController, :show
 
+  scope "/", HolterWeb.Web do
+    pipe_through :browser
+
+    get "/", RootController, :show
+  end
+
   scope "/api/v1", HolterWeb.Api do
     pipe_through :browser_api
     post "/telemetry/logs", TelemetryController, :log
@@ -60,47 +66,78 @@ defmodule HolterWeb.Router do
     end
   end
 
+  scope "/identity", HolterWeb.Web.Identity do
+    pipe_through :browser
+
+    live_session :guest_identity,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :redirect_if_authenticated}] do
+      live "/new", UserRegistrationLive, :new
+      live "/login", UserLoginLive, :new
+    end
+
+    post "/login", UserSessionController, :create
+    delete "/logout", UserSessionController, :delete
+
+    live_session :public_identity,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :assign_current_user}] do
+      live "/verify-email/:token", UserEmailVerificationLive, :verify
+    end
+  end
+
   scope "/delivery/workspaces/:workspace_slug", HolterWeb.Web.Delivery do
     pipe_through :browser
 
-    live "/channels", ChannelsLive, :index
-    live "/notification-channels/new", NotificationChannelLive.New, :new
+    live_session :authenticated_delivery_workspace,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      live "/channels", ChannelsLive, :index
+      live "/notification-channels/new", NotificationChannelLive.New, :new
+    end
   end
 
   scope "/delivery", HolterWeb.Web.Delivery do
     pipe_through :browser
 
-    live "/notification-channels/recipients/verify/:token",
-         NotificationChannelRecipientLive.Verify,
-         :verify
+    live_session :public_delivery_verify,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :assign_current_user}] do
+      live "/notification-channels/recipients/verify/:token",
+           NotificationChannelRecipientLive.Verify,
+           :verify
 
-    live "/notification-channels/email-channels/verify/:token",
-         EmailChannelLive.Verify,
-         :verify
+      live "/notification-channels/email-channels/verify/:token",
+           EmailChannelLive.Verify,
+           :verify
+    end
 
-    live "/notification-channels/:id", NotificationChannelLive.Show, :show
-    live "/notification-channels/:id/logs", NotificationChannelLive.Logs, :index
+    live_session :authenticated_delivery,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      live "/notification-channels/:id", NotificationChannelLive.Show, :show
+      live "/notification-channels/:id/logs", NotificationChannelLive.Logs, :index
+    end
   end
 
   scope "/monitoring/workspaces/:workspace_slug", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
-    live "/monitor/new", MonitorLive.New, :new
-    live "/monitors", MonitorsLive, :index
+    live_session :authenticated_monitoring_workspace,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      live "/monitor/new", MonitorLive.New, :new
+      live "/monitors", MonitorsLive, :index
+    end
   end
 
   scope "/monitoring", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
-    scope "/monitor/:id" do
-      live "/", MonitorLive.Show, :show
-      live "/logs", MonitorLive.Logs, :index
-      live "/daily_metrics", MonitorLive.DailyMetrics, :index
-      live "/incidents", MonitorLive.Incidents, :index
-    end
+    live_session :authenticated_monitoring,
+      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      live "/monitor/:id", MonitorLive.Show, :show
+      live "/monitor/:id/logs", MonitorLive.Logs, :index
+      live "/monitor/:id/daily_metrics", MonitorLive.DailyMetrics, :index
+      live "/monitor/:id/incidents", MonitorLive.Incidents, :index
 
-    live "/incidents/:incident_id", MonitorLive.IncidentDetail, :show
-    live "/logs/:log_id", MonitorLive.LogDetail, :show
+      live "/incidents/:incident_id", MonitorLive.IncidentDetail, :show
+      live "/logs/:log_id", MonitorLive.LogDetail, :show
+    end
   end
 
   if Application.compile_env(:holter, :dev_routes) do
