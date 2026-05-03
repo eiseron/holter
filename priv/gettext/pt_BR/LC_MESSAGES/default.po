@@ -1408,22 +1408,22 @@ msgstr "Expiração do certificado SSL"
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:29
 #, elixir-autogen, elixir-format
 msgid "Address"
-msgstr ""
+msgstr "Endereço"
 
 #: lib/holter_web/web/identity/user_registration_live.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "Already have an account?"
-msgstr ""
+msgstr "Já tem uma conta?"
 
 #: lib/holter_web/web/identity/user_registration_live.html.heex:34
 #, elixir-autogen, elixir-format
 msgid "At least 12 characters with uppercase, lowercase, and a digit."
-msgstr ""
+msgstr "Pelo menos 12 caracteres com maiúscula, minúscula e dígito."
 
 #: lib/holter_web/web/identity/user_registration_live.ex:23
 #, elixir-autogen, elixir-format
 msgid "Check your email to verify your account before signing in."
-msgstr ""
+msgstr "Verifique seu e-mail para validar sua conta antes de fazer login."
 
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:8
 #, elixir-autogen, elixir-format
@@ -1446,19 +1446,19 @@ msgid "Create Webhook Channel"
 msgstr "Criar Canal de Webhook"
 
 #: lib/holter_web/web/identity/user_registration_live.html.heex:48
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Create account"
-msgstr "Criar Monitor"
+msgstr "Criar conta"
 
 #: lib/holter_web/web/identity/user_login_live.html.heex:26
 #, elixir-autogen, elixir-format
 msgid "Create an account"
-msgstr ""
+msgstr "Criar uma conta"
 
 #: lib/holter_web/web/identity/user_registration_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Create your Holter account"
-msgstr ""
+msgstr "Crie sua conta no Holter"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:31
 #, elixir-autogen, elixir-format
@@ -1499,12 +1499,12 @@ msgstr "Falha ao regenerar o token de assinatura"
 #: lib/holter_web/web/identity/user_registration_live.html.heex:41
 #, elixir-autogen, elixir-format
 msgid "I have read and agree to the Terms of Use and Privacy Policy."
-msgstr ""
+msgstr "Li e concordo com os Termos de Uso e a Política de Privacidade."
 
 #: lib/holter_web/web/identity/user_session_controller.ex:12
 #, elixir-autogen, elixir-format
 msgid "Invalid email or password."
-msgstr ""
+msgstr "E-mail ou senha inválidos."
 
 #: lib/holter_web/web/live/delivery/email_channel_live/new.ex:22
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:4
@@ -1526,7 +1526,7 @@ msgstr "Novo canal de e-mail"
 #: lib/holter_web/web/identity/user_login_live.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "New to Holter?"
-msgstr ""
+msgstr "Novo no Holter?"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:24
 #, elixir-autogen, elixir-format
@@ -1537,7 +1537,7 @@ msgstr "Novo canal de webhook"
 #: lib/holter_web/web/identity/user_registration_live.html.heex:21
 #, elixir-autogen, elixir-format
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:8
 #, elixir-autogen, elixir-format
@@ -1549,17 +1549,17 @@ msgstr "Escolha o tipo de canal. Você pode criar mais depois."
 #: lib/holter_web/web/identity/user_registration_live.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Sign in"
-msgstr ""
+msgstr "Entrar"
 
 #: lib/holter_web/web/identity/user_login_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Sign in to Holter"
-msgstr ""
+msgstr "Entrar no Holter"
 
 #: lib/holter_web/web/identity/user_registration_live.ex:10
 #, elixir-autogen, elixir-format
 msgid "Sign up"
-msgstr ""
+msgstr "Cadastrar"
 
 #: lib/holter_web/web/identity/user_email_verification_live.ex:20
 #, elixir-autogen, elixir-format, fuzzy
@@ -1569,12 +1569,12 @@ msgstr "Este link de verificação é inválido ou já foi utilizado."
 #: lib/holter/identity/emails/registration_verification.ex:16
 #, elixir-autogen, elixir-format
 msgid "Verify your Holter account"
-msgstr ""
+msgstr "Verifique sua conta no Holter"
 
 #: lib/holter_web/web/identity/user_email_verification_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Verifying your email…"
-msgstr ""
+msgstr "Verificando seu e-mail…"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:14
 #: lib/holter_web/web/live/delivery/webhook_channel_live/show.html.heex:6
@@ -1605,27 +1605,27 @@ msgstr "Detalhes do webhook"
 #: lib/holter_web/web/identity/user_session_controller.ex:45
 #, elixir-autogen, elixir-format
 msgid "Welcome back."
-msgstr ""
+msgstr "Bem-vindo de volta."
 
 #: lib/holter/identity/emails/registration_verification.ex:21
 #, elixir-autogen, elixir-format
 msgid "Welcome to Holter.\n\nClick the link below to verify your email address and activate your account. Until you do, you can sign in but cannot create monitors or notification channels.\n\n%{url}\n\nIf you did not create a Holter account, you can ignore this message.\n"
-msgstr ""
+msgstr "Bem-vindo ao Holter.\n\nClique no link abaixo para verificar seu endereço de e-mail e ativar sua conta. Até lá, você pode entrar mas não criar monitores ou canais de notificação.\n\n%{url}\n\nSe você não criou uma conta no Holter, pode ignorar esta mensagem.\n"
 
 #: lib/holter_web/web/identity/user_session_controller.ex:28
 #, elixir-autogen, elixir-format
 msgid "You have been signed out."
-msgstr ""
+msgstr "Você foi desconectado."
 
 #: lib/holter_web/hooks/user_auth_hook.ex:33
 #, elixir-autogen, elixir-format
 msgid "You must sign in to access this page."
-msgstr ""
+msgstr "Você precisa fazer login para acessar esta página."
 
 #: lib/holter_web/web/identity/user_email_verification_live.ex:12
 #, elixir-autogen, elixir-format
 msgid "Your email is verified. You can sign in now."
-msgstr ""
+msgstr "Seu e-mail foi verificado. Você já pode fazer login."
 
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:19
 #, elixir-autogen, elixir-format
@@ -1640,27 +1640,27 @@ msgstr "deve ser uma string"
 #: lib/holter/identity/user.ex:35
 #, elixir-autogen, elixir-format
 msgid "must be a valid email address"
-msgstr ""
+msgstr "deve ser um endereço de e-mail válido"
 
 #: lib/holter/identity/password.ex:48
 #, elixir-autogen, elixir-format
 msgid "must be at least %{min} characters"
-msgstr ""
+msgstr "deve ter pelo menos %{min} caracteres"
 
 #: lib/holter/identity/password.ex:52
 #, elixir-autogen, elixir-format
 msgid "must contain a digit"
-msgstr ""
+msgstr "deve conter um dígito"
 
 #: lib/holter/identity/password.ex:50
 #, elixir-autogen, elixir-format
 msgid "must contain a lowercase letter"
-msgstr ""
+msgstr "deve conter uma letra minúscula"
 
 #: lib/holter/identity/password.ex:51
 #, elixir-autogen, elixir-format
 msgid "must contain an uppercase letter"
-msgstr ""
+msgstr "deve conter uma letra maiúscula"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:16
 #, elixir-autogen, elixir-format

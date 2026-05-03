@@ -93,7 +93,10 @@ defmodule HolterWeb.Router do
     pipe_through :browser
 
     live_session :authenticated_delivery_workspace,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member}
+      ] do
       live "/channels", ChannelsLive, :index
       live "/channels/new", ChannelsLive.New, :new
       live "/webhook-channels/new", WebhookChannelLive.New, :new
@@ -115,10 +118,20 @@ defmodule HolterWeb.Router do
            :verify
     end
 
-    live_session :authenticated_delivery,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+    live_session :authenticated_webhook_channel,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_webhook_channel_member}
+      ] do
       live "/webhook-channels/:id", WebhookChannelLive.Show, :show
       live "/webhook-channels/:id/logs", WebhookChannelLive.Logs, :index
+    end
+
+    live_session :authenticated_email_channel,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_email_channel_member}
+      ] do
       live "/email-channels/:id", EmailChannelLive.Show, :show
       live "/email-channels/:id/logs", EmailChannelLive.Logs, :index
     end
@@ -128,7 +141,10 @@ defmodule HolterWeb.Router do
     pipe_through :browser
 
     live_session :authenticated_monitoring_workspace,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member}
+      ] do
       live "/monitor/new", MonitorLive.New, :new
       live "/monitors", MonitorsLive, :index
     end
@@ -137,14 +153,30 @@ defmodule HolterWeb.Router do
   scope "/monitoring", HolterWeb.Web.Monitoring do
     pipe_through :browser
 
-    live_session :authenticated_monitoring,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
+    live_session :authenticated_monitor,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_monitor_member}
+      ] do
       live "/monitor/:id", MonitorLive.Show, :show
       live "/monitor/:id/logs", MonitorLive.Logs, :index
       live "/monitor/:id/daily_metrics", MonitorLive.DailyMetrics, :index
       live "/monitor/:id/incidents", MonitorLive.Incidents, :index
+    end
 
+    live_session :authenticated_incident,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_incident_member}
+      ] do
       live "/incidents/:incident_id", MonitorLive.IncidentDetail, :show
+    end
+
+    live_session :authenticated_log,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_log_member}
+      ] do
       live "/logs/:log_id", MonitorLive.LogDetail, :show
     end
   end

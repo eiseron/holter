@@ -2,10 +2,20 @@ defmodule Holter.MonitoringFixtures do
   @moduledoc """
   This module defines test helpers for creating
   entities via the `Holter.Monitoring` context.
+
+  When a workspace-scoped fixture is called with `owner: %User{}`, the
+  user is granted membership of the new workspace so that LiveView
+  tests pass the `:require_workspace_member` gate.
   """
 
+  alias Holter.Identity.Memberships
+
   def workspace_fixture(attrs \\ %{}) do
-    attrs =
+    attrs = Map.new(attrs)
+    default_owner = Process.get(:current_test_user)
+    {owner, attrs} = Map.pop(attrs, :owner, default_owner)
+
+    workspace_attrs =
       Enum.into(attrs, %{
         name: "Test Workspace",
         slug: "test-workspace-#{System.unique_integer([:positive])}",
@@ -14,20 +24,22 @@ defmodule Holter.MonitoringFixtures do
         min_interval_seconds: 60
       })
 
-    {:ok, workspace} = Holter.Monitoring.create_workspace(attrs)
+    {:ok, workspace} = Holter.Monitoring.create_workspace(workspace_attrs)
+    grant_membership(owner, workspace)
 
     workspace
   end
 
   def monitor_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
+    {owner, attrs} = Map.pop(attrs, :owner, Process.get(:current_test_user))
 
     workspace_id =
       cond do
         id = attrs[:workspace_id] -> id
         id = attrs["workspace_id"] -> id
         workspace = attrs[:workspace] -> workspace.id
-        true -> workspace_fixture().id
+        true -> workspace_fixture(owner: owner).id
       end
 
     attrs =
@@ -47,13 +59,14 @@ defmodule Holter.MonitoringFixtures do
 
   def log_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
+    {owner, attrs} = Map.pop(attrs, :owner, Process.get(:current_test_user))
 
     monitor_id =
       cond do
         id = attrs[:monitor_id] -> id
         id = attrs["monitor_id"] -> id
         monitor = attrs[:monitor] -> monitor.id
-        true -> monitor_fixture().id
+        true -> monitor_fixture(owner: owner).id
       end
 
     attrs =
@@ -74,12 +87,13 @@ defmodule Holter.MonitoringFixtures do
 
   def daily_metric_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
+    {owner, attrs} = Map.pop(attrs, :owner, Process.get(:current_test_user))
 
     monitor_id =
       cond do
         id = attrs[:monitor_id] -> id
         monitor = attrs[:monitor] -> monitor.id
-        true -> monitor_fixture().id
+        true -> monitor_fixture(owner: owner).id
       end
 
     attrs =
@@ -99,12 +113,13 @@ defmodule Holter.MonitoringFixtures do
 
   def incident_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
+    {owner, attrs} = Map.pop(attrs, :owner, Process.get(:current_test_user))
 
     monitor_id =
       cond do
         id = attrs[:monitor_id] -> id
         monitor = attrs[:monitor] -> monitor.id
-        true -> monitor_fixture().id
+        true -> monitor_fixture(owner: owner).id
       end
 
     attrs =
@@ -119,5 +134,12 @@ defmodule Holter.MonitoringFixtures do
     {:ok, incident} = Holter.Monitoring.create_incident(attrs)
 
     incident
+  end
+
+  defp grant_membership(nil, _workspace), do: :ok
+
+  defp grant_membership(owner, workspace) do
+    {:ok, _} = Memberships.create_default_membership(owner, workspace)
+    :ok
   end
 end

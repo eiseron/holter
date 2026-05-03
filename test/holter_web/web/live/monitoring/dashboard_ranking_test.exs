@@ -4,8 +4,8 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
   alias Holter.Monitoring
 
   describe "Tactical Dashboard Ranking (Scenario 43)" do
-    setup do
-      workspace = workspace_fixture(slug: "tactical-ws")
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user, slug: "tactical-ws")
       %{workspace: workspace}
     end
 

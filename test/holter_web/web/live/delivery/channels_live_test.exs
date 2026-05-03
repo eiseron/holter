@@ -5,8 +5,8 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
 
   alias Holter.Delivery.{EmailChannels, WebhookChannels}
 
-  setup do
-    workspace = workspace_fixture()
+  setup %{current_user: user} do
+    workspace = workspace_fixture_for(user)
     %{workspace: workspace}
   end
 
@@ -40,12 +40,6 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
       {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "Notification Channels"
-    end
-
-    test "Given an invalid workspace slug, when mounted, then it redirects with an error",
-         %{conn: conn} do
-      assert {:error, {:live_redirect, %{to: "/"}}} =
-               live(conn, ~p"/delivery/workspaces/nonexistent-slug/channels")
     end
 
     test "Given a workspace with no channels, when mounted, then the empty state is shown",

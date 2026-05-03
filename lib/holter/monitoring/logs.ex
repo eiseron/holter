@@ -45,6 +45,13 @@ defmodule Holter.Monitoring.Logs do
 
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
+  def get_monitor_log(id) do
+    case Repo.get(MonitorLog, id) do
+      nil -> {:error, :not_found}
+      log -> {:ok, log}
+    end
+  end
+
   def list_logs_by_incident(incident_id) do
     MonitorLog
     |> where([l], l.incident_id == ^incident_id)

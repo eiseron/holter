@@ -28,6 +28,8 @@ Cada conta possui um campo `onboarding_status` que controla o que você pode faz
 
 Ao se cadastrar você recebe automaticamente um workspace padrão e é vinculado a ele com o papel `owner`. Iterações futuras permitirão convidar outros usuários; o modelo de junção já suporta os papéis `owner | admin | member`. Veja a [visão geral de Monitoramento](../monitoring/index.md) para entender o que um workspace contém.
 
+A pertença ao workspace é verificada em toda LiveView de monitoramento e entrega. Ao visitar um workspace, monitor, canal, incidente ou log que não pertença a um workspace do qual você seja membro, a página redireciona para o painel inicial — com a mesma resposta tanto quando o recurso não existe quanto quando ele pertence a outro inquilino.
+
 ## Notas de Segurança
 
 - Senhas são protegidas com Argon2ID combinado com um *pepper* do servidor, de modo que um vazamento de banco sozinho não é suficiente para quebrar senhas offline.

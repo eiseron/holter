@@ -7,6 +7,7 @@ defmodule Holter.Identity.Memberships do
   import Ecto.Query
 
   alias Holter.Identity.WorkspaceMembership
+  alias Holter.Monitoring
   alias Holter.Monitoring.Workspace
   alias Holter.Repo
 
@@ -25,6 +26,13 @@ defmodule Holter.Identity.Memberships do
       from m in WorkspaceMembership,
         where: m.user_id == ^user_id and m.workspace_id == ^workspace_id
     )
+  end
+
+  def fetch_workspace_for_member(user, workspace_id) when is_binary(workspace_id) do
+    with {:ok, workspace} <- Monitoring.get_workspace(workspace_id),
+         true <- member?(user, workspace) do
+      {:ok, workspace}
+    end
   end
 
   def list_workspaces_for_user(%{id: user_id}) do

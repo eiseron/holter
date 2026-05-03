@@ -28,6 +28,50 @@ defmodule HolterWeb.Hooks.UserAuthHookTest do
     end
   end
 
+  describe ":require_workspace_member" do
+    test "lets a member reach the workspace mount", %{conn: conn} do
+      %{user: user, workspace: workspace} = verified_user_fixture()
+
+      assert {:ok, _lv, _html} =
+               conn
+               |> log_in_user(user)
+               |> live(~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+    end
+
+    test "redirects to / when the workspace slug does not exist", %{conn: conn} do
+      %{user: user} = verified_user_fixture()
+
+      assert {:error, {:redirect, %{to: "/"}}} =
+               conn
+               |> log_in_user(user)
+               |> live(~p"/monitoring/workspaces/nonexistent-slug/monitors")
+    end
+
+    test "redirects to / when the signed-in user is not a member of the workspace",
+         %{conn: conn} do
+      %{user: user_a} = verified_user_fixture()
+      other_workspace = workspace_fixture()
+
+      assert {:error, {:redirect, %{to: "/"}}} =
+               conn
+               |> log_in_user(user_a)
+               |> live(~p"/monitoring/workspaces/#{other_workspace.slug}/monitors")
+    end
+
+    test "exposes the resolved workspace as @current_workspace", %{conn: conn} do
+      %{user: user, workspace: workspace} = verified_user_fixture()
+
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user)
+        |> live(~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+      assigns = :sys.get_state(view.pid).socket.assigns
+
+      assert assigns.current_workspace.id == workspace.id
+    end
+  end
+
   describe ":redirect_if_authenticated" do
     test "passes through when no user is signed in", %{conn: conn} do
       assert {:ok, _lv, html} = live(conn, ~p"/identity/login")

@@ -6,6 +6,7 @@ defmodule Holter.IdentityFixtures do
   alias Holter.Identity
   alias Holter.Identity.Tokens
   alias Holter.Identity.User
+  alias Holter.MonitoringFixtures
   alias Holter.Repo
 
   def unique_user_email do
@@ -46,6 +47,10 @@ defmodule Holter.IdentityFixtures do
     %{workspace: workspace, raw_verify_token: raw_token} = register_user_fixture(attrs)
     {:ok, user} = Identity.verify_email(raw_token)
     %{user: user, workspace: workspace}
+  end
+
+  def workspace_fixture_for(%User{} = user, attrs \\ %{}) do
+    attrs |> Map.new() |> Map.put(:owner, user) |> MonitoringFixtures.workspace_fixture()
   end
 
   def session_token_fixture(%User{} = user) do

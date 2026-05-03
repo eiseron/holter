@@ -17,4 +17,5 @@ defmodule Holter.Identity do
 
   defdelegate list_workspaces_for_user(user), to: Memberships
   defdelegate workspace_member?(user, workspace), to: Memberships, as: :member?
+  defdelegate fetch_workspace_for_member(user, workspace_id), to: Memberships
 end

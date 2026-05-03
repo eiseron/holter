@@ -69,3 +69,5 @@ Thumbs.db
 # running multiple worktrees side-by-side).
 compose.override.yml
 docker-compose.override.yml
+
+.claude/

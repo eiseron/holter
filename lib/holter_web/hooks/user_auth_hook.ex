@@ -9,6 +9,20 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
     * `:require_authenticated` — halts and redirects unauthenticated
       visitors to the sign-in page.
+    * `:require_workspace_member` — chained after `:require_authenticated`
+      on workspace-scoped routes (paths with `:workspace_slug`). Resolves
+      the workspace, verifies membership, exposes `@current_workspace`,
+      and redirects to `/` on miss — same response whether the slug
+      doesn't exist or the user isn't a member, so an attacker cannot
+      probe slug existence.
+    * `:require_monitor_member` / `:require_incident_member` /
+      `:require_log_member` / `:require_webhook_channel_member` /
+      `:require_email_channel_member` — UUID-routed counterparts.
+      Each loads the resource by id, walks to its workspace, verifies
+      membership, exposes the resolved resource (`@current_monitor`,
+      `@current_incident`, etc.) and `@current_workspace`, redirects
+      to `/` on any miss. LiveView mounts read these from assigns —
+      they do not import `Holter.Identity` themselves.
     * `:redirect_if_authenticated` — bounces signed-in users away from
       sign-up / sign-in screens to their first workspace dashboard.
     * `:assign_current_user` — exposes `@current_user` to the layout
@@ -18,10 +32,12 @@ defmodule HolterWeb.Hooks.UserAuthHook do
   use HolterWeb, :verified_routes
   use Gettext, backend: HolterWeb.Gettext
 
-  import Phoenix.Component, only: [assign_new: 3]
+  import Phoenix.Component, only: [assign: 3, assign_new: 3]
   import Phoenix.LiveView, only: [redirect: 2, put_flash: 3]
 
+  alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Identity
+  alias Holter.Monitoring
 
   def on_mount(:require_authenticated, _params, session, socket) do
     socket = assign_current_user(socket, session)
@@ -35,6 +51,91 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
       _user ->
         {:cont, socket}
+    end
+  end
+
+  def on_mount(:require_workspace_member, %{"workspace_slug" => slug}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(slug),
+         true <- Identity.workspace_member?(user, workspace) do
+      {:cont, assign(socket, :current_workspace, workspace)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_monitor_member, %{"id" => id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, monitor} <- Monitoring.get_monitor(id),
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_monitor, monitor)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_incident_member, %{"incident_id" => incident_id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, incident} <- Monitoring.get_incident(incident_id),
+         {:ok, monitor} <- Monitoring.get_monitor(incident.monitor_id),
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_monitor, monitor)
+       |> assign(:current_incident, incident)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_log_member, %{"log_id" => log_id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, log} <- Monitoring.get_monitor_log(log_id),
+         {:ok, monitor} <- Monitoring.get_monitor(log.monitor_id),
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_monitor, monitor)
+       |> assign(:current_log, log)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_webhook_channel_member, %{"id" => id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, channel} <- WebhookChannels.get(id),
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_channel, channel)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_email_channel_member, %{"id" => id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, channel} <- EmailChannels.get(id),
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_channel, channel)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
     end
   end
 

@@ -48,6 +48,7 @@ defmodule HolterWeb.ConnCase do
     else
       %{user: user, workspace: workspace} = Holter.IdentityFixtures.verified_user_fixture()
       flush_test_mailbox()
+      Process.put(:current_test_user, user)
       conn = log_in_user(base_conn, user)
       {:ok, conn: conn, current_user: user, current_workspace: workspace}
     end

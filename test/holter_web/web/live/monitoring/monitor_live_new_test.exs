@@ -11,8 +11,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveNewTest do
       timeout_seconds: "10"
     }
 
-    setup do
-      workspace = workspace_fixture()
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user)
       %{workspace: workspace}
     end
 

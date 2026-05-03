@@ -6,8 +6,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
   alias Holter.Monitoring
 
   describe "Dashboard mount" do
-    setup do
-      workspace = workspace_fixture()
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user)
       %{workspace: workspace}
     end
 
@@ -16,12 +16,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
       {:ok, _lv, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
       assert html =~ "Monitors"
-    end
-
-    test "Given an invalid workspace slug, when mounted, then it redirects with an error",
-         %{conn: conn} do
-      assert {:error, {:live_redirect, %{to: "/"}}} =
-               live(conn, ~p"/monitoring/workspaces/nonexistent-slug/monitors")
     end
 
     test "Given a workspace with no monitors, when mounted, then the empty state is shown",
@@ -70,8 +64,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
   end
 
   describe "Dashboard ranking order" do
-    setup do
-      workspace = workspace_fixture()
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user)
       %{workspace: workspace}
     end
 
@@ -116,8 +110,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
 
   describe "Dashboard real-time updates" do
     test "Given a new monitor is created, when PubSub event fires, then new monitor appears",
-         %{conn: conn} do
-      workspace = workspace_fixture()
+         %{conn: conn, current_user: user} do
+      workspace = workspace_fixture_for(user)
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
@@ -133,8 +127,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
     end
 
     test "Given a monitor is deleted, when PubSub event fires, then monitor disappears",
-         %{conn: conn} do
-      workspace = workspace_fixture()
+         %{conn: conn, current_user: user} do
+      workspace = workspace_fixture_for(user)
       monitor = monitor_fixture(%{workspace_id: workspace.id, url: "https://gone.local"})
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
@@ -154,8 +148,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
   end
 
   describe "Dashboard terminology" do
-    setup do
-      workspace = workspace_fixture()
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user)
       %{workspace: workspace}
     end
 
@@ -182,8 +176,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
   end
 
   describe "Workspace layout structure (regression #30)" do
-    setup do
-      workspace = workspace_fixture()
+    setup %{current_user: user} do
+      workspace = workspace_fixture_for(user)
       %{workspace: workspace}
     end
 

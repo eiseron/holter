@@ -28,6 +28,8 @@ Each account has an `onboarding_status` field that controls what you can do:
 
 Signing up automatically creates a default workspace and links you to it as `owner`. Future iterations will allow inviting additional users; the join model already supports `owner | admin | member` roles. See the [Monitoring overview](../monitoring/index.md) for what a workspace contains.
 
+Membership is enforced on every monitoring and delivery LiveView. If you visit a workspace, monitor, channel, incident, or log that does not belong to a workspace you are a member of, the page redirects you back to the home dashboard — with the same response whether the resource doesn't exist or simply belongs to another tenant.
+
 ## Security Notes
 
 - Passwords are hashed with Argon2ID and salted with a server-side pepper, so a database leak alone is not enough to brute-force passwords offline.
