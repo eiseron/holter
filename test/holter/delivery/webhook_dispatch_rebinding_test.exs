@@ -45,8 +45,6 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
   end
 
   test "test ping refuses to dispatch when DNS resolves to a private IP", %{channel: channel} do
-    Mox.set_mox_global()
-
     expect(ResolverMock, :getaddrs, fn ~c"rebind-victim.example.com", :inet ->
       {:ok, [{10, 0, 0, 1}]}
     end)
