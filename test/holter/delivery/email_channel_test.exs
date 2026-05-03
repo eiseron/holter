@@ -1,9 +1,7 @@
 defmodule Holter.Delivery.EmailChannelTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery
   alias Holter.Delivery.EmailChannel
-  alias Holter.Repo
 
   describe "changeset/2" do
     test "is invalid without an address" do
@@ -79,35 +77,5 @@ defmodule Holter.Delivery.EmailChannelTest do
       refute Ecto.Changeset.get_change(changeset, :verification_token)
       refute Ecto.Changeset.get_change(changeset, :verification_token_expires_at)
     end
-  end
-
-  describe "uniqueness on notification_channel_id" do
-    test "a duplicate insert returns an error tuple" do
-      assert {:error, %Ecto.Changeset{}} = duplicate_insert()
-    end
-
-    test "the duplicate error names the unique constraint field" do
-      {:error, changeset} = duplicate_insert()
-      assert "has already been taken" in errors_on(changeset).notification_channel_id
-    end
-  end
-
-  defp duplicate_insert do
-    ws = workspace_fixture()
-
-    {:ok, channel} =
-      Delivery.create_channel(%{
-        workspace_id: ws.id,
-        name: "Email",
-        type: :email,
-        target: "ops@example.com"
-      })
-
-    %EmailChannel{}
-    |> EmailChannel.changeset(%{
-      notification_channel_id: channel.id,
-      address: "duplicate@example.com"
-    })
-    |> Repo.insert()
   end
 end

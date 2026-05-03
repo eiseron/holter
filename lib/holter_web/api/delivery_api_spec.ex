@@ -4,16 +4,23 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
   """
   @behaviour OpenApiSpex.OpenApi
 
-  alias HolterWeb.Api.{DeliveryLogSchemas, NotificationChannelSchemas}
+  alias HolterWeb.Api.{
+    DeliveryLogSchemas,
+    EmailChannelSchemas,
+    WebhookChannelSchemas
+  }
+
   alias HolterWeb.Router
   alias OpenApiSpex.{Info, OpenApi, Paths, Server}
+
+  @delivery_path_keywords ~w(webhook_channel email_channel)
 
   @impl OpenApi
   def spec do
     all_paths = Paths.from_router(Router)
 
     delivery_paths =
-      Map.filter(all_paths, fn {path, _} -> String.contains?(path, "notification_channel") end)
+      Map.filter(all_paths, fn {path, _} -> delivery_path?(path) end)
 
     %OpenApi{
       info: %Info{
@@ -27,10 +34,14 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
       paths: delivery_paths,
       components: %OpenApiSpex.Components{
         schemas:
-          NotificationChannelSchemas.all()
+          WebhookChannelSchemas.all()
+          |> Map.merge(EmailChannelSchemas.all())
           |> Map.merge(DeliveryLogSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()
   end
+
+  defp delivery_path?(path),
+    do: Enum.any?(@delivery_path_keywords, &String.contains?(path, &1))
 end

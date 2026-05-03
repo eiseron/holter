@@ -1,0 +1,43 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels"} />
+    {gettext("New Channel")}
+  </:title>
+  <:actions>
+    <p class="h-text-muted">
+      {gettext("Pick the channel type. You can create more later.")}
+    </p>
+  </:actions>
+
+  <div class="h-form-sections">
+    <section class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Webhook channel")}</h3>
+      <p class="h-help-text h-mb-4">
+        {gettext(
+          "Send signed HTTP POST requests to a URL of your choice. Use this for PagerDuty, custom receivers, or any HTTPS endpoint that accepts JSON."
+        )}
+      </p>
+      <.link
+        navigate={~p"/delivery/workspaces/#{@workspace.slug}/webhook-channels/new"}
+        class="h-btn h-btn-primary"
+      >
+        {gettext("New webhook channel")}
+      </.link>
+    </section>
+
+    <section class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Email channel")}</h3>
+      <p class="h-help-text h-mb-4">
+        {gettext(
+          "Deliver alerts to an email address. Supports CC recipients and per-address verification."
+        )}
+      </p>
+      <.link
+        navigate={~p"/delivery/workspaces/#{@workspace.slug}/email-channels/new"}
+        class="h-btn h-btn-primary"
+      >
+        {gettext("New email channel")}
+      </.link>
+    </section>
+  </div>
+</.page_container>

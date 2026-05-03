@@ -4,7 +4,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
   import Swoosh.TestAssertions
 
-  alias Holter.Delivery
+  alias Holter.Delivery.EmailChannels
   alias Holter.Delivery.Workers.EmailDispatcher
   alias Holter.Repo
 
@@ -12,11 +12,10 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
     verified? = Keyword.get(opts, :verified, true)
 
     {:ok, channel} =
-      Delivery.create_channel(%{
+      EmailChannels.create(%{
         workspace_id: workspace_id,
         name: "Ops Email",
-        type: :email,
-        target: Keyword.get(opts, :target, "ops@example.com")
+        address: Keyword.get(opts, :target, "ops@example.com")
       })
 
     if verified?, do: mark_verified(channel), else: channel
@@ -25,23 +24,21 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
   defp mark_verified(channel) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    channel.email_channel
+    channel
     |> Ecto.Changeset.change(verified_at: now)
     |> Repo.update!()
-
-    Delivery.get_channel!(channel.id)
   end
 
   defp run_dispatch_with_unverified_primary_and_one_verified_cc(ws) do
     monitor = monitor_fixture(workspace_id: ws.id)
     incident = incident_fixture(monitor_id: monitor.id)
     channel = email_channel_fixture(ws.id, verified: false)
-    {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
-    Delivery.verify_recipient(recipient.token)
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
+    EmailChannels.verify_recipient(recipient.token)
 
     :ok =
       perform_job(EmailDispatcher, %{
-        "channel_id" => channel.id,
+        "email_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -52,12 +49,12 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
     monitor = monitor_fixture(workspace_id: ws.id)
     incident = incident_fixture(monitor_id: monitor.id)
     channel = email_channel_fixture(ws.id)
-    {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
-    Delivery.verify_recipient(recipient.token)
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
+    EmailChannels.verify_recipient(recipient.token)
 
     :ok =
       perform_job(EmailDispatcher, %{
-        "channel_id" => channel.id,
+        "email_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -73,7 +70,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
       :ok =
         perform_job(EmailDispatcher, %{
-          "channel_id" => channel.id,
+          "email_channel_id" => channel.id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -89,7 +86,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       channel = email_channel_fixture(ws.id)
 
       perform_job(EmailDispatcher, %{
-        "channel_id" => channel.id,
+        "email_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -103,10 +100,10 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
-      code = channel.email_channel.anti_phishing_code
+      code = channel.anti_phishing_code
 
       perform_job(EmailDispatcher, %{
-        "channel_id" => channel.id,
+        "email_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -123,17 +120,26 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
 
-      :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+      :ok =
+        perform_job(EmailDispatcher, %{
+          "email_channel_id" => channel.id,
+          "test" => true
+        })
+
       assert_email_sent(to: "ops@example.com")
     end
 
     test "includes verified CC recipients in test email" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
-      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
-      Delivery.verify_recipient(recipient.token)
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
+      EmailChannels.verify_recipient(recipient.token)
 
-      :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+      :ok =
+        perform_job(EmailDispatcher, %{
+          "email_channel_id" => channel.id,
+          "test" => true
+        })
 
       assert_email_sent(cc: [{"", "cc@example.com"}])
     end
@@ -141,9 +147,13 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
     test "does not include unverified CC recipients in test email" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
-      Delivery.add_recipient(channel.id, "pending@example.com")
+      EmailChannels.add_recipient(channel.id, "pending@example.com")
 
-      :ok = perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+      :ok =
+        perform_job(EmailDispatcher, %{
+          "email_channel_id" => channel.id,
+          "test" => true
+        })
 
       assert_email_sent(fn email -> email.cc == [] end)
     end
@@ -155,12 +165,12 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
-      {:ok, recipient} = Delivery.add_recipient(channel.id, "cc@example.com")
-      Delivery.verify_recipient(recipient.token)
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
+      EmailChannels.verify_recipient(recipient.token)
 
       :ok =
         perform_job(EmailDispatcher, %{
-          "channel_id" => channel.id,
+          "email_channel_id" => channel.id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -179,7 +189,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
       result =
         perform_job(EmailDispatcher, %{
-          "channel_id" => channel.id,
+          "email_channel_id" => channel.id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -194,7 +204,10 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       channel = email_channel_fixture(ws.id, verified: false)
 
       assert {:cancel, :no_verified_recipients} =
-               perform_job(EmailDispatcher, %{"channel_id" => channel.id, "test" => true})
+               perform_job(EmailDispatcher, %{
+                 "email_channel_id" => channel.id,
+                 "test" => true
+               })
 
       assert_no_email_sent()
     end
@@ -232,11 +245,11 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id, verified: false)
-      Delivery.add_recipient(channel.id, "pending@example.com")
+      EmailChannels.add_recipient(channel.id, "pending@example.com")
 
       assert {:cancel, :no_verified_recipients} =
                perform_job(EmailDispatcher, %{
-                 "channel_id" => channel.id,
+                 "email_channel_id" => channel.id,
                  "monitor_id" => monitor.id,
                  "incident_id" => incident.id,
                  "event" => "down"

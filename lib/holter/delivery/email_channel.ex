@@ -10,14 +10,18 @@ defmodule Holter.Delivery.EmailChannel do
   @unambiguous_alphabet ~c"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
   schema "email_channels" do
+    field :name, :string
     field :address, :string
     field :settings, :map, default: %{}
     field :anti_phishing_code, :string
     field :verified_at, :utc_datetime
     field :verification_token, :string
     field :verification_token_expires_at, :utc_datetime
+    field :last_test_dispatched_at, :utc_datetime
 
-    belongs_to :notification_channel, Holter.Delivery.NotificationChannel
+    belongs_to :workspace, Holter.Monitoring.Workspace
+
+    has_many :recipients, Holter.Delivery.EmailChannelRecipient
 
     timestamps(type: :utc_datetime)
   end
@@ -31,13 +35,13 @@ defmodule Holter.Delivery.EmailChannel do
 
   def changeset(email, attrs) do
     email
-    |> cast(attrs, [:notification_channel_id, :address, :settings])
-    |> validate_required([:address])
+    |> cast(attrs, [:workspace_id, :name, :address, :settings])
+    |> validate_required([:workspace_id, :name, :address])
+    |> validate_length(:name, min: 1, max: 255)
     |> validate_length(:address, min: 1, max: 2048)
     |> validate_email_format()
     |> ensure_anti_phishing_code()
-    |> unique_constraint(:notification_channel_id)
-    |> foreign_key_constraint(:notification_channel_id)
+    |> foreign_key_constraint(:workspace_id)
   end
 
   def generate_anti_phishing_code do

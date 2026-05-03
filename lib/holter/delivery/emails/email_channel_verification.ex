@@ -3,9 +3,14 @@ defmodule Holter.Delivery.Emails.EmailChannelVerification do
 
   import Swoosh.Email
 
-  def build_verification_email(channel, %{url: verification_url, from: from_address}) do
+  alias Holter.Delivery.EmailChannel
+
+  def build_verification_email(%EmailChannel{address: address}, %{
+        url: verification_url,
+        from: from_address
+      }) do
     new()
-    |> to(channel.email_channel.address)
+    |> to(address)
     |> from(from_address)
     |> subject("Confirm this address to receive monitoring alerts")
     |> text_body(

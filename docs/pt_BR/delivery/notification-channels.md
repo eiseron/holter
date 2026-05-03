@@ -44,7 +44,7 @@ Na página de configurações do canal, clique em **Enviar Teste** para enfileir
 
 ### Limite de taxa
 
-Pings de teste são limitados a **um por canal a cada 60 segundos**. O cooldown é aplicado no servidor e vale tanto para o botão **Enviar Teste** na página do canal quanto para o endpoint da API `POST /api/v1/notification_channels/{id}/pings`. Chamadas dentro da janela de cooldown retornam HTTP 429 com `error.code == "test_dispatch_rate_limited"` e não enfileiram um job.
+Pings de teste são limitados a **um por canal a cada 60 segundos**. O cooldown é aplicado no servidor e vale tanto para o botão **Enviar Teste** na página do canal quanto para a chamada equivalente na API. Chamadas dentro da janela de cooldown retornam HTTP 429 com `error.code == "test_dispatch_rate_limited"` e não enfileiram um job.
 
 O cooldown é por canal: enviar um ping para um canal não impede enviar para outro no mesmo workspace.
 

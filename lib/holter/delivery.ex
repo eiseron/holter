@@ -1,36 +1,19 @@
 defmodule Holter.Delivery do
   @moduledoc """
-  The Delivery context — manages notification channels and dispatches alerts.
+  Top-level Delivery facade. Mostly empty after #29 — channel-specific work
+  lives in `Holter.Delivery.WebhookChannels` and `Holter.Delivery.EmailChannels`.
+  This module only exposes operations that span both subtypes.
   """
 
-  alias Holter.Delivery.{ChannelLogs, NotificationChannels}
+  alias Holter.Delivery.{ChannelLogs, EmailChannels, WebhookChannels}
 
-  defdelegate list_channels(workspace_id), to: NotificationChannels
-  defdelegate list_channels(workspace_id, filters), to: NotificationChannels
-  defdelegate count_channels(workspace_id), to: NotificationChannels
-  defdelegate get_channel!(id), to: NotificationChannels
-  defdelegate get_channel(id), to: NotificationChannels
-  defdelegate create_channel(attrs), to: NotificationChannels
-  defdelegate update_channel(channel, attrs), to: NotificationChannels
-  defdelegate delete_channel(channel), to: NotificationChannels
-  defdelegate change_channel(channel, attrs \\ %{}), to: NotificationChannels
-  defdelegate regenerate_signing_token(channel), to: NotificationChannels
-  defdelegate regenerate_anti_phishing_code(channel), to: NotificationChannels
-  defdelegate link_monitor(monitor_id, channel_id), to: NotificationChannels
-  defdelegate unlink_monitor(monitor_id, channel_id), to: NotificationChannels
-  defdelegate list_channels_for_monitor(monitor_id), to: NotificationChannels
-  defdelegate list_monitor_ids_for_channel(channel_id), to: NotificationChannels
-  defdelegate sync_monitors_for_channel(channel_id, monitor_ids), to: NotificationChannels
-  defdelegate list_recipients(channel_id), to: NotificationChannels
-  defdelegate add_recipient(channel_id, email), to: NotificationChannels
-  defdelegate remove_recipient(recipient_id), to: NotificationChannels
-  defdelegate get_recipient_by_token(token), to: NotificationChannels
-  defdelegate verify_recipient(token), to: NotificationChannels
-  defdelegate list_verified_emails(channel_id), to: NotificationChannels
-  defdelegate send_email_channel_verification(channel), to: NotificationChannels
-  defdelegate verify_email_channel(token), to: NotificationChannels
-  defdelegate get_email_channel_by_verification_token(token), to: NotificationChannels
-  defdelegate resend_recipient_verification(recipient_id), to: NotificationChannels
+  @doc """
+  Total channel count across both subtypes for a workspace.
+  Used by the sidebar; per-type counts go through their own contexts.
+  """
+  def count_channels(workspace_id) do
+    WebhookChannels.count(workspace_id) + EmailChannels.count(workspace_id)
+  end
 
   defdelegate list_channel_logs(channel, filters), to: ChannelLogs
 end

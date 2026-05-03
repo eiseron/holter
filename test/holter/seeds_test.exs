@@ -11,6 +11,7 @@ defmodule Holter.SeedsTest do
 
   use Holter.DataCase, async: true
 
+  import Ecto.Query, only: [from: 2]
   import ExUnit.CaptureIO, only: [with_io: 1]
 
   @compile {:no_warn_undefined,
@@ -19,10 +20,21 @@ defmodule Holter.SeedsTest do
               Holter.Seeds.Monitoring.Workspaces,
               Holter.Seeds.Monitoring.Monitors,
               Holter.Seeds.Monitoring.Incidents,
-              Holter.Seeds.Monitoring.DailyMetrics
+              Holter.Seeds.Monitoring.DailyMetrics,
+              Holter.Seeds.Delivery.WebhookChannels,
+              Holter.Seeds.Delivery.EmailChannels
             ]}
 
+  alias Holter.Delivery.{
+    EmailChannel,
+    EmailChannelRecipient,
+    MonitorEmailChannel,
+    MonitorWebhookChannel,
+    WebhookChannel
+  }
+
   alias Holter.Monitoring.{DailyMetric, Incident, Monitor, Workspace}
+  alias Holter.Seeds.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Seeds.Monitoring.{DailyMetrics, Incidents, Monitors, Workspaces}
   alias Holter.Seeds.Time
 
@@ -34,6 +46,8 @@ defmodule Holter.SeedsTest do
     Code.require_file(Path.join(@seeds_dir, "monitoring/monitors.exs"))
     Code.require_file(Path.join(@seeds_dir, "monitoring/incidents.exs"))
     Code.require_file(Path.join(@seeds_dir, "monitoring/daily_metrics.exs"))
+    Code.require_file(Path.join(@seeds_dir, "delivery/webhook_channels.exs"))
+    Code.require_file(Path.join(@seeds_dir, "delivery/email_channels.exs"))
     :ok
   end
 
@@ -151,6 +165,102 @@ defmodule Holter.SeedsTest do
       today = Date.utc_today()
       assert today in dates
       assert Date.add(today, -6) in dates
+    end
+  end
+
+  describe "Holter.Seeds.Delivery.WebhookChannels.create_for/2" do
+    setup do
+      {workspace, _io} = with_io(fn -> Workspaces.create_default() end)
+      {monitors, _io} = with_io(fn -> Monitors.create_for(workspace) end)
+      %{workspace: workspace, monitors: monitors}
+    end
+
+    test "Given a workspace with monitors, when seeding webhook channels, then it inserts two channels named after typical Ops integrations",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> WebhookChannels.create_for(workspace, monitors) end)
+
+      names = Repo.all(WebhookChannel) |> Enum.map(& &1.name) |> Enum.sort()
+      assert names == ["Ops Slack", "PagerDuty critical"]
+    end
+
+    test "Given the seeded webhook channels, when inspecting URLs, then both target public HTTPS endpoints",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> WebhookChannels.create_for(workspace, monitors) end)
+
+      assert Enum.all?(Repo.all(WebhookChannel), &String.starts_with?(&1.url, "https://"))
+    end
+
+    test "Given the seeded webhook channels, when inspecting signing tokens, then each one has a non-empty token",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> WebhookChannels.create_for(workspace, monitors) end)
+
+      assert Enum.all?(
+               Repo.all(WebhookChannel),
+               &(is_binary(&1.signing_token) and &1.signing_token != "")
+             )
+    end
+
+    test "Given the seeded webhook channels, when counting monitor links, then Ops Slack covers six monitors and PagerDuty two",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> WebhookChannels.create_for(workspace, monitors) end)
+
+      counts =
+        Repo.all(WebhookChannel)
+        |> Map.new(fn c ->
+          {c.name,
+           Repo.aggregate(
+             from(l in MonitorWebhookChannel, where: l.webhook_channel_id == ^c.id),
+             :count
+           )}
+        end)
+
+      assert counts == %{"Ops Slack" => 6, "PagerDuty critical" => 2}
+    end
+  end
+
+  describe "Holter.Seeds.Delivery.EmailChannels.create_for/2" do
+    setup do
+      {workspace, _io} = with_io(fn -> Workspaces.create_default() end)
+      {monitors, _io} = with_io(fn -> Monitors.create_for(workspace) end)
+      %{workspace: workspace, monitors: monitors}
+    end
+
+    test "Given a workspace with monitors, when seeding email channels, then it inserts three channels covering the verified/pending UI states",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
+
+      names = Repo.all(EmailChannel) |> Enum.map(& &1.name) |> Enum.sort()
+      assert names == ["Engineering team", "On-call rotation", "Stakeholders"]
+    end
+
+    test "Given the seeded email channels, when partitioning by verification, then exactly one is awaiting verification",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
+
+      pending = Repo.all(EmailChannel) |> Enum.count(&is_nil(&1.verified_at))
+      assert pending == 1
+    end
+
+    test "Given the seeded email channels, when counting recipients, then four rows exist",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
+
+      assert Repo.aggregate(EmailChannelRecipient, :count) == 4
+    end
+
+    test "Given the seeded email channels, when partitioning recipients by verification, then exactly one is still awaiting verification",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
+
+      pending = Repo.all(EmailChannelRecipient) |> Enum.count(&is_nil(&1.verified_at))
+      assert pending == 1
+    end
+
+    test "Given the seeded email channels, when counting monitor links, then nine join rows exist (6 Engineering + 3 On-call)",
+         %{workspace: workspace, monitors: monitors} do
+      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
+
+      assert Repo.aggregate(MonitorEmailChannel, :count) == 9
     end
   end
 end

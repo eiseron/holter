@@ -137,7 +137,6 @@ defmodule HolterWeb do
 
       unquote(html_helpers())
 
-      import HolterWeb.Components.Delivery.NotificationChannelFormFields
       import HolterWeb.Timezone, only: [format_datetime: 2]
     end
   end

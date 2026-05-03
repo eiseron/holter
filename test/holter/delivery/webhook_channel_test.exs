@@ -1,9 +1,7 @@
 defmodule Holter.Delivery.WebhookChannelTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery
   alias Holter.Delivery.WebhookChannel
-  alias Holter.Repo
 
   describe "changeset/2" do
     test "is invalid without a url" do
@@ -102,34 +100,4 @@ defmodule Holter.Delivery.WebhookChannelTest do
 
   defp build_nested(acc, 0), do: acc
   defp build_nested(acc, n), do: build_nested(%{"k" => acc}, n - 1)
-
-  describe "uniqueness on notification_channel_id" do
-    test "a duplicate insert returns an error tuple" do
-      assert {:error, %Ecto.Changeset{}} = duplicate_insert()
-    end
-
-    test "the duplicate error names the unique constraint field" do
-      {:error, changeset} = duplicate_insert()
-      assert "has already been taken" in errors_on(changeset).notification_channel_id
-    end
-  end
-
-  defp duplicate_insert do
-    ws = workspace_fixture()
-
-    {:ok, channel} =
-      Delivery.create_channel(%{
-        workspace_id: ws.id,
-        name: "Hook",
-        type: :webhook,
-        target: "https://example.com/a"
-      })
-
-    %WebhookChannel{}
-    |> WebhookChannel.changeset(%{
-      notification_channel_id: channel.id,
-      url: "https://example.com/duplicate"
-    })
-    |> Repo.insert()
-  end
 end

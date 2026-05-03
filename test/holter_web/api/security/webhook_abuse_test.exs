@@ -2,19 +2,16 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
   use HolterWeb.ConnCase, async: false
   use Oban.Testing, repo: Holter.Repo
 
-  alias Holter.Delivery
-  alias Holter.Delivery.Engine
-  alias Holter.Delivery.NotificationChannel
+  alias Holter.Delivery.{Engine, WebhookChannels}
 
   setup %{conn: conn} do
     workspace = workspace_fixture()
 
     {:ok, channel} =
-      Delivery.create_channel(%{
+      WebhookChannels.create(%{
         workspace_id: workspace.id,
         name: "Test Hook",
-        type: :webhook,
-        target: "https://example.com/hook"
+        url: "https://example.com/hook"
       })
 
     conn =
@@ -114,8 +111,8 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         put(
           conn,
-          ~p"/api/v1/notification_channels/#{channel.id}",
-          Jason.encode!(%{target: "http://[::1]/hook"})
+          ~p"/api/v1/webhook_channels/#{channel.id}",
+          Jason.encode!(%{url: "http://[::1]/hook"})
         )
 
       assert json_response(conn, 422)
@@ -126,8 +123,8 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         put(
           conn,
-          ~p"/api/v1/notification_channels/#{channel.id}",
-          Jason.encode!(%{target: "http://[fc00::1]/hook"})
+          ~p"/api/v1/webhook_channels/#{channel.id}",
+          Jason.encode!(%{url: "http://[fc00::1]/hook"})
         )
 
       assert json_response(conn, 422)
@@ -138,8 +135,8 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         put(
           conn,
-          ~p"/api/v1/notification_channels/#{channel.id}",
-          Jason.encode!(%{target: "http://user:pass@example.com/hook"})
+          ~p"/api/v1/webhook_channels/#{channel.id}",
+          Jason.encode!(%{url: "http://user:pass@example.com/hook"})
         )
 
       assert json_response(conn, 422)
@@ -164,8 +161,8 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         post(
           conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels",
-          Jason.encode!(%{name: "Hook", type: "webhook"})
+          ~p"/api/v1/workspaces/#{workspace.slug}/webhook_channels",
+          Jason.encode!(%{name: "Hook"})
         )
 
       assert json_response(conn, 422)
@@ -178,11 +175,10 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         post(
           conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels",
+          ~p"/api/v1/workspaces/#{workspace.slug}/webhook_channels",
           Jason.encode!(%{
             name: "Hook",
-            type: "webhook",
-            target: "https://example.com/hook",
+            url: "https://example.com/hook",
             settings: big_settings
           })
         )
@@ -197,11 +193,10 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn =
         post(
           conn,
-          ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels",
+          ~p"/api/v1/workspaces/#{workspace.slug}/webhook_channels",
           Jason.encode!(%{
             name: "Hook",
-            type: "webhook",
-            target: "https://example.com/hook",
+            url: "https://example.com/hook",
             settings: ok_settings
           })
         )
@@ -213,7 +208,7 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
   describe "test dispatch — per-channel cooldown" do
     test "first ping returns 202 and enqueues exactly one job",
          %{conn: conn, channel: channel} do
-      conn = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      conn = post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
 
       assert response(conn, :accepted)
       assert length(all_enqueued(queue: :notifications)) == 1
@@ -221,8 +216,8 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
 
     test "second ping in rapid succession returns 429 with rate-limit error code",
          %{conn: conn, channel: channel} do
-      post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
-      conn2 = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
+      conn2 = post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
 
       body = json_response(conn2, 429)
       assert body["error"]["code"] == "test_dispatch_rate_limited"
@@ -231,7 +226,7 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
     test "five back-to-back pings enqueue exactly one job (others rejected at the gate)",
          %{conn: conn, channel: channel} do
       Enum.each(1..5, fn _ ->
-        post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+        post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
       end)
 
       assert length(all_enqueued(queue: :notifications)) == 1
@@ -240,35 +235,34 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
     test "cooldown is per-channel — second channel can ping while first is throttled",
          %{conn: conn, workspace: workspace, channel: first_channel} do
       {:ok, second_channel} =
-        Delivery.create_channel(%{
+        WebhookChannels.create(%{
           workspace_id: workspace.id,
           name: "Other Hook",
-          type: :webhook,
-          target: "https://example.com/other"
+          url: "https://example.com/other"
         })
 
-      post(conn, ~p"/api/v1/notification_channels/#{first_channel.id}/pings")
-      conn2 = post(conn, ~p"/api/v1/notification_channels/#{second_channel.id}/pings")
+      post(conn, ~p"/api/v1/webhook_channels/#{first_channel.id}/pings")
+      conn2 = post(conn, ~p"/api/v1/webhook_channels/#{second_channel.id}/pings")
 
       assert response(conn2, :accepted)
     end
 
     test "ping is allowed again once the cooldown elapses",
          %{conn: conn, channel: channel} do
-      post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
 
       backdate_test_dispatch(channel.id, Engine.test_dispatch_cooldown() + 1)
 
-      conn2 = post(conn, ~p"/api/v1/notification_channels/#{channel.id}/pings")
+      conn2 = post(conn, ~p"/api/v1/webhook_channels/#{channel.id}/pings")
       assert response(conn2, :accepted)
     end
   end
 
-  defp post_channel(conn, workspace, target) do
+  defp post_channel(conn, workspace, url) do
     post(
       conn,
-      ~p"/api/v1/workspaces/#{workspace.slug}/notification_channels",
-      Jason.encode!(%{name: "Hook", type: "webhook", target: target})
+      ~p"/api/v1/workspaces/#{workspace.slug}/webhook_channels",
+      Jason.encode!(%{name: "Hook", url: url})
     )
   end
 
@@ -278,9 +272,15 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       |> DateTime.add(-seconds_ago, :second)
       |> DateTime.truncate(:second)
 
-    NotificationChannel
-    |> Holter.Repo.get!(channel_id)
-    |> Ecto.Changeset.change(last_test_dispatched_at: past)
-    |> Holter.Repo.update!()
+    cond do
+      wc = Holter.Repo.get(Holter.Delivery.WebhookChannel, channel_id) ->
+        wc |> Ecto.Changeset.change(last_test_dispatched_at: past) |> Holter.Repo.update!()
+
+      ec = Holter.Repo.get(Holter.Delivery.EmailChannel, channel_id) ->
+        ec |> Ecto.Changeset.change(last_test_dispatched_at: past) |> Holter.Repo.update!()
+
+      true ->
+        :ok
+    end
   end
 end

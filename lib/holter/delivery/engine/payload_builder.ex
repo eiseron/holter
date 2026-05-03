@@ -14,12 +14,12 @@ defmodule Holter.Delivery.Engine.PayloadBuilder do
     }
   end
 
-  def build_test_payload(channel, now) do
+  def build_test_payload(channel, type, now) when type in [:webhook, :email] do
     %{
       version: @version,
       event: "test_ping",
       timestamp: DateTime.to_iso8601(now),
-      channel: %{id: channel.id, name: channel.name, type: channel.type}
+      channel: %{id: channel.id, name: channel.name, type: type}
     }
   end
 

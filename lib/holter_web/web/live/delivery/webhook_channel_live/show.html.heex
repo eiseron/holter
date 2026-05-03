@@ -1,0 +1,62 @@
+<.channel_form
+  channel={@channel}
+  workspace={@workspace}
+  form={@form}
+  form_id="webhook-channel-form"
+  subtype_label={gettext("Webhook channel")}
+  logs_path={~p"/delivery/webhook-channels/#{@channel.id}/logs"}
+  workspace_channels_path={~p"/delivery/workspaces/#{@workspace.slug}/channels"}
+  available_monitors={@available_monitors}
+  linked_monitor_ids={@linked_monitor_ids}
+  cooldown_remaining={@cooldown_remaining}
+>
+  <:type_fields>
+    <.webhook_channel_form_fields form={@form} />
+  </:type_fields>
+
+  <:secret_card>
+    <.secret_card
+      id="signing"
+      title={gettext("Webhook signing")}
+      help={
+        gettext(
+          "Holter signs every outbound webhook with HMAC-SHA256. Recompute the signature on your side over \"<unix>.<body>\" using this token as the HMAC key, and compare with the X-Holter-Signature header."
+        ) <>
+          " " <>
+          gettext("Keep the token private; regenerate if leaked.")
+      }
+      reveal_label={gettext("Show signing token")}
+      value={@channel.signing_token}
+    />
+  </:secret_card>
+
+  <:regenerate_modal>
+    <.modal id="regenerate-secret-modal" title={gettext("Regenerate signing token")}>
+      <p>
+        {gettext(
+          "Regenerating invalidates the current signature. Update your receiver before regenerating to avoid missed alerts."
+        )}
+      </p>
+      <:footer>
+        <button
+          type="button"
+          class="h-btn h-btn-soft"
+          phx-click={JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")}
+        >
+          {gettext("Cancel")}
+        </button>
+        <button
+          type="button"
+          class="h-btn h-btn-danger"
+          phx-click={
+            JS.push("regenerate_secret")
+            |> JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")
+          }
+          phx-disable-with={gettext("Regenerating...")}
+        >
+          {gettext("Yes, Regenerate")}
+        </button>
+      </:footer>
+    </.modal>
+  </:regenerate_modal>
+</.channel_form>

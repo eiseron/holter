@@ -3,29 +3,27 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.VerifyTest do
 
   import Phoenix.LiveViewTest
 
-  alias Holter.Delivery
-  alias Holter.Delivery.EmailChannel
+  alias Holter.Delivery.{EmailChannel, EmailChannels}
   alias Holter.Repo
 
   setup do
     ws = workspace_fixture()
 
     {:ok, channel} =
-      Delivery.create_channel(%{
+      EmailChannels.create(%{
         workspace_id: ws.id,
         name: "Ops Email",
-        type: :email,
-        target: "ops@example.com"
+        address: "ops@example.com"
       })
 
-    {:ok, with_token} = Delivery.send_email_channel_verification(channel)
-    %{channel: with_token, token: with_token.email_channel.verification_token}
+    {:ok, with_token} = EmailChannels.send_verification(channel)
+    %{channel: with_token, token: with_token.verification_token}
   end
 
   describe "valid token" do
     test "renders verified heading", %{conn: conn, token: token} do
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/notification-channels/email-channels/verify/#{token}")
+        live(conn, ~p"/delivery/email-channels/verify/#{token}")
 
       assert html =~ "Email channel verified"
     end
@@ -36,9 +34,9 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.VerifyTest do
       token: token
     } do
       {:ok, _view, _html} =
-        live(conn, ~p"/delivery/notification-channels/email-channels/verify/#{token}")
+        live(conn, ~p"/delivery/email-channels/verify/#{token}")
 
-      reloaded = Repo.get_by!(EmailChannel, notification_channel_id: channel.id)
+      reloaded = Repo.get!(EmailChannel, channel.id)
       assert %DateTime{} = reloaded.verified_at
     end
 
@@ -48,9 +46,9 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.VerifyTest do
       token: token
     } do
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/notification-channels/email-channels/verify/#{token}")
+        live(conn, ~p"/delivery/email-channels/verify/#{token}")
 
-      assert html =~ "/delivery/notification-channels/#{channel.id}"
+      assert html =~ "/delivery/email-channels/#{channel.id}"
     end
   end
 
@@ -62,15 +60,15 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.VerifyTest do
     } do
       past = DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
 
-      channel.email_channel
+      channel
       |> Ecto.Changeset.change(verification_token_expires_at: past)
       |> Repo.update!()
 
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/notification-channels/email-channels/verify/#{token}")
+        live(conn, ~p"/delivery/email-channels/verify/#{token}")
 
       assert html =~ "Link expired"
-      reloaded = Repo.get_by!(EmailChannel, notification_channel_id: channel.id)
+      reloaded = Repo.get!(EmailChannel, channel.id)
       assert is_nil(reloaded.verified_at)
     end
   end
@@ -78,7 +76,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.VerifyTest do
   describe "unknown token" do
     test "renders not-found heading", %{conn: conn} do
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/notification-channels/email-channels/verify/unknown-token")
+        live(conn, ~p"/delivery/email-channels/verify/unknown-token")
 
       assert html =~ "Link not found"
     end

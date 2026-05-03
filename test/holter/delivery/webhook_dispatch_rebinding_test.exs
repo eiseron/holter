@@ -13,8 +13,8 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
   import ExUnit.CaptureLog
   import Mox
 
-  alias Holter.Delivery
   alias Holter.Delivery.HttpClient.HTTP, as: RealHttpClient
+  alias Holter.Delivery.WebhookChannels
   alias Holter.Delivery.Workers.WebhookDispatcher
   alias Holter.Network.ResolverMock
   alias Holter.Test.DummyService
@@ -35,11 +35,10 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
     ws = workspace_fixture()
 
     {:ok, channel} =
-      Delivery.create_channel(%{
+      WebhookChannels.create(%{
         workspace_id: ws.id,
         name: "Rebinding hook",
-        type: :webhook,
-        target: "https://rebind-victim.example.com/hook"
+        url: "https://rebind-victim.example.com/hook"
       })
 
     %{channel: channel}
@@ -56,7 +55,7 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
       capture_log(fn ->
         result =
           perform_job(WebhookDispatcher, %{
-            "channel_id" => channel.id,
+            "webhook_channel_id" => channel.id,
             "test" => true
           })
 

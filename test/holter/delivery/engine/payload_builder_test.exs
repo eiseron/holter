@@ -157,28 +157,28 @@ defmodule Holter.Delivery.Engine.PayloadBuilderTest do
     end
   end
 
-  describe "build_test_payload/2" do
+  describe "build_test_payload/3" do
     test "sets event to test_ping" do
-      channel = %{id: "ch-1", name: "Slack DevOps", type: :slack}
-      payload = PayloadBuilder.build_test_payload(channel, @now)
+      channel = %{id: "ch-1", name: "Slack DevOps"}
+      payload = PayloadBuilder.build_test_payload(channel, :webhook, @now)
       assert payload.event == "test_ping"
     end
 
     test "includes channel id" do
-      channel = %{id: "ch-1", name: "Slack DevOps", type: :slack}
-      payload = PayloadBuilder.build_test_payload(channel, @now)
+      channel = %{id: "ch-1", name: "Slack DevOps"}
+      payload = PayloadBuilder.build_test_payload(channel, :webhook, @now)
       assert payload.channel.id == "ch-1"
     end
 
     test "includes channel name" do
-      channel = %{id: "ch-1", name: "Slack DevOps", type: :slack}
-      payload = PayloadBuilder.build_test_payload(channel, @now)
+      channel = %{id: "ch-1", name: "Slack DevOps"}
+      payload = PayloadBuilder.build_test_payload(channel, :webhook, @now)
       assert payload.channel.name == "Slack DevOps"
     end
 
     test "sets version to 1.0" do
-      channel = %{id: "ch-1", name: "Slack DevOps", type: :slack}
-      payload = PayloadBuilder.build_test_payload(channel, @now)
+      channel = %{id: "ch-1", name: "Slack DevOps"}
+      payload = PayloadBuilder.build_test_payload(channel, :webhook, @now)
       assert payload.version == "1.0"
     end
   end

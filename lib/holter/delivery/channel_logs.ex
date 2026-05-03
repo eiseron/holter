@@ -2,6 +2,7 @@ defmodule Holter.Delivery.ChannelLogs do
   @moduledoc false
 
   import Ecto.Query
+  alias Holter.Delivery.{EmailChannel, WebhookChannel}
   alias Holter.Monitoring.{DateFilter, Pagination}
   alias Holter.Repo
 
@@ -14,7 +15,8 @@ defmodule Holter.Delivery.ChannelLogs do
 
   def list_channel_logs(channel, filters) do
     page_size = Pagination.resolve_page_size(filters[:page_size])
-    base_query = build_base_query(channel.id, filters)
+    {arg_key, arg_value} = subtype_arg(ensure_subtype_loaded(channel))
+    base_query = build_base_query(arg_key, arg_value, filters)
 
     {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
 
@@ -38,13 +40,13 @@ defmodule Holter.Delivery.ChannelLogs do
   def format_event_type(%Oban.Job{args: %{"test" => true}}), do: "test"
   def format_event_type(%Oban.Job{args: %{"event" => event}}), do: event
 
-  defp build_base_query(channel_id, filters) do
+  defp build_base_query(arg_key, arg_value, filters) do
     timezone = filters[:timezone] || "Etc/UTC"
 
     from(j in Oban.Job,
       where: j.worker in ^@delivery_workers,
       where: j.state in ^@terminal_states,
-      where: fragment("? @> jsonb_build_object('channel_id', ?::text)", j.args, ^channel_id)
+      where: fragment("? @> jsonb_build_object(?::text, ?::text)", j.args, ^arg_key, ^arg_value)
     )
     |> apply_status_filter(filters[:status])
     |> apply_date_range_filter(
@@ -52,6 +54,11 @@ defmodule Holter.Delivery.ChannelLogs do
       timezone
     )
   end
+
+  defp subtype_arg(%WebhookChannel{id: id}), do: {"webhook_channel_id", id}
+  defp subtype_arg(%EmailChannel{id: id}), do: {"email_channel_id", id}
+
+  defp ensure_subtype_loaded(channel), do: channel
 
   defp apply_sort_order(query, sort_by, sort_dir) do
     field = Map.get(@sortable_columns, to_string(sort_by), :attempted_at)

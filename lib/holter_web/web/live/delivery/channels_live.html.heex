@@ -5,7 +5,7 @@
   >
     <:actions>
       <.link
-        navigate={~p"/delivery/workspaces/#{@workspace.slug}/notification-channels/new"}
+        navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels/new"}
         class="h-btn h-btn-primary"
       >
         <svg
@@ -33,10 +33,7 @@
   <% else %>
     <.table id="channels-table" rows={@channels}>
       <:col :let={channel} label={gettext("Name")}>
-        <.link
-          navigate={~p"/delivery/notification-channels/#{channel.id}"}
-          class="h-link"
-        >
+        <.link navigate={channel.show_path} class="h-link">
           {channel.name}
         </.link>
       </:col>
@@ -47,10 +44,7 @@
         {channel.target}
       </:col>
       <:col :let={channel} label="">
-        <.link
-          navigate={~p"/delivery/notification-channels/#{channel.id}"}
-          class="h-btn h-btn-soft h-text-sm"
-        >
+        <.link navigate={channel.show_path} class="h-btn h-btn-soft h-text-sm">
           {gettext("Edit")}
         </.link>
       </:col>

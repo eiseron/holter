@@ -3,7 +3,7 @@ defmodule Holter.Delivery.EventConsumerTest do
   use Oban.Testing, repo: Holter.Repo
 
   alias Ecto.Adapters.SQL.Sandbox
-  alias Holter.Delivery
+  alias Holter.Delivery.WebhookChannels
   alias Holter.Delivery.Workers.WebhookDispatcher
 
   setup do
@@ -14,11 +14,10 @@ defmodule Holter.Delivery.EventConsumerTest do
 
   defp webhook_channel_fixture(workspace_id) do
     {:ok, channel} =
-      Delivery.create_channel(%{
+      WebhookChannels.create(%{
         workspace_id: workspace_id,
         name: "Test Webhook",
-        type: :webhook,
-        target: "https://example.com/hook"
+        url: "https://example.com/hook"
       })
 
     channel
@@ -29,7 +28,7 @@ defmodule Holter.Delivery.EventConsumerTest do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       channel = webhook_channel_fixture(ws.id)
-      Delivery.link_monitor(monitor.id, channel.id)
+      WebhookChannels.link_monitor(monitor.id, channel.id)
 
       incident = incident_fixture(monitor_id: monitor.id)
 
@@ -69,7 +68,7 @@ defmodule Holter.Delivery.EventConsumerTest do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       channel = webhook_channel_fixture(ws.id)
-      Delivery.link_monitor(monitor.id, channel.id)
+      WebhookChannels.link_monitor(monitor.id, channel.id)
 
       incident = incident_fixture(monitor_id: monitor.id)
 

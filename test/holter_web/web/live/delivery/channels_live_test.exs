@@ -3,23 +3,30 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias Holter.Delivery
+  alias Holter.Delivery.{EmailChannels, WebhookChannels}
 
   setup do
     workspace = workspace_fixture()
     %{workspace: workspace}
   end
 
-  defp channel_fixture(workspace_id, attrs \\ %{}) do
+  defp webhook_fixture(workspace_id, attrs \\ %{}) do
     {:ok, channel} =
-      Delivery.create_channel(
+      WebhookChannels.create(
         Map.merge(
-          %{
-            workspace_id: workspace_id,
-            name: "Test Hook",
-            type: :webhook,
-            target: "https://example.com/hook"
-          },
+          %{workspace_id: workspace_id, name: "Test Hook", url: "https://example.com/hook"},
+          attrs
+        )
+      )
+
+    channel
+  end
+
+  defp email_fixture(workspace_id, attrs) do
+    {:ok, channel} =
+      EmailChannels.create(
+        Map.merge(
+          %{workspace_id: workspace_id, name: "Ops Email", address: "ops@example.com"},
           attrs
         )
       )
@@ -48,13 +55,33 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
       assert html =~ "No notification channels yet"
     end
 
-    test "Given a workspace with channels, when mounted, then channels are listed",
+    test "Given a workspace with a webhook channel, when mounted, then it appears in the list",
          %{conn: conn, workspace: workspace} do
-      channel_fixture(workspace.id, %{name: "My Webhook"})
+      webhook_fixture(workspace.id, %{name: "My Webhook"})
 
       {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
       assert html =~ "My Webhook"
+    end
+
+    test "Given a workspace with an email channel, when mounted, then it appears in the list",
+         %{conn: conn, workspace: workspace} do
+      email_fixture(workspace.id, %{name: "On-call"})
+
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
+
+      assert html =~ "On-call"
+    end
+
+    test "Given both kinds of channels, when mounted, then both kinds appear together",
+         %{conn: conn, workspace: workspace} do
+      webhook_fixture(workspace.id, %{name: "Aaa-webhook"})
+      email_fixture(workspace.id, %{name: "Bbb-email"})
+
+      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
+
+      assert html =~ "Aaa-webhook"
+      assert html =~ "Bbb-email"
     end
   end
 
@@ -62,7 +89,7 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
     test "sidebar shows monitor count and channel count",
          %{conn: conn, workspace: workspace} do
       monitor_fixture(%{workspace_id: workspace.id})
-      channel_fixture(workspace.id)
+      webhook_fixture(workspace.id)
 
       {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 

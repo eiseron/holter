@@ -28,7 +28,7 @@ defmodule Holter.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [precommit: :test, "test.ci": :test]
     ]
   end
 
@@ -87,6 +87,13 @@ defmodule Holter.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.ci": [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "test",
+        "cmd mix ecto.rollback --all --quiet",
+        "cmd mix ecto.migrate --quiet"
+      ],
       "assets.setup": ["esbuild.install --if-missing"],
       "assets.build": ["compile", "esbuild holter"],
       "assets.deploy": [

@@ -74,8 +74,13 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
   defp channels_views do
     [
       HolterWeb.Web.Delivery.ChannelsLive,
-      HolterWeb.Web.Delivery.NotificationChannelLive.New,
-      HolterWeb.Web.Delivery.NotificationChannelLive.Show
+      HolterWeb.Web.Delivery.ChannelsLive.New,
+      HolterWeb.Web.Delivery.WebhookChannelLive.New,
+      HolterWeb.Web.Delivery.WebhookChannelLive.Show,
+      HolterWeb.Web.Delivery.WebhookChannelLive.Logs,
+      HolterWeb.Web.Delivery.EmailChannelLive.New,
+      HolterWeb.Web.Delivery.EmailChannelLive.Show,
+      HolterWeb.Web.Delivery.EmailChannelLive.Logs
     ]
   end
 end

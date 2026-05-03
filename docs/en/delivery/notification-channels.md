@@ -44,7 +44,7 @@ On the channel settings page, click **Send Test** to enqueue a test notification
 
 ### Rate limit
 
-Test pings are throttled to **one per channel every 60 seconds**. The cooldown is enforced server-side and applies equally to the **Send Test** button on the channel page and the API endpoint `POST /api/v1/notification_channels/{id}/pings`. Calls inside the cooldown window return HTTP 429 with `error.code == "test_dispatch_rate_limited"` and do not enqueue a job.
+Test pings are throttled to **one per channel every 60 seconds**. The cooldown is enforced server-side and applies equally to the **Send Test** button on the channel page and the equivalent API call. Calls inside the cooldown window return HTTP 429 with `error.code == "test_dispatch_rate_limited"` and do not enqueue a job.
 
 The cooldown is per-channel: pinging one channel does not prevent pinging another in the same workspace.
 

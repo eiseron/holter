@@ -12,25 +12,27 @@ defmodule Holter.Delivery.WebhookChannel do
   @settings_max_bytes 4096
 
   schema "webhook_channels" do
+    field :name, :string
     field :url, :string
     field :settings, :map, default: %{}
     field :signing_token, :string
+    field :last_test_dispatched_at, :utc_datetime
 
-    belongs_to :notification_channel, Holter.Delivery.NotificationChannel
+    belongs_to :workspace, Holter.Monitoring.Workspace
 
     timestamps(type: :utc_datetime)
   end
 
   def changeset(webhook, attrs) do
     webhook
-    |> cast(attrs, [:notification_channel_id, :url, :settings])
-    |> validate_required([:url])
+    |> cast(attrs, [:workspace_id, :name, :url, :settings])
+    |> validate_required([:workspace_id, :name, :url])
+    |> validate_length(:name, min: 1, max: 255)
     |> validate_length(:url, min: 1, max: 2048)
     |> validate_url_format()
     |> validate_settings_size()
     |> ensure_signing_token()
-    |> unique_constraint(:notification_channel_id)
-    |> foreign_key_constraint(:notification_channel_id)
+    |> foreign_key_constraint(:workspace_id)
   end
 
   def generate_signing_token do

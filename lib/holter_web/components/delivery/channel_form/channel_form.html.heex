@@ -1,0 +1,78 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={@workspace_channels_path} />
+    {@channel.name}
+  </:title>
+  <:subtitle>
+    {@subtype_label}
+  </:subtitle>
+  <:actions>
+    <.link navigate={@logs_path} class="h-btn h-btn-soft">
+      {gettext("View Logs")}
+    </.link>
+    <.button type="button" phx-click="test" disabled={@cooldown_remaining > 0}>
+      <%= if @cooldown_remaining > 0 do %>
+        {gettext("Wait %{seconds}s", seconds: @cooldown_remaining)}
+      <% else %>
+        {gettext("Send Test")}
+      <% end %>
+    </.button>
+  </:actions>
+
+  <.form
+    for={@form}
+    id={@form_id}
+    phx-change="validate"
+    phx-submit="save"
+    class="h-form-sections h-mt-8"
+  >
+    {render_slot(@type_fields)}
+
+    {render_slot(@extras)}
+
+    {render_slot(@secret_card)}
+
+    <.monitor_channel_select
+      monitors={@available_monitors}
+      selected_ids={@linked_monitor_ids}
+    />
+
+    <div class="h-actions-row">
+      <button
+        type="button"
+        class="h-btn h-btn-danger"
+        phx-click={JS.remove_attribute("hidden", to: "#delete-channel-modal")}
+      >
+        {gettext("Delete Channel")}
+      </button>
+      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
+        {gettext("Save Changes")}
+      </.button>
+    </div>
+  </.form>
+</.page_container>
+
+{render_slot(@regenerate_modal)}
+
+<.modal id="delete-channel-modal" title={gettext("Delete Channel")}>
+  <p>
+    {gettext("Are you sure you want to delete this channel? This action cannot be undone.")}
+  </p>
+  <:footer>
+    <button
+      type="button"
+      class="h-btn h-btn-soft"
+      phx-click={JS.set_attribute({"hidden", ""}, to: "#delete-channel-modal")}
+    >
+      {gettext("Cancel")}
+    </button>
+    <button
+      type="button"
+      class="h-btn h-btn-danger"
+      phx-click="delete_channel"
+      phx-disable-with={gettext("Deleting...")}
+    >
+      {gettext("Yes, Delete Completely")}
+    </button>
+  </:footer>
+</.modal>

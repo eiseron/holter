@@ -5,7 +5,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   import Swoosh.Email
 
-  alias Holter.Delivery.{EmailChannel, NotificationChannels}
+  alias Holter.Delivery.{EmailChannel, EmailChannels}
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring
@@ -13,13 +13,13 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
   @impl Oban.Worker
   def perform(%Oban.Job{
         args: %{
-          "channel_id" => channel_id,
+          "email_channel_id" => channel_id,
           "monitor_id" => monitor_id,
           "incident_id" => incident_id,
           "event" => event
         }
       }) do
-    channel = NotificationChannels.get_channel!(channel_id)
+    channel = EmailChannels.get!(channel_id)
     monitor = Monitoring.get_monitor!(monitor_id)
     incident = Monitoring.get_incident!(incident_id)
     now = DateTime.utc_now()
@@ -31,18 +31,18 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
       })
 
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
-    body = ChannelFormatter.append_anti_phishing_footer(body, channel.email_channel)
+    body = ChannelFormatter.append_anti_phishing_footer(body, channel)
 
     deliver(channel, subject, body)
   end
 
-  def perform(%Oban.Job{args: %{"channel_id" => channel_id, "test" => true}}) do
-    channel = NotificationChannels.get_channel!(channel_id)
+  def perform(%Oban.Job{args: %{"email_channel_id" => channel_id, "test" => true}}) do
+    channel = EmailChannels.get!(channel_id)
     now = DateTime.utc_now()
 
-    payload = PayloadBuilder.build_test_payload(channel, now)
+    payload = PayloadBuilder.build_test_payload(channel, :email, now)
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
-    body = ChannelFormatter.append_anti_phishing_footer(body, channel.email_channel)
+    body = ChannelFormatter.append_anti_phishing_footer(body, channel)
 
     deliver(channel, subject, body)
   end
@@ -72,14 +72,11 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     :ok
   end
 
-  defp compute_recipients(channel) do
+  defp compute_recipients(%EmailChannel{} = channel) do
     primary =
-      if EmailChannel.verified?(channel.email_channel),
-        do: channel.email_channel.address,
-        else: nil
+      if EmailChannel.verified?(channel), do: channel.address, else: nil
 
-    cc = NotificationChannels.list_verified_emails(channel.id)
-    {primary, cc}
+    {primary, EmailChannels.list_verified_emails(channel.id)}
   end
 
   defp from_address, do: Application.fetch_env!(:holter, :email)[:from_address]

@@ -5,6 +5,7 @@ defmodule HolterWeb.Api.DeliveryLogController do
   import HolterWeb.Api.ParamHelpers
 
   alias Holter.Delivery
+  alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias HolterWeb.Api.DeliveryLogSchemas
 
   action_fallback HolterWeb.Api.FallbackController
@@ -16,11 +17,18 @@ defmodule HolterWeb.Api.DeliveryLogController do
   operation(:index,
     summary: "List delivery logs",
     description:
-      "List delivery job logs for a notification channel with pagination and filtering.",
+      "List delivery job logs for a webhook or email channel with pagination and filtering.",
     parameters: [
-      notification_channel_id: [
+      webhook_channel_id: [
         in: :path,
-        description: "Notification channel UUID",
+        description: "Webhook channel UUID (when listing logs under /webhook_channels)",
+        required: false,
+        schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
+      ],
+      email_channel_id: [
+        in: :path,
+        description: "Email channel UUID (when listing logs under /email_channels)",
+        required: false,
         schema: %OpenApiSpex.Schema{type: :string, format: "uuid"}
       ],
       page: [
@@ -43,13 +51,17 @@ defmodule HolterWeb.Api.DeliveryLogController do
     ]
   )
 
-  def index(conn, %{notification_channel_id: channel_id} = params) do
-    with {:ok, channel} <- Delivery.get_channel(channel_id) do
+  def index(conn, params) do
+    with {:ok, channel} <- fetch_channel(params) do
       filters = sanitize_filters(params)
       result = Delivery.list_channel_logs(channel, filters)
       render(conn, :index, logs: result)
     end
   end
+
+  defp fetch_channel(%{webhook_channel_id: id}), do: WebhookChannels.get(id)
+  defp fetch_channel(%{email_channel_id: id}), do: EmailChannels.get(id)
+  defp fetch_channel(_), do: {:error, :not_found}
 
   defp sanitize_filters(params) do
     %{}

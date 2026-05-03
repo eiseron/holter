@@ -61,7 +61,7 @@ test:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
   script:
-    - mix test
+    - mix test.ci
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 

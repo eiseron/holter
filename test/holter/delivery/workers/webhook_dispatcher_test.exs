@@ -3,18 +3,15 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
   use Oban.Testing, repo: Holter.Repo
   import Mox
 
-  alias Holter.Delivery
-  alias Holter.Delivery.HttpClientMock
-  alias Holter.Delivery.WebhookSignature
+  alias Holter.Delivery.{HttpClientMock, WebhookChannels, WebhookSignature}
   alias Holter.Delivery.Workers.WebhookDispatcher
 
   defp webhook_channel_fixture(workspace_id) do
     {:ok, channel} =
-      Delivery.create_channel(%{
+      WebhookChannels.create(%{
         workspace_id: workspace_id,
         name: "Test Webhook",
-        type: :webhook,
-        target: "https://example.com/hook"
+        url: "https://example.com/hook"
       })
 
     channel
@@ -39,7 +36,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       :ok =
         perform_job(WebhookDispatcher, %{
-          "channel_id" => channel.id,
+          "webhook_channel_id" => channel.id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -59,7 +56,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -80,7 +77,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -111,7 +108,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -132,7 +129,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -146,7 +143,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       incident: incident,
       channel: channel
     } do
-      token = channel.webhook_channel.signing_token
+      token = channel.signing_token
 
       expect(HttpClientMock, :post, fn _url, body, headers ->
         {_, value} = List.keyfind(headers, WebhookSignature.header_name(), 0)
@@ -161,7 +158,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -182,7 +179,12 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
         {:ok, %{status: 200}}
       end)
 
-      :ok = perform_job(WebhookDispatcher, %{"channel_id" => channel.id, "test" => true})
+      :ok =
+        perform_job(WebhookDispatcher, %{
+          "webhook_channel_id" => channel.id,
+          "test" => true
+        })
+
       verify!(HttpClientMock)
     end
 
@@ -193,7 +195,10 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       stub(HttpClientMock, :post, fn _url, _body, _headers -> {:ok, %{status: 400}} end)
 
       assert {:error, _} =
-               perform_job(WebhookDispatcher, %{"channel_id" => channel.id, "test" => true})
+               perform_job(WebhookDispatcher, %{
+                 "webhook_channel_id" => channel.id,
+                 "test" => true
+               })
     end
   end
 
@@ -215,7 +220,10 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       assert {:error, _} =
-               perform_job(WebhookDispatcher, %{"channel_id" => channel.id, "test" => true})
+               perform_job(WebhookDispatcher, %{
+                 "webhook_channel_id" => channel.id,
+                 "test" => true
+               })
 
       verify!(HttpClientMock)
     end
@@ -224,7 +232,10 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       stub(HttpClientMock, :post, fn _url, _body, _headers -> {:ok, %{status: 503}} end)
 
       assert {:error, _} =
-               perform_job(WebhookDispatcher, %{"channel_id" => channel.id, "test" => true})
+               perform_job(WebhookDispatcher, %{
+                 "webhook_channel_id" => channel.id,
+                 "test" => true
+               })
     end
 
     test "transport-level timeouts surface as errors", %{channel: channel} do
@@ -233,7 +244,10 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       assert {:error, _} =
-               perform_job(WebhookDispatcher, %{"channel_id" => channel.id, "test" => true})
+               perform_job(WebhookDispatcher, %{
+                 "webhook_channel_id" => channel.id,
+                 "test" => true
+               })
     end
 
     test "incident dispatch swallows transport errors silently to avoid retry storms", %{
@@ -247,7 +261,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       assert :ok =
                perform_job(WebhookDispatcher, %{
-                 "channel_id" => channel.id,
+                 "webhook_channel_id" => channel.id,
                  "monitor_id" => monitor.id,
                  "incident_id" => incident.id,
                  "event" => "down"
@@ -259,9 +273,9 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       incident: incident,
       channel: channel
     } do
-      original_token = channel.webhook_channel.signing_token
-      {:ok, rotated} = Delivery.regenerate_signing_token(channel)
-      new_token = rotated.webhook_channel.signing_token
+      original_token = channel.signing_token
+      {:ok, rotated} = WebhookChannels.regenerate_signing_token(channel)
+      new_token = rotated.signing_token
 
       assert original_token != new_token
 
@@ -279,7 +293,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       end)
 
       perform_job(WebhookDispatcher, %{
-        "channel_id" => channel.id,
+        "webhook_channel_id" => channel.id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"

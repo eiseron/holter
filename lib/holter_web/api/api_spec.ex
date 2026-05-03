@@ -10,10 +10,11 @@ defmodule HolterWeb.Api.ApiSpec do
   alias HolterWeb.Api.{
     DailyMetricSchemas,
     DeliveryLogSchemas,
+    EmailChannelSchemas,
     IncidentSchemas,
     MonitorLogSchemas,
     MonitorSchemas,
-    NotificationChannelSchemas,
+    WebhookChannelSchemas,
     WorkspaceSchemas
   }
 
@@ -39,7 +40,8 @@ defmodule HolterWeb.Api.ApiSpec do
           |> Map.merge(MonitorLogSchemas.all())
           |> Map.merge(DailyMetricSchemas.all())
           |> Map.merge(IncidentSchemas.all())
-          |> Map.merge(NotificationChannelSchemas.all())
+          |> Map.merge(WebhookChannelSchemas.all())
+          |> Map.merge(EmailChannelSchemas.all())
           |> Map.merge(DeliveryLogSchemas.all())
       }
     }

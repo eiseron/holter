@@ -4,7 +4,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
 
   import OpenApiSpex.TestAssertions
 
-  alias Holter.Delivery
+  alias Holter.Delivery.WebhookChannels
   alias Holter.Delivery.Workers.WebhookDispatcher
   alias HolterWeb.Api.ApiSpec
 
@@ -13,11 +13,10 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     api_spec = ApiSpec.spec()
 
     {:ok, channel} =
-      Delivery.create_channel(%{
+      WebhookChannels.create(%{
         workspace_id: workspace.id,
         name: "Test Webhook",
-        type: :webhook,
-        target: "https://example.com/hook"
+        url: "https://example.com/hook"
       })
 
     conn =
@@ -28,9 +27,9 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     {:ok, conn: conn, channel: channel, api_spec: api_spec}
   end
 
-  defp job_fixture(channel_id, state \\ "completed") do
+  defp job_fixture(channel, state \\ "completed") do
     args = %{
-      "channel_id" => channel_id,
+      "webhook_channel_id" => channel.id,
       "event" => "down",
       "monitor_id" => Ecto.UUID.generate(),
       "incident_id" => Ecto.UUID.generate()
@@ -43,15 +42,15 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     )
   end
 
-  describe "GET /api/v1/notification_channels/:id/delivery_logs" do
+  describe "GET /api/v1/webhook_channels/:id/delivery_logs" do
     test "returns paginated delivery logs matching DeliveryLogList schema", %{
       conn: conn,
       channel: channel,
       api_spec: spec
     } do
-      job_fixture(channel.id)
+      job_fixture(channel)
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
+      conn = get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs")
       body = json_response(conn, 200)
 
       assert %{"data" => [_], "meta" => %{"page" => 1}} = body
@@ -59,7 +58,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
     end
 
     test "returns empty list when channel has no logs", %{conn: conn, channel: channel} do
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
+      conn = get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs")
       assert %{"data" => [], "meta" => %{"total_pages" => 1}} = json_response(conn, 200)
     end
 
@@ -67,7 +66,7 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       conn =
         get(
           conn,
-          ~p"/api/v1/notification_channels/00000000-0000-0000-0000-000000000000/delivery_logs"
+          ~p"/api/v1/webhook_channels/00000000-0000-0000-0000-000000000000/delivery_logs"
         )
 
       assert json_response(conn, 404)
@@ -78,10 +77,10 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       channel: channel,
       api_spec: spec
     } do
-      job_fixture(channel.id, "completed")
-      job_fixture(channel.id, "discarded")
+      job_fixture(channel, "completed")
+      job_fixture(channel, "discarded")
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
+      conn = get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs")
       body = json_response(conn, 200)
 
       assert length(body["data"]) == 2
@@ -92,11 +91,11 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       conn: conn,
       channel: channel
     } do
-      job_fixture(channel.id, "completed")
-      job_fixture(channel.id, "discarded")
+      job_fixture(channel, "completed")
+      job_fixture(channel, "discarded")
 
       conn =
-        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs", %{
+        get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs", %{
           status: "success"
         })
 
@@ -110,11 +109,11 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       conn: conn,
       channel: channel
     } do
-      job_fixture(channel.id, "completed")
-      job_fixture(channel.id, "discarded")
+      job_fixture(channel, "completed")
+      job_fixture(channel, "discarded")
 
       conn =
-        get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs", %{
+        get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs", %{
           status: "failed"
         })
 
@@ -128,16 +127,15 @@ defmodule HolterWeb.Api.DeliveryLogControllerTest do
       other_workspace = workspace_fixture()
 
       {:ok, other_channel} =
-        Delivery.create_channel(%{
+        WebhookChannels.create(%{
           workspace_id: other_workspace.id,
           name: "Other",
-          type: :webhook,
-          target: "https://other.example.com/hook"
+          url: "https://other.example.com/hook"
         })
 
-      job_fixture(other_channel.id)
+      job_fixture(other_channel)
 
-      conn = get(conn, ~p"/api/v1/notification_channels/#{channel.id}/delivery_logs")
+      conn = get(conn, ~p"/api/v1/webhook_channels/#{channel.id}/delivery_logs")
       assert %{"data" => []} = json_response(conn, 200)
     end
   end

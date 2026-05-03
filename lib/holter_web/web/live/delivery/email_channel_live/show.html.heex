@@ -1,0 +1,157 @@
+<.channel_form
+  channel={@channel}
+  workspace={@workspace}
+  form={@form}
+  form_id="email-channel-form"
+  subtype_label={gettext("Email channel")}
+  logs_path={~p"/delivery/email-channels/#{@channel.id}/logs"}
+  workspace_channels_path={~p"/delivery/workspaces/#{@workspace.slug}/channels"}
+  available_monitors={@available_monitors}
+  linked_monitor_ids={@linked_monitor_ids}
+  cooldown_remaining={@cooldown_remaining}
+>
+  <:type_fields>
+    <.email_channel_form_fields form={@form} verification_status={@verification_status} />
+  </:type_fields>
+
+  <:extras>
+    <%= if !@channel.verified_at do %>
+      <section class="h-fieldset-card" aria-labelledby="email-verification-heading">
+        <h3 id="email-verification-heading" class="h-fieldset-legend">
+          {gettext("Verify primary email")}
+        </h3>
+        <p class="h-help-text">
+          {gettext(
+            "Alerts will not be delivered to %{email} until the address is verified. Click the link in the verification email; the link expires in 48 hours.",
+            email: @channel.address
+          )}
+        </p>
+        <.button
+          type="button"
+          phx-click="resend_email_verification"
+          phx-disable-with={gettext("Sending...")}
+        >
+          {gettext("Resend verification")}
+        </.button>
+      </section>
+    <% end %>
+
+    <section class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("CC Recipients")}</h3>
+      <p class="h-help-text h-mb-4">
+        {gettext(
+          "Additional addresses that receive a copy of each alert. Each address must be verified before receiving notifications."
+        )}
+      </p>
+
+      <div class="h-recipient-add-form">
+        <input
+          type="email"
+          name="cc_email"
+          value={@cc_input}
+          placeholder={gettext("cc@example.com")}
+          phx-change="update_cc_input"
+          phx-keydown="add_recipient"
+          phx-key="Enter"
+          onkeydown="if(event.key === 'Enter') event.preventDefault();"
+          class="h-input h-recipient-email-input"
+        />
+        <.button
+          type="button"
+          phx-click="add_recipient"
+          phx-value-email={@cc_input}
+        >
+          {gettext("Add CC Email")}
+        </.button>
+      </div>
+
+      <%= if @recipients == [] do %>
+        <p class="h-recipient-empty">{gettext("No CC recipients yet.")}</p>
+      <% else %>
+        <ul class="h-recipients-list h-mt-4" role="list">
+          <%= for recipient <- @recipients do %>
+            <li class="h-recipient-item">
+              <span class="h-recipient-email">{recipient.email}</span>
+              <%= if recipient.verified_at do %>
+                <span class="h-recipient-badge h-recipient-badge--verified">
+                  {gettext("Verified")}
+                </span>
+              <% else %>
+                <span class="h-recipient-badge h-recipient-badge--pending">
+                  {gettext("Pending verification")}
+                </span>
+                <button
+                  type="button"
+                  phx-click="resend_recipient_verification"
+                  phx-value-id={recipient.id}
+                  phx-disable-with={gettext("Sending...")}
+                  class="h-recipient-resend"
+                  aria-label={
+                    gettext("Resend verification email to %{email}", email: recipient.email)
+                  }
+                >
+                  {gettext("Resend")}
+                </button>
+              <% end %>
+              <button
+                type="button"
+                phx-click="remove_recipient"
+                phx-value-id={recipient.id}
+                class="h-recipient-remove"
+                aria-label={gettext("Remove %{email}", email: recipient.email)}
+              >
+                &times;
+              </button>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+  </:extras>
+
+  <:secret_card>
+    <.secret_card
+      id="phishing"
+      title={gettext("Anti-phishing code")}
+      help={
+        gettext(
+          "This code appears at the bottom of every email Holter sends through this channel. Save it. If a future email claims to be from Holter and the code is missing or different, it's a phishing attempt."
+        ) <>
+          " " <>
+          gettext("Regenerate if leaked.")
+      }
+      reveal_label={gettext("Show anti-phishing code")}
+      value={@channel.anti_phishing_code}
+    />
+  </:secret_card>
+
+  <:regenerate_modal>
+    <.modal id="regenerate-secret-modal" title={gettext("Regenerate anti-phishing code")}>
+      <p>
+        {gettext(
+          "Regenerating replaces the code shown in future emails. Recipients trained on the old code will see the new one in the next email."
+        )}
+      </p>
+      <:footer>
+        <button
+          type="button"
+          class="h-btn h-btn-soft"
+          phx-click={JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")}
+        >
+          {gettext("Cancel")}
+        </button>
+        <button
+          type="button"
+          class="h-btn h-btn-danger"
+          phx-click={
+            JS.push("regenerate_secret")
+            |> JS.set_attribute({"hidden", ""}, to: "#regenerate-secret-modal")
+          }
+          phx-disable-with={gettext("Regenerating...")}
+        >
+          {gettext("Yes, Regenerate")}
+        </button>
+      </:footer>
+    </.modal>
+  </:regenerate_modal>
+</.channel_form>

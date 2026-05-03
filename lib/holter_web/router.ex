@@ -54,14 +54,19 @@ defmodule HolterWeb.Router do
     resources "/incidents", IncidentController, only: [:show]
 
     scope "/workspaces/:workspace_slug" do
-      resources "/notification_channels", NotificationChannelController, only: [:index, :create]
+      resources "/webhook_channels", WebhookChannelController, only: [:index, :create]
+      resources "/email_channels", EmailChannelController, only: [:index, :create]
     end
 
-    resources "/notification_channels", NotificationChannelController,
-      only: [:show, :update, :delete] do
-      post "/pings", NotificationChannelController, :ping
-      put "/signing_token", NotificationChannelController, :rotate_signing_token
-      put "/anti_phishing_code", NotificationChannelController, :rotate_anti_phishing_code
+    resources "/webhook_channels", WebhookChannelController, only: [:show, :update, :delete] do
+      post "/pings", WebhookChannelController, :ping
+      put "/signing_token", WebhookChannelController, :rotate_signing_token
+      resources "/delivery_logs", DeliveryLogController, only: [:index]
+    end
+
+    resources "/email_channels", EmailChannelController, only: [:show, :update, :delete] do
+      post "/pings", EmailChannelController, :ping
+      put "/anti_phishing_code", EmailChannelController, :rotate_anti_phishing_code
       resources "/delivery_logs", DeliveryLogController, only: [:index]
     end
   end
@@ -90,7 +95,9 @@ defmodule HolterWeb.Router do
     live_session :authenticated_delivery_workspace,
       on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
       live "/channels", ChannelsLive, :index
-      live "/notification-channels/new", NotificationChannelLive.New, :new
+      live "/channels/new", ChannelsLive.New, :new
+      live "/webhook-channels/new", WebhookChannelLive.New, :new
+      live "/email-channels/new", EmailChannelLive.New, :new
     end
   end
 
@@ -99,19 +106,21 @@ defmodule HolterWeb.Router do
 
     live_session :public_delivery_verify,
       on_mount: [{HolterWeb.Hooks.UserAuthHook, :assign_current_user}] do
-      live "/notification-channels/recipients/verify/:token",
-           NotificationChannelRecipientLive.Verify,
+      live "/email-channels/recipients/verify/:token",
+           EmailChannelRecipientLive.Verify,
            :verify
 
-      live "/notification-channels/email-channels/verify/:token",
+      live "/email-channels/verify/:token",
            EmailChannelLive.Verify,
            :verify
     end
 
     live_session :authenticated_delivery,
       on_mount: [{HolterWeb.Hooks.UserAuthHook, :require_authenticated}] do
-      live "/notification-channels/:id", NotificationChannelLive.Show, :show
-      live "/notification-channels/:id/logs", NotificationChannelLive.Logs, :index
+      live "/webhook-channels/:id", WebhookChannelLive.Show, :show
+      live "/webhook-channels/:id/logs", WebhookChannelLive.Logs, :index
+      live "/email-channels/:id", EmailChannelLive.Show, :show
+      live "/email-channels/:id/logs", EmailChannelLive.Logs, :index
     end
   end
 

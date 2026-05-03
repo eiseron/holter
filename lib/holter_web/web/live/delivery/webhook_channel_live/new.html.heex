@@ -1,0 +1,29 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels"} />
+    {gettext("New Webhook Channel")}
+  </:title>
+  <:actions>
+    <p class="h-text-muted">
+      {gettext("Configure the webhook destination for monitoring alerts.")}
+    </p>
+  </:actions>
+
+  <.form
+    for={@form}
+    id="webhook-channel-form"
+    phx-change="validate"
+    phx-submit="save"
+    class="h-form-sections"
+  >
+    <.webhook_channel_form_fields form={@form} />
+
+    <.monitor_channel_select monitors={@available_monitors} selected_ids={[]} />
+
+    <div class="h-actions-row h-justify-end">
+      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
+        {gettext("Create Webhook Channel")}
+      </.button>
+    </div>
+  </.form>
+</.page_container>

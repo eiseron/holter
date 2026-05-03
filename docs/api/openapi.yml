@@ -269,78 +269,14 @@ components:
       x-validate:
     EmailChannel:
       additionalProperties: false
-      description: Email-specific configuration.
-      nullable: true
+      description: An email delivery channel.
       properties:
         address:
           type: string
           x-struct:
           x-validate:
         anti_phishing_code:
-          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-          type: string
-          x-struct:
-          x-validate:
-        recipients:
-          description: CC recipients on the channel. Each carries its own verification state.
-          items:
-            additionalProperties: false
-            description: A CC recipient on an email channel.
-            properties:
-              email:
-                type: string
-                x-struct:
-                x-validate:
-              id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-              verified_at:
-                description: Timestamp the recipient verified the address. `null` while pending.
-                format: date-time
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - id
-              - email
-              - verified_at
-            title: EmailRecipient
-            type: object
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        verified_at:
-          description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - address
-        - settings
-        - anti_phishing_code
-        - verified_at
-        - recipients
-      title: EmailChannel
-      type: object
-      x-struct:
-      x-validate:
-    EmailRecipient:
-      additionalProperties: false
-      description: A CC recipient on an email channel.
-      properties:
-        email:
+          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
           type: string
           x-struct:
           x-validate:
@@ -349,18 +285,275 @@ components:
           type: string
           x-struct:
           x-validate:
-        verified_at:
-          description: Timestamp the recipient verified the address. `null` while pending.
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
           format: date-time
           nullable: true
           type: string
           x-struct:
           x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        verified_at:
+          description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
       required:
         - id
-        - email
+        - workspace_id
+        - name
+        - address
+        - settings
+        - anti_phishing_code
         - verified_at
-      title: EmailRecipient
+        - last_test_dispatched_at
+        - inserted_at
+        - updated_at
+      title: EmailChannel
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating an email channel.
+      properties:
+        address:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - name
+        - address
+      title: EmailChannelCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelList:
+      description: List of email channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: An email delivery channel.
+            properties:
+              address:
+                type: string
+                x-struct:
+                x-validate:
+              anti_phishing_code:
+                description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              verified_at:
+                description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - address
+              - settings
+              - anti_phishing_code
+              - verified_at
+              - last_test_dispatched_at
+              - inserted_at
+              - updated_at
+            title: EmailChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelList
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelResponse:
+      description: Single email channel response.
+      properties:
+        data:
+          additionalProperties: false
+          description: An email delivery channel.
+          properties:
+            address:
+              type: string
+              x-struct:
+              x-validate:
+            anti_phishing_code:
+              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            verified_at:
+              description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - address
+            - settings
+            - anti_phishing_code
+            - verified_at
+            - last_test_dispatched_at
+            - inserted_at
+            - updated_at
+          title: EmailChannel
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelResponse
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating an email channel.
+      properties:
+        address:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      title: EmailChannelUpdateRequest
       type: object
       x-struct:
       x-validate:
@@ -1736,79 +1929,10 @@ components:
       type: object
       x-struct:
       x-validate:
-    NotificationChannel:
+    WebhookChannel:
       additionalProperties: false
-      description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+      description: A webhook delivery channel.
       properties:
-        email_channel:
-          additionalProperties: false
-          description: Email-specific configuration.
-          nullable: true
-          properties:
-            address:
-              type: string
-              x-struct:
-              x-validate:
-            anti_phishing_code:
-              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-              type: string
-              x-struct:
-              x-validate:
-            recipients:
-              description: CC recipients on the channel. Each carries its own verification state.
-              items:
-                additionalProperties: false
-                description: A CC recipient on an email channel.
-                properties:
-                  email:
-                    type: string
-                    x-struct:
-                    x-validate:
-                  id:
-                    format: uuid
-                    type: string
-                    x-struct:
-                    x-validate:
-                  verified_at:
-                    description: Timestamp the recipient verified the address. `null` while pending.
-                    format: date-time
-                    nullable: true
-                    type: string
-                    x-struct:
-                    x-validate:
-                required:
-                  - id
-                  - email
-                  - verified_at
-                title: EmailRecipient
-                type: object
-                x-struct:
-                x-validate:
-              type: array
-              x-struct:
-              x-validate:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            verified_at:
-              description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - address
-            - settings
-            - anti_phishing_code
-            - verified_at
-            - recipients
-          title: EmailChannel
-          type: object
-          x-struct:
-          x-validate:
         id:
           format: uuid
           type: string
@@ -1819,14 +1943,24 @@ components:
           type: string
           x-struct:
           x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
         name:
           type: string
           x-struct:
           x-validate:
-        type:
-          enum:
-            - email
-            - webhook
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        signing_token:
+          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
           type: string
           x-struct:
           x-validate:
@@ -1835,31 +1969,8 @@ components:
           type: string
           x-struct:
           x-validate:
-        webhook_channel:
-          additionalProperties: false
-          description: Webhook-specific configuration.
-          nullable: true
-          properties:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            signing_token:
-              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-              type: string
-              x-struct:
-              x-validate:
-            url:
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - url
-            - settings
-            - signing_token
-          title: WebhookChannel
-          type: object
+        url:
+          type: string
           x-struct:
           x-validate:
         workspace_id:
@@ -1871,18 +1982,19 @@ components:
         - id
         - workspace_id
         - name
-        - type
-        - webhook_channel
-        - email_channel
+        - url
+        - settings
+        - signing_token
+        - last_test_dispatched_at
         - inserted_at
         - updated_at
-      title: NotificationChannel
+      title: WebhookChannel
       type: object
       x-struct:
       x-validate:
-    NotificationChannelCreateRequest:
+    WebhookChannelCreateRequest:
       additionalProperties: false
-      description: Parameters for creating a notification channel.
+      description: Parameters for creating a webhook channel.
       properties:
         name:
           maxLength: 255
@@ -1896,104 +2008,27 @@ components:
           type: object
           x-struct:
           x-validate:
-        target:
+        url:
           maxLength: 2048
           minLength: 1
           type: string
           x-struct:
           x-validate:
-        type:
-          enum:
-            - email
-            - webhook
-          type: string
-          x-struct:
-          x-validate:
       required:
         - name
-        - type
-        - target
-      title: NotificationChannelCreateRequest
+        - url
+      title: WebhookChannelCreateRequest
       type: object
       x-struct:
       x-validate:
-    NotificationChannelList:
-      description: Paginated list of notification channels.
+    WebhookChannelList:
+      description: List of webhook channels.
       properties:
         data:
           items:
             additionalProperties: false
-            description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+            description: A webhook delivery channel.
             properties:
-              email_channel:
-                additionalProperties: false
-                description: Email-specific configuration.
-                nullable: true
-                properties:
-                  address:
-                    type: string
-                    x-struct:
-                    x-validate:
-                  anti_phishing_code:
-                    description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                    type: string
-                    x-struct:
-                    x-validate:
-                  recipients:
-                    description: CC recipients on the channel. Each carries its own verification state.
-                    items:
-                      additionalProperties: false
-                      description: A CC recipient on an email channel.
-                      properties:
-                        email:
-                          type: string
-                          x-struct:
-                          x-validate:
-                        id:
-                          format: uuid
-                          type: string
-                          x-struct:
-                          x-validate:
-                        verified_at:
-                          description: Timestamp the recipient verified the address. `null` while pending.
-                          format: date-time
-                          nullable: true
-                          type: string
-                          x-struct:
-                          x-validate:
-                      required:
-                        - id
-                        - email
-                        - verified_at
-                      title: EmailRecipient
-                      type: object
-                      x-struct:
-                      x-validate:
-                    type: array
-                    x-struct:
-                    x-validate:
-                  settings:
-                    additionalProperties: true
-                    type: object
-                    x-struct:
-                    x-validate:
-                  verified_at:
-                    description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                    format: date-time
-                    nullable: true
-                    type: string
-                    x-struct:
-                    x-validate:
-                required:
-                  - address
-                  - settings
-                  - anti_phishing_code
-                  - verified_at
-                  - recipients
-                title: EmailChannel
-                type: object
-                x-struct:
-                x-validate:
               id:
                 format: uuid
                 type: string
@@ -2004,14 +2039,24 @@ components:
                 type: string
                 x-struct:
                 x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
               name:
                 type: string
                 x-struct:
                 x-validate:
-              type:
-                enum:
-                  - email
-                  - webhook
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              signing_token:
+                description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                 type: string
                 x-struct:
                 x-validate:
@@ -2020,31 +2065,8 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              webhook_channel:
-                additionalProperties: false
-                description: Webhook-specific configuration.
-                nullable: true
-                properties:
-                  settings:
-                    additionalProperties: true
-                    type: object
-                    x-struct:
-                    x-validate:
-                  signing_token:
-                    description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                    type: string
-                    x-struct:
-                    x-validate:
-                  url:
-                    type: string
-                    x-struct:
-                    x-validate:
-                required:
-                  - url
-                  - settings
-                  - signing_token
-                title: WebhookChannel
-                type: object
+              url:
+                type: string
                 x-struct:
                 x-validate:
               workspace_id:
@@ -2056,12 +2078,13 @@ components:
               - id
               - workspace_id
               - name
-              - type
-              - webhook_channel
-              - email_channel
+              - url
+              - settings
+              - signing_token
+              - last_test_dispatched_at
               - inserted_at
               - updated_at
-            title: NotificationChannel
+            title: WebhookChannel
             type: object
             x-struct:
             x-validate:
@@ -2070,86 +2093,17 @@ components:
           x-validate:
       required:
         - data
-      title: NotificationChannelList
+      title: WebhookChannelList
       type: object
       x-struct:
       x-validate:
-    NotificationChannelResponse:
-      description: Single notification channel response.
+    WebhookChannelResponse:
+      description: Single webhook channel response.
       properties:
         data:
           additionalProperties: false
-          description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+          description: A webhook delivery channel.
           properties:
-            email_channel:
-              additionalProperties: false
-              description: Email-specific configuration.
-              nullable: true
-              properties:
-                address:
-                  type: string
-                  x-struct:
-                  x-validate:
-                anti_phishing_code:
-                  description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                  type: string
-                  x-struct:
-                  x-validate:
-                recipients:
-                  description: CC recipients on the channel. Each carries its own verification state.
-                  items:
-                    additionalProperties: false
-                    description: A CC recipient on an email channel.
-                    properties:
-                      email:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      id:
-                        format: uuid
-                        type: string
-                        x-struct:
-                        x-validate:
-                      verified_at:
-                        description: Timestamp the recipient verified the address. `null` while pending.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
-                    required:
-                      - id
-                      - email
-                      - verified_at
-                    title: EmailRecipient
-                    type: object
-                    x-struct:
-                    x-validate:
-                  type: array
-                  x-struct:
-                  x-validate:
-                settings:
-                  additionalProperties: true
-                  type: object
-                  x-struct:
-                  x-validate:
-                verified_at:
-                  description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                  format: date-time
-                  nullable: true
-                  type: string
-                  x-struct:
-                  x-validate:
-              required:
-                - address
-                - settings
-                - anti_phishing_code
-                - verified_at
-                - recipients
-              title: EmailChannel
-              type: object
-              x-struct:
-              x-validate:
             id:
               format: uuid
               type: string
@@ -2160,14 +2114,24 @@ components:
               type: string
               x-struct:
               x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
             name:
               type: string
               x-struct:
               x-validate:
-            type:
-              enum:
-                - email
-                - webhook
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            signing_token:
+              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
               type: string
               x-struct:
               x-validate:
@@ -2176,31 +2140,8 @@ components:
               type: string
               x-struct:
               x-validate:
-            webhook_channel:
-              additionalProperties: false
-              description: Webhook-specific configuration.
-              nullable: true
-              properties:
-                settings:
-                  additionalProperties: true
-                  type: object
-                  x-struct:
-                  x-validate:
-                signing_token:
-                  description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                  type: string
-                  x-struct:
-                  x-validate:
-                url:
-                  type: string
-                  x-struct:
-                  x-validate:
-              required:
-                - url
-                - settings
-                - signing_token
-              title: WebhookChannel
-              type: object
+            url:
+              type: string
               x-struct:
               x-validate:
             workspace_id:
@@ -2212,24 +2153,25 @@ components:
             - id
             - workspace_id
             - name
-            - type
-            - webhook_channel
-            - email_channel
+            - url
+            - settings
+            - signing_token
+            - last_test_dispatched_at
             - inserted_at
             - updated_at
-          title: NotificationChannel
+          title: WebhookChannel
           type: object
           x-struct:
           x-validate:
       required:
         - data
-      title: NotificationChannelResponse
+      title: WebhookChannelResponse
       type: object
       x-struct:
       x-validate:
-    NotificationChannelUpdateRequest:
+    WebhookChannelUpdateRequest:
       additionalProperties: false
-      description: Parameters for updating a notification channel.
+      description: Parameters for updating a webhook channel.
       properties:
         name:
           maxLength: 255
@@ -2243,40 +2185,13 @@ components:
           type: object
           x-struct:
           x-validate:
-        target:
+        url:
           maxLength: 2048
           minLength: 1
           type: string
           x-struct:
           x-validate:
-      title: NotificationChannelUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannel:
-      additionalProperties: false
-      description: Webhook-specific configuration.
-      nullable: true
-      properties:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        signing_token:
-          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-          type: string
-          x-struct:
-          x-validate:
-        url:
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - url
-        - settings
-        - signing_token
-      title: WebhookChannel
+      title: WebhookChannelUpdateRequest
       type: object
       x-struct:
       x-validate:
@@ -2402,6 +2317,940 @@ info:
   version: 1.0.0
 openapi: 3.0.0
 paths:
+  /api/v1/email_channels/{email_channel_id}/anti_phishing_code:
+    put:
+      callbacks: {}
+      description: Generate a fresh anti-phishing code. The next email through this channel will carry the new value.
+      operationId: HolterWeb.Api.EmailChannelController.rotate_anti_phishing_code
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: email_channel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single email channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: An email delivery channel.
+                    properties:
+                      address:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      anti_phishing_code:
+                        description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - address
+                      - settings
+                      - anti_phishing_code
+                      - verified_at
+                      - last_test_dispatched_at
+                      - inserted_at
+                      - updated_at
+                    title: EmailChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel with rotated anti_phishing_code
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Rotate the anti-phishing code
+      tags:
+        - Email Channels
+  /api/v1/email_channels/{email_channel_id}/delivery_logs:
+    get:
+      callbacks: {}
+      description: List delivery job logs for a webhook or email channel with pagination and filtering.
+      operationId: HolterWeb.Api.DeliveryLogController.index
+      parameters:
+        - description: Webhook channel UUID (when listing logs under /webhook_channels)
+          in: path
+          name: webhook_channel_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Email channel UUID (when listing logs under /email_channels)
+          in: path
+          name: email_channel_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 50
+            type: integer
+            x-struct:
+            x-validate:
+        - description: 'Filter by status: success or failed'
+          in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: 'Sort column: attempted_at or state'
+          in: query
+          name: sort_by
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+        - description: 'Sort direction: asc or desc'
+          in: query
+          name: sort_dir
+          required: false
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: A paginated list of delivery log entries for a notification channel.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A delivery job log entry for a notification channel.
+                      properties:
+                        attempted_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        errors:
+                          items:
+                            nullable: true
+                            type: string
+                            x-struct:
+                            x-validate:
+                          type: array
+                          x-struct:
+                          x-validate:
+                        event:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - success
+                            - failed
+                          type: string
+                          x-struct:
+                          x-validate:
+                        worker:
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - status
+                        - worker
+                        - inserted_at
+                      title: DeliveryLog
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    additionalProperties: false
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total_pages:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: DeliveryLogList
+                type: object
+                x-struct:
+                x-validate:
+          description: Log list
+        '404':
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                description: Standard error response.
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - code
+                      - message
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - error
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: List delivery logs
+      tags:
+        - Delivery Logs
+  /api/v1/email_channels/{email_channel_id}/pings:
+    post:
+      callbacks: {}
+      description: Enqueue a test notification to verify the channel is reachable.
+      operationId: HolterWeb.Api.EmailChannelController.ping
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: email_channel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '202':
+          content:
+            application/json: {}
+          description: Ping enqueued
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: No verified recipient on this channel
+        '429':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Test ping rate limited for this channel
+      summary: Send a test ping
+      tags:
+        - Email Channels
+  /api/v1/email_channels/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently delete an email channel.
+      operationId: HolterWeb.Api.EmailChannelController.delete
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Deleted successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Delete email channel
+      tags:
+        - Email Channels
+    get:
+      callbacks: {}
+      description: Fetch a single email channel by its UUID.
+      operationId: HolterWeb.Api.EmailChannelController.show
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single email channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: An email delivery channel.
+                    properties:
+                      address:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      anti_phishing_code:
+                        description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - address
+                      - settings
+                      - anti_phishing_code
+                      - verified_at
+                      - last_test_dispatched_at
+                      - inserted_at
+                      - updated_at
+                    title: EmailChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Email channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+      summary: Get email channel
+      tags:
+        - Email Channels
+    patch:
+      callbacks: {}
+      description: Update an existing email channel.
+      operationId: HolterWeb.Api.EmailChannelController.update (2)
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an email channel.
+              properties:
+                address:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: EmailChannelUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single email channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: An email delivery channel.
+                    properties:
+                      address:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      anti_phishing_code:
+                        description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - address
+                      - settings
+                      - anti_phishing_code
+                      - verified_at
+                      - last_test_dispatched_at
+                      - inserted_at
+                      - updated_at
+                    title: EmailChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update email channel
+      tags:
+        - Email Channels
+    put:
+      callbacks: {}
+      description: Update an existing email channel.
+      operationId: HolterWeb.Api.EmailChannelController.update
+      parameters:
+        - description: Email channel UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an email channel.
+              properties:
+                address:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: EmailChannelUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single email channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: An email delivery channel.
+                    properties:
+                      address:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      anti_phishing_code:
+                        description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - address
+                      - settings
+                      - anti_phishing_code
+                      - verified_at
+                      - last_test_dispatched_at
+                      - inserted_at
+                      - updated_at
+                    title: EmailChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated channel
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Channel not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update email channel
+      tags:
+        - Email Channels
   /api/v1/incidents/{id}:
     get:
       callbacks: {}
@@ -4391,13 +5240,13 @@ paths:
       summary: Get monitor log
       tags:
         - Logs
-  /api/v1/notification_channels/{id}:
+  /api/v1/webhook_channels/{id}:
     delete:
       callbacks: {}
-      description: Permanently delete a notification channel.
-      operationId: HolterWeb.Api.NotificationChannelController.delete
+      description: Permanently delete a webhook channel.
+      operationId: HolterWeb.Api.WebhookChannelController.delete
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
           name: id
           required: true
@@ -4434,15 +5283,15 @@ paths:
                 x-struct:
                 x-validate:
           description: Channel not found
-      summary: Delete notification channel
+      summary: Delete webhook channel
       tags:
-        - Notification Channels
+        - Webhook Channels
     get:
       callbacks: {}
-      description: Fetch a single notification channel by its UUID.
-      operationId: HolterWeb.Api.NotificationChannelController.show
+      description: Fetch a single webhook channel by its UUID.
+      operationId: HolterWeb.Api.WebhookChannelController.show
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
           name: id
           required: true
@@ -4456,81 +5305,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Single notification channel response.
+                description: Single webhook channel response.
                 properties:
                   data:
                     additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                    description: A webhook delivery channel.
                     properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
                       id:
                         format: uuid
                         type: string
@@ -4541,14 +5321,24 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       name:
                         type: string
                         x-struct:
                         x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      signing_token:
+                        description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                         type: string
                         x-struct:
                         x-validate:
@@ -4557,31 +5347,8 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
+                      url:
+                        type: string
                         x-struct:
                         x-validate:
                       workspace_id:
@@ -4593,22 +5360,23 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - type
-                      - webhook_channel
-                      - email_channel
+                      - url
+                      - settings
+                      - signing_token
+                      - last_test_dispatched_at
                       - inserted_at
                       - updated_at
-                    title: NotificationChannel
+                    title: WebhookChannel
                     type: object
                     x-struct:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelResponse
+                title: WebhookChannelResponse
                 type: object
                 x-struct:
                 x-validate:
-          description: Notification channel
+          description: Webhook channel
         '404':
           content:
             application/json:
@@ -4632,15 +5400,15 @@ paths:
                 x-struct:
                 x-validate:
           description: Channel not found
-      summary: Get notification channel
+      summary: Get webhook channel
       tags:
-        - Notification Channels
+        - Webhook Channels
     patch:
       callbacks: {}
-      description: Update an existing notification channel.
-      operationId: HolterWeb.Api.NotificationChannelController.update (2)
+      description: Update an existing webhook channel.
+      operationId: HolterWeb.Api.WebhookChannelController.update (2)
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
           name: id
           required: true
@@ -4654,7 +5422,7 @@ paths:
           application/json:
             schema:
               additionalProperties: false
-              description: Parameters for updating a notification channel.
+              description: Parameters for updating a webhook channel.
               properties:
                 name:
                   maxLength: 255
@@ -4668,13 +5436,13 @@ paths:
                   type: object
                   x-struct:
                   x-validate:
-                target:
+                url:
                   maxLength: 2048
                   minLength: 1
                   type: string
                   x-struct:
                   x-validate:
-              title: NotificationChannelUpdateRequest
+              title: WebhookChannelUpdateRequest
               type: object
               x-struct:
               x-validate:
@@ -4685,81 +5453,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Single notification channel response.
+                description: Single webhook channel response.
                 properties:
                   data:
                     additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                    description: A webhook delivery channel.
                     properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
                       id:
                         format: uuid
                         type: string
@@ -4770,14 +5469,24 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       name:
                         type: string
                         x-struct:
                         x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      signing_token:
+                        description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                         type: string
                         x-struct:
                         x-validate:
@@ -4786,31 +5495,8 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
+                      url:
+                        type: string
                         x-struct:
                         x-validate:
                       workspace_id:
@@ -4822,18 +5508,19 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - type
-                      - webhook_channel
-                      - email_channel
+                      - url
+                      - settings
+                      - signing_token
+                      - last_test_dispatched_at
                       - inserted_at
                       - updated_at
-                    title: NotificationChannel
+                    title: WebhookChannel
                     type: object
                     x-struct:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelResponse
+                title: WebhookChannelResponse
                 type: object
                 x-struct:
                 x-validate:
@@ -4884,15 +5571,15 @@ paths:
                 x-struct:
                 x-validate:
           description: Validation error
-      summary: Update notification channel
+      summary: Update webhook channel
       tags:
-        - Notification Channels
+        - Webhook Channels
     put:
       callbacks: {}
-      description: Update an existing notification channel.
-      operationId: HolterWeb.Api.NotificationChannelController.update
+      description: Update an existing webhook channel.
+      operationId: HolterWeb.Api.WebhookChannelController.update
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
           name: id
           required: true
@@ -4906,7 +5593,7 @@ paths:
           application/json:
             schema:
               additionalProperties: false
-              description: Parameters for updating a notification channel.
+              description: Parameters for updating a webhook channel.
               properties:
                 name:
                   maxLength: 255
@@ -4920,13 +5607,13 @@ paths:
                   type: object
                   x-struct:
                   x-validate:
-                target:
+                url:
                   maxLength: 2048
                   minLength: 1
                   type: string
                   x-struct:
                   x-validate:
-              title: NotificationChannelUpdateRequest
+              title: WebhookChannelUpdateRequest
               type: object
               x-struct:
               x-validate:
@@ -4937,81 +5624,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Single notification channel response.
+                description: Single webhook channel response.
                 properties:
                   data:
                     additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                    description: A webhook delivery channel.
                     properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
                       id:
                         format: uuid
                         type: string
@@ -5022,14 +5640,24 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       name:
                         type: string
                         x-struct:
                         x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      signing_token:
+                        description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                         type: string
                         x-struct:
                         x-validate:
@@ -5038,31 +5666,8 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
+                      url:
+                        type: string
                         x-struct:
                         x-validate:
                       workspace_id:
@@ -5074,18 +5679,19 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - type
-                      - webhook_channel
-                      - email_channel
+                      - url
+                      - settings
+                      - signing_token
+                      - last_test_dispatched_at
                       - inserted_at
                       - updated_at
-                    title: NotificationChannel
+                    title: WebhookChannel
                     type: object
                     x-struct:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelResponse
+                title: WebhookChannelResponse
                 type: object
                 x-struct:
                 x-validate:
@@ -5136,241 +5742,28 @@ paths:
                 x-struct:
                 x-validate:
           description: Validation error
-      summary: Update notification channel
+      summary: Update webhook channel
       tags:
-        - Notification Channels
-  /api/v1/notification_channels/{notification_channel_id}/anti_phishing_code:
-    put:
-      callbacks: {}
-      description: Generate a fresh anti-phishing code for an email channel. The next email through this channel will carry the new value.
-      operationId: HolterWeb.Api.NotificationChannelController.rotate_anti_phishing_code
-      parameters:
-        - description: Channel UUID
-          in: path
-          name: notification_channel_id
-          required: true
-          schema:
-            format: uuid
-            type: string
-            x-struct:
-            x-validate:
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                description: Single notification channel response.
-                properties:
-                  data:
-                    additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
-                    properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
-                      id:
-                        format: uuid
-                        type: string
-                        x-struct:
-                        x-validate:
-                      inserted_at:
-                        format: date-time
-                        type: string
-                        x-struct:
-                        x-validate:
-                      name:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
-                        type: string
-                        x-struct:
-                        x-validate:
-                      updated_at:
-                        format: date-time
-                        type: string
-                        x-struct:
-                        x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
-                        x-struct:
-                        x-validate:
-                      workspace_id:
-                        format: uuid
-                        type: string
-                        x-struct:
-                        x-validate:
-                    required:
-                      - id
-                      - workspace_id
-                      - name
-                      - type
-                      - webhook_channel
-                      - email_channel
-                      - inserted_at
-                      - updated_at
-                    title: NotificationChannel
-                    type: object
-                    x-struct:
-                    x-validate:
-                required:
-                  - data
-                title: NotificationChannelResponse
-                type: object
-                x-struct:
-                x-validate:
-          description: Channel with rotated anti_phishing_code
-        '404':
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    properties:
-                      code:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      message:
-                        type: string
-                        x-struct:
-                        x-validate:
-                    type: object
-                    x-struct:
-                    x-validate:
-                title: Error
-                type: object
-                x-struct:
-                x-validate:
-          description: Channel not found
-        '422':
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    properties:
-                      code:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      message:
-                        type: string
-                        x-struct:
-                        x-validate:
-                    type: object
-                    x-struct:
-                    x-validate:
-                title: Error
-                type: object
-                x-struct:
-                x-validate:
-          description: Channel is not an email channel
-      summary: Rotate the email anti-phishing code
-      tags:
-        - Notification Channels
-  /api/v1/notification_channels/{notification_channel_id}/delivery_logs:
+        - Webhook Channels
+  /api/v1/webhook_channels/{webhook_channel_id}/delivery_logs:
     get:
       callbacks: {}
-      description: List delivery job logs for a notification channel with pagination and filtering.
-      operationId: HolterWeb.Api.DeliveryLogController.index
+      description: List delivery job logs for a webhook or email channel with pagination and filtering.
+      operationId: HolterWeb.Api.DeliveryLogController.index (2)
       parameters:
-        - description: Notification channel UUID
+        - description: Webhook channel UUID (when listing logs under /webhook_channels)
           in: path
-          name: notification_channel_id
-          required: true
+          name: webhook_channel_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Email channel UUID (when listing logs under /email_channels)
+          in: path
+          name: email_channel_id
+          required: false
           schema:
             format: uuid
             type: string
@@ -5539,15 +5932,15 @@ paths:
       summary: List delivery logs
       tags:
         - Delivery Logs
-  /api/v1/notification_channels/{notification_channel_id}/pings:
+  /api/v1/webhook_channels/{webhook_channel_id}/pings:
     post:
       callbacks: {}
       description: Enqueue a test notification to verify the channel is reachable.
-      operationId: HolterWeb.Api.NotificationChannelController.ping
+      operationId: HolterWeb.Api.WebhookChannelController.ping
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
-          name: notification_channel_id
+          name: webhook_channel_id
           required: true
           schema:
             format: uuid
@@ -5582,29 +5975,6 @@ paths:
                 x-struct:
                 x-validate:
           description: Channel not found
-        '422':
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    properties:
-                      code:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      message:
-                        type: string
-                        x-struct:
-                        x-validate:
-                    type: object
-                    x-struct:
-                    x-validate:
-                title: Error
-                type: object
-                x-struct:
-                x-validate:
-          description: No verified recipient on this channel
         '429':
           content:
             application/json:
@@ -5628,18 +5998,18 @@ paths:
                 x-struct:
                 x-validate:
           description: Test ping rate limited for this channel
-      summary: Send a channel ping
+      summary: Send a test ping
       tags:
-        - Notification Channels
-  /api/v1/notification_channels/{notification_channel_id}/signing_token:
+        - Webhook Channels
+  /api/v1/webhook_channels/{webhook_channel_id}/signing_token:
     put:
       callbacks: {}
-      description: Generate a fresh HMAC signing token for a webhook channel. The previous token stops working at the next dispatch.
-      operationId: HolterWeb.Api.NotificationChannelController.rotate_signing_token
+      description: Generate a fresh HMAC signing token. The previous token stops working immediately.
+      operationId: HolterWeb.Api.WebhookChannelController.rotate_signing_token
       parameters:
-        - description: Channel UUID
+        - description: Webhook channel UUID
           in: path
-          name: notification_channel_id
+          name: webhook_channel_id
           required: true
           schema:
             format: uuid
@@ -5651,81 +6021,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Single notification channel response.
+                description: Single webhook channel response.
                 properties:
                   data:
                     additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                    description: A webhook delivery channel.
                     properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
                       id:
                         format: uuid
                         type: string
@@ -5736,14 +6037,24 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       name:
                         type: string
                         x-struct:
                         x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      signing_token:
+                        description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                         type: string
                         x-struct:
                         x-validate:
@@ -5752,31 +6063,8 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
+                      url:
+                        type: string
                         x-struct:
                         x-validate:
                       workspace_id:
@@ -5788,18 +6076,19 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - type
-                      - webhook_channel
-                      - email_channel
+                      - url
+                      - settings
+                      - signing_token
+                      - last_test_dispatched_at
                       - inserted_at
                       - updated_at
-                    title: NotificationChannel
+                    title: WebhookChannel
                     type: object
                     x-struct:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelResponse
+                title: WebhookChannelResponse
                 type: object
                 x-struct:
                 x-validate:
@@ -5827,32 +6116,9 @@ paths:
                 x-struct:
                 x-validate:
           description: Channel not found
-        '422':
-          content:
-            application/json:
-              schema:
-                properties:
-                  error:
-                    properties:
-                      code:
-                        type: string
-                        x-struct:
-                        x-validate:
-                      message:
-                        type: string
-                        x-struct:
-                        x-validate:
-                    type: object
-                    x-struct:
-                    x-validate:
-                title: Error
-                type: object
-                x-struct:
-                x-validate:
-          description: Channel is not a webhook channel
-      summary: Rotate the webhook signing token
+      summary: Rotate the signing token
       tags:
-        - Notification Channels
+        - Webhook Channels
   /api/v1/workspaces/{workspace_slug}:
     get:
       callbacks: {}
@@ -5976,6 +6242,293 @@ paths:
       summary: Get workspace
       tags:
         - Workspaces
+  /api/v1/workspaces/{workspace_slug}/email_channels:
+    get:
+      callbacks: {}
+      description: List all email channels for a workspace.
+      operationId: HolterWeb.Api.EmailChannelController.index
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: List of email channels.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: An email delivery channel.
+                      properties:
+                        address:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        anti_phishing_code:
+                          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_test_dispatched_at:
+                          description: Timestamp of the most recent test ping. Used for cooldown gating.
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        name:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        settings:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        verified_at:
+                          description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        workspace_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - workspace_id
+                        - name
+                        - address
+                        - settings
+                        - anti_phishing_code
+                        - verified_at
+                        - last_test_dispatched_at
+                        - inserted_at
+                        - updated_at
+                      title: EmailChannel
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelList
+                type: object
+                x-struct:
+                x-validate:
+          description: Email channel list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: List email channels
+      tags:
+        - Email Channels
+    post:
+      callbacks: {}
+      description: Create a new email channel for the specified workspace. The channel is created in an unverified state and a verification email is sent to the address.
+      operationId: HolterWeb.Api.EmailChannelController.create
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for creating an email channel.
+              properties:
+                address:
+                  maxLength: 2048
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              required:
+                - name
+                - address
+              title: EmailChannelCreateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Channel parameters
+        required: false
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                description: Single email channel response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: An email delivery channel.
+                    properties:
+                      address:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      anti_phishing_code:
+                        description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      verified_at:
+                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - name
+                      - address
+                      - settings
+                      - anti_phishing_code
+                      - verified_at
+                      - last_test_dispatched_at
+                      - inserted_at
+                      - updated_at
+                    title: EmailChannel
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: EmailChannelResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Created channel
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Create email channel
+      tags:
+        - Email Channels
   /api/v1/workspaces/{workspace_slug}/monitors:
     get:
       callbacks: {}
@@ -6601,11 +7154,11 @@ paths:
       summary: Create monitor
       tags:
         - Monitors
-  /api/v1/workspaces/{workspace_slug}/notification_channels:
+  /api/v1/workspaces/{workspace_slug}/webhook_channels:
     get:
       callbacks: {}
-      description: List all notification channels for a workspace. Optionally filter by `type`.
-      operationId: HolterWeb.Api.NotificationChannelController.index
+      description: List all webhook channels for a workspace.
+      operationId: HolterWeb.Api.WebhookChannelController.index
       parameters:
         - description: Workspace slug
           in: path
@@ -6615,98 +7168,18 @@ paths:
             type: string
             x-struct:
             x-validate:
-        - description: Restrict results to channels of this type.
-          in: query
-          name: type
-          required: false
-          schema:
-            enum:
-              - webhook
-              - email
-            type: string
-            x-struct:
-            x-validate:
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: Paginated list of notification channels.
+                description: List of webhook channels.
                 properties:
                   data:
                     items:
                       additionalProperties: false
-                      description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                      description: A webhook delivery channel.
                       properties:
-                        email_channel:
-                          additionalProperties: false
-                          description: Email-specific configuration.
-                          nullable: true
-                          properties:
-                            address:
-                              type: string
-                              x-struct:
-                              x-validate:
-                            anti_phishing_code:
-                              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                              type: string
-                              x-struct:
-                              x-validate:
-                            recipients:
-                              description: CC recipients on the channel. Each carries its own verification state.
-                              items:
-                                additionalProperties: false
-                                description: A CC recipient on an email channel.
-                                properties:
-                                  email:
-                                    type: string
-                                    x-struct:
-                                    x-validate:
-                                  id:
-                                    format: uuid
-                                    type: string
-                                    x-struct:
-                                    x-validate:
-                                  verified_at:
-                                    description: Timestamp the recipient verified the address. `null` while pending.
-                                    format: date-time
-                                    nullable: true
-                                    type: string
-                                    x-struct:
-                                    x-validate:
-                                required:
-                                  - id
-                                  - email
-                                  - verified_at
-                                title: EmailRecipient
-                                type: object
-                                x-struct:
-                                x-validate:
-                              type: array
-                              x-struct:
-                              x-validate:
-                            settings:
-                              additionalProperties: true
-                              type: object
-                              x-struct:
-                              x-validate:
-                            verified_at:
-                              description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                              format: date-time
-                              nullable: true
-                              type: string
-                              x-struct:
-                              x-validate:
-                          required:
-                            - address
-                            - settings
-                            - anti_phishing_code
-                            - verified_at
-                            - recipients
-                          title: EmailChannel
-                          type: object
-                          x-struct:
-                          x-validate:
                         id:
                           format: uuid
                           type: string
@@ -6717,14 +7190,24 @@ paths:
                           type: string
                           x-struct:
                           x-validate:
+                        last_test_dispatched_at:
+                          description: Timestamp of the most recent test ping. Used for cooldown gating.
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
                         name:
                           type: string
                           x-struct:
                           x-validate:
-                        type:
-                          enum:
-                            - email
-                            - webhook
+                        settings:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        signing_token:
+                          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                           type: string
                           x-struct:
                           x-validate:
@@ -6733,31 +7216,8 @@ paths:
                           type: string
                           x-struct:
                           x-validate:
-                        webhook_channel:
-                          additionalProperties: false
-                          description: Webhook-specific configuration.
-                          nullable: true
-                          properties:
-                            settings:
-                              additionalProperties: true
-                              type: object
-                              x-struct:
-                              x-validate:
-                            signing_token:
-                              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                              type: string
-                              x-struct:
-                              x-validate:
-                            url:
-                              type: string
-                              x-struct:
-                              x-validate:
-                          required:
-                            - url
-                            - settings
-                            - signing_token
-                          title: WebhookChannel
-                          type: object
+                        url:
+                          type: string
                           x-struct:
                           x-validate:
                         workspace_id:
@@ -6769,12 +7229,13 @@ paths:
                         - id
                         - workspace_id
                         - name
-                        - type
-                        - webhook_channel
-                        - email_channel
+                        - url
+                        - settings
+                        - signing_token
+                        - last_test_dispatched_at
                         - inserted_at
                         - updated_at
-                      title: NotificationChannel
+                      title: WebhookChannel
                       type: object
                       x-struct:
                       x-validate:
@@ -6783,11 +7244,11 @@ paths:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelList
+                title: WebhookChannelList
                 type: object
                 x-struct:
                 x-validate:
-          description: Notification channel list
+          description: Webhook channel list
         '404':
           content:
             application/json:
@@ -6811,13 +7272,13 @@ paths:
                 x-struct:
                 x-validate:
           description: Workspace not found
-      summary: List notification channels
+      summary: List webhook channels
       tags:
-        - Notification Channels
+        - Webhook Channels
     post:
       callbacks: {}
-      description: Create a new notification channel for the specified workspace.
-      operationId: HolterWeb.Api.NotificationChannelController.create
+      description: Create a new webhook channel for the specified workspace.
+      operationId: HolterWeb.Api.WebhookChannelController.create
       parameters:
         - description: Workspace slug
           in: path
@@ -6832,7 +7293,7 @@ paths:
           application/json:
             schema:
               additionalProperties: false
-              description: Parameters for creating a notification channel.
+              description: Parameters for creating a webhook channel.
               properties:
                 name:
                   maxLength: 255
@@ -6846,24 +7307,16 @@ paths:
                   type: object
                   x-struct:
                   x-validate:
-                target:
+                url:
                   maxLength: 2048
                   minLength: 1
                   type: string
                   x-struct:
                   x-validate:
-                type:
-                  enum:
-                    - email
-                    - webhook
-                  type: string
-                  x-struct:
-                  x-validate:
               required:
                 - name
-                - type
-                - target
-              title: NotificationChannelCreateRequest
+                - url
+              title: WebhookChannelCreateRequest
               type: object
               x-struct:
               x-validate:
@@ -6874,81 +7327,12 @@ paths:
           content:
             application/json:
               schema:
-                description: Single notification channel response.
+                description: Single webhook channel response.
                 properties:
                   data:
                     additionalProperties: false
-                    description: A notification delivery channel. Carries common fields plus exactly one populated subtype object — `webhook_channel` xor `email_channel`. The other is `null`.
+                    description: A webhook delivery channel.
                     properties:
-                      email_channel:
-                        additionalProperties: false
-                        description: Email-specific configuration.
-                        nullable: true
-                        properties:
-                          address:
-                            type: string
-                            x-struct:
-                            x-validate:
-                          anti_phishing_code:
-                            description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/notification_channels/:id/anti_phishing_code.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          recipients:
-                            description: CC recipients on the channel. Each carries its own verification state.
-                            items:
-                              additionalProperties: false
-                              description: A CC recipient on an email channel.
-                              properties:
-                                email:
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                id:
-                                  format: uuid
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                                verified_at:
-                                  description: Timestamp the recipient verified the address. `null` while pending.
-                                  format: date-time
-                                  nullable: true
-                                  type: string
-                                  x-struct:
-                                  x-validate:
-                              required:
-                                - id
-                                - email
-                                - verified_at
-                              title: EmailRecipient
-                              type: object
-                              x-struct:
-                              x-validate:
-                            type: array
-                            x-struct:
-                            x-validate:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          verified_at:
-                            description: Timestamp the primary email address was verified. `null` while pending; alerts are blocked from delivery to the primary until this is set.
-                            format: date-time
-                            nullable: true
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - address
-                          - settings
-                          - anti_phishing_code
-                          - verified_at
-                          - recipients
-                        title: EmailChannel
-                        type: object
-                        x-struct:
-                        x-validate:
                       id:
                         format: uuid
                         type: string
@@ -6959,14 +7343,24 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
+                      last_test_dispatched_at:
+                        description: Timestamp of the most recent test ping. Used for cooldown gating.
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
                       name:
                         type: string
                         x-struct:
                         x-validate:
-                      type:
-                        enum:
-                          - email
-                          - webhook
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      signing_token:
+                        description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
                         type: string
                         x-struct:
                         x-validate:
@@ -6975,31 +7369,8 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      webhook_channel:
-                        additionalProperties: false
-                        description: Webhook-specific configuration.
-                        nullable: true
-                        properties:
-                          settings:
-                            additionalProperties: true
-                            type: object
-                            x-struct:
-                            x-validate:
-                          signing_token:
-                            description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/notification_channels/:id/signing_token.
-                            type: string
-                            x-struct:
-                            x-validate:
-                          url:
-                            type: string
-                            x-struct:
-                            x-validate:
-                        required:
-                          - url
-                          - settings
-                          - signing_token
-                        title: WebhookChannel
-                        type: object
+                      url:
+                        type: string
                         x-struct:
                         x-validate:
                       workspace_id:
@@ -7011,18 +7382,19 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - type
-                      - webhook_channel
-                      - email_channel
+                      - url
+                      - settings
+                      - signing_token
+                      - last_test_dispatched_at
                       - inserted_at
                       - updated_at
-                    title: NotificationChannel
+                    title: WebhookChannel
                     type: object
                     x-struct:
                     x-validate:
                 required:
                   - data
-                title: NotificationChannelResponse
+                title: WebhookChannelResponse
                 type: object
                 x-struct:
                 x-validate:
@@ -7050,9 +7422,9 @@ paths:
                 x-struct:
                 x-validate:
           description: Validation error
-      summary: Create notification channel
+      summary: Create webhook channel
       tags:
-        - Notification Channels
+        - Webhook Channels
 security: []
 servers:
   - url: /

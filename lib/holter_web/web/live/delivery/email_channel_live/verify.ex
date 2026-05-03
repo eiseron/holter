@@ -1,26 +1,19 @@
 defmodule HolterWeb.Web.Delivery.EmailChannelLive.Verify do
   use HolterWeb, :live_view
 
-  alias Holter.Delivery
-  alias Holter.Delivery.{EmailChannel, NotificationChannel}
+  alias Holter.Delivery.{EmailChannel, EmailChannels}
 
   @impl true
   def mount(%{"token" => token}, _session, socket) do
     result =
       if connected?(socket) do
-        Delivery.verify_email_channel(token)
+        EmailChannels.verify(token)
       else
-        Delivery.get_email_channel_by_verification_token(token)
+        EmailChannels.get_by_verification_token(token)
       end
 
     case result do
-      {:ok, %NotificationChannel{id: channel_id}} ->
-        {:ok,
-         socket
-         |> assign(:status, :verified)
-         |> assign(:channel_id, channel_id)}
-
-      {:ok, %EmailChannel{notification_channel_id: channel_id}} ->
+      {:ok, %EmailChannel{id: channel_id}} ->
         {:ok,
          socket
          |> assign(:status, :verified)
@@ -47,7 +40,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Verify do
             )}
           </p>
           <.link
-            navigate={~p"/delivery/notification-channels/#{@channel_id}"}
+            navigate={~p"/delivery/email-channels/#{@channel_id}"}
             class="h-btn h-btn-primary h-mt-6"
             style="display:inline-flex"
           >
