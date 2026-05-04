@@ -13,9 +13,11 @@ defmodule Holter.Monitoring.Incidents do
   def get_incident!(id), do: Repo.get!(Incident, id)
 
   def get_incident(id) do
-    case Repo.get(Incident, id) do
-      nil -> {:error, :not_found}
-      incident -> {:ok, incident}
+    with {:ok, _} <- Ecto.UUID.cast(id),
+         %Incident{} = incident <- Repo.get(Incident, id) do
+      {:ok, incident}
+    else
+      _ -> {:error, :not_found}
     end
   end
 

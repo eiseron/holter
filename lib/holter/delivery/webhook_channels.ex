@@ -28,9 +28,11 @@ defmodule Holter.Delivery.WebhookChannels do
   end
 
   def get(id) do
-    case Repo.get(WebhookChannel, id) do
-      nil -> {:error, :not_found}
-      channel -> {:ok, channel}
+    with {:ok, _} <- Ecto.UUID.cast(id),
+         %WebhookChannel{} = channel <- Repo.get(WebhookChannel, id) do
+      {:ok, channel}
+    else
+      _ -> {:error, :not_found}
     end
   end
 

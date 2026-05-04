@@ -46,9 +46,11 @@ defmodule Holter.Monitoring.Logs do
   def get_monitor_log!(id), do: Repo.get!(MonitorLog, id)
 
   def get_monitor_log(id) do
-    case Repo.get(MonitorLog, id) do
-      nil -> {:error, :not_found}
-      log -> {:ok, log}
+    with {:ok, _} <- Ecto.UUID.cast(id),
+         %MonitorLog{} = log <- Repo.get(MonitorLog, id) do
+      {:ok, log}
+    else
+      _ -> {:error, :not_found}
     end
   end
 

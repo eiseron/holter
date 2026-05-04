@@ -32,9 +32,11 @@ defmodule Holter.Delivery.EmailChannels do
   end
 
   def get(id) do
-    case Repo.get(EmailChannel, id) do
-      nil -> {:error, :not_found}
-      channel -> {:ok, channel}
+    with {:ok, _} <- Ecto.UUID.cast(id),
+         %EmailChannel{} = channel <- Repo.get(EmailChannel, id) do
+      {:ok, channel}
+    else
+      _ -> {:error, :not_found}
     end
   end
 
