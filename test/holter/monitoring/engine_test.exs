@@ -202,7 +202,10 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, _} =
         Engine.process_response(monitor_down, error_response(500, "Error 2"), %{duration_ms: 100})
 
-      logs = Monitoring.list_monitor_logs(monitor, %{}).logs |> Enum.sort_by(& &1.checked_at)
+      logs =
+        Monitoring.list_monitor_logs(monitor, %{}).logs
+        |> Enum.sort_by(&{&1.checked_at, &1.inserted_at, &1.id})
+
       %{logs: logs}
     end
 
