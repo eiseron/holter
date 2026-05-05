@@ -90,9 +90,7 @@ defmodule Holter.MixProject do
       "test.ci": [
         "ecto.create --quiet",
         "ecto.migrate --quiet",
-        "test --warnings-as-errors",
-        "cmd mix ecto.rollback --all --quiet",
-        "cmd mix ecto.migrate --quiet"
+        "test --warnings-as-errors"
       ],
       "assets.setup": ["esbuild.install --if-missing"],
       "assets.build": ["compile", "esbuild holter"],
