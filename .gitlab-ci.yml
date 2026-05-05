@@ -1,4 +1,4 @@
-image: elixir:1.19-otp-28-slim
+image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:latest
 
 stages:
   - lint
@@ -52,9 +52,6 @@ default:
   tags:
     - self-hosted
   before_script:
-    - apt-get update -qq && apt-get install -y -qq git build-essential
-    - mix local.hex --force --quiet
-    - mix local.rebar --force --quiet
     - mix deps.get
 
 lint:
@@ -262,11 +259,10 @@ stop_review:
 
 sync-github:
   stage: sync
-  image: alpine:3
+  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
-  before_script:
-    - apk add --no-cache git
+  before_script: []
   script:
     - git remote add github "https://x-access-token:${GITHUB_TOKEN}@github.com/eiseron/holter.git"
     - git push github HEAD:main --tags
@@ -276,11 +272,10 @@ sync-github:
 
 publish-docs:
   stage: publish
-  image: alpine:3
+  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
-  before_script:
-    - apk add --no-cache git jq
+  before_script: []
   script:
     - VERSION="v$(echo "$CI_COMMIT_TAG" | sed 's/^v\([0-9]*\.[0-9]*\)\.[0-9]*/\1/')"
     - git clone "https://oauth2:${GITLAB_TOKEN}@gitlab.com/eiseron/holter/holter-docs.git" /tmp/holter-docs
