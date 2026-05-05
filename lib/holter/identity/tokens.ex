@@ -23,6 +23,13 @@ defmodule Holter.Identity.Tokens do
     })
   end
 
+  def create_reset_password_token(%User{id: user_id}, context \\ %{}) do
+    create_token(user_id, :reset_password, %{
+      context: context,
+      max_age_seconds: reset_password_max_age()
+    })
+  end
+
   def fetch_user_by_session_token(plaintext) when is_binary(plaintext) do
     hashed = Token.compute_hash(plaintext)
     now = DateTime.utc_now() |> DateTime.truncate(:second)
@@ -68,6 +75,34 @@ defmodule Holter.Identity.Tokens do
   end
 
   def consume_verify_email_token(_), do: {:error, :invalid_or_expired}
+
+  def consume_reset_password_token(plaintext) when is_binary(plaintext) do
+    hashed = Token.compute_hash(plaintext)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    Repo.transaction(fn ->
+      case lock_active_token(hashed, :reset_password, now) do
+        nil ->
+          Repo.rollback(:invalid_or_expired)
+
+        %Token{} = token ->
+          token
+          |> Token.consume_changeset(now)
+          |> Repo.update!()
+      end
+    end)
+  end
+
+  def consume_reset_password_token(_), do: {:error, :invalid_or_expired}
+
+  def delete_user_sessions(user_id) when is_binary(user_id) do
+    {count, _} =
+      Repo.delete_all(from t in Token, where: t.user_id == ^user_id and t.type == :session)
+
+    {:ok, count}
+  end
+
+  def delete_user_sessions(_), do: {:ok, 0}
 
   defp create_token(user_id, type, %{context: context, max_age_seconds: max_age_seconds}) do
     plaintext = encode_random_token()
@@ -133,6 +168,7 @@ defmodule Holter.Identity.Tokens do
 
   defp session_max_age, do: identity_config(:session_max_age_seconds)
   defp verify_email_max_age, do: identity_config(:verify_email_token_max_age_seconds)
+  defp reset_password_max_age, do: identity_config(:reset_password_token_max_age_seconds)
 
   defp identity_config(key) do
     Application.fetch_env!(:holter, :identity) |> Keyword.fetch!(key)

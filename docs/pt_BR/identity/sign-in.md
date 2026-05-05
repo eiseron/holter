@@ -20,6 +20,8 @@ Em caso de sucesso o Holter leva você à lista de monitores do seu workspace pa
 
 Senha errada e e-mail desconhecido produzem a mesma mensagem neutra — *Invalid email or password.* — e o mesmo tempo de resposta. Isso é proposital: impede que um atacante descubra se um e-mail específico está cadastrado.
 
+Se você esqueceu a senha, clique em **Esqueci minha senha** abaixo do formulário. Veja [Esqueci minha senha](forgot-password.md) para os detalhes do fluxo.
+
 ## Sessões de Login
 
 Um login bem-sucedido grava um token aleatório de sessão em um cookie HTTP-Only. O token é renovado conforme você usa o painel, evitando logouts automáticos abruptos durante o uso ativo. Sair pela opção no menu superior remove imediatamente o token no servidor.

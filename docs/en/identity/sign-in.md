@@ -20,6 +20,8 @@ On success Holter lands you on the monitor list of your default workspace. If yo
 
 A wrong password or an unknown email both produce the same neutral message — *Invalid email or password.* — and the same response time. This is intentional: it stops attackers from probing whether a particular email is registered.
 
+If you forgot your password, click **Forgot your password?** below the form. See [Forgot Password](forgot-password.md) for the full flow.
+
 ## Sign-In Sessions
 
 A successful sign-in stores a random session token in a HTTP-only cookie. The token rotates forward as you keep using the dashboard, so an active session does not need a hard cut-off. Signing out (top-right menu) deletes the token immediately on the server side.

@@ -11,6 +11,14 @@ defmodule HolterWeb.Web.Identity.UserLoginLiveTest do
 
       assert html =~ "Sign in to Holter"
     end
+
+    test "links to the forgot-password flow so users can recover access",
+         %{conn: conn} do
+      {:ok, _lv, html} = live(conn, ~p"/identity/login")
+
+      assert html =~ ~s(href="/identity/forgot-password")
+      assert html =~ "Forgot your password?"
+    end
   end
 
   describe "POST /identity/login" do

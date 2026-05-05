@@ -14,6 +14,7 @@ O módulo de identidade controla como você cria uma conta no Holter, comprova q
 | [Cadastro](sign-up.md) | Crie sua conta, aceite os termos e dispare o e-mail de verificação |
 | [Verificação de E-mail](email-verification.md) | Ative sua conta clicando no link enviado para sua caixa de entrada |
 | [Login](sign-in.md) | Autentique-se com e-mail e senha e chegue ao painel do workspace |
+| [Esqueci minha senha](forgot-password.md) | Recupere o acesso com um link de redefinição enviado por e-mail (validade 15 min, sessões antigas revogadas) |
 
 ## Estados da Conta
 

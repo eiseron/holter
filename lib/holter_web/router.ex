@@ -78,6 +78,8 @@ defmodule HolterWeb.Router do
       on_mount: [{HolterWeb.Hooks.UserAuthHook, :redirect_if_authenticated}] do
       live "/new", UserRegistrationLive, :new
       live "/login", UserLoginLive, :new
+      live "/forgot-password", UserForgotPasswordLive, :new
+      live "/reset-password/:token", UserResetPasswordLive, :edit
     end
 
     post "/login", UserSessionController, :create

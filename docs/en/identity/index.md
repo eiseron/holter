@@ -14,6 +14,7 @@ The identity module governs how you create a Holter account, prove that an email
 | [Sign Up](sign-up.md) | Create your account, accept the terms, and trigger the verification email |
 | [Email Verification](email-verification.md) | Activate your account by clicking the link sent to your inbox |
 | [Sign In](sign-in.md) | Authenticate with email and password and reach your workspace dashboard |
+| [Forgot Password](forgot-password.md) | Recover access through an emailed reset link (15-minute TTL, old sessions revoked) |
 
 ## Account States
 

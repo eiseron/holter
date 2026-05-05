@@ -267,7 +267,7 @@ msgstr "Daily Uptime History"
 msgid "Date"
 msgstr "Date"
 
-#: lib/holter/monitoring/incidents.ex:65
+#: lib/holter/monitoring/incidents.ex:67
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:40
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:78
 #: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.html.heex:60
@@ -719,7 +719,7 @@ msgstr "All States"
 msgid "All Types"
 msgstr "All Types"
 
-#: lib/holter/monitoring/incidents.ex:66
+#: lib/holter/monitoring/incidents.ex:68
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:82
 #, elixir-autogen, elixir-format
 msgid "Defacement"
@@ -803,7 +803,7 @@ msgstr "Results"
 msgid "Root Cause"
 msgstr "Root Cause"
 
-#: lib/holter/monitoring/incidents.ex:67
+#: lib/holter/monitoring/incidents.ex:69
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:86
 #, elixir-autogen, elixir-format
 msgid "SSL Expiry"
@@ -888,6 +888,7 @@ msgstr "View incident"
 msgid "View log"
 msgstr "View log"
 
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:12
 #: lib/holter_web/web/identity/user_login_live.html.heex:12
 #: lib/holter_web/web/identity/user_registration_live.html.heex:6
 #, elixir-autogen, elixir-format
@@ -1364,7 +1365,7 @@ msgstr ""
 msgid "Check this to disable WHOIS/RDAP lookups for this monitor's domain."
 msgstr "Check this to disable WHOIS/RDAP lookups for this monitor's domain."
 
-#: lib/holter/monitoring/incidents.ex:68
+#: lib/holter/monitoring/incidents.ex:70
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:90
 #, elixir-autogen, elixir-format
 msgid "Domain Expiry"
@@ -1416,6 +1417,7 @@ msgid "Already have an account?"
 msgstr ""
 
 #: lib/holter_web/web/identity/user_registration_live.html.heex:34
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "At least 12 characters with uppercase, lowercase, and a digit."
 msgstr ""
@@ -1450,7 +1452,7 @@ msgstr "Create Channel"
 msgid "Create account"
 msgstr "Create Monitor"
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:26
+#: lib/holter_web/web/identity/user_login_live.html.heex:30
 #, elixir-autogen, elixir-format
 msgid "Create an account"
 msgstr ""
@@ -1523,7 +1525,7 @@ msgstr ""
 msgid "New email channel"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:25
+#: lib/holter_web/web/identity/user_login_live.html.heex:29
 #, elixir-autogen, elixir-format
 msgid "New to Holter?"
 msgstr ""
@@ -1617,7 +1619,7 @@ msgstr ""
 msgid "You have been signed out."
 msgstr ""
 
-#: lib/holter_web/hooks/user_auth_hook.ex:33
+#: lib/holter_web/hooks/user_auth_hook.ex:49
 #, elixir-autogen, elixir-format
 msgid "You must sign in to access this page."
 msgstr ""
@@ -1665,4 +1667,93 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "Send signed HTTP POST requests to a URL of your choice. Use this for PagerDuty, custom receivers, or any HTTPS endpoint that accepts JSON."
+msgstr ""
+
+#: lib/holter_web/web/identity/user_forgot_password_live.ex:38
+#, elixir-autogen, elixir-format
+msgid "can't be blank"
+msgstr "can't be blank"
+
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:30
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "Back to sign in"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Confirm new password"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Enter your account email. If it exists, we will send you reset instructions."
+msgstr ""
+
+#: lib/holter_web/web/identity/user_forgot_password_live.ex:12
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:2
+#: lib/holter_web/web/identity/user_login_live.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Forgot your password?"
+msgstr ""
+
+#: lib/holter/identity/emails/password_reset_request.ex:16
+#, elixir-autogen, elixir-format
+msgid "Holter password reset"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_forgot_password_live.ex:25
+#, elixir-autogen, elixir-format
+msgid "If this email exists, you will receive instructions."
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "New password"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "Send instructions"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.ex:10
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:2
+#, elixir-autogen, elixir-format
+msgid "Set a new password"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.ex:38
+#, elixir-autogen, elixir-format
+msgid "This reset link is invalid or has expired."
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Update password"
+msgstr ""
+
+#: lib/holter/identity/emails/password_reset_request.ex:21
+#, elixir-autogen, elixir-format
+msgid "We received a request to reset the password on your Holter account.\n\nFollow the link below to choose a new password. For security, this link expires in 15 minutes and can only be used once.\n\n%{url}\n\nIf you did not request a password reset, you can safely ignore this message — your current password is still valid.\n"
+msgstr ""
+
+#: lib/holter/identity/emails/password_changed.ex:21
+#, elixir-autogen, elixir-format
+msgid "Your Holter account password has been changed successfully.\n\nAll active sessions on other devices have been revoked. You will need to sign in again on those devices using the new password.\n\nIf you did not perform this change, contact support immediately — your account may be compromised.\n"
+msgstr ""
+
+#: lib/holter/identity/emails/password_changed.ex:16
+#, elixir-autogen, elixir-format
+msgid "Your password has been changed"
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Your password has been updated. Sign in with the new password."
+msgstr ""
+
+#: lib/holter_web/web/identity/user_reset_password_live.ex:54
+#, elixir-autogen, elixir-format
+msgid "does not match"
 msgstr ""
