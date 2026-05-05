@@ -6,10 +6,10 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
   alias Holter.Monitoring.Workspaces
 
   describe "consume_trigger_budget/1 short window" do
-    test "succeeds on a fresh workspace" do
+    test "increments trigger_short_count from 0 to 1 on a fresh workspace" do
       workspace = workspace_fixture(%{max_triggers_per_minute: 3})
 
-      assert {:ok, _} = Workspaces.consume_trigger_budget(workspace)
+      assert {:ok, %{trigger_short_count: 1}} = Workspaces.consume_trigger_budget(workspace)
     end
 
     test "returns short_budget_exhausted when minute cap is reached" do
@@ -18,11 +18,11 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       assert {:error, :short_budget_exhausted} = Workspaces.consume_trigger_budget(workspace)
     end
 
-    test "resets count after short window expires" do
+    test "resets short count to 1 after short window expires" do
       past = DateTime.utc_now() |> DateTime.add(-61, :second) |> DateTime.truncate(:second)
       workspace = set_short_window(exhausted_short_workspace(), 1, past)
 
-      assert {:ok, _} = Workspaces.consume_trigger_budget(workspace)
+      assert {:ok, %{trigger_short_count: 1}} = Workspaces.consume_trigger_budget(workspace)
     end
   end
 
@@ -33,11 +33,11 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       assert {:error, :long_budget_exhausted} = Workspaces.consume_trigger_budget(workspace)
     end
 
-    test "resets count after long window expires" do
+    test "resets long count to 1 after long window expires" do
       past = DateTime.utc_now() |> DateTime.add(-3601, :second) |> DateTime.truncate(:second)
       workspace = set_long_window(exhausted_long_workspace(), 1, past)
 
-      assert {:ok, _} = Workspaces.consume_trigger_budget(workspace)
+      assert {:ok, %{trigger_long_count: 1}} = Workspaces.consume_trigger_budget(workspace)
     end
   end
 
@@ -92,10 +92,12 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
 
     test "creates monitor even when budget is exhausted" do
       workspace = exhausted_short_workspace()
+      url = "https://second.example.com"
+      ws_id = workspace.id
 
-      assert {:ok, _} =
+      assert {:ok, %{url: ^url, workspace_id: ^ws_id}} =
                Monitoring.create_monitor(%{
-                 url: "https://second.example.com",
+                 url: url,
                  method: :get,
                  interval_seconds: 60,
                  workspace_id: workspace.id
@@ -104,10 +106,10 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
   end
 
   describe "consume_create_budget/1 short window" do
-    test "succeeds on a fresh workspace" do
+    test "increments create_short_count from 0 to 1 on a fresh workspace" do
       workspace = workspace_fixture(%{max_creates_per_minute: 5})
 
-      assert {:ok, _} = Workspaces.consume_create_budget(workspace)
+      assert {:ok, %{create_short_count: 1}} = Workspaces.consume_create_budget(workspace)
     end
 
     test "returns create_rate_limited when minute cap is reached" do
@@ -116,11 +118,11 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       assert {:error, :create_rate_limited} = Workspaces.consume_create_budget(workspace)
     end
 
-    test "resets count after short window expires" do
+    test "resets create short count to 1 after short window expires" do
       past = DateTime.utc_now() |> DateTime.add(-61, :second) |> DateTime.truncate(:second)
       workspace = set_create_short_window(exhausted_short_create_workspace(), 1, past)
 
-      assert {:ok, _} = Workspaces.consume_create_budget(workspace)
+      assert {:ok, %{create_short_count: 1}} = Workspaces.consume_create_budget(workspace)
     end
   end
 
@@ -131,11 +133,11 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       assert {:error, :create_rate_limited} = Workspaces.consume_create_budget(workspace)
     end
 
-    test "resets count after long window expires" do
+    test "resets create long count to 1 after long window expires" do
       past = DateTime.utc_now() |> DateTime.add(-3601, :second) |> DateTime.truncate(:second)
       workspace = set_create_long_window(exhausted_long_create_workspace(), 1, past)
 
-      assert {:ok, _} = Workspaces.consume_create_budget(workspace)
+      assert {:ok, %{create_long_count: 1}} = Workspaces.consume_create_budget(workspace)
     end
   end
 

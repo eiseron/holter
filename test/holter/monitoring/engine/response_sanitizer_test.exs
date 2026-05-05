@@ -74,7 +74,7 @@ defmodule Holter.Monitoring.Engine.ResponseSanitizerTest do
 
     test "processes JSON content type as text" do
       result = ResponseSanitizer.clean_body_snippet(~s({"ok":true}), "application/json")
-      assert is_binary(result)
+      assert result == ~s({"ok":true})
     end
   end
 
@@ -185,9 +185,9 @@ defmodule Holter.Monitoring.Engine.ResponseSanitizerTest do
       assert ResponseSanitizer.ensure_utf8("hello") == "hello"
     end
 
-    test "returns a binary result for invalid UTF-8 input" do
+    test "replaces invalid UTF-8 bytes with '?' placeholder" do
       result = ResponseSanitizer.ensure_utf8(<<195, 40>>)
-      assert is_binary(result)
+      assert result == "?("
     end
 
     test "result is valid UTF-8 after sanitising invalid bytes" do

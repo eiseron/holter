@@ -331,24 +331,24 @@ defmodule Holter.Monitoring.Engine.ResponseValidatorTest do
       assert is_nil(headers)
     end
 
-    test "returns a map of headers when status changes" do
+    test "returns sanitized headers map when status changes" do
       monitor = %{health_status: :up}
       response_data = %{headers: [{"server", "nginx"}], body: "error", content_type: "text/plain"}
 
       {headers, _snippet} =
         ResponseValidator.maybe_collect_evidence(monitor, :down, response_data)
 
-      assert is_map(headers)
+      assert headers == %{"server" => "nginx"}
     end
 
-    test "returns a binary snippet when status changes" do
+    test "returns the cleaned body snippet when status changes" do
       monitor = %{health_status: :up}
       response_data = %{headers: [], body: "error body", content_type: "text/plain"}
 
       {_headers, snippet} =
         ResponseValidator.maybe_collect_evidence(monitor, :down, response_data)
 
-      assert is_binary(snippet)
+      assert snippet == "error body"
     end
   end
 end

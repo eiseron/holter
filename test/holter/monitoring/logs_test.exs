@@ -205,7 +205,7 @@ defmodule Holter.Monitoring.LogsTest do
       assert Logs.find_nearest_technical_log(monitor.id, log) == nil
     end
 
-    test "does not return the log itself", %{monitor: monitor} do
+    test "does not return the log itself when no other technical log exists", %{monitor: monitor} do
       log =
         log_fixture(%{
           monitor_id: monitor.id,
@@ -214,8 +214,30 @@ defmodule Holter.Monitoring.LogsTest do
           response_headers: %{"server" => "nginx"}
         })
 
+      assert is_nil(Logs.find_nearest_technical_log(monitor.id, log))
+    end
+
+    test "does not return the log itself when an earlier technical log exists", %{
+      monitor: monitor
+    } do
+      earlier =
+        log_fixture(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_snippet: "earlier",
+          checked_at: ~U[2026-01-01 00:00:00Z]
+        })
+
+      log =
+        log_fixture(%{
+          monitor_id: monitor.id,
+          status: :up,
+          response_snippet: "self",
+          checked_at: ~U[2026-01-02 00:00:00Z]
+        })
+
       result = Logs.find_nearest_technical_log(monitor.id, log)
-      refute result != nil and result.id == log.id
+      assert result.id == earlier.id
     end
   end
 

@@ -34,4 +34,51 @@ defmodule Holter.Monitoring.BroadcasterTest do
       assert Broadcaster.broadcast(error, :log_created, "x") == error
     end
   end
+
+  describe "broadcast_incident_opened/1" do
+    test "publishes :incident_opened on the monitoring:incidents topic" do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+      incident = %{id: "inc-bc-opened-#{System.unique_integer([:positive])}", type: :downtime}
+
+      Broadcaster.broadcast_incident_opened(incident)
+
+      assert_receive {:incident_opened, ^incident}
+    end
+
+    test "does not echo the same incident as :incident_resolved" do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+      id = "inc-bc-no-echo-r-#{System.unique_integer([:positive])}"
+      incident = %{id: id, type: :ssl_expiry}
+
+      Broadcaster.broadcast_incident_opened(incident)
+
+      refute_receive {:incident_resolved, %{id: ^id}}, 50
+    end
+  end
+
+  describe "broadcast_incident_resolved/1" do
+    test "publishes :incident_resolved on the monitoring:incidents topic" do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+
+      incident = %{
+        id: "inc-bc-resolved-#{System.unique_integer([:positive])}",
+        type: :downtime,
+        resolved_at: ~U[2026-01-01 00:00:00Z]
+      }
+
+      Broadcaster.broadcast_incident_resolved(incident)
+
+      assert_receive {:incident_resolved, ^incident}
+    end
+
+    test "does not echo the same incident as :incident_opened" do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+      id = "inc-bc-no-echo-o-#{System.unique_integer([:positive])}"
+      incident = %{id: id, type: :defacement}
+
+      Broadcaster.broadcast_incident_resolved(incident)
+
+      refute_receive {:incident_opened, %{id: ^id}}, 50
+    end
+  end
 end

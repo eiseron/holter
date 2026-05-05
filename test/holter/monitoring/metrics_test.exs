@@ -75,7 +75,7 @@ defmodule Holter.Monitoring.MetricsTest do
       first_uptime =
         result.metrics |> List.first() |> Map.get(:uptime_percent) |> Decimal.to_float()
 
-      assert first_uptime < 95.0
+      assert first_uptime == 90.0
     end
 
     test "sorts by avg_latency_ms desc when requested", %{monitor: monitor} do

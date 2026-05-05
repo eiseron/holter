@@ -208,6 +208,60 @@ defmodule Holter.Monitoring.IncidentsTest do
                root_cause: "Certificate expires in 10 days (Warning)"
              }) == :degraded
     end
+
+    test "maps :ssl_expiry with 'SSL Error' in root_cause to :compromised" do
+      assert Incidents.incident_to_health(%{
+               type: :ssl_expiry,
+               root_cause: "SSL Error: handshake failed"
+             }) == :compromised
+    end
+
+    test "maps :domain_expiry with nil root_cause to :degraded" do
+      assert Incidents.incident_to_health(%{type: :domain_expiry, root_cause: nil}) == :degraded
+    end
+
+    test "maps :domain_expiry with 'Critical' in root_cause to :compromised" do
+      assert Incidents.incident_to_health(%{
+               type: :domain_expiry,
+               root_cause: "Domain expires in 2 days (Critical)"
+             }) == :compromised
+    end
+
+    test "maps :domain_expiry with 'expired' in root_cause to :compromised" do
+      assert Incidents.incident_to_health(%{
+               type: :domain_expiry,
+               root_cause: "Domain expired"
+             }) == :compromised
+    end
+
+    test "maps :domain_expiry with warning root_cause to :degraded" do
+      assert Incidents.incident_to_health(%{
+               type: :domain_expiry,
+               root_cause: "Domain expires in 14 days (Warning)"
+             }) == :degraded
+    end
+
+    test "maps unknown incident type to :unknown" do
+      assert Incidents.incident_to_health(%{type: :something_else, root_cause: nil}) == :unknown
+    end
+  end
+
+  describe "type_label/1" do
+    test "labels :downtime as 'Downtime'" do
+      assert Incidents.type_label(:downtime) == "Downtime"
+    end
+
+    test "labels :defacement as 'Defacement'" do
+      assert Incidents.type_label(:defacement) == "Defacement"
+    end
+
+    test "labels :ssl_expiry as 'SSL Expiry'" do
+      assert Incidents.type_label(:ssl_expiry) == "SSL Expiry"
+    end
+
+    test "labels :domain_expiry as 'Domain Expiry'" do
+      assert Incidents.type_label(:domain_expiry) == "Domain Expiry"
+    end
   end
 
   describe "create_incident/1" do
@@ -561,6 +615,66 @@ defmodule Holter.Monitoring.IncidentsTest do
 
       %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
       assert bar.lane == 2
+    end
+
+    test "domain_expiry incident lands in lane 3" do
+      inc = %{
+        id: "c2",
+        type: :domain_expiry,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
+      assert bar.lane == 3
+    end
+
+    test "downtime bar uses the down status color" do
+      inc = %{
+        id: "f1",
+        type: :downtime,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
+      assert bar.fill == "var(--color-status-down)"
+    end
+
+    test "defacement bar uses the compromised status color" do
+      inc = %{
+        id: "f2",
+        type: :defacement,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
+      assert bar.fill == "var(--color-status-compromised)"
+    end
+
+    test "ssl_expiry bar uses the degraded status color" do
+      inc = %{
+        id: "f3",
+        type: :ssl_expiry,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
+      assert bar.fill == "var(--color-status-degraded)"
+    end
+
+    test "domain_expiry bar uses the degraded status color" do
+      inc = %{
+        id: "f4",
+        type: :domain_expiry,
+        started_at: ~U[2026-01-10 00:00:00Z],
+        resolved_at: ~U[2026-01-11 00:00:00Z]
+      }
+
+      %{bars: [bar]} = Incidents.build_gantt_chart_data([inc], @now)
+      assert bar.fill == "var(--color-status-degraded)"
     end
 
     test "open incident sets open?: true" do

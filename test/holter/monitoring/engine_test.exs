@@ -265,7 +265,7 @@ defmodule Holter.Monitoring.EngineTest do
       assert {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
     end
 
-    test "saves non-UTF8 snippet correctly", %{monitor: monitor} do
+    test "saves a non-empty snippet for a non-UTF8 body", %{monitor: monitor} do
       invalid_utf8_body = <<195, 40, 231, 97, 111>>
 
       response = %Req.Response{
@@ -277,7 +277,7 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, _} = Engine.process_response(monitor, response, %{duration_ms: 100})
 
       log = Monitoring.list_monitor_logs(monitor, %{}).logs |> List.first()
-      assert is_binary(log.response_snippet)
+      assert byte_size(log.response_snippet) > 0
     end
 
     test "ensures saved snippet is valid UTF8", %{monitor: monitor} do

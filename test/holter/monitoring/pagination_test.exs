@@ -5,6 +5,32 @@ defmodule Holter.Monitoring.PaginationTest do
   alias Holter.Monitoring.{MonitorLog, Pagination}
   alias Holter.Repo
 
+  describe "resolve_page_size/2" do
+    test "returns the default (25) when requested is nil" do
+      assert Pagination.resolve_page_size(nil) == 25
+    end
+
+    test "uses a custom default when provided" do
+      assert Pagination.resolve_page_size(nil, default: 30) == 30
+    end
+
+    test "returns the requested value when within bounds" do
+      assert Pagination.resolve_page_size(50) == 50
+    end
+
+    test "clamps requested value above max to the max (100)" do
+      assert Pagination.resolve_page_size(500) == 100
+    end
+
+    test "clamps requested value below 1 to 1" do
+      assert Pagination.resolve_page_size(0) == 1
+    end
+
+    test "respects a custom max" do
+      assert Pagination.resolve_page_size(200, max: 50) == 50
+    end
+  end
+
   describe "calculate/3" do
     test "returns total_pages=1 and current_page=1 when table is empty" do
       monitor = monitor_fixture()

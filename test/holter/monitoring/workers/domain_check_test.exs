@@ -36,8 +36,9 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
       assert Monitoring.get_monitor!(monitor.id).domain_expires_at == expiry
     end
 
-    test "stamps last_domain_check_at on success", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).last_domain_check_at != nil
+    test "stamps last_domain_check_at to a recent timestamp on success", %{monitor: monitor} do
+      stamped_at = Monitoring.get_monitor!(monitor.id).last_domain_check_at
+      assert DateTime.diff(DateTime.utc_now(), stamped_at, :second) <= 5
     end
   end
 
@@ -61,7 +62,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
     end
 
     test "still stamps last_domain_check_at to honour cadence gating", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).last_domain_check_at != nil
+      stamped_at = Monitoring.get_monitor!(monitor.id).last_domain_check_at
+      assert DateTime.diff(DateTime.utc_now(), stamped_at, :second) <= 5
     end
 
     test "does not open a :domain_expiry incident on transient lookup error", %{monitor: monitor} do
@@ -95,6 +97,7 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
   describe "expiry classification" do
     test "opens a :domain_expiry incident when expiry is within 7 days", %{monitor: monitor} do
       expiry = DateTime.utc_now() |> DateTime.add(3, :day) |> DateTime.truncate(:second)
+      monitor_id = monitor.id
 
       expect(Holter.Monitoring.MonitorClientMock, :get_domain_expiration, fn _ ->
         {:ok, expiry}
@@ -102,11 +105,13 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
 
       :ok = perform_job(DomainCheck, %{"id" => monitor.id})
 
-      assert Monitoring.get_open_incident(monitor.id, :domain_expiry) != nil
+      assert %{type: :domain_expiry, monitor_id: ^monitor_id, resolved_at: nil} =
+               Monitoring.get_open_incident(monitor.id, :domain_expiry)
     end
 
     test "opens a :domain_expiry incident when expiry is within 30 days", %{monitor: monitor} do
       expiry = DateTime.utc_now() |> DateTime.add(20, :day) |> DateTime.truncate(:second)
+      monitor_id = monitor.id
 
       expect(Holter.Monitoring.MonitorClientMock, :get_domain_expiration, fn _ ->
         {:ok, expiry}
@@ -114,7 +119,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
 
       :ok = perform_job(DomainCheck, %{"id" => monitor.id})
 
-      assert Monitoring.get_open_incident(monitor.id, :domain_expiry) != nil
+      assert %{type: :domain_expiry, monitor_id: ^monitor_id, resolved_at: nil} =
+               Monitoring.get_open_incident(monitor.id, :domain_expiry)
     end
 
     test "does not open an incident when expiry is far away", %{monitor: monitor} do
