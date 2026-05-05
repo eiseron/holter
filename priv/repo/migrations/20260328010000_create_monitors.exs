@@ -4,7 +4,6 @@ defmodule Holter.Repo.Migrations.CreateMonitors do
   def change do
     create table(:monitors, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      # null for now until Auth is applied
       add :user_id, :binary_id
 
       add :logical_state, :string, default: "active", null: false
