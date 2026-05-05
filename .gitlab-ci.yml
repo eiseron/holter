@@ -21,6 +21,11 @@ cache:
   paths:
     - deps/
     - _build/test/
+    - _build/dev/
+    - .hex/
+    - .cache/rebar3/
+  fallback_keys:
+    - cache-default
 
 default:
   # Pin every job to the eiseron self-hosted runner. The runner is
@@ -31,8 +36,10 @@ default:
     - self-hosted
   before_script:
     - apt-get update -qq && apt-get install -y -qq git build-essential
-    - mix local.hex --force --quiet
-    - mix local.rebar --force --quiet
+    - export MIX_HOME="$CI_PROJECT_DIR/.hex"
+    - export REBAR_CACHE_DIR="$CI_PROJECT_DIR/.cache/rebar3"
+    - "[ -d \"$MIX_HOME/archives\" ] || mix local.hex --force --quiet"
+    - "[ -d \"$MIX_HOME/rebar3\" ] || mix local.rebar --force --quiet"
     - mix deps.get
 
 lint:
