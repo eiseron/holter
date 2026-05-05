@@ -127,6 +127,9 @@ build_image:
         --context "$CI_PROJECT_DIR"
         --dockerfile "$CI_PROJECT_DIR/Dockerfile"
         --destination "$CI_REGISTRY_IMAGE/preview:$CI_COMMIT_REF_SLUG"
+        --cache=true
+        --cache-repo="$CI_REGISTRY_IMAGE/kaniko-cache"
+        --cache-ttl=168h
         --push-retry=3
 
 # Three trigger jobs (deploy_review, deploy_main, stop_review) use a
