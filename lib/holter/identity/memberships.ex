@@ -1,7 +1,14 @@
 defmodule Holter.Identity.Memberships do
   @moduledoc """
-  Coordinator for workspace memberships. Owns DB writes and reads
-  for the join between Identity users and Monitoring workspaces.
+  Coordinator for workspace memberships. Owns DB writes and reads for
+  the join between Identity users and Monitoring workspaces.
+
+  Membership rows enforce RLS keyed on `app.current_user_id` — the
+  acting user can only see and write rows whose `user_id` matches the
+  session variable. Every entry point here is called from a context
+  where the user has already been resolved (registration, auth hooks,
+  post-login landing), so each one wraps its DB work in
+  `Holter.Repo.Tenant.with_user!/2`.
   """
 
   import Ecto.Query
@@ -10,22 +17,27 @@ defmodule Holter.Identity.Memberships do
   alias Holter.Monitoring
   alias Holter.Monitoring.Workspace
   alias Holter.Repo
+  alias Holter.Repo.Tenant
 
-  def create_default_membership(%{id: user_id}, %{id: workspace_id}) do
-    %WorkspaceMembership{}
-    |> WorkspaceMembership.changeset(%{
-      user_id: user_id,
-      workspace_id: workspace_id,
-      role: :owner
-    })
-    |> Repo.insert()
+  def create_default_membership(%{id: user_id} = user, %{id: workspace_id}) do
+    Tenant.with_user!(user, fn ->
+      %WorkspaceMembership{}
+      |> WorkspaceMembership.changeset(%{
+        user_id: user_id,
+        workspace_id: workspace_id,
+        role: :owner
+      })
+      |> Repo.insert()
+    end)
   end
 
-  def member?(%{id: user_id}, %{id: workspace_id}) do
-    Repo.exists?(
-      from m in WorkspaceMembership,
-        where: m.user_id == ^user_id and m.workspace_id == ^workspace_id
-    )
+  def member?(%{id: user_id} = user, %{id: workspace_id}) do
+    Tenant.with_user!(user, fn ->
+      Repo.exists?(
+        from m in WorkspaceMembership,
+          where: m.user_id == ^user_id and m.workspace_id == ^workspace_id
+      )
+    end)
   end
 
   def fetch_workspace_for_member(user, workspace_id) when is_binary(workspace_id) do
@@ -35,13 +47,15 @@ defmodule Holter.Identity.Memberships do
     end
   end
 
-  def list_workspaces_for_user(%{id: user_id}) do
-    Repo.all(
-      from w in Workspace,
-        join: m in WorkspaceMembership,
-        on: m.workspace_id == w.id,
-        where: m.user_id == ^user_id,
-        order_by: [asc: m.inserted_at]
-    )
+  def list_workspaces_for_user(%{id: user_id} = user) do
+    Tenant.with_user!(user, fn ->
+      Repo.all(
+        from w in Workspace,
+          join: m in WorkspaceMembership,
+          on: m.workspace_id == w.id,
+          where: m.user_id == ^user_id,
+          order_by: [asc: m.inserted_at]
+      )
+    end)
   end
 end

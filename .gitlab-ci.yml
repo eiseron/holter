@@ -74,6 +74,7 @@ lint:
 test:
   stage: test
   needs: []
+  image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
   cache:
     - *deps-cache
     - *build-test-cache
@@ -95,6 +96,10 @@ test:
     DB_NAME: holter
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
+  before_script:
+    - mix deps.get
+    - until pg_isready -h postgres -U postgres -t 1; do sleep 1; done
+    - PGPASSWORD=postgres psql -h postgres -U postgres -d postgres -f priv/repo/postgres-init/01_rls_roles.sql
   script:
     - mix test.ci
   rules:

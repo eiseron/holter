@@ -37,6 +37,7 @@ services:
       POSTGRES_DB: holter_dev
     volumes:
       - postgres_data:/var/lib/postgresql
+      - ./priv/repo/postgres-init:/docker-entrypoint-initdb.d:ro
 
 volumes:
   postgres_data:
