@@ -14,18 +14,35 @@ workflow:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
 
-cache:
+.deps-cache: &deps-cache
   key:
+    prefix: "${CI_COMMIT_REF_PROTECTED}-deps"
     files:
       - mix.lock
   paths:
     - deps/
-    - _build/test/
-    - _build/dev/
-    - .hex/
-    - .cache/rebar3/
   fallback_keys:
-    - cache-default
+    - "${CI_COMMIT_REF_PROTECTED}-deps-default"
+
+.build-dev-cache: &build-dev-cache
+  key:
+    prefix: "${CI_COMMIT_REF_PROTECTED}-build-dev"
+    files:
+      - mix.lock
+  paths:
+    - _build/dev/
+  fallback_keys:
+    - "${CI_COMMIT_REF_PROTECTED}-build-dev-default"
+
+.build-test-cache: &build-test-cache
+  key:
+    prefix: "${CI_COMMIT_REF_PROTECTED}-build-test"
+    files:
+      - mix.lock
+  paths:
+    - _build/test/
+  fallback_keys:
+    - "${CI_COMMIT_REF_PROTECTED}-build-test-default"
 
 default:
   # Pin every job to the eiseron self-hosted runner. The runner is
@@ -36,15 +53,16 @@ default:
     - self-hosted
   before_script:
     - apt-get update -qq && apt-get install -y -qq git build-essential
-    - export MIX_HOME="$CI_PROJECT_DIR/.hex"
-    - export REBAR_CACHE_DIR="$CI_PROJECT_DIR/.cache/rebar3"
-    - "[ -d \"$MIX_HOME/archives\" ] || mix local.hex --force --quiet"
-    - "[ -d \"$MIX_HOME/rebar3\" ] || mix local.rebar --force --quiet"
+    - mix local.hex --force --quiet
+    - mix local.rebar --force --quiet
     - mix deps.get
 
 lint:
   stage: lint
   needs: []
+  cache:
+    - *deps-cache
+    - *build-dev-cache
   script:
     - mix format --check-formatted
     - mix compile --warnings-as-errors
@@ -56,6 +74,9 @@ lint:
 test:
   stage: test
   needs: []
+  cache:
+    - *deps-cache
+    - *build-test-cache
   services:
     - name: postgres:16-alpine
       alias: postgres
@@ -110,13 +131,8 @@ build_image:
     name: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:latest
   before_script: []
   cache:
-    key:
-      files:
-        - mix.lock
-    paths:
-      - deps/
-      - _build/dev/
-    policy: pull-push
+    - *deps-cache
+    - *build-dev-cache
   variables:
     MIX_ENV: dev
   script:
