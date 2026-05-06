@@ -18,6 +18,15 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
   the worker, no check would run, and the user's logs page would stay
   empty (the bug reported on the !43 preview deploy:
   "agora os logs não aparecem no monitor").
+
+  Once `monitor_logs` itself gets RLS (issue #51 indirect-tables MR
+  !45), reads of that table also need to happen inside a tenant
+  context. This test wraps every assertion that queries `monitor_logs`
+  in `Tenant.with_workspace!/2` so it stays correct under both pre-RLS
+  and post-RLS states of the table. Forgetting the wrapper would make
+  the `Repo` SELECT after `HTTPCheck.perform/1` return zero rows under
+  RLS — not because the worker failed to insert, but because the test's
+  own SELECT runs without a tenant stamped.
   """
 
   use Holter.DataCase, async: false
@@ -29,6 +38,7 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
   alias Holter.Monitoring.MonitorLog
   alias Holter.Monitoring.Workers.{HTTPCheck, MonitorDispatcher}
   alias Holter.Repo
+  alias Holter.Repo.Tenant
 
   describe "MonitorDispatcher.perform/1 under holter_app role" do
     setup do
@@ -79,10 +89,7 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
 
     test "resolves the monitor under the policy and creates a monitor_log",
          %{monitor: monitor} do
-      mox_called = :counters.new(1, [])
-
       Mox.expect(Holter.Monitoring.MonitorClientMock, :request, fn _opts ->
-        :counters.add(mox_called, 1, 1)
         {:ok, %Req.Response{status: 200, body: "OK"}}
       end)
 
@@ -90,39 +97,11 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
         args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
       }
 
-      result = HTTPCheck.perform(job)
+      assert :ok = HTTPCheck.perform(job)
 
-      role_after = Repo.query!("SELECT current_role", []).rows |> hd() |> hd()
-
-      ws_after =
-        Repo.query!("SELECT current_setting('app.current_workspace_id', true)", []).rows
-        |> hd()
-        |> hd()
-
-      log_count =
-        Repo.aggregate(from(l in MonitorLog, where: l.monitor_id == ^monitor.id), :count, :id)
-
-      total_log_count = Repo.aggregate(MonitorLog, :count, :id)
-
-      mox_count = :counters.get(mox_called, 1)
-
-      diag = %{
-        result: result,
-        role_after: role_after,
-        ws_after: ws_after,
-        log_count_for_monitor: log_count,
-        total_log_count: total_log_count,
-        mox_request_called: mox_count
-      }
-
-      assert :ok = result,
-             "HTTPCheck.perform should return :ok, got: #{inspect(result)}; diag: #{inspect(diag)}"
-
-      assert mox_count >= 1,
-             "Mox MonitorClientMock.request should have been called; diag: #{inspect(diag)}"
-
-      assert Repo.exists?(from l in MonitorLog, where: l.monitor_id == ^monitor.id),
-             "Expected monitor_log row for monitor #{monitor.id}; diag: #{inspect(diag)}"
+      assert Tenant.with_workspace!(monitor.workspace_id, fn ->
+               Repo.exists?(from l in MonitorLog, where: l.monitor_id == ^monitor.id)
+             end)
     end
   end
 
@@ -163,7 +142,10 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
         timezone: "Etc/UTC"
       }
 
-      %{logs: logs} = Monitoring.list_monitor_logs(monitor, filters)
+      %{logs: logs} =
+        Tenant.with_workspace!(monitor.workspace_id, fn ->
+          Monitoring.list_monitor_logs(monitor, filters)
+        end)
 
       refute Enum.empty?(logs)
     end
