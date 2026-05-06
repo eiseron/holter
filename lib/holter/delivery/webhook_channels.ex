@@ -1,30 +1,41 @@
 defmodule Holter.Delivery.WebhookChannels do
   @moduledoc """
-  Context for the standalone webhook-channel entity introduced by #29.
+  Coordinator for the `webhook_channels` table. Every public function
+  whose DB work is keyed on a workspace wraps in
+  `Holter.Repo.Tenant.with_workspace!/2`, so the RLS policy
+  `tenant_isolation` (keyed on `app.current_workspace_id`) sees the
+  correct tenant under the `holter_app` role at runtime.
 
-  Operates directly on the `webhook_channels` table — no `notification_channels`
-  parent involved. Until the legacy parent table is dropped, channels created
-  via the parent path coexist with rows owned by this context (the legacy ones
-  have a populated `notification_channel_id`; ours leave it null).
+  By-id fetchers (`get/1`, `get!/1`) and join-table helpers that take
+  only a `monitor_id` (`list_for_monitor/1`, `link_monitor/2`,
+  `unlink_monitor/2`, `list_monitor_ids_for/1`, `sync_monitors_for/2`)
+  are NOT wrapped — the caller (controller, LiveView, worker) is
+  expected to have set the tenant before calling.
   """
 
   import Ecto.Query
 
   alias Holter.Delivery.MonitorWebhookChannel
   alias Holter.Delivery.WebhookChannel
+  alias Holter.Identity.Tenant, as: IdentityTenant
   alias Holter.Repo
+  alias Holter.Repo.Tenant
 
   def list(workspace_id) do
-    WebhookChannel
-    |> where([w], w.workspace_id == ^workspace_id)
-    |> order_by([w], asc: w.name)
-    |> Repo.all()
+    Tenant.with_workspace!(workspace_id, fn ->
+      WebhookChannel
+      |> where([w], w.workspace_id == ^workspace_id)
+      |> order_by([w], asc: w.name)
+      |> Repo.all()
+    end)
   end
 
   def count(workspace_id) do
-    WebhookChannel
-    |> where([w], w.workspace_id == ^workspace_id)
-    |> Repo.aggregate(:count)
+    Tenant.with_workspace!(workspace_id, fn ->
+      WebhookChannel
+      |> where([w], w.workspace_id == ^workspace_id)
+      |> Repo.aggregate(:count)
+    end)
   end
 
   def get(id) do
@@ -39,18 +50,34 @@ defmodule Holter.Delivery.WebhookChannels do
   def get!(id), do: Repo.get!(WebhookChannel, id)
 
   def create(attrs \\ %{}) do
-    %WebhookChannel{}
-    |> WebhookChannel.changeset(attrs)
-    |> Repo.insert()
+    workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
+
+    case IdentityTenant.parse_workspace_id(workspace_id) do
+      {:ok, _} ->
+        Tenant.with_workspace!(workspace_id, fn ->
+          %WebhookChannel{}
+          |> WebhookChannel.changeset(attrs)
+          |> Repo.insert()
+        end)
+
+      {:error, _} ->
+        %WebhookChannel{}
+        |> WebhookChannel.changeset(attrs)
+        |> Repo.insert()
+    end
   end
 
   def update(%WebhookChannel{} = channel, attrs) do
-    channel
-    |> WebhookChannel.changeset(attrs)
-    |> Repo.update()
+    Tenant.with_workspace!(channel.workspace_id, fn ->
+      channel
+      |> WebhookChannel.changeset(attrs)
+      |> Repo.update()
+    end)
   end
 
-  def delete(%WebhookChannel{} = channel), do: Repo.delete(channel)
+  def delete(%WebhookChannel{} = channel) do
+    Tenant.with_workspace!(channel.workspace_id, fn -> Repo.delete(channel) end)
+  end
 
   def change(%WebhookChannel{} = channel, attrs \\ %{}),
     do: WebhookChannel.changeset(channel, attrs)
@@ -60,21 +87,25 @@ defmodule Holter.Delivery.WebhookChannels do
   fresh token in place.
   """
   def regenerate_signing_token(%WebhookChannel{} = channel) do
-    channel
-    |> Ecto.Changeset.change(signing_token: WebhookChannel.generate_signing_token())
-    |> Repo.update()
+    Tenant.with_workspace!(channel.workspace_id, fn ->
+      channel
+      |> Ecto.Changeset.change(signing_token: WebhookChannel.generate_signing_token())
+      |> Repo.update()
+    end)
   end
 
   @doc """
   Records the timestamp of the most recent test ping. Used by the
   cooldown gate in `Holter.Delivery.Engine`.
   """
-  def touch_test_dispatched_at(%WebhookChannel{id: id}, %DateTime{} = now) do
-    WebhookChannel
-    |> where([w], w.id == ^id)
-    |> Repo.update_all(set: [last_test_dispatched_at: now, updated_at: now])
+  def touch_test_dispatched_at(%WebhookChannel{id: id} = channel, %DateTime{} = now) do
+    Tenant.with_workspace!(channel.workspace_id, fn ->
+      WebhookChannel
+      |> where([w], w.id == ^id)
+      |> Repo.update_all(set: [last_test_dispatched_at: now, updated_at: now])
 
-    :ok
+      :ok
+    end)
   end
 
   def link_monitor(monitor_id, webhook_channel_id) do
