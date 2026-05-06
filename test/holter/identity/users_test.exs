@@ -142,6 +142,42 @@ defmodule Holter.Identity.UsersTest do
     end
   end
 
+  describe "update_user_preferences/2" do
+    test "persists a supported locale to the user row" do
+      %{user: user} = verified_user_fixture()
+
+      {:ok, _updated} = Identity.update_user_preferences(user, %{preferred_locale: "en"})
+
+      assert Identity.get_user!(user.id).preferred_locale == "en"
+    end
+
+    test "accepts nil to clear an existing preference" do
+      %{user: user} = verified_user_fixture()
+      {:ok, _} = Identity.update_user_preferences(user, %{preferred_locale: "en"})
+
+      {:ok, cleared} = Identity.update_user_preferences(user, %{preferred_locale: nil})
+
+      assert cleared.preferred_locale == nil
+    end
+
+    test "rejects an unsupported locale with a translatable error" do
+      %{user: user} = verified_user_fixture()
+
+      {:error, changeset} =
+        Identity.update_user_preferences(user, %{preferred_locale: "fr_FR"})
+
+      assert "is not a supported locale" in errors_on(changeset).preferred_locale
+    end
+
+    test "leaves the row unchanged when an unsupported locale is supplied" do
+      %{user: user} = verified_user_fixture()
+
+      {:error, _} = Identity.update_user_preferences(user, %{preferred_locale: "fr_FR"})
+
+      assert Identity.get_user!(user.id).preferred_locale == nil
+    end
+  end
+
   describe "fetch_user_by_session_token/1 and delete_session_token/1" do
     test "round-trips a freshly issued session token back to the same user" do
       %{user: user} = verified_user_fixture()

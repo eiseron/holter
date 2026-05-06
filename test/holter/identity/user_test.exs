@@ -59,6 +59,48 @@ defmodule Holter.Identity.UserTest do
 
       refute inspect(user) =~ user.hashed_password
     end
+
+    test "accepts a supported preferred_locale at registration" do
+      attrs = valid_user_attrs(%{preferred_locale: "en"})
+
+      changeset = User.registration_changeset(%User{}, attrs)
+
+      assert get_change(changeset, :preferred_locale) == "en"
+    end
+
+    test "rejects an unsupported preferred_locale at registration" do
+      attrs = valid_user_attrs(%{preferred_locale: "klingon"})
+
+      changeset = User.registration_changeset(%User{}, attrs)
+
+      assert "is not a supported locale" in errors_on(changeset).preferred_locale
+    end
+  end
+
+  describe "preferences_changeset/2" do
+    test "casts a supported preferred_locale" do
+      user = user_fixture()
+
+      changeset = User.preferences_changeset(user, %{preferred_locale: "en"})
+
+      assert get_change(changeset, :preferred_locale) == "en"
+    end
+
+    test "accepts nil to clear the preference" do
+      user = user_fixture(%{preferred_locale: "en"})
+
+      changeset = User.preferences_changeset(user, %{preferred_locale: nil})
+
+      assert changeset.valid?
+    end
+
+    test "rejects an unsupported locale" do
+      user = user_fixture()
+
+      changeset = User.preferences_changeset(user, %{preferred_locale: "fr_FR"})
+
+      assert "is not a supported locale" in errors_on(changeset).preferred_locale
+    end
   end
 
   describe "email_verification_changeset/2" do

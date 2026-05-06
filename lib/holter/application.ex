@@ -3,10 +3,12 @@ defmodule Holter.Application do
 
   use Application
 
+  alias Holter.I18n.Locale
   alias Holter.Observability.ObanHandler
 
   @impl true
   def start(_type, _args) do
+    Application.put_env(:holter, HolterWeb.Gettext, default_locale: Locale.default())
     ObanHandler.attach()
 
     children =

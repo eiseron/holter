@@ -6,7 +6,7 @@ config :holter,
   monitor_client: Holter.Monitoring.MonitorClient.HTTP,
   network_resolver: Holter.Network.Resolver.Erlang
 
-config :holter, HolterWeb.Gettext, default_locale: "pt_BR"
+config :holter, Holter.I18n.Locale, default_locale: "pt_BR"
 
 config :holter, HolterWeb.Endpoint,
   url: [host: "localhost"],

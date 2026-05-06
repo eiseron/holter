@@ -24,6 +24,27 @@ defmodule Holter.Delivery.EmailChannelTest do
       changeset = EmailChannel.changeset(%EmailChannel{}, %{address: "ops@example.com"})
       refute Map.has_key?(errors_on(changeset), :address)
     end
+
+    test "accepts a supported locale" do
+      changeset =
+        EmailChannel.changeset(%EmailChannel{}, %{address: "ops@example.com", locale: "en"})
+
+      refute Map.has_key?(errors_on(changeset), :locale)
+    end
+
+    test "treats nil locale as inherit-from-workspace and does not error" do
+      changeset =
+        EmailChannel.changeset(%EmailChannel{}, %{address: "ops@example.com", locale: nil})
+
+      refute Map.has_key?(errors_on(changeset), :locale)
+    end
+
+    test "rejects an unsupported locale" do
+      changeset =
+        EmailChannel.changeset(%EmailChannel{}, %{address: "ops@example.com", locale: "fr_FR"})
+
+      assert "is not a supported locale" in errors_on(changeset).locale
+    end
   end
 
   describe "generate_anti_phishing_code/0" do

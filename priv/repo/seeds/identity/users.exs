@@ -20,7 +20,8 @@ defmodule Holter.Seeds.Identity.Users do
         email: @dev_email,
         hashed_password: Password.hash(@dev_password, pepper),
         terms_accepted_at: now,
-        terms_version: @terms_version
+        terms_version: @terms_version,
+        preferred_locale: "pt_BR"
       })
       |> Ecto.Changeset.put_change(:email_verified_at, now)
       |> Ecto.Changeset.put_change(:onboarding_status, :active)

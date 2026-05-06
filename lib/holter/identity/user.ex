@@ -3,6 +3,7 @@ defmodule Holter.Identity.User do
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
 
+  alias Holter.I18n.Locale
   alias Holter.Identity.EmailNormalizer
 
   @onboarding_statuses [:pending_verification, :active, :pending_billing, :banned]
@@ -22,6 +23,8 @@ defmodule Holter.Identity.User do
     field :terms_accepted_at, :utc_datetime
     field :terms_version, :string
 
+    field :preferred_locale, :string
+
     timestamps(type: :utc_datetime)
   end
 
@@ -29,17 +32,40 @@ defmodule Holter.Identity.User do
 
   def registration_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :hashed_password, :terms_accepted_at, :terms_version])
+    |> cast(attrs, [
+      :email,
+      :hashed_password,
+      :terms_accepted_at,
+      :terms_version,
+      :preferred_locale
+    ])
     |> validate_required([:email, :hashed_password, :terms_accepted_at, :terms_version])
     |> update_change(:email, &EmailNormalizer.normalize/1)
     |> validate_format(:email, @email_format, message: gettext("must be a valid email address"))
     |> validate_length(:email, max: 254)
+    |> validate_locale(:preferred_locale)
     |> unique_constraint(:email)
+  end
+
+  def preferences_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:preferred_locale])
+    |> validate_locale(:preferred_locale)
   end
 
   def email_verification_changeset(user, now) do
     change(user, email_verified_at: now)
     |> maybe_activate()
+  end
+
+  defp validate_locale(changeset, field) do
+    validate_change(changeset, field, fn ^field, value ->
+      cond do
+        is_nil(value) -> []
+        Locale.valid?(value) -> []
+        true -> [{field, gettext("is not a supported locale")}]
+      end
+    end)
   end
 
   defp maybe_activate(changeset) do

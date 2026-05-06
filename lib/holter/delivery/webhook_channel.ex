@@ -4,6 +4,7 @@ defmodule Holter.Delivery.WebhookChannel do
 
   import Ecto.Changeset
 
+  alias Holter.I18n.Locale
   alias Holter.Network.Guard
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -17,6 +18,7 @@ defmodule Holter.Delivery.WebhookChannel do
     field :settings, :map, default: %{}
     field :signing_token, :string
     field :last_test_dispatched_at, :utc_datetime
+    field :locale, :string
 
     belongs_to :workspace, Holter.Monitoring.Workspace
 
@@ -25,12 +27,13 @@ defmodule Holter.Delivery.WebhookChannel do
 
   def changeset(webhook, attrs) do
     webhook
-    |> cast(attrs, [:workspace_id, :name, :url, :settings])
+    |> cast(attrs, [:workspace_id, :name, :url, :settings, :locale])
     |> validate_required([:workspace_id, :name, :url])
     |> validate_length(:name, min: 1, max: 255)
     |> validate_length(:url, min: 1, max: 2048)
     |> validate_url_format()
     |> validate_settings_size()
+    |> validate_locale()
     |> ensure_signing_token()
     |> foreign_key_constraint(:workspace_id)
   end
@@ -69,6 +72,16 @@ defmodule Holter.Delivery.WebhookChannel do
 
         _ ->
           []
+      end
+    end)
+  end
+
+  defp validate_locale(changeset) do
+    validate_change(changeset, :locale, fn :locale, value ->
+      cond do
+        is_nil(value) -> []
+        Locale.valid?(value) -> []
+        true -> [locale: "is not a supported locale"]
       end
     end)
   end

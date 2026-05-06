@@ -8,7 +8,12 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
     # `min_interval_seconds: 60` so seeded monitors with sub-600s intervals
     # validate cleanly. Mirrors a paid-plan workspace, which is the realistic
     # case reviewers should land on.
-    attrs = %{name: "Development", slug: "dev", min_interval_seconds: 60}
+    attrs = %{
+      name: "Development",
+      slug: "dev",
+      min_interval_seconds: 60,
+      default_locale: "pt_BR"
+    }
 
     workspace =
       %Workspace{}

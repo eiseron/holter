@@ -15,7 +15,8 @@ defmodule Holter.Seeds.Delivery.WebhookChannels do
       WebhookChannels.create(%{
         workspace_id: workspace.id,
         name: "PagerDuty critical",
-        url: "https://events.pagerduty.com/v2/enqueue"
+        url: "https://events.pagerduty.com/v2/enqueue",
+        locale: "en"
       })
 
     Enum.each(active_monitors(monitors), fn monitor ->

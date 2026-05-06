@@ -10,6 +10,7 @@ defmodule Holter.Identity do
   defdelegate get_user!(id), to: Users
   defdelegate get_user_by_email_and_password(email, password), to: Users
   defdelegate verify_email(token), to: Users
+  defdelegate update_user_preferences(user, attrs), to: Users
 
   defdelegate request_password_reset(email), to: Passwords, as: :request_reset
   defdelegate reset_password(token, new_password), to: Passwords

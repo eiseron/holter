@@ -3,6 +3,8 @@ defmodule Holter.Monitoring.Workspace do
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
 
+  alias Holter.I18n.Locale
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
@@ -39,6 +41,8 @@ defmodule Holter.Monitoring.Workspace do
     field :create_long_count, :integer, default: 0
     field :create_long_window_start, :utc_datetime
 
+    field :default_locale, :string
+
     has_many :monitors, Holter.Monitoring.Monitor
 
     timestamps(type: :utc_datetime)
@@ -57,11 +61,19 @@ defmodule Holter.Monitoring.Workspace do
       :max_triggers_per_minute,
       :max_triggers_per_hour,
       :max_creates_per_minute,
-      :max_creates_per_hour
+      :max_creates_per_hour,
+      :default_locale
     ])
     |> validate_required([:name])
     |> maybe_generate_slug()
-    |> validate_required([:slug, :retention_days, :max_monitors, :min_interval_seconds])
+    |> maybe_apply_default_locale()
+    |> validate_required([
+      :slug,
+      :retention_days,
+      :max_monitors,
+      :min_interval_seconds,
+      :default_locale
+    ])
     |> validate_length(:name, min: 1, max: 255)
     |> validate_number(:retention_days, greater_than_or_equal_to: 1)
     |> validate_number(:max_monitors, greater_than_or_equal_to: 1)
@@ -73,8 +85,24 @@ defmodule Holter.Monitoring.Workspace do
     |> validate_format(:slug, ~r/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/,
       message: "must be 3-63 lowercase alphanumeric characters or hyphens"
     )
+    |> validate_default_locale()
     |> validate_slug_immutability()
     |> unique_constraint(:slug)
+  end
+
+  defp maybe_apply_default_locale(changeset) do
+    case get_field(changeset, :default_locale) do
+      nil -> put_change(changeset, :default_locale, Locale.default())
+      _ -> changeset
+    end
+  end
+
+  defp validate_default_locale(changeset) do
+    validate_change(changeset, :default_locale, fn :default_locale, value ->
+      if Locale.valid?(value),
+        do: [],
+        else: [default_locale: gettext("is not a supported locale")]
+    end)
   end
 
   defp maybe_generate_slug(changeset) do

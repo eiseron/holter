@@ -32,6 +32,12 @@ defmodule Holter.Identity.Users do
 
   def get_user!(id), do: Repo.get!(User, id)
 
+  def update_user_preferences(%User{} = user, attrs) do
+    user
+    |> User.preferences_changeset(attrs)
+    |> Repo.update()
+  end
+
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     pepper = pepper!()

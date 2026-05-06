@@ -17,7 +17,9 @@ defmodule Holter.Seeds.Delivery.EmailChannels do
     add_pending_recipient(on_call, "carol@dev.example.com")
 
     stakeholders =
-      create_unverified_channel(workspace, "Stakeholders", "stakeholders@dev.example.com")
+      create_unverified_channel(workspace, "Stakeholders", "stakeholders@dev.example.com",
+        locale: "en"
+      )
 
     Enum.each(active_monitors(monitors), fn monitor ->
       {:ok, _} = EmailChannels.link_monitor(monitor.id, engineering.id)
@@ -41,9 +43,13 @@ defmodule Holter.Seeds.Delivery.EmailChannels do
     |> Repo.insert!()
   end
 
-  defp create_unverified_channel(workspace, name, address) do
+  defp create_unverified_channel(workspace, name, address, opts) do
+    attrs =
+      %{workspace_id: workspace.id, name: name, address: address}
+      |> Map.merge(Map.new(opts))
+
     %EmailChannel{}
-    |> EmailChannel.changeset(%{workspace_id: workspace.id, name: name, address: address})
+    |> EmailChannel.changeset(attrs)
     |> Repo.insert!()
   end
 

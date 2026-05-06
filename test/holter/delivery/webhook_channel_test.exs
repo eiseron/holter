@@ -42,6 +42,36 @@ defmodule Holter.Delivery.WebhookChannelTest do
       refute Map.has_key?(errors_on(changeset), :url)
     end
 
+    test "accepts a supported locale" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "https://hooks.example.com/abc",
+          locale: "en"
+        })
+
+      refute Map.has_key?(errors_on(changeset), :locale)
+    end
+
+    test "treats nil locale as inherit-from-workspace and does not error" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "https://hooks.example.com/abc",
+          locale: nil
+        })
+
+      refute Map.has_key?(errors_on(changeset), :locale)
+    end
+
+    test "rejects an unsupported locale" do
+      changeset =
+        WebhookChannel.changeset(%WebhookChannel{}, %{
+          url: "https://hooks.example.com/abc",
+          locale: "klingon"
+        })
+
+      assert "is not a supported locale" in errors_on(changeset).locale
+    end
+
     test "rejects a url that embeds credentials in its userinfo" do
       changeset =
         WebhookChannel.changeset(%WebhookChannel{}, %{

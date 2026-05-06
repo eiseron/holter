@@ -4,6 +4,8 @@ defmodule Holter.Delivery.EmailChannel do
 
   import Ecto.Changeset
 
+  alias Holter.I18n.Locale
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
@@ -18,6 +20,7 @@ defmodule Holter.Delivery.EmailChannel do
     field :verification_token, :string
     field :verification_token_expires_at, :utc_datetime
     field :last_test_dispatched_at, :utc_datetime
+    field :locale, :string
 
     belongs_to :workspace, Holter.Monitoring.Workspace
 
@@ -35,11 +38,12 @@ defmodule Holter.Delivery.EmailChannel do
 
   def changeset(email, attrs) do
     email
-    |> cast(attrs, [:workspace_id, :name, :address, :settings])
+    |> cast(attrs, [:workspace_id, :name, :address, :settings, :locale])
     |> validate_required([:workspace_id, :name, :address])
     |> validate_length(:name, min: 1, max: 255)
     |> validate_length(:address, min: 1, max: 2048)
     |> validate_email_format()
+    |> validate_locale()
     |> ensure_anti_phishing_code()
     |> foreign_key_constraint(:workspace_id)
   end
@@ -67,6 +71,16 @@ defmodule Holter.Delivery.EmailChannel do
       if String.match?(address, ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
         do: [],
         else: [address: "must be a valid email address"]
+    end)
+  end
+
+  defp validate_locale(changeset) do
+    validate_change(changeset, :locale, fn :locale, value ->
+      cond do
+        is_nil(value) -> []
+        Locale.valid?(value) -> []
+        true -> [locale: "is not a supported locale"]
+      end
     end)
   end
 end
