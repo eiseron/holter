@@ -38,6 +38,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
   alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Identity
   alias Holter.Monitoring
+  alias Holter.Repo.Tenant
 
   def on_mount(:require_authenticated, _params, session, socket) do
     socket = assign_current_user(socket, session)
@@ -68,7 +69,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
   def on_mount(:require_monitor_member, %{"id" => id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, monitor} <- Monitoring.get_monitor(id),
+    with {:ok, monitor} <- Tenant.with_user!(user, fn -> Monitoring.get_monitor(id) end),
          {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
       {:cont,
        socket

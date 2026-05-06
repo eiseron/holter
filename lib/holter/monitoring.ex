@@ -17,7 +17,7 @@ defmodule Holter.Monitoring do
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
   defdelegate change_monitor(monitor, attrs, workspace), to: Monitors
   defdelegate recalculate_health_status(monitor), to: Monitors
-  defdelegate list_monitors_for_dispatch, to: Monitors
+  defdelegate list_monitors_for_dispatch(workspace_id), to: Monitors
   defdelegate mark_manual_check_triggered(monitor), to: Monitors
   defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
   defdelegate list_monitors_with_sparklines(workspace_id, limit \\ 30), to: Monitors
@@ -51,6 +51,7 @@ defmodule Holter.Monitoring do
   defdelegate get_daily_metric(monitor_id, date), to: Metrics
   defdelegate upsert_daily_metric(attrs), to: Metrics
 
+  defdelegate list_workspaces, to: Workspaces, as: :list_all
   defdelegate create_workspace(attrs), to: Workspaces
   defdelegate update_workspace(workspace, attrs), to: Workspaces
   defdelegate consume_trigger_budget(workspace), to: Workspaces

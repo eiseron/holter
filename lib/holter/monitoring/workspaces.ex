@@ -10,6 +10,15 @@ defmodule Holter.Monitoring.Workspaces do
     |> Repo.insert()
   end
 
+  @doc """
+  Lists every workspace globally. The `workspaces` table itself has no
+  RLS — workspace identity must be visible before any tenant context
+  is set so background workers can iterate and stamp per-row.
+  """
+  def list_all do
+    Repo.all(Workspace)
+  end
+
   def get_workspace_by_slug(slug) do
     case Repo.get_by(Workspace, slug: slug) do
       nil -> {:error, :not_found}

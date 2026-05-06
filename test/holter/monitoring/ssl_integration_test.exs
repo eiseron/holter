@@ -35,7 +35,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "enqueues an SSLCheck job", %{monitor: monitor} do
-      assert_enqueued(worker: SSLCheck, args: %{id: monitor.id})
+      assert_enqueued(
+        worker: SSLCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
   end
 
@@ -44,7 +47,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       expiry = DateTime.utc_now() |> DateTime.add(30, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       %{expiry: expiry}
     end
 
@@ -68,7 +71,11 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       end)
 
       import ExUnit.CaptureLog
-      capture_log(fn -> :ok = perform_job(SSLCheck, %{"id" => monitor.id}) end)
+
+      capture_log(fn ->
+        :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+      end)
+
       :ok
     end
 
@@ -91,7 +98,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       expiry = DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 
@@ -114,7 +121,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       expiry = DateTime.utc_now() |> DateTime.add(5, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 
@@ -136,7 +143,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     setup %{monitor: monitor} do
       expiry = DateTime.utc_now() |> DateTime.add(8, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 
@@ -157,7 +164,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
   describe "when ssl_ignore is enabled and no incident exists" do
     setup %{monitor: monitor} do
       {:ok, _} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 
@@ -174,10 +181,10 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     setup %{monitor: monitor} do
       expiry = DateTime.utc_now() |> DateTime.add(8, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       {:ok, _} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 
@@ -197,12 +204,15 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       end)
 
       import ExUnit.CaptureLog
-      capture_log(fn -> :ok = perform_job(SSLCheck, %{"id" => monitor.id}) end)
+
+      capture_log(fn ->
+        :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+      end)
 
       expiry = DateTime.utc_now() |> DateTime.add(60, :day) |> DateTime.truncate(:second)
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 

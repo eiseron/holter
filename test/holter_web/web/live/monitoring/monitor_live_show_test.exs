@@ -231,7 +231,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
       assert render(view) =~ ~r/Wait \d+s/
-      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{id: monitor.id})
+
+      assert_enqueued(
+        worker: Holter.Monitoring.Workers.HTTPCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
 
     test "Given a paused monitor, when page loads, then badge shows PAUSED label", %{
@@ -326,8 +330,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         {:ok, %Req.Response{status: 200, body: "ok", headers: []}}
       end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
-      :ok = perform_job(HTTPCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+      :ok = perform_job(HTTPCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       %{monitor: monitor, view: view}
     end
@@ -456,8 +460,12 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         {:ok, %Req.Response{status: 200, body: "success", headers: []}}
       end)
 
-      assert_enqueued(worker: HTTPCheck, args: %{id: monitor.id})
-      :ok = perform_job(HTTPCheck, %{"id" => monitor.id})
+      assert_enqueued(
+        worker: HTTPCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
+
+      :ok = perform_job(HTTPCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       assert render(view) =~ "status-up"
     end

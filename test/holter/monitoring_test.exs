@@ -42,17 +42,22 @@ defmodule Holter.MonitoringTest do
          %{valid_attrs: valid_attrs} do
       assert {:ok,
               %Monitor{
-                id: monitor_id,
                 url: "https://example.com",
                 keyword_positive: ["success", "login"],
                 keyword_negative: ["hacked", "defaced"]
               } = monitor} =
                Monitoring.create_monitor(valid_attrs)
 
-      assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => monitor_id})
+      assert_enqueued(
+        worker: Holter.Monitoring.Workers.HTTPCheck,
+        args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
+      )
 
       if String.starts_with?(monitor.url, "https") do
-        assert_enqueued(worker: Holter.Monitoring.Workers.SSLCheck, args: %{"id" => monitor_id})
+        assert_enqueued(
+          worker: Holter.Monitoring.Workers.SSLCheck,
+          args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
+        )
       end
     end
 

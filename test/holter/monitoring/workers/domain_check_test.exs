@@ -28,7 +28,9 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+
       %{expiry: expiry}
     end
 
@@ -51,7 +53,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
       import ExUnit.CaptureLog
 
       capture_log(fn ->
-        :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+        :ok =
+          perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       end)
 
       :ok
@@ -81,7 +84,9 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{domain_check_ignore: true})
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+
       %{monitor: monitor}
     end
 
@@ -103,7 +108,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       assert %{type: :domain_expiry, monitor_id: ^monitor_id, resolved_at: nil} =
                Monitoring.get_open_incident(monitor.id, :domain_expiry)
@@ -117,7 +123,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       assert %{type: :domain_expiry, monitor_id: ^monitor_id, resolved_at: nil} =
                Monitoring.get_open_incident(monitor.id, :domain_expiry)
@@ -130,7 +137,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       assert is_nil(Monitoring.get_open_incident(monitor.id, :domain_expiry))
     end
@@ -150,7 +158,8 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(DomainCheck, %{"id" => monitor.id})
+      :ok =
+        perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
       assert is_nil(Monitoring.get_open_incident(monitor.id, :domain_expiry))
     end

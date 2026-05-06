@@ -3,6 +3,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
+  alias Holter.Repo.Tenant
   alias HolterWeb.LiveView.PubSubSubscriptions
 
   def incident_type_to_status(:downtime), do: :down
@@ -12,10 +13,10 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   def incident_type_to_status(_), do: :unknown
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    PubSubSubscriptions.subscribe_to_monitor(socket, id)
-    monitor = Monitoring.get_monitor!(id)
-    workspace = Monitoring.get_workspace!(monitor.workspace_id)
+  def mount(_params, _session, socket) do
+    monitor = socket.assigns.current_monitor
+    workspace = socket.assigns.current_workspace
+    PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
 
     changeset = Monitoring.change_monitor(hydrated_monitor)
@@ -24,8 +25,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
       socket
       |> assign(:workspace, workspace)
       |> assign(:monitor, hydrated_monitor)
-      |> assign(:chart_logs, Monitoring.list_recent_logs_for_chart(id))
-      |> assign(:active_incidents, Monitoring.list_open_incidents(id))
+      |> assign(:chart_logs, Monitoring.list_recent_logs_for_chart(monitor.id))
+      |> assign(:active_incidents, Monitoring.list_open_incidents(monitor.id))
       |> assign(:page_title, gettext("Monitor Details"))
       |> assign(:form, to_form(changeset))
       |> assign_cooldown(monitor.last_manual_check_at)
@@ -100,7 +101,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
              :incident_resolved,
              :incident_updated
            ] do
-    monitor = Monitoring.get_monitor!(socket.assigns.monitor.id)
+    workspace = socket.assigns.workspace
+
+    monitor =
+      Tenant.with_workspace!(workspace.id, fn ->
+        Monitoring.get_monitor!(socket.assigns.monitor.id)
+      end)
+
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
 
     {:noreply,

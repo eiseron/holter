@@ -13,9 +13,14 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    monitors = Monitoring.list_monitors_for_dispatch()
 
-    jobs = Enum.flat_map(monitors, &jobs_for_monitor(&1, now))
+    jobs =
+      Monitoring.list_workspaces()
+      |> Enum.flat_map(fn workspace ->
+        workspace.id
+        |> Monitoring.list_monitors_for_dispatch()
+        |> Enum.flat_map(&jobs_for_monitor(&1, now))
+      end)
 
     if Enum.any?(jobs) do
       Oban.insert_all(jobs)
@@ -25,22 +30,25 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
   end
 
   defp jobs_for_monitor(monitor, now) do
-    [HTTPCheck.new(%{id: monitor.id})]
-    |> maybe_add_ssl_check(monitor)
-    |> maybe_add_domain_check(monitor, now)
+    ctx = %{monitor: monitor, now: now}
+    args = %{id: monitor.id, workspace_id: monitor.workspace_id}
+
+    [HTTPCheck.new(args)]
+    |> maybe_add_ssl_check(ctx, args)
+    |> maybe_add_domain_check(ctx, args)
   end
 
-  defp maybe_add_ssl_check(jobs, monitor) do
+  defp maybe_add_ssl_check(jobs, %{monitor: monitor}, args) do
     if String.starts_with?(monitor.url, "https") and !monitor.ssl_ignore do
-      jobs ++ [SSLCheck.new(%{id: monitor.id})]
+      jobs ++ [SSLCheck.new(args)]
     else
       jobs
     end
   end
 
-  defp maybe_add_domain_check(jobs, monitor, now) do
+  defp maybe_add_domain_check(jobs, %{monitor: monitor, now: now}, args) do
     if should_run_domain_check?(monitor, now) do
-      jobs ++ [DomainCheck.new(%{id: monitor.id})]
+      jobs ++ [DomainCheck.new(args)]
     else
       jobs
     end

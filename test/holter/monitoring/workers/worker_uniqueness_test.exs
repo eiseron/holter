@@ -12,7 +12,7 @@ defmodule Holter.Monitoring.Workers.WorkerUniquenessTest do
 
   describe "HTTPCheck uniqueness" do
     test "prevents duplicate jobs for the same monitor", %{monitor: monitor} do
-      args = %{"id" => monitor.id}
+      args = %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
 
       assert {:ok, _job1} = HTTPCheck.new(args) |> Oban.insert()
       assert_enqueued(worker: HTTPCheck, args: args)
@@ -31,17 +31,24 @@ defmodule Holter.Monitoring.Workers.WorkerUniquenessTest do
     test "allows concurrent jobs for different monitors", %{monitor: monitor} do
       monitor2 = monitor_fixture(%{url: "https://other.com"})
 
-      assert {:ok, _job1} = HTTPCheck.new(%{"id" => monitor.id}) |> Oban.insert()
+      assert {:ok, _job1} =
+               HTTPCheck.new(%{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
+               |> Oban.insert()
+
       assert {:ok, _job2} = HTTPCheck.new(%{"id" => monitor2.id}) |> Oban.insert()
 
-      assert_enqueued(worker: HTTPCheck, args: %{"id" => monitor.id})
+      assert_enqueued(
+        worker: HTTPCheck,
+        args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
+      )
+
       assert_enqueued(worker: HTTPCheck, args: %{"id" => monitor2.id})
     end
   end
 
   describe "SSLCheck uniqueness" do
     test "prevents duplicate jobs for the same monitor", %{monitor: monitor} do
-      args = %{"id" => monitor.id}
+      args = %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
 
       assert {:ok, _job1} = SSLCheck.new(args) |> Oban.insert()
       assert_enqueued(worker: SSLCheck, args: args)

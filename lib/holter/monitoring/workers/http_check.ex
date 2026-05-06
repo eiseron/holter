@@ -11,24 +11,27 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
   alias Holter.Network.Guard
+  alias Holter.Repo.Tenant
 
   @max_timeout_seconds 30
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id}}) do
-    monitor = Monitoring.get_monitor!(id)
+  def perform(%Oban.Job{args: %{"id" => id, "workspace_id" => workspace_id}}) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      monitor = Monitoring.get_monitor!(id)
 
-    state = %{
-      url: monitor.url,
-      safe_ip: nil,
-      redirects: 0,
-      redirect_list: [],
-      start_time: nil,
-      last_hop_duration_ms: nil
-    }
+      state = %{
+        url: monitor.url,
+        safe_ip: nil,
+        redirects: 0,
+        redirect_list: [],
+        start_time: nil,
+        last_hop_duration_ms: nil
+      }
 
-    run_hops(monitor, state)
-    :ok
+      run_hops(monitor, state)
+      :ok
+    end)
   end
 
   defp run_hops(monitor, state) do

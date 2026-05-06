@@ -6,9 +6,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.LogDetail do
   @snippet_format_threshold 100_000
 
   @impl true
-  def mount(%{"log_id" => log_id}, _session, socket) do
-    log = Monitoring.get_monitor_log!(log_id)
-    monitor = Monitoring.get_monitor!(log.monitor_id)
+  def mount(_params, _session, socket) do
+    log = socket.assigns.current_log
+    monitor = socket.assigns.current_monitor
 
     {payload_log, inherited?} = resolve_payload(log, monitor)
 

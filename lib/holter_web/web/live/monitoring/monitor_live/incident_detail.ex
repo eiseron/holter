@@ -2,12 +2,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail do
   use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring
+  alias Holter.Repo.Tenant
   alias HolterWeb.LiveView.PubSubSubscriptions
 
   @impl true
-  def mount(%{"incident_id" => incident_id}, _session, socket) do
-    incident = Monitoring.get_incident!(incident_id)
-    monitor = Monitoring.get_monitor!(incident.monitor_id)
+  def mount(_params, _session, socket) do
+    incident = socket.assigns.current_incident
+    monitor = socket.assigns.current_monitor
 
     PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
 
@@ -26,7 +27,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.IncidentDetail do
   @impl true
   def handle_info({event, _data}, socket)
       when event in [:incident_updated, :incident_resolved] do
-    incident = Monitoring.get_incident!(socket.assigns.incident.id)
+    workspace_id = socket.assigns.monitor.workspace_id
+
+    incident =
+      Tenant.with_workspace!(workspace_id, fn ->
+        Monitoring.get_incident!(socket.assigns.incident.id)
+      end)
+
     {:noreply, assign(socket, :incident, incident)}
   end
 

@@ -11,9 +11,9 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
   @valid_filter_keys ~w(page page_size sort_by sort_dir)
 
   @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    PubSubSubscriptions.subscribe_to_monitor(socket, id)
-    monitor = Monitoring.get_monitor!(id)
+  def mount(_params, _session, socket) do
+    monitor = socket.assigns.current_monitor
+    PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
 
     {:ok,
      socket

@@ -36,7 +36,11 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
         max_redirects: 3
       })
 
-    %{monitor: monitor, job_args: %{"id" => monitor.id}, port: port}
+    %{
+      monitor: monitor,
+      job_args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id},
+      port: port
+    }
   end
 
   describe "following redirects" do

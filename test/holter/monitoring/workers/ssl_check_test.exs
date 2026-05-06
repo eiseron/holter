@@ -28,7 +28,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
         {:ok, expiry}
       end)
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       %{expiry: expiry}
     end
 
@@ -46,7 +46,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
       import ExUnit.CaptureLog
 
       capture_log(fn ->
-        :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+        :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       end)
 
       :ok
@@ -67,7 +67,12 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
           timeout_seconds: 30
         })
 
-      :ok = perform_job(SSLCheck, %{"id" => plain_monitor.id})
+      :ok =
+        perform_job(SSLCheck, %{
+          "id" => plain_monitor.id,
+          "workspace_id" => plain_monitor.workspace_id
+        })
+
       %{plain_monitor: plain_monitor}
     end
 
@@ -86,7 +91,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
 
       {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
 
-      :ok = perform_job(SSLCheck, %{"id" => monitor.id})
+      :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
 

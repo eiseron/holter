@@ -39,7 +39,7 @@ defmodule Holter.Monitoring.IntegrationTest do
         raw_keyword_negative: "FAIL"
       })
 
-    %{monitor: monitor, job_args: %{"id" => monitor.id}}
+    %{monitor: monitor, job_args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}}
   end
 
   describe "when the first check fails (500)" do

@@ -15,7 +15,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     test "enqueues monitor when last_checked_at is null", %{monitor: monitor} do
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      assert_enqueued_check(monitor.id)
+      assert_enqueued_check(monitor)
     end
 
     test "enqueues monitor when last_checked_at is older than interval", %{monitor: monitor} do
@@ -23,7 +23,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      assert_enqueued_check(monitor.id)
+      assert_enqueued_check(monitor)
     end
 
     test "skips monitor when recently checked", %{monitor: monitor} do
@@ -31,7 +31,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      refute_enqueued_check(monitor.id)
+      refute_enqueued_check(monitor)
     end
 
     test "skips monitor when paused", %{monitor: monitor} do
@@ -39,7 +39,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      refute_enqueued_check(monitor.id)
+      refute_enqueued_check(monitor)
     end
 
     test "skips SSLCheck enqueue when ssl_ignore is true", %{monitor: monitor} do
@@ -47,8 +47,15 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      assert_enqueued(worker: HTTPCheck, args: %{id: monitor.id})
-      refute_enqueued(worker: SSLCheck, args: %{id: monitor.id})
+      assert_enqueued(
+        worker: HTTPCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
+
+      refute_enqueued(
+        worker: SSLCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
   end
 
@@ -56,7 +63,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     test "enqueues DomainCheck on first dispatch for a public host", %{monitor: monitor} do
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      assert_enqueued(worker: DomainCheck, args: %{id: monitor.id})
+      assert_enqueued(
+        worker: DomainCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
 
     test "skips DomainCheck when domain_check_ignore is true", %{monitor: monitor} do
@@ -64,7 +74,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      refute_enqueued(worker: DomainCheck, args: %{id: monitor.id})
+      refute_enqueued(
+        worker: DomainCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
 
     test "skips DomainCheck when last_domain_check_at is within 24h" do
@@ -72,7 +85,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      refute_enqueued(worker: DomainCheck, args: %{id: monitor.id})
+      refute_enqueued(
+        worker: DomainCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
 
     test "enqueues DomainCheck when last_domain_check_at is older than 24h" do
@@ -80,7 +96,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      assert_enqueued(worker: DomainCheck, args: %{id: monitor.id})
+      assert_enqueued(
+        worker: DomainCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
 
     test "skips DomainCheck when monitor URL host is an IP literal" do
@@ -88,7 +107,10 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
-      refute_enqueued(worker: DomainCheck, args: %{id: monitor.id})
+      refute_enqueued(
+        worker: DomainCheck,
+        args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+      )
     end
   end
 
@@ -134,11 +156,17 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     Monitoring.update_monitor(monitor, %{last_checked_at: time})
   end
 
-  defp assert_enqueued_check(monitor_id) do
-    assert_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
+  defp assert_enqueued_check(monitor) do
+    assert_enqueued(
+      worker: HTTPCheck,
+      args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+    )
   end
 
-  defp refute_enqueued_check(monitor_id) do
-    refute_enqueued(worker: HTTPCheck, args: %{id: monitor_id})
+  defp refute_enqueued_check(monitor) do
+    refute_enqueued(
+      worker: HTTPCheck,
+      args: %{id: monitor.id, workspace_id: monitor.workspace_id}
+    )
   end
 end

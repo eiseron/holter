@@ -16,16 +16,19 @@ defmodule Holter.Monitoring.Workers.DomainCheck do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.DomainScanner
+  alias Holter.Repo.Tenant
 
   require Logger
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id}}) do
-    monitor = Monitoring.get_monitor!(id)
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+  def perform(%Oban.Job{args: %{"id" => id, "workspace_id" => workspace_id}}) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      monitor = Monitoring.get_monitor!(id)
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    process_check(monitor, now)
-    :ok
+      process_check(monitor, now)
+      :ok
+    end)
   end
 
   defp process_check(%{domain_check_ignore: true} = monitor, now) do
