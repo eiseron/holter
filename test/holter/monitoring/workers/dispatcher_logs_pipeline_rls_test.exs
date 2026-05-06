@@ -79,7 +79,10 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
 
     test "resolves the monitor under the policy and creates a monitor_log",
          %{monitor: monitor} do
+      mox_called = :counters.new(1, [])
+
       Mox.expect(Holter.Monitoring.MonitorClientMock, :request, fn _opts ->
+        :counters.add(mox_called, 1, 1)
         {:ok, %Req.Response{status: 200, body: "OK"}}
       end)
 
@@ -87,12 +90,39 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
         args: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
       }
 
-      assert :ok = HTTPCheck.perform(job)
+      result = HTTPCheck.perform(job)
 
-      assert Repo.exists?(
-               from l in MonitorLog,
-                 where: l.monitor_id == ^monitor.id
-             )
+      role_after = Repo.query!("SELECT current_role", []).rows |> hd() |> hd()
+
+      ws_after =
+        Repo.query!("SELECT current_setting('app.current_workspace_id', true)", []).rows
+        |> hd()
+        |> hd()
+
+      log_count =
+        Repo.aggregate(from(l in MonitorLog, where: l.monitor_id == ^monitor.id), :count, :id)
+
+      total_log_count = Repo.aggregate(MonitorLog, :count, :id)
+
+      mox_count = :counters.get(mox_called, 1)
+
+      diag = %{
+        result: result,
+        role_after: role_after,
+        ws_after: ws_after,
+        log_count_for_monitor: log_count,
+        total_log_count: total_log_count,
+        mox_request_called: mox_count
+      }
+
+      assert :ok = result,
+             "HTTPCheck.perform should return :ok, got: #{inspect(result)}; diag: #{inspect(diag)}"
+
+      assert mox_count >= 1,
+             "Mox MonitorClientMock.request should have been called; diag: #{inspect(diag)}"
+
+      assert Repo.exists?(from l in MonitorLog, where: l.monitor_id == ^monitor.id),
+             "Expected monitor_log row for monitor #{monitor.id}; diag: #{inspect(diag)}"
     end
   end
 

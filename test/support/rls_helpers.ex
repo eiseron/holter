@@ -20,6 +20,8 @@ defmodule Holter.RLSHelpers do
   """
   def setup_app_role do
     Holter.Repo.query!("SET LOCAL ROLE holter_app", [])
+    Holter.Repo.query!("SELECT set_config('app.current_workspace_id', '', true)", [])
+    Holter.Repo.query!("SELECT set_config('app.current_user_id', '', true)", [])
     :ok
   end
 end
