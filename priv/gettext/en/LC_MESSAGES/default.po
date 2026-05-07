@@ -556,7 +556,7 @@ msgstr "Monitor limit reached for this workspace"
 msgid "SSL Error: %{reason}"
 msgstr "SSL Error: %{reason}"
 
-#: lib/holter/monitoring/workspace.ex:102
+#: lib/holter/monitoring/workspace.ex:130
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "cannot be changed after creation"
@@ -986,7 +986,7 @@ msgstr "Select which monitors will trigger notifications through this channel."
 msgid "Edit"
 msgstr "Edit"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:38
+#: lib/holter_web/components/workspace_sidebar_live.ex:41
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:19
 #: lib/holter_web/web/live/monitoring/monitors_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1085,7 +1085,7 @@ msgstr ""
 msgid "e.g. Production Alerts"
 msgstr ""
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:50
+#: lib/holter_web/components/workspace_sidebar_live.ex:53
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Notifications"
 msgstr "Notification Channels"
@@ -1531,7 +1531,7 @@ msgstr ""
 msgid "must be a string"
 msgstr ""
 
-#: lib/holter/identity/user.ex:35
+#: lib/holter/identity/user.ex:44
 #, elixir-autogen, elixir-format
 msgid "must be a valid email address"
 msgstr ""
@@ -1749,4 +1749,25 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/email_channel_live/show.html.heex:120
 #, elixir-autogen, elixir-format
 msgid "Draft"
+msgstr ""
+
+#: lib/holter_web/components/locale_switcher.ex:50
+#, elixir-autogen, elixir-format
+msgid "English"
+msgstr ""
+
+#: lib/holter_web/components/locale_switcher.ex:43
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr ""
+
+#: lib/holter_web/components/locale_switcher.ex:47
+#, elixir-autogen, elixir-format
+msgid "Portuguese (Brazil)"
+msgstr ""
+
+#: lib/holter/identity/user.ex:66
+#: lib/holter/monitoring/workspace.ex:104
+#, elixir-autogen, elixir-format
+msgid "is not a supported locale"
 msgstr ""

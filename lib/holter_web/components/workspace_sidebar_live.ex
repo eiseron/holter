@@ -6,7 +6,8 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
   alias Holter.Monitoring
 
   @impl true
-  def update(%{workspace: workspace, current_view: current_view}, socket) do
+  def update(assigns, socket) do
+    %{workspace: workspace, current_view: current_view} = assigns
     monitor_count = Monitoring.count_monitors(workspace.id)
     channel_count = Delivery.count_channels(workspace.id)
 
@@ -15,7 +16,9 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
      |> assign(:workspace, workspace)
      |> assign(:current_view, current_view)
      |> assign(:monitor_count, monitor_count)
-     |> assign(:channel_count, channel_count)}
+     |> assign(:channel_count, channel_count)
+     |> assign(:current_user, assigns[:current_user])
+     |> assign(:current_locale, assigns[:current_locale])}
   end
 
   @impl true
@@ -52,6 +55,15 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
           </.link>
         </li>
       </ul>
+
+      <div :if={@current_user} class="h-sidebar-footer">
+        <.live_component
+          module={HolterWeb.Components.LocaleSwitcher}
+          id="locale-switcher"
+          current_user={@current_user}
+          current_locale={@current_locale}
+        />
+      </div>
     </nav>
     """
   end

@@ -101,4 +101,37 @@ defmodule HolterWeb.Web.Identity.UserLoginLiveTest do
       assert get_session(conn, :user_token) == nil
     end
   end
+
+  describe "flash localization" do
+    setup do
+      on_exit(fn -> Gettext.put_locale(HolterWeb.Gettext, "en") end)
+      :ok
+    end
+
+    test "translates the welcome flash to the user's preferred locale on sign-in",
+         %{conn: conn} do
+      %{user: user} = verified_user_fixture()
+      {:ok, _} = Holter.Identity.update_user_preferences(user, %{preferred_locale: "pt_BR"})
+
+      conn =
+        post(conn, ~p"/identity/login", %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Bem-vindo de volta."
+    end
+
+    test "translates the sign-out flash to the user's preferred locale", %{conn: conn} do
+      %{user: user} = verified_user_fixture()
+      {:ok, _} = Holter.Identity.update_user_preferences(user, %{preferred_locale: "pt_BR"})
+      token = session_token_fixture(user)
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{user_token: token})
+        |> delete(~p"/identity/logout")
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Você foi desconectado."
+    end
+  end
 end

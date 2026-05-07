@@ -59,7 +59,7 @@ defmodule HolterWeb.Web.Monitoring.LogsScatterChartTest do
       assert has_element?(lv, ".scatter-svg")
 
       lv
-      |> form("form", filters: %{status: "up"})
+      |> form("form[phx-change=filter_updated]", filters: %{status: "up"})
       |> render_change()
 
       assert has_element?(lv, ".scatter-no-data")

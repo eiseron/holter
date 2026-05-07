@@ -1,6 +1,7 @@
 defmodule HolterWeb.Web.Identity.UserSessionController do
   use HolterWeb, :controller
 
+  alias Holter.I18n.Locale
   alias Holter.Identity
 
   def create(conn, %{"user" => params}) do
@@ -18,9 +19,11 @@ defmodule HolterWeb.Web.Identity.UserSessionController do
   end
 
   def delete(conn, _params) do
-    if token = get_session(conn, :user_token) do
-      Identity.delete_session_token(token)
-    end
+    token = get_session(conn, :user_token)
+
+    apply_user_locale(token && Identity.fetch_user_by_session_token(token))
+
+    if token, do: Identity.delete_session_token(token)
 
     conn
     |> clear_session()
@@ -38,6 +41,8 @@ defmodule HolterWeb.Web.Identity.UserSessionController do
 
     return_to = get_session(conn, :user_return_to) || default_landing(user)
 
+    apply_user_locale(user)
+
     conn
     |> configure_session(renew: true)
     |> clear_session()
@@ -45,6 +50,12 @@ defmodule HolterWeb.Web.Identity.UserSessionController do
     |> put_flash(:info, gettext("Welcome back."))
     |> redirect(to: return_to)
   end
+
+  defp apply_user_locale(%{preferred_locale: locale}) when is_binary(locale) do
+    if Locale.valid?(locale), do: Gettext.put_locale(HolterWeb.Gettext, locale)
+  end
+
+  defp apply_user_locale(_), do: :ok
 
   defp default_landing(user) do
     case Identity.list_workspaces_for_user(user) do
