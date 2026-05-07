@@ -16,13 +16,14 @@ defmodule HolterWeb.Endpoint do
       connect_info: [session: @session_options, user_agent: true, x_headers: ["x-request-id"]]
     ]
 
-  #
   plug Plug.Static,
     at: "/",
     from: :holter,
     gzip: not code_reloading?,
     only: HolterWeb.static_paths(),
-    raise_on_missing_only: code_reloading?
+    raise_on_missing_only: code_reloading?,
+    cache_control_for_etags: HolterWeb.StaticCachePolicy.etag_cache_control(code_reloading?),
+    cache_control_for_vsn_requests: HolterWeb.StaticCachePolicy.vsn_cache_control(code_reloading?)
 
   if Application.compile_env(:holter, :sql_sandbox) do
     plug Phoenix.Ecto.SQL.Sandbox
