@@ -6,67 +6,32 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
   alias Holter.Delivery.EmailChannels
   alias Holter.Delivery.Workers.EmailDispatcher
-  alias Holter.Repo
+
+  defp from_address, do: Application.fetch_env!(:holter, :email)[:from_address]
 
   defp email_channel_fixture(workspace_id, opts \\ []) do
-    verified? = Keyword.get(opts, :verified, true)
-
     {:ok, channel} =
       EmailChannels.create(%{
         workspace_id: workspace_id,
-        name: "Ops Email",
-        address: Keyword.get(opts, :target, "ops@example.com")
+        name: Keyword.get(opts, :name, "Ops Email")
       })
-
-    if verified?, do: mark_verified(channel), else: channel
-  end
-
-  defp mark_verified(channel) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     channel
-    |> Ecto.Changeset.change(verified_at: now)
-    |> Repo.update!()
   end
 
-  defp run_dispatch_with_unverified_primary_and_one_verified_cc(ws) do
-    monitor = monitor_fixture(workspace_id: ws.id)
-    incident = incident_fixture(monitor_id: monitor.id)
-    channel = email_channel_fixture(ws.id, verified: false)
-    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
-    EmailChannels.verify_recipient(recipient.token)
-
-    :ok =
-      perform_job(EmailDispatcher, %{
-        "email_channel_id" => channel.id,
-        "monitor_id" => monitor.id,
-        "incident_id" => incident.id,
-        "event" => "down"
-      })
-  end
-
-  defp run_dispatch_with_verified_primary_and_one_verified_cc(ws) do
-    monitor = monitor_fixture(workspace_id: ws.id)
-    incident = incident_fixture(monitor_id: monitor.id)
-    channel = email_channel_fixture(ws.id)
-    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
-    EmailChannels.verify_recipient(recipient.token)
-
-    :ok =
-      perform_job(EmailDispatcher, %{
-        "email_channel_id" => channel.id,
-        "monitor_id" => monitor.id,
-        "incident_id" => incident.id,
-        "event" => "down"
-      })
+  defp add_verified_recipient(channel, email) do
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, email)
+    {:ok, _} = EmailChannels.verify_recipient(recipient.token)
+    :ok
   end
 
   describe "perform/1 — incident notification" do
-    test "sends an email to the channel target" do
+    test "delivers to: from_address with verified recipients in bcc" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
 
       :ok =
         perform_job(EmailDispatcher, %{
@@ -76,7 +41,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
           "event" => "down"
         })
 
-      assert_email_sent(to: "ops@example.com")
+      assert_email_sent(to: [{"", from_address()}], bcc: [{"", "ops@example.com"}])
     end
 
     test "email subject indicates site is down" do
@@ -84,6 +49,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       monitor = monitor_fixture(workspace_id: ws.id, url: "https://mysite.com")
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
 
       perform_job(EmailDispatcher, %{
         "email_channel_id" => channel.id,
@@ -100,6 +66,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
       code = channel.anti_phishing_code
 
       perform_job(EmailDispatcher, %{
@@ -116,9 +83,10 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
   end
 
   describe "perform/1 — test ping" do
-    test "sends a test email to the channel target" do
+    test "sends a test email with verified recipients in bcc" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
 
       :ok =
         perform_job(EmailDispatcher, %{
@@ -126,14 +94,14 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
           "test" => true
         })
 
-      assert_email_sent(to: "ops@example.com")
+      assert_email_sent(to: [{"", from_address()}], bcc: [{"", "ops@example.com"}])
     end
 
-    test "includes verified CC recipients in test email" do
+    test "all verified recipients land in bcc" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
-      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
-      EmailChannels.verify_recipient(recipient.token)
+      :ok = add_verified_recipient(channel, "ops@example.com")
+      :ok = add_verified_recipient(channel, "extra@example.com")
 
       :ok =
         perform_job(EmailDispatcher, %{
@@ -141,12 +109,16 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
           "test" => true
         })
 
-      assert_email_sent(cc: [{"", "cc@example.com"}])
+      assert_email_sent(fn email ->
+        assert Enum.sort(email.bcc) ==
+                 Enum.sort([{"", "ops@example.com"}, {"", "extra@example.com"}])
+      end)
     end
 
-    test "does not include unverified CC recipients in test email" do
+    test "unverified recipients are excluded from bcc" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
       EmailChannels.add_recipient(channel.id, "pending@example.com")
 
       :ok =
@@ -155,37 +127,18 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
           "test" => true
         })
 
-      assert_email_sent(fn email -> email.cc == [] end)
+      assert_email_sent(fn email ->
+        assert email.bcc == [{"", "ops@example.com"}]
+      end)
     end
   end
 
-  describe "perform/1 — incident notification with CC" do
-    test "includes verified CC recipients in incident email" do
+  describe "perform/1 — verification gating" do
+    test "a channel with no recipients cancels the incident email" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
       channel = email_channel_fixture(ws.id)
-      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
-      EmailChannels.verify_recipient(recipient.token)
-
-      :ok =
-        perform_job(EmailDispatcher, %{
-          "email_channel_id" => channel.id,
-          "monitor_id" => monitor.id,
-          "incident_id" => incident.id,
-          "event" => "down"
-        })
-
-      assert_email_sent(cc: [{"", "cc@example.com"}])
-    end
-  end
-
-  describe "perform/1 — verification gating on the primary target" do
-    test "an unverified primary is dropped: incident email is not sent at all when no verified addresses exist" do
-      ws = workspace_fixture()
-      monitor = monitor_fixture(workspace_id: ws.id)
-      incident = incident_fixture(monitor_id: monitor.id)
-      channel = email_channel_fixture(ws.id, verified: false)
 
       result =
         perform_job(EmailDispatcher, %{
@@ -199,60 +152,15 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       assert_no_email_sent()
     end
 
-    test "an unverified primary is dropped: a test ping with no verified addresses cancels" do
+    test "a channel with no verified recipients cancels the test ping" do
       ws = workspace_fixture()
-      channel = email_channel_fixture(ws.id, verified: false)
-
-      assert {:cancel, :no_verified_recipients} =
-               perform_job(EmailDispatcher, %{
-                 "email_channel_id" => channel.id,
-                 "test" => true
-               })
-
-      assert_no_email_sent()
-    end
-
-    test "a verified CC becomes to: when the primary is unverified" do
-      ws = workspace_fixture()
-      run_dispatch_with_unverified_primary_and_one_verified_cc(ws)
-
-      assert_email_sent(to: "cc@example.com")
-    end
-
-    test "no CCs are added when the only address is the promoted primary" do
-      ws = workspace_fixture()
-      run_dispatch_with_unverified_primary_and_one_verified_cc(ws)
-
-      assert_email_sent(fn email -> email.cc == [] end)
-    end
-
-    test "the primary remains in to: when verified, with verified CCs in cc:" do
-      ws = workspace_fixture()
-      run_dispatch_with_verified_primary_and_one_verified_cc(ws)
-
-      assert_email_sent(to: "ops@example.com")
-    end
-
-    test "verified CCs land in cc: alongside a verified primary" do
-      ws = workspace_fixture()
-      run_dispatch_with_verified_primary_and_one_verified_cc(ws)
-
-      assert_email_sent(cc: [{"", "cc@example.com"}])
-    end
-
-    test "an unverified primary plus only an unverified CC sends nothing" do
-      ws = workspace_fixture()
-      monitor = monitor_fixture(workspace_id: ws.id)
-      incident = incident_fixture(monitor_id: monitor.id)
-      channel = email_channel_fixture(ws.id, verified: false)
+      channel = email_channel_fixture(ws.id)
       EmailChannels.add_recipient(channel.id, "pending@example.com")
 
       assert {:cancel, :no_verified_recipients} =
                perform_job(EmailDispatcher, %{
                  "email_channel_id" => channel.id,
-                 "monitor_id" => monitor.id,
-                 "incident_id" => incident.id,
-                 "event" => "down"
+                 "test" => true
                })
 
       assert_no_email_sent()

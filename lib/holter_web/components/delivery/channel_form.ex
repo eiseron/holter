@@ -5,8 +5,10 @@ defmodule HolterWeb.Components.Delivery.ChannelForm do
   Wraps the page header (back link, title, subtitle, View Logs link, Send Test
   button + cooldown), the form scaffold, the monitor link picker, and the
   delete modal. Type-specific bits go in the slots: `:type_fields`,
-  `:secret_card`, `:regenerate_modal`, plus an `:extras` slot for the
-  email-only verification banner and CC recipients section.
+  `:secret_card`, `:regenerate_modal`, plus an optional `:siblings` slot
+  for content rendered as a sibling of the channel form (e.g. the
+  recipients section on email channels, which has its own phx-submit
+  flow and shouldn't be nested inside the channel save form).
 
   The template body lives in `channel_form/channel_form.html.heex`.
   """
@@ -39,11 +41,10 @@ defmodule HolterWeb.Components.Delivery.ChannelForm do
   attr :linked_monitor_ids, :list, required: true
   attr :cooldown_remaining, :integer, required: true
 
-  slot :extras,
-    doc: "Optional slot rendered above the secret card (email verification banner, recipients)."
-
   slot :secret_card, required: true, doc: "Per-type secret card."
   slot :type_fields, required: true, doc: "Per-type form fields component."
+
+  slot :siblings, doc: "Optional content rendered as a sibling of the channel form."
 
   slot :regenerate_modal,
     required: true,

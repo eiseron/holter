@@ -34,12 +34,33 @@ if identity_pepper do
   config :holter, :identity, pepper: identity_pepper
 end
 
-if from_address = System.get_env("DELIVERY_ALERT_FROM_EMAIL") do
-  config :holter, :email, from_address: from_address
+delivery_alert_from_email = System.get_env("DELIVERY_ALERT_FROM_EMAIL")
+
+if config_env() == :prod and
+     (is_nil(delivery_alert_from_email) or delivery_alert_from_email == "") do
+  raise """
+  environment variable DELIVERY_ALERT_FROM_EMAIL is missing.
+  Set it to the address that appears in the From: header of alert emails,
+  e.g. noreply@alerts.yourdomain.com.
+  """
 end
 
-if from_address = System.get_env("INFO_FROM_EMAIL") do
-  config :holter, :info_email, from_address: from_address
+if delivery_alert_from_email do
+  config :holter, :email, from_address: delivery_alert_from_email
+end
+
+info_from_email = System.get_env("INFO_FROM_EMAIL")
+
+if config_env() == :prod and (is_nil(info_from_email) or info_from_email == "") do
+  raise """
+  environment variable INFO_FROM_EMAIL is missing.
+  Set it to the address that appears in the From: header of transactional
+  emails (verification, recipient confirmation, etc.).
+  """
+end
+
+if info_from_email do
+  config :holter, :info_email, from_address: info_from_email
 end
 
 if System.get_env("ALERT_SMTP_HOST") do

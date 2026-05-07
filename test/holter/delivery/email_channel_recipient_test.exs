@@ -7,11 +7,7 @@ defmodule Holter.Delivery.EmailChannelRecipientTest do
     workspace = workspace_fixture()
 
     {:ok, channel} =
-      EmailChannels.create(%{
-        workspace_id: workspace.id,
-        name: "Email Channel",
-        address: "primary@example.com"
-      })
+      EmailChannels.create(%{workspace_id: workspace.id, name: "Email Channel"})
 
     %{channel: channel, email_channel_id: channel.id}
   end

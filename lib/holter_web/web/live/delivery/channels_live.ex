@@ -46,11 +46,24 @@ defmodule HolterWeb.Web.Delivery.ChannelsLive do
           id: c.id,
           name: c.name,
           type: :email,
-          target: c.address,
+          target: format_recipient_count(EmailChannels.list_recipients(c.id)),
           show_path: ~p"/delivery/email-channels/#{c.id}"
         }
       end)
 
     Enum.sort_by(webhooks ++ emails, & &1.name)
+  end
+
+  defp format_recipient_count([]), do: gettext("No recipients")
+
+  defp format_recipient_count(recipients) do
+    verified = Enum.count(recipients, & &1.verified_at)
+    total = length(recipients)
+
+    if verified == total do
+      ngettext("%{count} verified recipient", "%{count} verified recipients", total, count: total)
+    else
+      gettext("%{verified}/%{total} verified", verified: verified, total: total)
+    end
   end
 end

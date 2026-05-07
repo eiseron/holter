@@ -19,6 +19,10 @@
     </.button>
   </:actions>
 
+  <div class="h-mt-8">
+    {render_slot(@secret_card)}
+  </div>
+
   <.form
     for={@form}
     id={@form_id}
@@ -28,28 +32,31 @@
   >
     {render_slot(@type_fields)}
 
-    {render_slot(@extras)}
-
-    {render_slot(@secret_card)}
-
     <.monitor_channel_select
       monitors={@available_monitors}
       selected_ids={@linked_monitor_ids}
     />
-
-    <div class="h-actions-row">
-      <button
-        type="button"
-        class="h-btn h-btn-danger"
-        phx-click={JS.remove_attribute("hidden", to: "#delete-channel-modal")}
-      >
-        {gettext("Delete Channel")}
-      </button>
-      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
-        {gettext("Save Changes")}
-      </.button>
-    </div>
   </.form>
+
+  {render_slot(@siblings)}
+
+  <div class="h-actions-row h-mt-8">
+    <button
+      type="button"
+      class="h-btn h-btn-danger"
+      phx-click={JS.remove_attribute("hidden", to: "#delete-channel-modal")}
+    >
+      {gettext("Delete Channel")}
+    </button>
+    <.button
+      type="submit"
+      form={@form_id}
+      phx-disable-with={gettext("Saving...")}
+      variant="primary"
+    >
+      {gettext("Save Changes")}
+    </.button>
+  </div>
 </.page_container>
 
 {render_slot(@regenerate_modal)}

@@ -233,27 +233,19 @@ defmodule Holter.SeedsTest do
       assert names == ["Engineering team", "On-call rotation", "Stakeholders"]
     end
 
-    test "Given the seeded email channels, when partitioning by verification, then exactly one is awaiting verification",
+    test "Given the seeded email channels, when counting recipients, then seven rows exist",
          %{workspace: workspace, monitors: monitors} do
       with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
 
-      pending = Repo.all(EmailChannel) |> Enum.count(&is_nil(&1.verified_at))
-      assert pending == 1
+      assert Repo.aggregate(EmailChannelRecipient, :count) == 7
     end
 
-    test "Given the seeded email channels, when counting recipients, then four rows exist",
-         %{workspace: workspace, monitors: monitors} do
-      with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
-
-      assert Repo.aggregate(EmailChannelRecipient, :count) == 4
-    end
-
-    test "Given the seeded email channels, when partitioning recipients by verification, then exactly one is still awaiting verification",
+    test "Given the seeded email channels, when partitioning recipients by verification, then exactly two are still awaiting verification",
          %{workspace: workspace, monitors: monitors} do
       with_io(fn -> EmailChannels.create_for(workspace, monitors) end)
 
       pending = Repo.all(EmailChannelRecipient) |> Enum.count(&is_nil(&1.verified_at))
-      assert pending == 1
+      assert pending == 2
     end
 
     test "Given the seeded email channels, when counting monitor links, then nine join rows exist (6 Engineering + 3 On-call)",

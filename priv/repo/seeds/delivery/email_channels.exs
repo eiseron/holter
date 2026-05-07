@@ -3,23 +3,20 @@ defmodule Holter.Seeds.Delivery.EmailChannels do
 
   alias Holter.Delivery.{EmailChannel, EmailChannelRecipient, EmailChannels}
   alias Holter.Repo
-  alias Holter.Seeds.Time
-
-  @day Time.day()
 
   def create_for(workspace, monitors) do
-    engineering = create_verified_channel(workspace, "Engineering team", "alerts@dev.example.com")
+    engineering = create_channel(workspace, "Engineering team")
+    add_verified_recipient(engineering, "alerts@dev.example.com")
     add_verified_recipient(engineering, "alice@dev.example.com")
     add_verified_recipient(engineering, "bob@dev.example.com")
 
-    on_call = create_verified_channel(workspace, "On-call rotation", "oncall@dev.example.com")
+    on_call = create_channel(workspace, "On-call rotation")
+    add_verified_recipient(on_call, "oncall@dev.example.com")
     add_verified_recipient(on_call, "alice@dev.example.com")
     add_pending_recipient(on_call, "carol@dev.example.com")
 
-    stakeholders =
-      create_unverified_channel(workspace, "Stakeholders", "stakeholders@dev.example.com",
-        locale: "en"
-      )
+    stakeholders = create_channel(workspace, "Stakeholders", locale: "en")
+    add_pending_recipient(stakeholders, "stakeholders@dev.example.com")
 
     Enum.each(active_monitors(monitors), fn monitor ->
       {:ok, _} = EmailChannels.link_monitor(monitor.id, engineering.id)
@@ -30,22 +27,15 @@ defmodule Holter.Seeds.Delivery.EmailChannels do
     end)
 
     IO.puts(
-      "[seeds] Created 3 email channels (2 verified with recipients, 1 awaiting verification)"
+      "[seeds] Created 3 email channels (2 with verified recipients, 1 awaiting verification)"
     )
 
     %{engineering: engineering, on_call: on_call, stakeholders: stakeholders}
   end
 
-  defp create_verified_channel(workspace, name, address) do
-    %EmailChannel{}
-    |> EmailChannel.changeset(%{workspace_id: workspace.id, name: name, address: address})
-    |> Ecto.Changeset.put_change(:verified_at, Time.ago(10 * @day))
-    |> Repo.insert!()
-  end
-
-  defp create_unverified_channel(workspace, name, address, opts) do
+  defp create_channel(workspace, name, opts \\ []) do
     attrs =
-      %{workspace_id: workspace.id, name: name, address: address}
+      %{workspace_id: workspace.id, name: name}
       |> Map.merge(Map.new(opts))
 
     %EmailChannel{}

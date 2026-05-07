@@ -79,6 +79,9 @@
   --color-badge-warning-bg:   rgba(251, 191, 36, 0.15);
   --color-badge-warning-text: var(--prim-amber-400);
 
+  --color-badge-draft-bg:   var(--prim-gray-40);
+  --color-badge-draft-text: var(--prim-digital-white);
+
   --color-status-up:             var(--prim-cyber-blue);
   --color-status-up-light:       color-mix(in srgb, var(--prim-cyber-blue) 80%, white);
   --color-status-up-bg:          rgba(55, 185, 255, 0.12);
@@ -197,6 +200,9 @@
 
     --color-badge-warning-bg:   var(--prim-amber-100);
     --color-badge-warning-text: var(--prim-amber-800);
+
+    --color-badge-draft-bg:   var(--prim-slate-700);
+    --color-badge-draft-text: var(--prim-white);
 
     --color-status-down:           var(--prim-rose-500);
     --color-status-down-light:     var(--prim-rose-400);

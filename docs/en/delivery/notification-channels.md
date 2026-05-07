@@ -203,27 +203,29 @@ If you lose track of the current code, regenerate it — the next email will car
 Holter accepts no liability for losses, breaches, or phishing impersonation resulting from a compromised or lost anti-phishing code.
 :::
 
-## Email Address Verification
+## Recipients and Verification
 
-Every email channel must verify the address it points at before Holter delivers any alert through it. Without this gate, a workspace member could create an email channel pointing at a third party's inbox and use Holter to deliver tests or alerts there.
+An email channel is a **named bucket of recipients**. Every address that should receive alerts is its own row, with its own verification token, scoped to a single channel. The channel itself has no email address — only a name, an anti-phishing code, and the list of recipients.
 
 ### How it works
 
-1. Creating an email channel sends a verification email from the Holter info address to the target. The link in that email expires in 48 hours.
-2. The recipient clicks the link and lands on a small confirmation page. The address is now marked **Verified** on the channel settings page.
-3. Until verification completes, alerts targeting that address are dropped at the delivery layer. The channel still dispatches to **verified CC recipients**; if no addresses on the channel are verified, the dispatch is cancelled and recorded in the [delivery logs](channel-logs.md) with reason `no_verified_recipients`.
+1. You create a channel with just a name. No verification email is sent yet.
+2. You add one or more recipients on the channel page. Each address gets its own verification email from the Holter info address (link expires in 48 hours).
+3. The recipient clicks the link and lands on a confirmation page. That recipient is now marked **Verified** on the channel settings page.
+4. The channel dispatches alerts to **every verified recipient**. Unverified recipients are skipped. If no recipient on the channel is verified, the dispatch is cancelled and recorded in the [delivery logs](channel-logs.md) with reason `no_verified_recipients`.
+
+### Bcc delivery
+
+Each alert is sent with the configured `DELIVERY_ALERT_FROM_EMAIL` in both the `From:` and `To:` headers, and **all verified recipients are placed in the `Bcc:` envelope**. Recipients do not see each other's addresses.
 
 ### Resending verification
 
-Open the channel settings page. Below the channel name, the **Primary email verification** section shows the current state:
-
-- **Verified** — alerts will be delivered to this address.
-- **Pending verification** — alerts will not be delivered. Click **Resend verification** to send a fresh email; the previous link is invalidated.
+For each unverified recipient on the channel page, click **Resend** to issue a fresh token. The previous link is invalidated.
 
 ::: danger Security disclaimer
 Verification confirms only that *someone with access to the inbox* clicked the link. It does **not** prove the address belongs to the workspace, the team, or any specific individual. Treat email channels as best-effort delivery: anyone with the inbox open at click time will start receiving alerts.
 
-If a recipient leaves the team or loses access to their inbox, **delete the channel or rotate the address and re-verify** — Holter has no way to invalidate verification automatically.
+If a recipient leaves the team or loses access to their inbox, **remove that recipient from the channel** — Holter has no way to invalidate verification automatically.
 :::
 
 ## Deleting a Channel

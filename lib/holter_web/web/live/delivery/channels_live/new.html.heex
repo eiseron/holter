@@ -28,9 +28,7 @@
     <section class="h-fieldset-card">
       <h3 class="h-fieldset-legend">{gettext("Email channel")}</h3>
       <p class="h-help-text h-mb-4">
-        {gettext(
-          "Deliver alerts to an email address. Supports CC recipients and per-address verification."
-        )}
+        {gettext("Deliver alerts to a list of email recipients with per-address verification.")}
       </p>
       <.link
         navigate={~p"/delivery/workspaces/#{@workspace.slug}/email-channels/new"}

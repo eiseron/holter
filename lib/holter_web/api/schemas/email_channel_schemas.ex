@@ -17,26 +17,19 @@ defmodule HolterWeb.Api.EmailChannelSchemas do
   def email_channel do
     %Schema{
       title: "EmailChannel",
-      description: "An email delivery channel.",
+      description:
+        "An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.",
       type: :object,
       additionalProperties: false,
       properties: %{
         id: %Schema{type: :string, format: :uuid},
         workspace_id: %Schema{type: :string, format: :uuid},
         name: %Schema{type: :string},
-        address: %Schema{type: :string},
         settings: %Schema{type: :object, additionalProperties: true},
         anti_phishing_code: %Schema{
           type: :string,
           description:
             "Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code."
-        },
-        verified_at: %Schema{
-          type: :string,
-          format: :"date-time",
-          nullable: true,
-          description:
-            "Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set."
         },
         last_test_dispatched_at: %Schema{
           type: :string,
@@ -51,10 +44,8 @@ defmodule HolterWeb.Api.EmailChannelSchemas do
         :id,
         :workspace_id,
         :name,
-        :address,
         :settings,
         :anti_phishing_code,
-        :verified_at,
         :last_test_dispatched_at,
         :inserted_at,
         :updated_at
@@ -90,10 +81,9 @@ defmodule HolterWeb.Api.EmailChannelSchemas do
       additionalProperties: false,
       properties: %{
         name: %Schema{type: :string, minLength: 1, maxLength: 255},
-        address: %Schema{type: :string, minLength: 1, maxLength: 2048},
         settings: %Schema{type: :object, additionalProperties: true, nullable: true}
       },
-      required: [:name, :address]
+      required: [:name]
     }
   end
 
@@ -105,7 +95,6 @@ defmodule HolterWeb.Api.EmailChannelSchemas do
       additionalProperties: false,
       properties: %{
         name: %Schema{type: :string, minLength: 1, maxLength: 255},
-        address: %Schema{type: :string, minLength: 1, maxLength: 2048},
         settings: %Schema{type: :object, additionalProperties: true, nullable: true}
       }
     }

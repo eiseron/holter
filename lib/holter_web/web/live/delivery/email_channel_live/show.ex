@@ -5,7 +5,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   import HolterWeb.Components.Delivery.EmailChannelFormFields
   import HolterWeb.Components.Delivery.SecretCard
 
-  alias Holter.Delivery.{EmailChannel, EmailChannels, Engine}
+  alias Holter.Delivery.{EmailChannels, Engine}
   alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
@@ -27,9 +27,9 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
        |> assign(:form, to_form(changeset))
        |> assign(:available_monitors, available_monitors)
        |> assign(:linked_monitor_ids, linked_monitor_ids)
-       |> assign(:recipients, EmailChannels.list_recipients(channel.id))
-       |> assign(:verification_status, verification_status(channel))
-       |> assign(:cc_input, "")
+       |> assign(:saved_recipients, EmailChannels.list_recipients(channel.id))
+       |> assign(:pending_additions, [])
+       |> assign(:pending_removed_ids, MapSet.new())
        |> assign(:test_sent, false)
        |> ChannelLiveCommon.assign_test_cooldown(channel.last_test_dispatched_at)}
     else
@@ -55,17 +55,25 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   def handle_event("save", %{"email_channel" => params} = full_params, socket) do
     monitor_ids = Map.get(full_params, "monitor_ids", [])
 
-    case EmailChannels.update(socket.assigns.channel, params) do
-      {:ok, channel} ->
+    staged = %{
+      attrs: params,
+      additions: socket.assigns.pending_additions,
+      removed_ids: MapSet.to_list(socket.assigns.pending_removed_ids)
+    }
+
+    case EmailChannels.apply_staged_changes(socket.assigns.channel, staged) do
+      {:ok, %{channel: channel, added: added_recipients}} ->
         EmailChannels.sync_monitors_for(channel.id, monitor_ids)
-        linked_monitor_ids = EmailChannels.list_monitor_ids_for(channel.id)
+        Enum.each(added_recipients, &deliver_verification_email(&1, channel))
 
         {:noreply,
          socket
          |> put_flash(:info, gettext("Email channel updated successfully"))
          |> assign(:channel, channel)
-         |> assign(:linked_monitor_ids, linked_monitor_ids)
-         |> assign(:verification_status, verification_status(channel))
+         |> assign(:linked_monitor_ids, EmailChannels.list_monitor_ids_for(channel.id))
+         |> assign(:saved_recipients, EmailChannels.list_recipients(channel.id))
+         |> assign(:pending_additions, [])
+         |> assign(:pending_removed_ids, MapSet.new())
          |> assign(:form, to_form(EmailChannels.change(channel)))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -92,7 +100,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
            socket,
            :error,
            gettext(
-             "Cannot send a test: no recipient on this channel is verified. Verify the primary email or at least one CC recipient first."
+             "Cannot send a test: this channel has no verified recipients. Add at least one and verify it first."
            )
          )}
 
@@ -110,57 +118,56 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   end
 
   @impl true
-  def handle_event("update_cc_input", %{"cc_email" => email}, socket) do
-    {:noreply, assign(socket, :cc_input, email)}
-  end
+  def handle_event("add_pending_recipient", %{"recipient" => %{"email" => email}}, socket) do
+    email = String.trim(email)
 
-  @impl true
-  def handle_event("add_recipient", params, socket) do
-    email = (Map.get(params, "email") || Map.get(params, "value", "")) |> String.trim()
-    channel = socket.assigns.channel
+    cond do
+      not valid_email?(email) ->
+        {:noreply, socket}
 
-    case EmailChannels.add_recipient(channel.id, email) do
-      {:ok, recipient} ->
-        verification_url =
-          url(~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+      email in socket.assigns.pending_additions ->
+        {:noreply, socket}
 
-        RecipientVerification.build_verification_email(
-          recipient,
-          channel,
-          %{url: verification_url, from: info_from_address()}
-        )
-        |> InfoMailer.deliver()
+      Enum.any?(socket.assigns.saved_recipients, &(&1.email == email)) ->
+        {:noreply,
+         put_flash(socket, :info, gettext("%{email} is already on this channel.", email: email))}
 
+      true ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Verification email sent to %{email}", email: email))
-         |> assign(:recipients, EmailChannels.list_recipients(channel.id))
-         |> assign(:cc_input, "")}
-
-      {:error, changeset} ->
-        [message | _] =
-          changeset.errors |> Keyword.values() |> List.flatten() |> Enum.map(&elem(&1, 0))
-
-        {:noreply, put_flash(socket, :error, message)}
+         |> assign(:pending_additions, socket.assigns.pending_additions ++ [email])
+         |> push_event("recipient-input-clear", %{})}
     end
   end
 
   @impl true
-  def handle_event("resend_email_verification", _params, socket) do
-    case EmailChannels.send_verification(socket.assigns.channel) do
-      {:ok, updated} ->
-        {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           gettext("Verification email sent to %{email}.", email: updated.address)
-         )
-         |> assign(:channel, updated)
-         |> assign(:verification_status, verification_status(updated))}
+  def handle_event("cancel_pending_recipient", %{"email" => email}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :pending_additions,
+       Enum.reject(socket.assigns.pending_additions, &(&1 == email))
+     )}
+  end
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to send verification email"))}
-    end
+  @impl true
+  def handle_event("mark_recipient_for_removal", %{"id" => id}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :pending_removed_ids,
+       MapSet.put(socket.assigns.pending_removed_ids, id)
+     )}
+  end
+
+  @impl true
+  def handle_event("restore_recipient", %{"id" => id}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :pending_removed_ids,
+       MapSet.delete(socket.assigns.pending_removed_ids, id)
+     )}
   end
 
   @impl true
@@ -194,14 +201,6 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   end
 
   @impl true
-  def handle_event("remove_recipient", %{"id" => id}, socket) do
-    channel = socket.assigns.channel
-    EmailChannels.remove_recipient(id)
-
-    {:noreply, assign(socket, :recipients, EmailChannels.list_recipients(channel.id))}
-  end
-
-  @impl true
   def handle_event("resend_recipient_verification", %{"id" => id}, socket) do
     case EmailChannels.resend_recipient_verification(id) do
       {:ok, recipient} ->
@@ -211,7 +210,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
            :info,
            gettext("Verification email sent to %{email}", email: recipient.email)
          )
-         |> assign(:recipients, EmailChannels.list_recipients(socket.assigns.channel.id))}
+         |> assign(:saved_recipients, EmailChannels.list_recipients(socket.assigns.channel.id))}
 
       {:error, :already_verified} ->
         {:noreply, put_flash(socket, :info, gettext("This recipient is already verified."))}
@@ -225,8 +224,19 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   def handle_info(:tick, socket), do: {:noreply, ChannelLiveCommon.handle_tick(socket)}
   def handle_info(_message, socket), do: {:noreply, socket}
 
-  defp verification_status(%EmailChannel{verified_at: %DateTime{}}), do: :verified
-  defp verification_status(%EmailChannel{}), do: :pending
+  defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  defp deliver_verification_email(recipient, channel) do
+    verification_url =
+      url(~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+
+    RecipientVerification.build_verification_email(
+      recipient,
+      channel,
+      %{url: verification_url, from: info_from_address()}
+    )
+    |> InfoMailer.deliver()
+  end
 
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
 end

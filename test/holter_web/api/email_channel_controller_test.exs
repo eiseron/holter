@@ -3,7 +3,6 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
   use Oban.Testing, repo: Holter.Repo
 
   import OpenApiSpex.TestAssertions
-  import Swoosh.TestAssertions
 
   alias Holter.Delivery.EmailChannels
   alias HolterWeb.Api.ApiSpec
@@ -25,27 +24,16 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
 
   defp channel_fixture(workspace_id, attrs \\ %{}) do
     {:ok, channel} =
-      EmailChannels.create(
-        Map.merge(
-          %{
-            workspace_id: workspace_id,
-            name: "Ops Email",
-            address: "ops-#{System.unique_integer([:positive])}@example.com"
-          },
-          attrs
-        )
-      )
+      EmailChannels.create(Map.merge(%{workspace_id: workspace_id, name: "Ops Email"}, attrs))
 
     channel
   end
 
-  defp verified_channel_fixture(workspace_id, attrs \\ %{}) do
-    channel = channel_fixture(workspace_id, attrs)
-
-    {:ok, _} = EmailChannels.send_verification(channel)
-    reloaded = EmailChannels.get!(channel.id)
-    {:ok, verified} = EmailChannels.verify(reloaded.verification_token)
-    verified
+  defp channel_with_verified_recipient_fixture(workspace_id) do
+    channel = channel_fixture(workspace_id)
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "ops@example.com")
+    {:ok, _} = EmailChannels.verify_recipient(recipient.token)
+    channel
   end
 
   describe "GET /api/v1/workspaces/:workspace_slug/email_channels" do
@@ -78,7 +66,7 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
   end
 
   describe "POST /api/v1/workspaces/:workspace_slug/email_channels" do
-    @valid_attrs %{name: "Ops", address: "ops@example.com"}
+    @valid_attrs %{name: "Ops"}
 
     test "creates a channel and returns 201", %{conn: conn, workspace: workspace, api_spec: spec} do
       conn =
@@ -90,37 +78,11 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
       assert_schema(body, "EmailChannelResponse", spec)
     end
 
-    test "ships a verification email on create", %{conn: conn, workspace: workspace} do
-      json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", @valid_attrs)
-      assert_email_sent(to: "ops@example.com")
-    end
-
-    test "returns the channel in an unverified state", %{conn: conn, workspace: workspace} do
+    test "returns 422 when name is missing", %{conn: conn, workspace: workspace} do
       conn =
-        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", @valid_attrs)
-
-      body = json_response(conn, 201)
-      assert is_nil(body["data"]["verified_at"])
-    end
-
-    test "returns 422 when address is missing", %{conn: conn, workspace: workspace} do
-      conn =
-        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", %{
-          name: "Bad"
-        })
+        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", %{})
 
       assert json_response(conn, 422)
-    end
-
-    test "returns 422 for an invalid address", %{conn: conn, workspace: workspace} do
-      conn =
-        json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", %{
-          name: "Bad",
-          address: "not-an-email"
-        })
-
-      resp = json_response(conn, 422)
-      assert resp["error"]["code"] == "validation_failed"
     end
   end
 
@@ -177,18 +139,18 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
   end
 
   describe "POST /api/v1/email_channels/:id/pings" do
-    test "enqueues a test dispatch when the address is verified", %{
+    test "enqueues a test dispatch when the channel has a verified recipient", %{
       conn: conn,
       workspace: workspace
     } do
-      channel = verified_channel_fixture(workspace.id)
+      channel = channel_with_verified_recipient_fixture(workspace.id)
       conn = post(conn, ~p"/api/v1/email_channels/#{channel.id}/pings")
 
       assert conn.status == 202
       assert_enqueued(worker: Holter.Delivery.Workers.EmailDispatcher)
     end
 
-    test "returns 422 when the channel has no verified address", %{
+    test "returns 422 when the channel has no verified recipients", %{
       conn: conn,
       workspace: workspace
     } do

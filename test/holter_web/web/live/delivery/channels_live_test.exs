@@ -24,12 +24,7 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
 
   defp email_fixture(workspace_id, attrs) do
     {:ok, channel} =
-      EmailChannels.create(
-        Map.merge(
-          %{workspace_id: workspace_id, name: "Ops Email", address: "ops@example.com"},
-          attrs
-        )
-      )
+      EmailChannels.create(Map.merge(%{workspace_id: workspace_id, name: "Ops Email"}, attrs))
 
     channel
   end

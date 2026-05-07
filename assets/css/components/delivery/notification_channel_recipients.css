@@ -62,6 +62,16 @@
   background: var(--color-badge-warning-bg);
 }
 
+.h-recipient-badge--draft {
+  color: var(--color-badge-draft-text);
+  background: var(--color-badge-draft-bg);
+}
+
+.h-recipient-badge--remove {
+  color: var(--color-status-down-text);
+  background: var(--color-status-down-bg);
+}
+
 .h-recipient-remove {
   flex-shrink: 0;
   display: flex;

@@ -22,8 +22,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
          |> assign(:page_title, gettext("New Email Channel"))
          |> assign(:available_monitors, available_monitors)
          |> assign(:form, to_form(changeset))
-         |> assign(:pending_cc_emails, [])
-         |> assign(:new_cc_input, "")}
+         |> assign(:pending_recipients, [])}
 
       {:error, :not_found} ->
         {:ok,
@@ -44,28 +43,23 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   end
 
   @impl true
-  def handle_event("update_new_cc_input", %{"cc_email" => email}, socket) do
-    {:noreply, assign(socket, :new_cc_input, email)}
-  end
+  def handle_event("add_pending_recipient", %{"recipient" => %{"email" => email}}, socket) do
+    email = String.trim(email)
 
-  @impl true
-  def handle_event("add_pending_cc", params, socket) do
-    email = (Map.get(params, "email") || Map.get(params, "value", "")) |> String.trim()
-
-    if valid_email?(email) and email not in socket.assigns.pending_cc_emails do
+    if valid_email?(email) and email not in socket.assigns.pending_recipients do
       {:noreply,
        socket
-       |> assign(:pending_cc_emails, socket.assigns.pending_cc_emails ++ [email])
-       |> assign(:new_cc_input, "")}
+       |> assign(:pending_recipients, socket.assigns.pending_recipients ++ [email])
+       |> push_event("recipient-input-clear", %{})}
     else
       {:noreply, socket}
     end
   end
 
   @impl true
-  def handle_event("remove_pending_cc", %{"email" => email}, socket) do
-    updated = Enum.reject(socket.assigns.pending_cc_emails, &(&1 == email))
-    {:noreply, assign(socket, :pending_cc_emails, updated)}
+  def handle_event("remove_pending_recipient", %{"email" => email}, socket) do
+    updated = Enum.reject(socket.assigns.pending_recipients, &(&1 == email))
+    {:noreply, assign(socket, :pending_recipients, updated)}
   end
 
   @impl true
@@ -77,16 +71,13 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
     case EmailChannels.create(attrs) do
       {:ok, channel} ->
         EmailChannels.sync_monitors_for(channel.id, monitor_ids)
-        add_pending_cc_recipients(channel, socket.assigns.pending_cc_emails)
-        EmailChannels.send_verification(channel)
+        persist_pending_recipients(channel, socket.assigns.pending_recipients)
 
         {:noreply,
          socket
          |> put_flash(
            :info,
-           gettext("Channel created. Verification email sent to %{email}.",
-             email: channel.address
-           )
+           gettext("Channel created. Verification email sent to each recipient.")
          )
          |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
 
@@ -99,7 +90,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
 
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  defp add_pending_cc_recipients(channel, emails) do
+  defp persist_pending_recipients(channel, emails) do
     Enum.each(emails, fn email ->
       case EmailChannels.add_recipient(channel.id, email) do
         {:ok, recipient} ->

@@ -9,11 +9,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelRecipientLive.VerifyTest do
     workspace = workspace_fixture()
 
     {:ok, channel} =
-      EmailChannels.create(%{
-        workspace_id: workspace.id,
-        name: "Alerts",
-        address: "primary@example.com"
-      })
+      EmailChannels.create(%{workspace_id: workspace.id, name: "Alerts"})
 
     %{channel: channel}
   end

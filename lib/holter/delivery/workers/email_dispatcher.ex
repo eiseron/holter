@@ -5,7 +5,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   import Swoosh.Email
 
-  alias Holter.Delivery.{EmailChannel, EmailChannels}
+  alias Holter.Delivery.EmailChannels
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring
@@ -48,35 +48,24 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
   end
 
   defp deliver(channel, subject, body) do
-    case compute_recipients(channel) do
-      {nil, []} ->
-        {:cancel, :no_verified_recipients}
-
-      {nil, [primary | cc]} ->
-        send_email({primary, cc}, %{subject: subject, body: body})
-
-      {primary, cc} ->
-        send_email({primary, cc}, %{subject: subject, body: body})
+    case EmailChannels.list_verified_emails(channel.id) do
+      [] -> {:cancel, :no_verified_recipients}
+      addresses -> send_email(addresses, subject, body)
     end
   end
 
-  defp send_email({primary, cc}, %{subject: subject, body: body}) do
+  defp send_email(addresses, subject, body) do
+    from = from_address()
+
     new()
-    |> to(primary)
-    |> from(from_address())
-    |> then(fn email -> Enum.reduce(cc, email, &cc(&2, &1)) end)
+    |> from(from)
+    |> to(from)
+    |> then(fn email -> Enum.reduce(addresses, email, &bcc(&2, &1)) end)
     |> subject(subject)
     |> text_body(body)
     |> AlertMailer.deliver()
 
     :ok
-  end
-
-  defp compute_recipients(%EmailChannel{} = channel) do
-    primary =
-      if EmailChannel.verified?(channel), do: channel.address, else: nil
-
-    {primary, EmailChannels.list_verified_emails(channel.id)}
   end
 
   defp from_address, do: Application.fetch_env!(:holter, :email)[:from_address]

@@ -150,6 +150,7 @@ build_image:
   script:
     - mix deps.get
     - mix deps.compile
+    - mix assets.build
     - cp .docker/Dockerfile.preview Dockerfile
     - AUTH_B64=$(printf '%s:%s' "$PREVIEW_REGISTRY_USER" "$PREVIEW_REGISTRY_PASSWORD" | base64 | tr -d '\n')
     # elixir-builder ships DOCKER_CONFIG=/opt/kaniko/.docker/ (kaniko was
@@ -162,6 +163,7 @@ build_image:
         --context "$CI_PROJECT_DIR"
         --dockerfile "$CI_PROJECT_DIR/Dockerfile"
         --destination "$CI_REGISTRY_IMAGE/preview:$CI_COMMIT_REF_SLUG"
+        --destination "$CI_REGISTRY_IMAGE/preview:sha-$CI_COMMIT_SHORT_SHA"
         --cache=true
         --cache-repo="$CI_REGISTRY_IMAGE/kaniko-cache"
         --cache-ttl=168h

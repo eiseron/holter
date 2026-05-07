@@ -11,19 +11,15 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.ShowTest do
     workspace = workspace_fixture()
 
     {:ok, channel} =
-      EmailChannels.create(%{
-        workspace_id: workspace.id,
-        name: "Ops Email",
-        address: "ops@example.com"
-      })
+      EmailChannels.create(%{workspace_id: workspace.id, name: "Ops Email"})
 
     %{workspace: workspace, channel: channel}
   end
 
-  defp mark_verified(channel) do
-    channel
-    |> Ecto.Changeset.change(verified_at: DateTime.utc_now() |> DateTime.truncate(:second))
-    |> Holter.Repo.update!()
+  defp add_verified_recipient(channel, email \\ "ops@example.com") do
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, email)
+    {:ok, _} = EmailChannels.verify_recipient(recipient.token)
+    :ok
   end
 
   describe "mount" do
@@ -46,22 +42,6 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.ShowTest do
 
       assert html =~ "/delivery/email-channels/#{channel.id}/logs"
     end
-
-    test "renders the resend verification button when the address is unverified",
-         %{conn: conn, channel: channel} do
-      {:ok, _view, html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
-
-      assert html =~ "Resend verification"
-    end
-
-    test "hides the resend verification section once the address is verified",
-         %{conn: conn, channel: channel} do
-      mark_verified(channel)
-
-      {:ok, _view, html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
-
-      refute html =~ "Resend verification"
-    end
   end
 
   describe "save event" do
@@ -78,18 +58,18 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.ShowTest do
   end
 
   describe "test dispatch" do
-    test "fails with a flash when the address has no verified recipients",
+    test "fails with a flash when the channel has no verified recipients",
          %{conn: conn, channel: channel} do
       {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
 
       html = view |> element("button[phx-click='test']") |> render_click()
 
-      assert html =~ "no recipient on this channel is verified"
+      assert html =~ "no verified recipients"
     end
 
-    test "enqueues an email test job once the address is verified",
+    test "enqueues an email test job once at least one recipient is verified",
          %{conn: conn, channel: channel} do
-      mark_verified(channel)
+      :ok = add_verified_recipient(channel)
 
       {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
 
@@ -102,33 +82,129 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.ShowTest do
     end
   end
 
-  describe "CC recipients" do
+  describe "recipients" do
     test "renders the recipients section",
          %{conn: conn, channel: channel} do
       {:ok, _view, html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
 
-      assert html =~ "CC Recipients"
+      assert html =~ "Recipients"
+      assert html =~ "Add Recipient"
     end
 
-    test "adding a recipient sends a verification email and lists it",
+    test "the recipient form and the channel save form are siblings, not nested",
+         %{conn: conn, channel: channel} do
+      {:ok, _view, html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      doc = Floki.parse_document!(html)
+
+      nested_recipient_inside_save =
+        Floki.find(doc, ~s|form#email-channel-form form#add-recipient-form|)
+
+      assert nested_recipient_inside_save == []
+    end
+
+    test "the recipient input renders an empty value= so LiveView form recovery can clear it",
+         %{conn: conn, channel: channel} do
+      {:ok, _view, html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      input_value =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find(~s|form#add-recipient-form input[name="recipient[email]"]|)
+        |> Floki.attribute("value")
+
+      assert input_value == [""]
+    end
+
+    test "submitting the recipient form stages it without persisting or sending email",
          %{conn: conn, channel: channel} do
       {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
 
-      html = render_click(view, "add_recipient", %{"email" => "alice@example.com"})
+      html =
+        view
+        |> form("#add-recipient-form", %{"recipient" => %{"email" => "alice@example.com"}})
+        |> render_submit()
 
       assert html =~ "alice@example.com"
-      assert_email_sent(to: "alice@example.com")
+      assert html =~ "Draft"
+      assert EmailChannels.list_recipients(channel.id) == []
+      refute_email_sent()
     end
 
-    test "removing a recipient drops it from the list",
+    test "the staging submit pushes recipient-input-clear so the browser can reset the field",
+         %{conn: conn, channel: channel} do
+      {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      view
+      |> form("#add-recipient-form", %{"recipient" => %{"email" => "alice@example.com"}})
+      |> render_submit()
+
+      assert_push_event(view, "recipient-input-clear", %{})
+    end
+
+    test "marking a saved recipient for removal renders it struck-through with Restore",
          %{conn: conn, channel: channel} do
       {:ok, recipient} = EmailChannels.add_recipient(channel.id, "alice@example.com")
 
       {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
 
-      html = render_click(view, "remove_recipient", %{"id" => recipient.id})
+      html = render_click(view, "mark_recipient_for_removal", %{"id" => recipient.id})
+
+      assert html =~ "Will be removed"
+      assert html =~ "Restore"
+      assert html =~ "alice@example.com"
+      assert EmailChannels.list_recipients(channel.id) != []
+    end
+
+    test "restoring a recipient marked for removal returns it to the saved state",
+         %{conn: conn, channel: channel} do
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "alice@example.com")
+
+      {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      render_click(view, "mark_recipient_for_removal", %{"id" => recipient.id})
+      html = render_click(view, "restore_recipient", %{"id" => recipient.id})
+
+      refute html =~ "Will be removed"
+      refute html =~ "Restore"
+    end
+
+    test "cancelling a pending addition removes it from the staged list",
+         %{conn: conn, channel: channel} do
+      {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      view
+      |> form("#add-recipient-form", %{"recipient" => %{"email" => "alice@example.com"}})
+      |> render_submit()
+
+      html = render_click(view, "cancel_pending_recipient", %{"email" => "alice@example.com"})
 
       refute html =~ "alice@example.com"
+    end
+
+    test "save applies pending additions and removals atomically and sends verification emails",
+         %{conn: conn, channel: channel} do
+      {:ok, kept} = EmailChannels.add_recipient(channel.id, "kept@example.com")
+      {:ok, removed} = EmailChannels.add_recipient(channel.id, "removed@example.com")
+
+      {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
+
+      view
+      |> form("#add-recipient-form", %{"recipient" => %{"email" => "alice@example.com"}})
+      |> render_submit()
+
+      render_click(view, "mark_recipient_for_removal", %{"id" => removed.id})
+
+      view
+      |> form("#email-channel-form", email_channel: %{name: channel.name})
+      |> render_submit()
+
+      remaining_emails =
+        channel.id |> EmailChannels.list_recipients() |> Enum.map(& &1.email) |> Enum.sort()
+
+      assert remaining_emails == ["alice@example.com", "kept@example.com"]
+      assert_email_sent(to: "alice@example.com")
+      _ = kept
     end
   end
 
@@ -154,17 +230,6 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.ShowTest do
 
       assert_redirect(view, "/delivery/workspaces/#{workspace.slug}/channels")
       assert {:error, :not_found} = EmailChannels.get(channel.id)
-    end
-  end
-
-  describe "resend channel verification" do
-    test "sends a verification email to the primary address",
-         %{conn: conn, channel: channel} do
-      {:ok, view, _html} = live(conn, ~p"/delivery/email-channels/#{channel.id}")
-
-      render_click(view, "resend_email_verification", %{})
-
-      assert_email_sent(to: channel.address)
     end
   end
 end

@@ -22,24 +22,16 @@ defmodule Holter.Delivery.EngineTest do
   end
 
   defp email_channel_fixture(workspace_id, opts \\ []) do
-    verified? = Keyword.get(opts, :verified, true)
-
     {:ok, channel} =
-      EmailChannels.create(%{
-        workspace_id: workspace_id,
-        name: "Email",
-        address: "ops@example.com"
-      })
+      EmailChannels.create(%{workspace_id: workspace_id, name: "Email"})
 
-    if verified?, do: mark_channel_verified(channel), else: channel
+    if Keyword.get(opts, :verified, true), do: add_verified_recipient(channel), else: channel
   end
 
-  defp mark_channel_verified(channel) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
+  defp add_verified_recipient(channel) do
+    {:ok, recipient} = EmailChannels.add_recipient(channel.id, "ops@example.com")
+    {:ok, _} = EmailChannels.verify_recipient(recipient.token)
     channel
-    |> Ecto.Changeset.change(verified_at: now)
-    |> Holter.Repo.update!()
   end
 
   describe "dispatch_incident/3" do
@@ -176,10 +168,10 @@ defmodule Holter.Delivery.EngineTest do
       assert all_enqueued(queue: :notifications) == []
     end
 
-    test "enqueues a job for an email channel whose primary is unverified but has a verified CC" do
+    test "enqueues a job once at least one recipient is verified" do
       ws = workspace_fixture()
       channel = email_channel_fixture(ws.id, verified: false)
-      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "cc@example.com")
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "extra@example.com")
       EmailChannels.verify_recipient(recipient.token)
 
       Engine.dispatch_test_email(channel.id)

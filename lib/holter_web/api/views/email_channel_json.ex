@@ -22,10 +22,8 @@ defmodule HolterWeb.Api.EmailChannelJSON do
       id: channel.id,
       workspace_id: channel.workspace_id,
       name: channel.name,
-      address: channel.address,
       settings: channel.settings,
       anti_phishing_code: channel.anti_phishing_code,
-      verified_at: channel.verified_at,
       last_test_dispatched_at: channel.last_test_dispatched_at,
       inserted_at: channel.inserted_at,
       updated_at: channel.updated_at

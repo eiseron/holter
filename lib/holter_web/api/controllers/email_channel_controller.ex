@@ -59,7 +59,7 @@ defmodule HolterWeb.Api.EmailChannelController do
   operation(:create,
     summary: "Create email channel",
     description:
-      "Create a new email channel for the specified workspace. The channel is created in an unverified state and a verification email is sent to the address.",
+      "Create a new email channel for the specified workspace. Recipients are managed on a sibling resource and carry their own per-address verification.",
     parameters: [
       workspace_slug: [in: :path, description: "Workspace slug", type: :string]
     ],
@@ -77,8 +77,6 @@ defmodule HolterWeb.Api.EmailChannelController do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
          attrs = Map.put(conn.body_params, :workspace_id, workspace.id),
          {:ok, channel} <- EmailChannels.create(attrs) do
-      maybe_send_verification(channel)
-
       conn
       |> put_status(:created)
       |> render(:show, channel: channel)
@@ -201,7 +199,4 @@ defmodule HolterWeb.Api.EmailChannelController do
       render(conn, :show, channel: updated)
     end
   end
-
-  defp maybe_send_verification(%{verified_at: %DateTime{}}), do: :ok
-  defp maybe_send_verification(channel), do: EmailChannels.send_verification(channel)
 end

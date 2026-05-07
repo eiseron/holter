@@ -126,10 +126,6 @@ defmodule HolterWeb.Router do
       live "/email-channels/recipients/verify/:token",
            EmailChannelRecipientLive.Verify,
            :verify
-
-      live "/email-channels/verify/:token",
-           EmailChannelLive.Verify,
-           :verify
     end
 
     live_session :authenticated_webhook_channel,

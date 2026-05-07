@@ -203,27 +203,29 @@ Se você perder o controle do código atual, regenere — o próximo e-mail carr
 O Holter não aceita responsabilidade por perdas, incidentes ou suplantação por phishing decorrentes de um código antiphishing comprometido ou perdido.
 :::
 
-## Verificação de Endereço de E-mail
+## Destinatários e Verificação
 
-Todo canal de e-mail precisa verificar o endereço de destino antes que a Holter entregue qualquer alerta por ele. Sem essa verificação, um membro do workspace poderia criar um canal apontando para a caixa de entrada de outra pessoa e usar a Holter para enviar testes ou alertas para lá.
+Um canal de e-mail é um **agrupamento nomeado de destinatários**. Cada endereço que deve receber alertas vive na sua própria linha, com seu próprio token de verificação, vinculado a um único canal. O canal em si não tem endereço de e-mail — só um nome, um código antiphishing e a lista de destinatários.
 
 ### Como funciona
 
-1. Ao criar um canal de e-mail, a Holter envia um e-mail de verificação a partir do endereço institucional para o destino. O link expira em 48 horas.
-2. O destinatário clica no link e cai em uma página de confirmação. O endereço passa a aparecer como **Verificado** na página do canal.
-3. Enquanto a verificação não acontecer, alertas para esse endereço são descartados na camada de entrega. O canal segue entregando para **destinatários em CC verificados**; se nenhum endereço do canal estiver verificado, a entrega é cancelada e registrada nos [logs de entrega](channel-logs.md) com o motivo `no_verified_recipients`.
+1. Você cria um canal só com o nome. Nenhum e-mail de verificação é enviado nesse momento.
+2. Na página do canal, você adiciona um ou mais destinatários. Cada endereço recebe seu próprio e-mail de verificação a partir do endereço institucional do Holter (o link expira em 48 horas).
+3. O destinatário clica no link e cai em uma página de confirmação. Aquele destinatário aparece como **Verificado** na página do canal.
+4. O canal entrega alertas para **todos os destinatários verificados**. Destinatários não verificados são pulados. Se nenhum destinatário do canal estiver verificado, a entrega é cancelada e registrada nos [logs de entrega](channel-logs.md) com o motivo `no_verified_recipients`.
+
+### Entrega via Bcc
+
+Cada alerta é enviado com o `DELIVERY_ALERT_FROM_EMAIL` configurado tanto no cabeçalho `From:` quanto no `To:`, e **todos os destinatários verificados entram no envelope `Bcc:`**. Os destinatários não veem o endereço uns dos outros.
 
 ### Reenviando a verificação
 
-Abra a página do canal. Logo abaixo do nome, a seção **Verificação do e-mail principal** mostra o estado atual:
-
-- **Verificado** — os alertas serão entregues nesse endereço.
-- **Verificação pendente** — os alertas não serão entregues. Clique em **Reenviar verificação** para gerar um novo e-mail; o link anterior é invalidado.
+Para cada destinatário não verificado na página do canal, clique em **Reenviar** para gerar um novo token. O link anterior é invalidado.
 
 ::: danger Aviso de segurança
 A verificação só comprova que *alguém com acesso à caixa de entrada* clicou no link. Ela **não** prova que o endereço pertence ao workspace, à equipe ou a uma pessoa específica. Trate canais de e-mail como entrega "melhor esforço": qualquer pessoa que estiver com a caixa aberta naquele momento começa a receber alertas.
 
-Se um destinatário sai da equipe ou perde acesso à caixa, **exclua o canal ou troque o endereço e verifique de novo** — a Holter não tem como invalidar a verificação automaticamente.
+Se um destinatário sai da equipe ou perde acesso à caixa, **remova esse destinatário do canal** — a Holter não tem como invalidar a verificação automaticamente.
 :::
 
 ## Excluindo um Canal

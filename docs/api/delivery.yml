@@ -140,12 +140,8 @@ components:
       x-validate:
     EmailChannel:
       additionalProperties: false
-      description: An email delivery channel.
+      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
       properties:
-        address:
-          type: string
-          x-struct:
-          x-validate:
         anti_phishing_code:
           description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
           type: string
@@ -182,13 +178,6 @@ components:
           type: string
           x-struct:
           x-validate:
-        verified_at:
-          description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
         workspace_id:
           format: uuid
           type: string
@@ -198,10 +187,8 @@ components:
         - id
         - workspace_id
         - name
-        - address
         - settings
         - anti_phishing_code
-        - verified_at
         - last_test_dispatched_at
         - inserted_at
         - updated_at
@@ -213,12 +200,6 @@ components:
       additionalProperties: false
       description: Parameters for creating an email channel.
       properties:
-        address:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
         name:
           maxLength: 255
           minLength: 1
@@ -233,7 +214,6 @@ components:
           x-validate:
       required:
         - name
-        - address
       title: EmailChannelCreateRequest
       type: object
       x-struct:
@@ -244,12 +224,8 @@ components:
         data:
           items:
             additionalProperties: false
-            description: An email delivery channel.
+            description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
             properties:
-              address:
-                type: string
-                x-struct:
-                x-validate:
               anti_phishing_code:
                 description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                 type: string
@@ -286,13 +262,6 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              verified_at:
-                description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                format: date-time
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
               workspace_id:
                 format: uuid
                 type: string
@@ -302,10 +271,8 @@ components:
               - id
               - workspace_id
               - name
-              - address
               - settings
               - anti_phishing_code
-              - verified_at
               - last_test_dispatched_at
               - inserted_at
               - updated_at
@@ -327,12 +294,8 @@ components:
       properties:
         data:
           additionalProperties: false
-          description: An email delivery channel.
+          description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
           properties:
-            address:
-              type: string
-              x-struct:
-              x-validate:
             anti_phishing_code:
               description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
               type: string
@@ -369,13 +332,6 @@ components:
               type: string
               x-struct:
               x-validate:
-            verified_at:
-              description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
             workspace_id:
               format: uuid
               type: string
@@ -385,10 +341,8 @@ components:
             - id
             - workspace_id
             - name
-            - address
             - settings
             - anti_phishing_code
-            - verified_at
             - last_test_dispatched_at
             - inserted_at
             - updated_at
@@ -406,12 +360,6 @@ components:
       additionalProperties: false
       description: Parameters for updating an email channel.
       properties:
-        address:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
         name:
           maxLength: 255
           minLength: 1
@@ -743,12 +691,8 @@ paths:
                 properties:
                   data:
                     additionalProperties: false
-                    description: An email delivery channel.
+                    description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                     properties:
-                      address:
-                        type: string
-                        x-struct:
-                        x-validate:
                       anti_phishing_code:
                         description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                         type: string
@@ -785,13 +729,6 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      verified_at:
-                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
                       workspace_id:
                         format: uuid
                         type: string
@@ -801,10 +738,8 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - address
                       - settings
                       - anti_phishing_code
-                      - verified_at
                       - last_test_dispatched_at
                       - inserted_at
                       - updated_at
@@ -1193,12 +1128,8 @@ paths:
                 properties:
                   data:
                     additionalProperties: false
-                    description: An email delivery channel.
+                    description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                     properties:
-                      address:
-                        type: string
-                        x-struct:
-                        x-validate:
                       anti_phishing_code:
                         description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                         type: string
@@ -1235,13 +1166,6 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      verified_at:
-                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
                       workspace_id:
                         format: uuid
                         type: string
@@ -1251,10 +1175,8 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - address
                       - settings
                       - anti_phishing_code
-                      - verified_at
                       - last_test_dispatched_at
                       - inserted_at
                       - updated_at
@@ -1316,12 +1238,6 @@ paths:
               additionalProperties: false
               description: Parameters for updating an email channel.
               properties:
-                address:
-                  maxLength: 2048
-                  minLength: 1
-                  type: string
-                  x-struct:
-                  x-validate:
                 name:
                   maxLength: 255
                   minLength: 1
@@ -1349,12 +1265,8 @@ paths:
                 properties:
                   data:
                     additionalProperties: false
-                    description: An email delivery channel.
+                    description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                     properties:
-                      address:
-                        type: string
-                        x-struct:
-                        x-validate:
                       anti_phishing_code:
                         description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                         type: string
@@ -1391,13 +1303,6 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      verified_at:
-                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
                       workspace_id:
                         format: uuid
                         type: string
@@ -1407,10 +1312,8 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - address
                       - settings
                       - anti_phishing_code
-                      - verified_at
                       - last_test_dispatched_at
                       - inserted_at
                       - updated_at
@@ -1495,12 +1398,6 @@ paths:
               additionalProperties: false
               description: Parameters for updating an email channel.
               properties:
-                address:
-                  maxLength: 2048
-                  minLength: 1
-                  type: string
-                  x-struct:
-                  x-validate:
                 name:
                   maxLength: 255
                   minLength: 1
@@ -1528,12 +1425,8 @@ paths:
                 properties:
                   data:
                     additionalProperties: false
-                    description: An email delivery channel.
+                    description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                     properties:
-                      address:
-                        type: string
-                        x-struct:
-                        x-validate:
                       anti_phishing_code:
                         description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                         type: string
@@ -1570,13 +1463,6 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      verified_at:
-                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
                       workspace_id:
                         format: uuid
                         type: string
@@ -1586,10 +1472,8 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - address
                       - settings
                       - anti_phishing_code
-                      - verified_at
                       - last_test_dispatched_at
                       - inserted_at
                       - updated_at
@@ -2556,12 +2440,8 @@ paths:
                   data:
                     items:
                       additionalProperties: false
-                      description: An email delivery channel.
+                      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                       properties:
-                        address:
-                          type: string
-                          x-struct:
-                          x-validate:
                         anti_phishing_code:
                           description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                           type: string
@@ -2598,13 +2478,6 @@ paths:
                           type: string
                           x-struct:
                           x-validate:
-                        verified_at:
-                          description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                          format: date-time
-                          nullable: true
-                          type: string
-                          x-struct:
-                          x-validate:
                         workspace_id:
                           format: uuid
                           type: string
@@ -2614,10 +2487,8 @@ paths:
                         - id
                         - workspace_id
                         - name
-                        - address
                         - settings
                         - anti_phishing_code
-                        - verified_at
                         - last_test_dispatched_at
                         - inserted_at
                         - updated_at
@@ -2663,7 +2534,7 @@ paths:
         - Email Channels
     post:
       callbacks: {}
-      description: Create a new email channel for the specified workspace. The channel is created in an unverified state and a verification email is sent to the address.
+      description: Create a new email channel for the specified workspace. Recipients are managed on a sibling resource and carry their own per-address verification.
       operationId: HolterWeb.Api.EmailChannelController.create
       parameters:
         - description: Workspace slug
@@ -2681,12 +2552,6 @@ paths:
               additionalProperties: false
               description: Parameters for creating an email channel.
               properties:
-                address:
-                  maxLength: 2048
-                  minLength: 1
-                  type: string
-                  x-struct:
-                  x-validate:
                 name:
                   maxLength: 255
                   minLength: 1
@@ -2701,7 +2566,6 @@ paths:
                   x-validate:
               required:
                 - name
-                - address
               title: EmailChannelCreateRequest
               type: object
               x-struct:
@@ -2717,12 +2581,8 @@ paths:
                 properties:
                   data:
                     additionalProperties: false
-                    description: An email delivery channel.
+                    description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
                     properties:
-                      address:
-                        type: string
-                        x-struct:
-                        x-validate:
                       anti_phishing_code:
                         description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
                         type: string
@@ -2759,13 +2619,6 @@ paths:
                         type: string
                         x-struct:
                         x-validate:
-                      verified_at:
-                        description: Timestamp the address was verified. `null` while pending — alerts to the primary address are blocked until this is set.
-                        format: date-time
-                        nullable: true
-                        type: string
-                        x-struct:
-                        x-validate:
                       workspace_id:
                         format: uuid
                         type: string
@@ -2775,10 +2628,8 @@ paths:
                       - id
                       - workspace_id
                       - name
-                      - address
                       - settings
                       - anti_phishing_code
-                      - verified_at
                       - last_test_dispatched_at
                       - inserted_at
                       - updated_at

@@ -82,14 +82,10 @@ defmodule Holter.Delivery.Engine do
       else: {:error, :test_dispatch_rate_limited}
   end
 
-  defp validate_email_test_dispatch(%EmailChannel{} = channel) do
-    if has_any_verified_address?(channel),
-      do: :ok,
-      else: {:error, :no_verified_recipients}
-  end
-
-  defp has_any_verified_address?(%EmailChannel{} = channel) do
-    EmailChannel.verified?(channel) or
-      EmailChannels.list_verified_emails(channel.id) != []
+  defp validate_email_test_dispatch(%EmailChannel{id: id}) do
+    case EmailChannels.list_verified_emails(id) do
+      [] -> {:error, :no_verified_recipients}
+      _ -> :ok
+    end
   end
 end

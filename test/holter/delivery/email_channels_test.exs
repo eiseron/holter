@@ -5,24 +5,17 @@ defmodule Holter.Delivery.EmailChannelsTest do
   import Swoosh.TestAssertions
 
   alias Holter.Delivery.EmailChannel
+  alias Holter.Delivery.EmailChannelRecipient
   alias Holter.Delivery.EmailChannels
+  alias Holter.Repo
 
   describe "create/1" do
-    test "stores name, workspace_id and address from the attrs" do
+    test "stores name and workspace_id from the attrs" do
       ws = workspace_fixture()
       ws_id = ws.id
 
-      assert {:ok,
-              %EmailChannel{
-                workspace_id: ^ws_id,
-                name: "Ops Email",
-                address: "ops@example.com"
-              }} =
-               EmailChannels.create(%{
-                 workspace_id: ws.id,
-                 name: "Ops Email",
-                 address: "ops@example.com"
-               })
+      assert {:ok, %EmailChannel{workspace_id: ^ws_id, name: "Ops Email"}} =
+               EmailChannels.create(%{workspace_id: ws.id, name: "Ops Email"})
     end
 
     test "auto-generates an anti-phishing code" do
@@ -30,42 +23,10 @@ defmodule Holter.Delivery.EmailChannelsTest do
       assert is_binary(channel.anti_phishing_code)
     end
 
-    test "starts unverified" do
-      {:ok, channel} = create_channel()
-      assert is_nil(channel.verified_at)
-    end
-
-    test "rejects an invalid email address with a semantic error message" do
+    test "rejects a blank name with a semantic error message" do
       ws = workspace_fixture()
-
-      {:error, cs} =
-        EmailChannels.create(%{workspace_id: ws.id, name: "Bad", address: "not-an-email"})
-
-      assert "must be a valid email address" in errors_on(cs).address
-    end
-
-    test "inherits verified_at from a sibling already verified in the same workspace" do
-      ws = workspace_fixture()
-
-      {:ok, first} =
-        EmailChannels.create(%{
-          workspace_id: ws.id,
-          name: "First",
-          address: "ops@example.com"
-        })
-
-      {:ok, _} = EmailChannels.send_verification(first)
-      first = EmailChannels.get!(first.id)
-      {:ok, _} = EmailChannels.verify(first.verification_token)
-
-      {:ok, sibling} =
-        EmailChannels.create(%{
-          workspace_id: ws.id,
-          name: "Second",
-          address: "ops@example.com"
-        })
-
-      refute is_nil(sibling.verified_at)
+      {:error, cs} = EmailChannels.create(%{workspace_id: ws.id})
+      assert "can't be blank" in errors_on(cs).name
     end
   end
 
@@ -74,120 +35,11 @@ defmodule Holter.Delivery.EmailChannelsTest do
       ws = workspace_fixture()
       other = workspace_fixture()
 
-      {:ok, alpha} =
-        EmailChannels.create(%{workspace_id: ws.id, name: "Alpha", address: "a@example.com"})
-
-      {:ok, _bravo_other_ws} =
-        EmailChannels.create(%{workspace_id: other.id, name: "Bravo", address: "b@example.com"})
-
-      {:ok, charlie} =
-        EmailChannels.create(%{workspace_id: ws.id, name: "Charlie", address: "c@example.com"})
+      {:ok, alpha} = EmailChannels.create(%{workspace_id: ws.id, name: "Alpha"})
+      {:ok, _bravo_other_ws} = EmailChannels.create(%{workspace_id: other.id, name: "Bravo"})
+      {:ok, charlie} = EmailChannels.create(%{workspace_id: ws.id, name: "Charlie"})
 
       assert Enum.map(EmailChannels.list(ws.id), & &1.id) == [alpha.id, charlie.id]
-    end
-  end
-
-  describe "send_verification/1" do
-    test "ships an email to the channel address" do
-      {:ok, channel} = create_channel()
-      {:ok, _} = EmailChannels.send_verification(channel)
-      assert_email_sent(to: channel.address)
-    end
-
-    test "stores a fresh verification token" do
-      {:ok, channel} = create_channel()
-      {:ok, updated} = EmailChannels.send_verification(channel)
-      assert is_binary(updated.verification_token)
-    end
-
-    test "stores an expiry on the verification token" do
-      {:ok, channel} = create_channel()
-      {:ok, updated} = EmailChannels.send_verification(channel)
-      assert is_struct(updated.verification_token_expires_at, DateTime)
-    end
-
-    test "is a no-op for an already-verified channel" do
-      {:ok, channel} = create_channel()
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      {:ok, verified} =
-        channel
-        |> Ecto.Changeset.change(verified_at: now)
-        |> Holter.Repo.update()
-
-      {:ok, ^verified} = EmailChannels.send_verification(verified)
-      refute_email_sent()
-    end
-  end
-
-  describe "verify/1" do
-    test "marks verified_at on the channel" do
-      {:ok, verified} = verify_freshly_created_channel()
-      refute is_nil(verified.verified_at)
-    end
-
-    test "clears the verification token" do
-      {:ok, verified} = verify_freshly_created_channel()
-      assert is_nil(verified.verification_token)
-    end
-
-    test "clears the verification token expiry" do
-      {:ok, verified} = verify_freshly_created_channel()
-      assert is_nil(verified.verification_token_expires_at)
-    end
-
-    test "propagates verification to same-address siblings in the workspace" do
-      ws = workspace_fixture()
-
-      {:ok, first} =
-        EmailChannels.create(%{workspace_id: ws.id, name: "First", address: "ops@example.com"})
-
-      {:ok, second} =
-        EmailChannels.create(%{workspace_id: ws.id, name: "Second", address: "ops@example.com"})
-
-      {:ok, _} = EmailChannels.send_verification(first)
-      first = EmailChannels.get!(first.id)
-      {:ok, _} = EmailChannels.verify(first.verification_token)
-
-      refute is_nil(EmailChannels.get!(second.id).verified_at)
-    end
-
-    test "does not bleed verification across workspaces" do
-      ws_a = workspace_fixture()
-      ws_b = workspace_fixture()
-
-      {:ok, a} =
-        EmailChannels.create(%{workspace_id: ws_a.id, name: "A", address: "ops@example.com"})
-
-      {:ok, b} =
-        EmailChannels.create(%{workspace_id: ws_b.id, name: "B", address: "ops@example.com"})
-
-      {:ok, _} = EmailChannels.send_verification(a)
-      a = EmailChannels.get!(a.id)
-      {:ok, _} = EmailChannels.verify(a.verification_token)
-
-      assert is_nil(EmailChannels.get!(b.id).verified_at)
-    end
-
-    test "returns :not_found for an unknown token" do
-      assert {:error, :not_found} = EmailChannels.verify("nope")
-    end
-
-    test "returns :expired for a stale token" do
-      {:ok, channel} = create_channel()
-      {:ok, _} = EmailChannels.send_verification(channel)
-      reloaded = EmailChannels.get!(channel.id)
-
-      stale =
-        DateTime.utc_now()
-        |> DateTime.add(-1, :hour)
-        |> DateTime.truncate(:second)
-
-      reloaded
-      |> Ecto.Changeset.change(verification_token_expires_at: stale)
-      |> Holter.Repo.update!()
-
-      assert {:error, :expired} = EmailChannels.verify(reloaded.verification_token)
     end
   end
 
@@ -217,21 +69,129 @@ defmodule Holter.Delivery.EmailChannelsTest do
     end
   end
 
+  describe "apply_staged_changes/2" do
+    test "updates channel attrs, inserts pending additions, deletes removed ids in one shot" do
+      {:ok, channel} = create_channel()
+      {:ok, _kept} = EmailChannels.add_recipient(channel.id, "kept@example.com")
+      {:ok, doomed} = EmailChannels.add_recipient(channel.id, "doomed@example.com")
+
+      {:ok, %{channel: updated_channel, added: [added]}} =
+        EmailChannels.apply_staged_changes(channel, %{
+          attrs: %{"name" => "Renamed"},
+          additions: ["new@example.com"],
+          removed_ids: [doomed.id]
+        })
+
+      remaining =
+        channel.id |> EmailChannels.list_recipients() |> Enum.map(& &1.email) |> Enum.sort()
+
+      assert {updated_channel.name, added.email, remaining} ==
+               {"Renamed", "new@example.com", ["kept@example.com", "new@example.com"]}
+    end
+
+    test "rolls back recipient inserts and deletes when the channel update is invalid" do
+      {:ok, channel} = create_channel()
+      {:ok, doomed} = EmailChannels.add_recipient(channel.id, "doomed@example.com")
+
+      result =
+        EmailChannels.apply_staged_changes(channel, %{
+          attrs: %{"name" => String.duplicate("x", 256)},
+          additions: ["new@example.com"],
+          removed_ids: [doomed.id]
+        })
+
+      remaining_emails = Enum.map(EmailChannels.list_recipients(channel.id), & &1.email)
+
+      assert {match?({:error, %Ecto.Changeset{}}, result), remaining_emails} ==
+               {true, ["doomed@example.com"]}
+    end
+
+    test "rolls back the whole transaction when one addition fails validation" do
+      {:ok, channel} = create_channel()
+      original_name = channel.name
+
+      result =
+        EmailChannels.apply_staged_changes(channel, %{
+          attrs: %{"name" => "Renamed"},
+          additions: ["good@example.com", "not-an-email"],
+          removed_ids: []
+        })
+
+      reloaded = EmailChannels.get!(channel.id)
+      recipients = EmailChannels.list_recipients(channel.id)
+
+      assert {match?({:error, %Ecto.Changeset{}}, result), reloaded.name, recipients} ==
+               {true, original_name, []}
+    end
+
+    test "ignores removed_ids that belong to a different channel" do
+      {:ok, channel} = create_channel()
+      {:ok, other_channel} = create_channel()
+      {:ok, foreign} = EmailChannels.add_recipient(other_channel.id, "foreign@example.com")
+
+      result =
+        EmailChannels.apply_staged_changes(channel, %{
+          attrs: %{"name" => channel.name},
+          additions: [],
+          removed_ids: [foreign.id]
+        })
+
+      assert {match?({:ok, _}, result), Repo.get(EmailChannelRecipient, foreign.id) != nil} ==
+               {true, true}
+    end
+
+    test "with empty additions and removals, just updates the channel" do
+      {:ok, channel} = create_channel()
+
+      assert {:ok, %{channel: %EmailChannel{name: "Renamed"}, added: []}} =
+               EmailChannels.apply_staged_changes(channel, %{
+                 attrs: %{"name" => "Renamed"},
+                 additions: [],
+                 removed_ids: []
+               })
+    end
+  end
+
+  describe "resend_recipient_verification/1" do
+    test "rotates the verification token for an unverified recipient" do
+      {:ok, channel} = create_channel()
+      {:ok, original} = EmailChannels.add_recipient(channel.id, "alice@example.com")
+
+      {:ok, refreshed} = EmailChannels.resend_recipient_verification(original.id)
+
+      assert refreshed.token != original.token
+    end
+
+    test "dispatches a verification email to the recipient address" do
+      {:ok, channel} = create_channel()
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "alice@example.com")
+
+      {:ok, _} = EmailChannels.resend_recipient_verification(recipient.id)
+
+      assert_email_sent(to: "alice@example.com")
+    end
+
+    test "returns :already_verified when the recipient has already confirmed" do
+      {:ok, channel} = create_channel()
+      {:ok, recipient} = EmailChannels.add_recipient(channel.id, "alice@example.com")
+      {:ok, _} = EmailChannels.verify_recipient(recipient.token)
+
+      assert {:error, :already_verified} =
+               EmailChannels.resend_recipient_verification(recipient.id)
+    end
+
+    test "returns :not_found for an unknown recipient id" do
+      assert {:error, :not_found} =
+               EmailChannels.resend_recipient_verification(Ecto.UUID.generate())
+    end
+  end
+
   defp create_channel do
     ws = workspace_fixture()
 
     EmailChannels.create(%{
       workspace_id: ws.id,
-      name: "Ops",
-      address: "ops-#{System.unique_integer([:positive])}@example.com"
+      name: "Ops-#{System.unique_integer([:positive])}"
     })
-  end
-
-  defp verify_freshly_created_channel do
-    {:ok, channel} = create_channel()
-    {:ok, _} = EmailChannels.send_verification(channel)
-
-    EmailChannels.get!(channel.id).verification_token
-    |> EmailChannels.verify()
   end
 end
