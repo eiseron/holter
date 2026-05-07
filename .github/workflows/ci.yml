@@ -92,4 +92,10 @@ jobs:
           restore-keys: ${{ runner.os }}-build-test-
 
       - run: mix deps.get
+
+      - name: Bootstrap RLS roles
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d postgres -f priv/repo/postgres-init/01_rls_roles.sql
+
       - run: mix test.ci
