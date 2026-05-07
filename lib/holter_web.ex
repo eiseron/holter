@@ -96,6 +96,7 @@ defmodule HolterWeb do
 
       on_mount HolterWeb.ObservabilityHook
       on_mount HolterWeb.Hooks.MonitoringWorkspaceHook
+      use HolterWeb.LiveTenancy
 
       unquote(html_helpers())
 
@@ -122,6 +123,7 @@ defmodule HolterWeb do
         layout: {HolterWeb.Layouts, :workspace}
 
       on_mount HolterWeb.ObservabilityHook
+      use HolterWeb.LiveTenancy
 
       unquote(html_helpers())
     end
@@ -134,6 +136,7 @@ defmodule HolterWeb do
 
       on_mount HolterWeb.ObservabilityHook
       on_mount HolterWeb.Hooks.DeliveryWorkspaceHook
+      use HolterWeb.LiveTenancy
 
       unquote(html_helpers())
 
