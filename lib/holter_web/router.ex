@@ -5,6 +5,7 @@ defmodule HolterWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug HolterWeb.Plugs.SessionMetadataPlug
+    plug HolterWeb.Plugs.LocalePlug
     plug :fetch_live_flash
     plug :put_root_layout, html: {HolterWeb.Layouts, :root}
     plug :protect_from_forgery
@@ -15,6 +16,7 @@ defmodule HolterWeb.Router do
     plug :accepts, ["json"]
     plug :fetch_session
     plug HolterWeb.Plugs.SessionMetadataPlug
+    plug HolterWeb.Plugs.LocalePlug
     plug :protect_from_forgery
   end
 
@@ -75,7 +77,10 @@ defmodule HolterWeb.Router do
     pipe_through :browser
 
     live_session :guest_identity,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :redirect_if_authenticated}] do
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :redirect_if_authenticated},
+        HolterWeb.Hooks.LocaleHook
+      ] do
       live "/new", UserRegistrationLive, :new
       live "/login", UserLoginLive, :new
       live "/forgot-password", UserForgotPasswordLive, :new
@@ -86,7 +91,10 @@ defmodule HolterWeb.Router do
     delete "/logout", UserSessionController, :delete
 
     live_session :public_identity,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :assign_current_user}] do
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :assign_current_user},
+        HolterWeb.Hooks.LocaleHook
+      ] do
       live "/verify-email/:token", UserEmailVerificationLive, :verify
     end
   end
@@ -97,7 +105,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_delivery_workspace,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/channels", ChannelsLive, :index
       live "/channels/new", ChannelsLive.New, :new
@@ -110,7 +119,10 @@ defmodule HolterWeb.Router do
     pipe_through :browser
 
     live_session :public_delivery_verify,
-      on_mount: [{HolterWeb.Hooks.UserAuthHook, :assign_current_user}] do
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :assign_current_user},
+        HolterWeb.Hooks.LocaleHook
+      ] do
       live "/email-channels/recipients/verify/:token",
            EmailChannelRecipientLive.Verify,
            :verify
@@ -123,7 +135,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_webhook_channel,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_webhook_channel_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_webhook_channel_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/webhook-channels/:id", WebhookChannelLive.Show, :show
       live "/webhook-channels/:id/logs", WebhookChannelLive.Logs, :index
@@ -132,7 +145,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_email_channel,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_email_channel_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_email_channel_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/email-channels/:id", EmailChannelLive.Show, :show
       live "/email-channels/:id/logs", EmailChannelLive.Logs, :index
@@ -145,7 +159,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_monitoring_workspace,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/monitor/new", MonitorLive.New, :new
       live "/monitors", MonitorsLive, :index
@@ -158,7 +173,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_monitor,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_monitor_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_monitor_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/monitor/:id", MonitorLive.Show, :show
       live "/monitor/:id/logs", MonitorLive.Logs, :index
@@ -169,7 +185,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_incident,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_incident_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_incident_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/incidents/:incident_id", MonitorLive.IncidentDetail, :show
     end
@@ -177,7 +194,8 @@ defmodule HolterWeb.Router do
     live_session :authenticated_log,
       on_mount: [
         {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
-        {HolterWeb.Hooks.UserAuthHook, :require_log_member}
+        {HolterWeb.Hooks.UserAuthHook, :require_log_member},
+        HolterWeb.Hooks.LocaleHook
       ] do
       live "/logs/:log_id", MonitorLive.LogDetail, :show
     end

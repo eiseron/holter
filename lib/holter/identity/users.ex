@@ -7,6 +7,7 @@ defmodule Holter.Identity.Users do
   the clock and configuration reads.
   """
 
+  alias Holter.I18n.Locale
   alias Holter.Identity.EmailNormalizer
   alias Holter.Identity.Emails.RegistrationVerification
   alias Holter.Identity.Memberships
@@ -128,7 +129,10 @@ defmodule Holter.Identity.Users do
   end
 
   defp create_default_workspace(%User{id: user_id, email: email}) do
-    Monitoring.create_workspace(%{name: build_default_workspace_name(email, user_id)})
+    Monitoring.create_workspace(%{
+      name: build_default_workspace_name(email, user_id),
+      default_locale: Locale.default()
+    })
   end
 
   defp build_default_workspace_name(email, user_id) do

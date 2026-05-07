@@ -21,7 +21,8 @@ defmodule Holter.MonitoringFixtures do
         slug: "test-workspace-#{System.unique_integer([:positive])}",
         retention_days: 3,
         max_monitors: 3,
-        min_interval_seconds: 60
+        min_interval_seconds: 60,
+        default_locale: "en"
       })
 
     {:ok, workspace} = Holter.Monitoring.create_workspace(workspace_attrs)
