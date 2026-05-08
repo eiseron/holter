@@ -8,9 +8,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /usr/src/holter
 RUN groupadd -g 1000 holter && \
     useradd -m -u 1000 -g holter holter
-RUN mkdir -p /usr/src/holter && chown holter:holter /usr/src/holter
+RUN mkdir -p /usr/src/holter/_build /home/holter/.mix \
+    && chown -R holter:holter /usr/src/holter /home/holter
 ENV HOME=/home/holter
 ENV USER=holter
 USER holter
+RUN mix local.hex --force && mix local.rebar --force
 COPY .docker/entrypoint.sh .
 CMD ["tail", "-f", "/dev/null"]

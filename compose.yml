@@ -11,24 +11,27 @@ services:
       - 4000:4000
     volumes:
       - ./:/usr/src/holter
-      - .docker/home:/home/holter
-      - elixir_deps:/home/holter/.mix
+      - holter_home:/home/holter
       - elixir_build:/usr/src/holter/_build
-    command: mix phx.server
+    command: mix dev
     environment:
       HOME: /home/holter
       DB_NAME: holter_dev
-      DB_USER: postgres
-      DB_PASS: postgres
       DB_HOST: db
+      DB_USER: holter_admin_login
+      DB_PASS: holter_admin
       SENTRY_DSN: "http://public@sentry-mock:8080/1"
     depends_on:
-      - db
-      - sentry-mock
+      db:
+        condition: service_healthy
+      sentry-mock:
+        condition: service_started
+
   sentry-mock:
     image: jmalloc/echo-server
     ports:
       - "8000:8080"
+
   db:
     image: postgres:18
     environment:
@@ -38,8 +41,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
       - ./priv/repo/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d holter_dev"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
 
 volumes:
   postgres_data:
-  elixir_deps:
+  holter_home:
   elixir_build:

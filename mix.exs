@@ -99,6 +99,7 @@ defmodule Holter.MixProject do
         "phx.digest"
       ],
       "gen.api.docs": ["holter.gen_api_docs"],
+      dev: ["ecto.create --quiet", "ecto.migrate", "phx.server"],
       precommit: [
         "compile --warnings-as-errors",
         "deps.unlock --unused",
