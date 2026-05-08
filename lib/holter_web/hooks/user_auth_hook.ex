@@ -83,61 +83,69 @@ defmodule HolterWeb.Hooks.UserAuthHook do
   def on_mount(:require_incident_member, %{"incident_id" => incident_id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, incident} <- Monitoring.get_incident(incident_id),
-         {:ok, monitor} <- Monitoring.get_monitor(incident.monitor_id),
-         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
-      {:cont,
-       socket
-       |> assign(:current_workspace, workspace)
-       |> assign(:current_monitor, monitor)
-       |> assign(:current_incident, incident)}
-    else
-      _ -> {:halt, redirect(socket, to: ~p"/")}
-    end
+    Tenant.with_user!(user, fn ->
+      with {:ok, incident} <- Monitoring.get_incident(incident_id),
+           {:ok, monitor} <- Monitoring.get_monitor(incident.monitor_id),
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+        {:cont,
+         socket
+         |> assign(:current_workspace, workspace)
+         |> assign(:current_monitor, monitor)
+         |> assign(:current_incident, incident)}
+      else
+        _ -> {:halt, redirect(socket, to: ~p"/")}
+      end
+    end)
   end
 
   def on_mount(:require_log_member, %{"log_id" => log_id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, log} <- Monitoring.get_monitor_log(log_id),
-         {:ok, monitor} <- Monitoring.get_monitor(log.monitor_id),
-         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
-      {:cont,
-       socket
-       |> assign(:current_workspace, workspace)
-       |> assign(:current_monitor, monitor)
-       |> assign(:current_log, log)}
-    else
-      _ -> {:halt, redirect(socket, to: ~p"/")}
-    end
+    Tenant.with_user!(user, fn ->
+      with {:ok, log} <- Monitoring.get_monitor_log(log_id),
+           {:ok, monitor} <- Monitoring.get_monitor(log.monitor_id),
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+        {:cont,
+         socket
+         |> assign(:current_workspace, workspace)
+         |> assign(:current_monitor, monitor)
+         |> assign(:current_log, log)}
+      else
+        _ -> {:halt, redirect(socket, to: ~p"/")}
+      end
+    end)
   end
 
   def on_mount(:require_webhook_channel_member, %{"id" => id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, channel} <- WebhookChannels.get(id),
-         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
-      {:cont,
-       socket
-       |> assign(:current_workspace, workspace)
-       |> assign(:current_channel, channel)}
-    else
-      _ -> {:halt, redirect(socket, to: ~p"/")}
-    end
+    Tenant.with_user!(user, fn ->
+      with {:ok, channel} <- WebhookChannels.get(id),
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+        {:cont,
+         socket
+         |> assign(:current_workspace, workspace)
+         |> assign(:current_channel, channel)}
+      else
+        _ -> {:halt, redirect(socket, to: ~p"/")}
+      end
+    end)
   end
 
   def on_mount(:require_email_channel_member, %{"id" => id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, channel} <- EmailChannels.get(id),
-         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
-      {:cont,
-       socket
-       |> assign(:current_workspace, workspace)
-       |> assign(:current_channel, channel)}
-    else
-      _ -> {:halt, redirect(socket, to: ~p"/")}
-    end
+    Tenant.with_user!(user, fn ->
+      with {:ok, channel} <- EmailChannels.get(id),
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+        {:cont,
+         socket
+         |> assign(:current_workspace, workspace)
+         |> assign(:current_channel, channel)}
+      else
+        _ -> {:halt, redirect(socket, to: ~p"/")}
+      end
+    end)
   end
 
   def on_mount(:redirect_if_authenticated, _params, session, socket) do
