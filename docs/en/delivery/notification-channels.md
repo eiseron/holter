@@ -32,6 +32,15 @@ A notification channel is a destination where Holter sends alerts. Each channel 
 
 Click the channel name in the Channels list (`/delivery/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. You can update the name and target. The channel type cannot be changed after creation.
 
+## Notification language
+
+Each channel has its own **Notification language** field. It controls the language of the email subject/body that Holter sends through the channel (webhook payloads are machine-readable JSON; the language only affects future translatable fields).
+
+- Leave the field as **Inherit from workspace** (the default) to use the workspace's [default language](../settings/workspace.md). Notifications are then rendered in whatever language the workspace's owner configured.
+- Pick **Portuguese (Brazil)** or **English** to override that default for this one channel — useful when a single workspace has on-call rotations in different countries.
+
+The override is read at dispatch time (not when you save the channel), so flipping the workspace default later still affects every channel that has the field on Inherit.
+
 ## Delivery Logs
 
 Every notification dispatch attempt is recorded and visible from the channel settings page. Click **View Logs** to open the [Delivery Logs](channel-logs.md) list, which shows the outcome of each dispatch with filters by status and date range.

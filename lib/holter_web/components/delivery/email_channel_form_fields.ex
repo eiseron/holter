@@ -20,8 +20,28 @@ defmodule HolterWeb.Components.Delivery.EmailChannelFormFields do
           />
           <p class="h-help-text">{gettext("A label to identify this channel in your workspace.")}</p>
         </div>
+
+        <div>
+          <.input
+            field={@form[:locale]}
+            type="select"
+            label={gettext("Notification language")}
+            prompt={gettext("Inherit from workspace")}
+            options={locale_options()}
+          />
+          <p class="h-help-text">
+            {gettext("Language used in alert emails sent through this channel.")}
+          </p>
+        </div>
       </div>
     </div>
     """
+  end
+
+  defp locale_options do
+    [
+      {gettext("Portuguese (Brazil)"), "pt_BR"},
+      {gettext("English"), "en"}
+    ]
   end
 end

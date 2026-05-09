@@ -1753,6 +1753,8 @@ msgstr ""
 msgid "Draft"
 msgstr ""
 
+#: lib/holter_web/components/delivery/email_channel_form_fields.ex:44
+#: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:57
 #: lib/holter_web/web/identity/user_live/show.ex:19
 #: lib/holter_web/web/workspaces/show_live.ex:18
 #, elixir-autogen, elixir-format
@@ -1765,6 +1767,8 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+#: lib/holter_web/components/delivery/email_channel_form_fields.ex:43
+#: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:56
 #: lib/holter_web/web/identity/user_live/show.ex:18
 #: lib/holter_web/web/workspaces/show_live.ex:17
 #, elixir-autogen, elixir-format
@@ -1846,4 +1850,102 @@ msgstr ""
 #: lib/holter_web/web/identity/user_live/show.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "Override the language Holter uses for your account. Leave blank to fall through to each workspace's default."
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:46
+#, elixir-autogen, elixir-format
+msgid "Alert: %{url} is down"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:34
+#, elixir-autogen, elixir-format
+msgid "Do not forward this email to anyone you do not trust — the verification code above is a shared secret that lets the recipient impersonate Holter."
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:68
+#, elixir-autogen, elixir-format
+msgid "Event: %{event}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:30
+#, elixir-autogen, elixir-format
+msgid "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code."
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:78
+#, elixir-autogen, elixir-format
+msgid "Incident type: %{type}"
+msgstr ""
+
+#: lib/holter_web/components/delivery/email_channel_form_fields.ex:29
+#: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:42
+#, elixir-autogen, elixir-format
+msgid "Inherit from workspace"
+msgstr ""
+
+#: lib/holter_web/components/delivery/email_channel_form_fields.ex:33
+#, elixir-autogen, elixir-format
+msgid "Language used in alert emails sent through this channel."
+msgstr ""
+
+#: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:46
+#, elixir-autogen, elixir-format
+msgid "Language used in alert payloads sent through this channel."
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:69
+#, elixir-autogen, elixir-format
+msgid "Monitor: %{url}"
+msgstr ""
+
+#: lib/holter_web/components/delivery/email_channel_form_fields.ex:28
+#: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:41
+#, elixir-autogen, elixir-format
+msgid "Notification language"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:50
+#, elixir-autogen, elixir-format
+msgid "Resolved: %{url} is back up"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:80
+#, elixir-autogen, elixir-format
+msgid "Root cause: %{cause}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:79
+#, elixir-autogen, elixir-format
+msgid "Started at: %{started_at}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:70
+#, elixir-autogen, elixir-format
+msgid "Status: %{status}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:42
+#, elixir-autogen, elixir-format
+msgid "Test notification from %{name}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:58
+#, elixir-autogen, elixir-format
+msgid "This is a test notification from channel: %{name}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:60
+#: lib/holter/delivery/engine/channel_formatter.ex:71
+#, elixir-autogen, elixir-format
+msgid "Timestamp: %{timestamp}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:28
+#, elixir-autogen, elixir-format
+msgid "Verification code: %{code}"
+msgstr ""
+
+#: lib/holter/delivery/engine/channel_formatter.ex:80
+#, elixir-autogen, elixir-format
+msgid "unknown"
 msgstr ""

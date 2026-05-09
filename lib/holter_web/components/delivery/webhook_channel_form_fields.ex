@@ -33,8 +33,28 @@ defmodule HolterWeb.Components.Delivery.WebhookChannelFormFields do
             {gettext("The URL that will receive HTTP POST requests with alert payloads.")}
           </p>
         </div>
+
+        <div>
+          <.input
+            field={@form[:locale]}
+            type="select"
+            label={gettext("Notification language")}
+            prompt={gettext("Inherit from workspace")}
+            options={locale_options()}
+          />
+          <p class="h-help-text">
+            {gettext("Language used in alert payloads sent through this channel.")}
+          </p>
+        </div>
       </div>
     </div>
     """
+  end
+
+  defp locale_options do
+    [
+      {gettext("Portuguese (Brazil)"), "pt_BR"},
+      {gettext("English"), "en"}
+    ]
   end
 end

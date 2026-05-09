@@ -5,6 +5,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
 
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Delivery.{HttpClient, WebhookChannel, WebhookChannels, WebhookSignature}
+  alias Holter.I18n.Locale
   alias Holter.Monitoring
 
   @impl Oban.Worker
@@ -20,6 +21,8 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
     monitor = Monitoring.get_monitor!(monitor_id)
     incident = Monitoring.get_incident!(incident_id)
     now = DateTime.utc_now()
+
+    apply_channel_locale(channel)
 
     payload =
       PayloadBuilder.build_incident_payload(monitor, incident, %{
@@ -38,6 +41,8 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
     channel = WebhookChannels.get!(channel_id)
     now = DateTime.utc_now()
 
+    apply_channel_locale(channel)
+
     payload = PayloadBuilder.build_test_payload(channel, :webhook, now)
     {body, headers} = ChannelFormatter.format_payload(payload, :webhook)
     headers = sign_headers(headers, %{body: body, channel: channel, now: now})
@@ -47,6 +52,17 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
       {:ok, %{status: status}} -> {:error, "webhook returned status #{status}"}
       {:error, reason} -> {:error, reason}
     end
+  end
+
+  defp apply_channel_locale(%WebhookChannel{} = channel) do
+    locale =
+      channel.locale ||
+        case Monitoring.get_workspace(channel.workspace_id) do
+          {:ok, workspace} -> workspace.default_locale
+          _ -> nil
+        end || Locale.default()
+
+    Gettext.put_locale(HolterWeb.Gettext, locale)
   end
 
   defp sign_headers(headers, %{

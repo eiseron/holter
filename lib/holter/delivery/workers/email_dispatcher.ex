@@ -5,8 +5,9 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   import Swoosh.Email
 
-  alias Holter.Delivery.EmailChannels
+  alias Holter.Delivery.{EmailChannel, EmailChannels}
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
+  alias Holter.I18n.Locale
   alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring
 
@@ -24,6 +25,8 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     incident = Monitoring.get_incident!(incident_id)
     now = DateTime.utc_now()
 
+    apply_channel_locale(channel)
+
     payload =
       PayloadBuilder.build_incident_payload(monitor, incident, %{
         event: String.to_existing_atom(event),
@@ -40,11 +43,24 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     channel = EmailChannels.get!(channel_id)
     now = DateTime.utc_now()
 
+    apply_channel_locale(channel)
+
     payload = PayloadBuilder.build_test_payload(channel, :email, now)
     {subject, body} = ChannelFormatter.format_payload(payload, :email)
     body = ChannelFormatter.append_anti_phishing_footer(body, channel)
 
     deliver(channel, subject, body)
+  end
+
+  defp apply_channel_locale(%EmailChannel{} = channel) do
+    locale =
+      channel.locale ||
+        case Monitoring.get_workspace(channel.workspace_id) do
+          {:ok, workspace} -> workspace.default_locale
+          _ -> nil
+        end || Locale.default()
+
+    Gettext.put_locale(HolterWeb.Gettext, locale)
   end
 
   defp deliver(channel, subject, body) do

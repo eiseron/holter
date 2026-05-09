@@ -1,6 +1,8 @@
 defmodule Holter.Delivery.Engine.ChannelFormatter do
   @moduledoc false
 
+  use Gettext, backend: HolterWeb.Gettext
+
   alias Holter.Delivery.EmailChannel
 
   def format_payload(payload, :webhook) do
@@ -22,23 +24,30 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
   def append_anti_phishing_footer(body, %EmailChannel{anti_phishing_code: code})
       when is_binary(code) do
     body <>
-      "\n\nVerification code: #{code}\n" <>
-      "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code.\n" <>
-      "Do not forward this email to anyone you do not trust — the verification code above is a shared secret that lets the recipient impersonate Holter."
+      "\n\n" <>
+      gettext("Verification code: %{code}", code: code) <>
+      "\n" <>
+      gettext(
+        "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code."
+      ) <>
+      "\n" <>
+      gettext(
+        "Do not forward this email to anyone you do not trust — the verification code above is a shared secret that lets the recipient impersonate Holter."
+      )
   end
 
   def append_anti_phishing_footer(body, _), do: body
 
   defp build_email_subject(%{event: "test_ping", channel: %{name: name}}) do
-    "Test notification from #{name}"
+    gettext("Test notification from %{name}", name: name)
   end
 
   defp build_email_subject(%{event: "monitor_down", monitor: %{url: url}}) do
-    "Alert: #{url} is down"
+    gettext("Alert: %{url} is down", url: url)
   end
 
   defp build_email_subject(%{event: "monitor_up", monitor: %{url: url}}) do
-    "Resolved: #{url} is back up"
+    gettext("Resolved: %{url} is back up", url: url)
   end
 
   defp build_email_subject(%{event: event, monitor: %{url: url}}) do
@@ -46,7 +55,9 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
   end
 
   defp build_email_body(%{event: "test_ping", channel: %{name: name}} = payload) do
-    "This is a test notification from channel: #{name}\nTimestamp: #{payload.timestamp}"
+    gettext("This is a test notification from channel: %{name}", name: name) <>
+      "\n" <>
+      gettext("Timestamp: %{timestamp}", timestamp: payload.timestamp)
   end
 
   defp build_email_body(payload) do
@@ -54,19 +65,19 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
     incident = payload[:incident]
 
     lines = [
-      "Event: #{payload.event}",
-      "Monitor: #{monitor.url}",
-      "Status: #{monitor.health_status}",
-      "Timestamp: #{payload.timestamp}"
+      gettext("Event: %{event}", event: payload.event),
+      gettext("Monitor: %{url}", url: monitor.url),
+      gettext("Status: %{status}", status: monitor.health_status),
+      gettext("Timestamp: %{timestamp}", timestamp: payload.timestamp)
     ]
 
     lines =
       if incident do
         lines ++
           [
-            "Incident type: #{incident.type}",
-            "Started at: #{incident.started_at}",
-            "Root cause: #{incident.root_cause || "unknown"}"
+            gettext("Incident type: %{type}", type: incident.type),
+            gettext("Started at: %{started_at}", started_at: incident.started_at),
+            gettext("Root cause: %{cause}", cause: incident.root_cause || gettext("unknown"))
           ]
       else
         lines

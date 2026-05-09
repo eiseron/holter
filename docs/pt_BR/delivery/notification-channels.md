@@ -30,7 +30,16 @@ Um canal de notificação é um destino para onde o Holter envia alertas. Cada c
 
 ## Editando um Canal
 
-Clique no nome do canal na lista de Canais (`/delivery/workspaces/{workspace_slug}/channels`) para abrir sua página de configurações em `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
+Clique no nome do canal na lista de Canais (`/delivery/workspaces/{workspace_slug}/channels`) to open its settings page at `/delivery/notification-channels/{id}`. Você pode atualizar o nome e o destino. O tipo do canal não pode ser alterado após a criação.
+
+## Idioma das notificações
+
+Cada canal tem seu próprio campo **Idioma das notificações**. Ele controla o idioma do assunto/corpo do e-mail que o Holter envia pelo canal (payloads de webhook são JSON; o idioma só afetará campos traduzíveis futuros).
+
+- Deixe em **Herdar do workspace** (o padrão) para usar o [idioma padrão do workspace](../settings/workspace.md). As notificações são renderizadas no idioma que o owner configurou.
+- Escolha **Português (Brasil)** ou **Inglês** para sobrescrever o padrão neste canal específico — útil quando um único workspace tem rotações de plantão em países diferentes.
+
+A sobrescrita é lida no momento do dispatch (não no salvamento do canal), então mudar o idioma padrão do workspace depois ainda afeta cada canal cujo campo está em Herdar.
 
 ## Logs de Entrega
 

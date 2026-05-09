@@ -10,11 +10,18 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
   defp from_address, do: Application.fetch_env!(:holter, :email)[:from_address]
 
   defp email_channel_fixture(workspace_id, opts \\ []) do
-    {:ok, channel} =
-      EmailChannels.create(%{
-        workspace_id: workspace_id,
-        name: Keyword.get(opts, :name, "Ops Email")
-      })
+    attrs = %{
+      workspace_id: workspace_id,
+      name: Keyword.get(opts, :name, "Ops Email")
+    }
+
+    attrs =
+      case Keyword.get(opts, :locale) do
+        nil -> attrs
+        locale -> Map.put(attrs, :locale, locale)
+      end
+
+    {:ok, channel} = EmailChannels.create(attrs)
 
     channel
   end
@@ -172,6 +179,65 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
                })
 
       assert_no_email_sent()
+    end
+  end
+
+  describe "perform/1 — locale resolution" do
+    setup do
+      on_exit(fn -> Gettext.put_locale(HolterWeb.Gettext, "en") end)
+      :ok
+    end
+
+    test "subject is rendered in the workspace's default language when channel locale is nil" do
+      ws = workspace_fixture(%{default_locale: "pt_BR"})
+      monitor = monitor_fixture(workspace_id: ws.id, url: "https://exemplo.com.br")
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id)
+      :ok = add_verified_recipient(channel, "ops@example.com")
+
+      perform_job(EmailDispatcher, %{
+        "email_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      assert_email_sent(subject: "Alerta: https://exemplo.com.br está fora do ar")
+    end
+
+    test "channel.locale overrides the workspace default at dispatch time" do
+      ws = workspace_fixture(%{default_locale: "en"})
+      monitor = monitor_fixture(workspace_id: ws.id, url: "https://exemplo.com.br")
+      incident = incident_fixture(monitor_id: monitor.id)
+      channel = email_channel_fixture(ws.id, locale: "pt_BR")
+      :ok = add_verified_recipient(channel, "ops@example.com")
+
+      perform_job(EmailDispatcher, %{
+        "email_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
+        "monitor_id" => monitor.id,
+        "incident_id" => incident.id,
+        "event" => "down"
+      })
+
+      assert_email_sent(subject: "Alerta: https://exemplo.com.br está fora do ar")
+    end
+
+    test "non-ASCII characters in pt_BR subject survive Swoosh delivery" do
+      ws = workspace_fixture(%{default_locale: "pt_BR"})
+      channel = email_channel_fixture(ws.id, locale: "pt_BR")
+      :ok = add_verified_recipient(channel, "ops@example.com")
+
+      perform_job(EmailDispatcher, %{
+        "email_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
+        "test" => true
+      })
+
+      assert_email_sent(fn email ->
+        assert email.subject =~ "Notificação de teste"
+      end)
     end
   end
 end
