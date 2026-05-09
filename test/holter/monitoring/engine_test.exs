@@ -199,25 +199,25 @@ defmodule Holter.Monitoring.EngineTest do
       {:ok, monitor_down} =
         Engine.process_response(monitor, error_response(500, "Error 1"), %{duration_ms: 100})
 
+      [log1] = Monitoring.list_monitor_logs(monitor, %{}).logs
+
       {:ok, _} =
         Engine.process_response(monitor_down, error_response(500, "Error 2"), %{duration_ms: 100})
 
-      logs =
-        Monitoring.list_monitor_logs(monitor, %{}).logs
-        |> Enum.sort_by(&{&1.checked_at, &1.inserted_at, &1.id})
+      [log2] = Monitoring.list_monitor_logs(monitor, %{}).logs -- [log1]
 
-      %{logs: logs}
+      %{log1: log1, log2: log2}
     end
 
-    test "stores evidence for the first transition log", %{logs: [log1, _log2]} do
+    test "stores evidence for the first transition log", %{log1: log1} do
       assert log1.response_snippet == "Error 1"
     end
 
-    test "omits snippet for the second identical check", %{logs: [_log1, log2]} do
+    test "omits snippet for the second identical check", %{log2: log2} do
       assert is_nil(log2.response_snippet)
     end
 
-    test "omits headers for the second identical check", %{logs: [_log1, log2]} do
+    test "omits headers for the second identical check", %{log2: log2} do
       assert is_nil(log2.response_headers)
     end
   end
