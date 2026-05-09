@@ -1,8 +1,10 @@
 defmodule Holter.Identity.MembershipsTest do
   use Holter.DataCase, async: true
 
+  alias Holter.Identity.ApiToken
   alias Holter.Identity.Memberships
   alias Holter.Identity.WorkspaceMembership
+  alias Holter.Repo.Tenant
 
   describe "create_default_membership/2" do
     test "assigns the :owner role" do
@@ -59,6 +61,37 @@ defmodule Holter.Identity.MembershipsTest do
     end
   end
 
+  describe "owner?/2" do
+    test "is true when the user holds the :owner role on the workspace" do
+      user = user_fixture()
+      workspace = workspace_fixture(owner: user)
+
+      assert Memberships.owner?(user, workspace)
+    end
+
+    test "is false for a member with a non-owner role" do
+      owner = user_fixture()
+      member = user_fixture()
+      workspace = workspace_fixture(owner: owner)
+      {:ok, membership} = Memberships.create_default_membership(member, workspace)
+
+      Tenant.with_user!(member, fn ->
+        membership
+        |> Ecto.Changeset.change(role: :member)
+        |> Repo.update!()
+      end)
+
+      refute Memberships.owner?(member, workspace)
+    end
+
+    test "is false for a non-member" do
+      outsider = user_fixture()
+      workspace = workspace_fixture()
+
+      refute Memberships.owner?(outsider, workspace)
+    end
+  end
+
   describe "list_workspaces_for_user/1" do
     test "returns nothing when the user owns no workspace" do
       assert Memberships.list_workspaces_for_user(user_fixture()) == []
@@ -103,6 +136,25 @@ defmodule Holter.Identity.MembershipsTest do
       Repo.delete!(workspace)
 
       refute Repo.get(WorkspaceMembership, membership.id)
+    end
+
+    test "revokes the user's api tokens when their membership is deleted (DB trigger)" do
+      user = user_fixture()
+      workspace = workspace_fixture(owner: user)
+      {token, _plaintext} = api_token_fixture(user, workspace)
+
+      [membership] =
+        Tenant.with_user!(user, fn ->
+          Repo.all(WorkspaceMembership)
+          |> Enum.filter(&(&1.user_id == user.id and &1.workspace_id == workspace.id))
+        end)
+
+      Tenant.with_user!(user, fn -> Repo.delete!(membership) end)
+
+      reloaded =
+        Tenant.with_workspace!(workspace.id, fn -> Repo.get!(ApiToken, token.id) end)
+
+      assert %DateTime{} = reloaded.revoked_at
     end
   end
 

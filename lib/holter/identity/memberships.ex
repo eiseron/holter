@@ -52,6 +52,17 @@ defmodule Holter.Identity.Memberships do
     end)
   end
 
+  def owner?(%{id: user_id} = user, %{id: workspace_id}) do
+    Tenant.with_user!(user, fn ->
+      Repo.exists?(
+        from m in WorkspaceMembership,
+          where:
+            m.user_id == ^user_id and m.workspace_id == ^workspace_id and
+              m.role == :owner
+      )
+    end)
+  end
+
   def get_membership(%{id: user_id} = user, %{id: workspace_id}) do
     Tenant.with_user!(user, fn ->
       Repo.one(

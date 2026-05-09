@@ -4,8 +4,11 @@ defmodule Holter.IdentityFixtures do
   """
 
   alias Holter.Identity
+  alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Scopes
   alias Holter.Identity.Tokens
   alias Holter.Identity.User
+  alias Holter.Monitoring.Workspace
   alias Holter.MonitoringFixtures
   alias Holter.Repo
 
@@ -56,5 +59,16 @@ defmodule Holter.IdentityFixtures do
   def session_token_fixture(%User{} = user) do
     {:ok, _token, plaintext} = Tokens.create_session_token(user)
     plaintext
+  end
+
+  def api_token_fixture(%User{} = user, %Workspace{} = workspace, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        name: "Test token #{System.unique_integer([:positive])}",
+        scopes: Scopes.all()
+      })
+
+    {:ok, token, plaintext} = ApiTokens.create_token(user, workspace, attrs)
+    {token, plaintext}
   end
 end
