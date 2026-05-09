@@ -20,6 +20,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherRLSTest do
 
   alias Holter.Delivery.{EmailChannels, Engine}
   alias Holter.Delivery.Workers.EmailDispatcher
+  alias Holter.Repo.Tenant
 
   @recipient_email "alice@example.com"
 
@@ -61,7 +62,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherRLSTest do
 
   test "Engine.dispatch_test_email enqueues the job with workspace_id in args",
        %{channel: channel, workspace: workspace} do
-    Engine.dispatch_test_email(channel.id)
+    Tenant.with_workspace!(workspace.id, fn -> Engine.dispatch_test_email(channel.id) end)
 
     assert_enqueued(
       worker: EmailDispatcher,
@@ -74,8 +75,9 @@ defmodule Holter.Delivery.Workers.EmailDispatcherRLSTest do
   end
 
   test "draining the queue under holter_app delivers the email to the recipient",
-       %{channel: channel} do
-    {:ok, _oban_job} = Engine.dispatch_test_email(channel.id)
+       %{channel: channel, workspace: workspace} do
+    {:ok, _oban_job} =
+      Tenant.with_workspace!(workspace.id, fn -> Engine.dispatch_test_email(channel.id) end)
 
     perform_job(
       EmailDispatcher,

@@ -11,21 +11,32 @@ defmodule HolterWeb.Web.Delivery.EmailChannelRecipientLive.VerifyTest do
     {:ok, channel} =
       EmailChannels.create(%{workspace_id: workspace.id, name: "Alerts"})
 
-    %{channel: channel}
+    %{workspace: workspace, channel: channel}
   end
 
   describe "Verify" do
-    test "shows verified status for a valid token", %{conn: conn, channel: channel} do
+    test "shows verified status for a valid token", %{
+      conn: conn,
+      workspace: workspace,
+      channel: channel
+    } do
       {:ok, recipient} = EmailChannels.add_recipient(channel.id, "alice@example.com")
 
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/email-channels/recipients/verify/#{recipient.token}"
+        )
 
       assert html =~ "Email verified"
       assert html =~ "Back to channel settings"
     end
 
-    test "shows expired status for an expired token", %{conn: conn, channel: channel} do
+    test "shows expired status for an expired token", %{
+      conn: conn,
+      workspace: workspace,
+      channel: channel
+    } do
       {:ok, recipient} = EmailChannels.add_recipient(channel.id, "bob@example.com")
 
       past =
@@ -37,14 +48,20 @@ defmodule HolterWeb.Web.Delivery.EmailChannelRecipientLive.VerifyTest do
       |> Holter.Repo.update!()
 
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/email-channels/recipients/verify/#{recipient.token}"
+        )
 
       assert html =~ "Link expired"
     end
 
-    test "shows not found status for an unknown token", %{conn: conn} do
+    test "shows not found status for an unknown token", %{conn: conn, workspace: workspace} do
       {:ok, _view, html} =
-        live(conn, ~p"/delivery/email-channels/recipients/verify/unknowntoken123")
+        live(
+          conn,
+          ~p"/delivery/workspaces/#{workspace.slug}/email-channels/recipients/verify/unknowntoken123"
+        )
 
       assert html =~ "Link not found"
     end

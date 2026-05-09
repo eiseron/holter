@@ -91,11 +91,15 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   defp persist_pending_recipients(channel, emails) do
+    workspace_slug = Holter.Monitoring.get_workspace!(channel.workspace_id).slug
+
     Enum.each(emails, fn email ->
       case EmailChannels.add_recipient(channel.id, email) do
         {:ok, recipient} ->
           verification_url =
-            url(~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+            url(
+              ~p"/delivery/workspaces/#{workspace_slug}/email-channels/recipients/verify/#{recipient.token}"
+            )
 
           RecipientVerification.build_verification_email(
             recipient,

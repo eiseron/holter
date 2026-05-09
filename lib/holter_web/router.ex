@@ -123,7 +123,7 @@ defmodule HolterWeb.Router do
         {HolterWeb.Hooks.UserAuthHook, :assign_current_user},
         HolterWeb.Hooks.LocaleHook
       ] do
-      live "/email-channels/recipients/verify/:token",
+      live "/workspaces/:workspace_slug/email-channels/recipients/verify/:token",
            EmailChannelRecipientLive.Verify,
            :verify
     end

@@ -64,7 +64,8 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
     case EmailChannels.apply_staged_changes(socket.assigns.channel, staged) do
       {:ok, %{channel: channel, added: added_recipients}} ->
         EmailChannels.sync_monitors_for(channel.id, monitor_ids)
-        Enum.each(added_recipients, &deliver_verification_email(&1, channel))
+        workspace_slug = socket.assigns.workspace.slug
+        Enum.each(added_recipients, &deliver_verification_email(&1, channel, workspace_slug))
 
         {:noreply,
          socket
@@ -226,9 +227,11 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
 
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  defp deliver_verification_email(recipient, channel) do
+  defp deliver_verification_email(recipient, channel, workspace_slug) do
     verification_url =
-      url(~p"/delivery/email-channels/recipients/verify/#{recipient.token}")
+      url(
+        ~p"/delivery/workspaces/#{workspace_slug}/email-channels/recipients/verify/#{recipient.token}"
+      )
 
     RecipientVerification.build_verification_email(
       recipient,
