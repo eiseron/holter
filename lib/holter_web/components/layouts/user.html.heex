@@ -1,0 +1,11 @@
+<div class="h-workspace-layout">
+  <HolterWeb.Components.UserSidebar.user_sidebar
+    current_user={@current_user}
+    memberships={assigns[:memberships] || []}
+    current_view={@socket.view}
+  />
+  <main class="h-workspace-main">
+    <.flash_group flash={@flash} />
+    {@inner_content}
+  </main>
+</div>

@@ -51,6 +51,22 @@ defmodule HolterWeb.Hooks.LocaleHookTest do
 
       assert :sys.get_state(lv.pid).socket.assigns.current_locale == "en"
     end
+
+    test "two workspaces with distinct default_locale render their own UI when the user has none",
+         %{conn: conn, current_user: user, current_workspace: workspace_a} do
+      {:ok, _ws} = Holter.Monitoring.update_workspace(workspace_a, %{default_locale: "pt_BR"})
+      workspace_b = Holter.MonitoringFixtures.workspace_fixture(owner: user, default_locale: "en")
+
+      {:ok, lv_a, html_a} = live(conn, "/monitoring/workspaces/#{workspace_a.slug}/monitors")
+      assert :sys.get_state(lv_a.pid).socket.assigns.current_locale == "pt_BR"
+      assert html_a =~ "Monitores"
+      refute html_a =~ ">Monitors<"
+
+      {:ok, lv_b, html_b} = live(conn, "/monitoring/workspaces/#{workspace_b.slug}/monitors")
+      assert :sys.get_state(lv_b.pid).socket.assigns.current_locale == "en"
+      assert html_b =~ ">Monitors<"
+      refute html_b =~ "Monitores"
+    end
   end
 
   describe "fallback tier" do

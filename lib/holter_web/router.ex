@@ -99,6 +99,32 @@ defmodule HolterWeb.Router do
     end
   end
 
+  scope "/identity", HolterWeb.Web.Identity do
+    pipe_through :browser
+
+    live_session :authenticated_user_settings,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_self_user},
+        HolterWeb.Hooks.LocaleHook
+      ] do
+      live "/user/:id", UserLive.Show, :show
+    end
+  end
+
+  scope "/workspaces/:workspace_slug", HolterWeb.Web.Workspaces do
+    pipe_through :browser
+
+    live_session :authenticated_workspace_settings,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_admin},
+        HolterWeb.Hooks.LocaleHook
+      ] do
+      live "/", ShowLive, :show
+    end
+  end
+
   scope "/delivery/workspaces/:workspace_slug", HolterWeb.Web.Delivery do
     pipe_through :browser
 

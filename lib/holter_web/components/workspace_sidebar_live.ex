@@ -18,7 +18,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
      |> assign(:monitor_count, monitor_count)
      |> assign(:channel_count, channel_count)
      |> assign(:current_user, assigns[:current_user])
-     |> assign(:current_locale, assigns[:current_locale])}
+     |> assign(:current_workspace_membership, assigns[:current_workspace_membership])}
   end
 
   @impl true
@@ -54,21 +54,38 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
             <span class="h-sidebar-badge">{@channel_count}</span>
           </.link>
         </li>
+        <li :if={admin?(@current_workspace_membership)}>
+          <.link
+            navigate={~p"/workspaces/#{@workspace.slug}"}
+            class={[
+              "h-sidebar-link",
+              active?(@current_view, workspace_settings_views()) && "h-sidebar-link--active"
+            ]}
+          >
+            <span class="h-sidebar-link-label">{gettext("Settings")}</span>
+          </.link>
+        </li>
       </ul>
 
       <div :if={@current_user} class="h-sidebar-footer">
-        <.live_component
-          module={HolterWeb.Components.LocaleSwitcher}
-          id="locale-switcher"
-          current_user={@current_user}
-          current_locale={@current_locale}
-        />
+        <.link
+          navigate={~p"/identity/user/#{@current_user.id}"}
+          class={[
+            "h-sidebar-link",
+            active?(@current_view, user_settings_views()) && "h-sidebar-link--active"
+          ]}
+        >
+          <span class="h-sidebar-link-label">{gettext("My account")}</span>
+        </.link>
       </div>
     </nav>
     """
   end
 
   defp active?(current_view, views), do: current_view in views
+
+  defp admin?(%{role: role}) when role in [:owner, :admin], do: true
+  defp admin?(_), do: false
 
   defp monitors_views do
     [
@@ -94,5 +111,13 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
       HolterWeb.Web.Delivery.EmailChannelLive.Show,
       HolterWeb.Web.Delivery.EmailChannelLive.Logs
     ]
+  end
+
+  defp workspace_settings_views do
+    [HolterWeb.Web.Workspaces.ShowLive]
+  end
+
+  defp user_settings_views do
+    [HolterWeb.Web.Identity.UserLive.Show]
   end
 end

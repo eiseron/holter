@@ -72,6 +72,50 @@ defmodule HolterWeb.Hooks.UserAuthHookTest do
     end
   end
 
+  describe ":require_workspace_admin" do
+    test "lets an :owner reach the workspace settings page", %{conn: conn} do
+      %{user: user, workspace: workspace} = verified_user_fixture()
+
+      assert {:ok, _lv, _html} =
+               conn
+               |> log_in_user(user)
+               |> live(~p"/workspaces/#{workspace.slug}")
+    end
+
+    test "redirects a :member to /", %{conn: conn} do
+      %{user: user, workspace: workspace} = verified_user_fixture()
+
+      [m] = Holter.Repo.all(Holter.Identity.WorkspaceMembership)
+      {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Holter.Repo.update()
+
+      assert {:error, {:redirect, %{to: "/"}}} =
+               conn
+               |> log_in_user(user)
+               |> live(~p"/workspaces/#{workspace.slug}")
+    end
+  end
+
+  describe ":require_self_user" do
+    test "lets a user reach their own settings page", %{conn: conn} do
+      %{user: user} = verified_user_fixture()
+
+      assert {:ok, _lv, _html} =
+               conn
+               |> log_in_user(user)
+               |> live(~p"/identity/user/#{user.id}")
+    end
+
+    test "redirects when opening another user's settings", %{conn: conn} do
+      %{user: user_a} = verified_user_fixture()
+      %{user: user_b} = verified_user_fixture()
+
+      assert {:error, {:redirect, %{to: "/"}}} =
+               conn
+               |> log_in_user(user_a)
+               |> live(~p"/identity/user/#{user_b.id}")
+    end
+  end
+
   describe ":redirect_if_authenticated" do
     test "passes through when no user is signed in", %{conn: conn} do
       assert {:ok, _lv, html} = live(conn, ~p"/identity/login")

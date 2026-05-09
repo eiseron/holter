@@ -1,0 +1,38 @@
+<.page_container>
+  <:title>{gettext("My account")}</:title>
+  <:subtitle>{@current_user.email}</:subtitle>
+
+  <.form
+    for={@form}
+    id="user-settings-form"
+    phx-submit="save"
+    class="h-form-sections"
+  >
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Preferences")}</h3>
+
+      <div class="h-form-grid">
+        <div>
+          <.input
+            field={@form[:preferred_locale]}
+            type="select"
+            label={gettext("Language")}
+            prompt={gettext("Use workspace default")}
+            options={__MODULE__.locale_options()}
+          />
+          <p class="h-help-text">
+            {gettext(
+              "Override the language Holter uses for your account. Leave blank to fall through to each workspace's default."
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-actions-row h-justify-end">
+      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
+        {gettext("Save")}
+      </.button>
+    </div>
+  </.form>
+</.page_container>

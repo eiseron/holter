@@ -15,6 +15,12 @@ defmodule HolterWeb.Hooks.UserAuthHook do
       and redirects to `/` on miss — same response whether the slug
       doesn't exist or the user isn't a member, so an attacker cannot
       probe slug existence.
+    * `:require_workspace_admin` — same shape as `:require_workspace_member`,
+      additionally requiring the membership role to be `:owner` or
+      `:admin`. Used by workspace settings pages.
+    * `:require_self_user` — UUID-routed (`:id` param). Halts unless the
+      param matches `socket.assigns.current_user.id`, preventing user A
+      from opening user B's settings page.
     * `:require_monitor_member` / `:require_incident_member` /
       `:require_log_member` / `:require_webhook_channel_member` /
       `:require_email_channel_member` — UUID-routed counterparts.
@@ -59,9 +65,36 @@ defmodule HolterWeb.Hooks.UserAuthHook do
     user = socket.assigns.current_user
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(slug),
-         true <- Identity.workspace_member?(user, workspace) do
-      {:cont, assign(socket, :current_workspace, workspace)}
+         membership when not is_nil(membership) <-
+           Identity.get_workspace_membership(user, workspace) do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_workspace_membership, membership)}
     else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_workspace_admin, %{"workspace_slug" => slug}, _session, socket) do
+    user = socket.assigns.current_user
+
+    with {:ok, workspace} <- Monitoring.get_workspace_by_slug(slug),
+         membership when not is_nil(membership) <-
+           Identity.get_workspace_membership(user, workspace),
+         true <- membership.role in [:owner, :admin] do
+      {:cont,
+       socket
+       |> assign(:current_workspace, workspace)
+       |> assign(:current_workspace_membership, membership)}
+    else
+      _ -> {:halt, redirect(socket, to: ~p"/")}
+    end
+  end
+
+  def on_mount(:require_self_user, %{"id" => id}, _session, socket) do
+    case socket.assigns.current_user do
+      %{id: ^id} -> {:cont, socket}
       _ -> {:halt, redirect(socket, to: ~p"/")}
     end
   end

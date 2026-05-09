@@ -5,9 +5,6 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
   alias Holter.Repo
 
   def create_default do
-    # `min_interval_seconds: 60` so seeded monitors with sub-600s intervals
-    # validate cleanly. Mirrors a paid-plan workspace, which is the realistic
-    # case reviewers should land on.
     attrs = %{
       name: "Development",
       slug: "dev",
@@ -21,6 +18,23 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
       |> Repo.insert!()
 
     IO.puts("[seeds] Created default workspace: dev")
+    workspace
+  end
+
+  def create_secondary do
+    attrs = %{
+      name: "Development (EN)",
+      slug: "dev-en",
+      min_interval_seconds: 60,
+      default_locale: "en"
+    }
+
+    workspace =
+      %Workspace{}
+      |> Workspace.changeset(attrs)
+      |> Repo.insert!()
+
+    IO.puts("[seeds] Created secondary workspace: dev-en")
     workspace
   end
 end

@@ -21,6 +21,9 @@ defmodule Holter.Identity do
   defdelegate delete_user_sessions(user_id), to: Tokens
 
   defdelegate list_workspaces_for_user(user), to: Memberships
+  defdelegate list_workspace_memberships_for_user(user), to: Memberships
   defdelegate workspace_member?(user, workspace), to: Memberships, as: :member?
+  defdelegate workspace_admin?(user, workspace), to: Memberships, as: :admin?
+  defdelegate get_workspace_membership(user, workspace), to: Memberships, as: :get_membership
   defdelegate fetch_workspace_for_member(user, workspace_id), to: Memberships
 end

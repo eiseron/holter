@@ -40,6 +40,27 @@ defmodule Holter.Identity.Memberships do
     end)
   end
 
+  def admin?(%{id: user_id} = user, %{id: workspace_id}) do
+    Tenant.with_user!(user, fn ->
+      Repo.exists?(
+        from m in WorkspaceMembership,
+          where:
+            m.user_id == ^user_id and
+              m.workspace_id == ^workspace_id and
+              m.role in [:owner, :admin]
+      )
+    end)
+  end
+
+  def get_membership(%{id: user_id} = user, %{id: workspace_id}) do
+    Tenant.with_user!(user, fn ->
+      Repo.one(
+        from m in WorkspaceMembership,
+          where: m.user_id == ^user_id and m.workspace_id == ^workspace_id
+      )
+    end)
+  end
+
   def fetch_workspace_for_member(user, workspace_id) when is_binary(workspace_id) do
     with {:ok, workspace} <- Monitoring.get_workspace(workspace_id),
          true <- member?(user, workspace) do
@@ -55,6 +76,19 @@ defmodule Holter.Identity.Memberships do
           on: m.workspace_id == w.id,
           where: m.user_id == ^user_id,
           order_by: [asc: m.inserted_at]
+      )
+    end)
+  end
+
+  def list_workspace_memberships_for_user(%{id: user_id} = user) do
+    Tenant.with_user!(user, fn ->
+      Repo.all(
+        from m in WorkspaceMembership,
+          join: w in Workspace,
+          on: m.workspace_id == w.id,
+          where: m.user_id == ^user_id,
+          order_by: [asc: m.inserted_at],
+          preload: [workspace: w]
       )
     end)
   end

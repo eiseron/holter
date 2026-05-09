@@ -1,0 +1,37 @@
+<.page_container>
+  <:title>{gettext("Workspace")}</:title>
+  <:subtitle>{@current_workspace.name}</:subtitle>
+
+  <.form
+    for={@form}
+    id="workspace-settings-form"
+    phx-submit="save"
+    class="h-form-sections"
+  >
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("General")}</h3>
+
+      <div class="h-form-grid">
+        <div>
+          <.input
+            field={@form[:default_locale]}
+            type="select"
+            label={gettext("Language")}
+            options={__MODULE__.locale_options()}
+          />
+          <p class="h-help-text">
+            {gettext(
+              "Default UI language for members of this workspace who have not set their own preference, and the inheritance source for new notification channels."
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-actions-row h-justify-end">
+      <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
+        {gettext("Save")}
+      </.button>
+    </div>
+  </.form>
+</.page_container>

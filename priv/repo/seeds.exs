@@ -1,12 +1,3 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Also runs on every per-MR preview deploy so reviewers land on a populated
-# dashboard. Re-running is a no-op once any workspace exists. The actual
-# seeding logic lives in priv/repo/seeds/ — split by Holter context
-# (Monitoring, Identity, Delivery, ...) so each domain stays self-contained.
-
 Code.require_file("seeds/time.exs", __DIR__)
 Code.require_file("seeds/monitoring/workspaces.exs", __DIR__)
 Code.require_file("seeds/monitoring/monitors.exs", __DIR__)
@@ -24,10 +15,11 @@ alias Holter.Seeds.Monitoring.{DailyMetrics, Incidents, Monitors, Workspaces}
 
 if Repo.aggregate(Workspace, :count) == 0 do
   workspace = Workspaces.create_default()
+  secondary = Workspaces.create_secondary()
   monitors = Monitors.create_for(workspace)
   Incidents.create_for(monitors)
   DailyMetrics.create_for(monitors)
-  Users.create_dev(workspace)
+  Users.create_dev([workspace, secondary])
   WebhookChannels.create_for(workspace, monitors)
   EmailChannels.create_for(workspace, monitors)
 end

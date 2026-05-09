@@ -105,4 +105,83 @@ defmodule Holter.Identity.MembershipsTest do
       refute Repo.get(WorkspaceMembership, membership.id)
     end
   end
+
+  describe "admin?/2" do
+    test "is true for the default :owner membership" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+      {:ok, _} = Memberships.create_default_membership(user, workspace)
+
+      assert Memberships.admin?(user, workspace)
+    end
+
+    test "is true for an :admin role" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+      {:ok, m} = Memberships.create_default_membership(user, workspace)
+      {:ok, _} = m |> Ecto.Changeset.change(role: :admin) |> Repo.update()
+
+      assert Memberships.admin?(user, workspace)
+    end
+
+    test "is false for a :member role" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+      {:ok, m} = Memberships.create_default_membership(user, workspace)
+      {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Repo.update()
+
+      refute Memberships.admin?(user, workspace)
+    end
+
+    test "is false when no membership exists" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+
+      refute Memberships.admin?(user, workspace)
+    end
+  end
+
+  describe "get_membership/2" do
+    test "returns the membership row when it exists" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+      {:ok, created} = Memberships.create_default_membership(user, workspace)
+
+      found = Memberships.get_membership(user, workspace)
+
+      assert match?(%WorkspaceMembership{id: id, role: :owner} when id == created.id, found)
+    end
+
+    test "returns nil when there is no membership" do
+      user = user_fixture()
+      workspace = workspace_fixture()
+
+      assert Memberships.get_membership(user, workspace) == nil
+    end
+  end
+
+  describe "list_workspace_memberships_for_user/1" do
+    test "returns every membership with the workspace preloaded and the role intact" do
+      user = user_fixture()
+      ws_a = workspace_fixture(owner: user, name: "A")
+      ws_b = workspace_fixture(owner: user, name: "B")
+      change_role!(user, ws_b, :member)
+
+      summary =
+        Memberships.list_workspace_memberships_for_user(user)
+        |> Enum.map(fn m ->
+          %Holter.Monitoring.Workspace{slug: slug} = m.workspace
+          {slug, m.role}
+        end)
+        |> Enum.sort()
+
+      assert summary == Enum.sort([{ws_a.slug, :owner}, {ws_b.slug, :member}])
+    end
+  end
+
+  defp change_role!(user, workspace, role) do
+    Memberships.get_membership(user, workspace)
+    |> Ecto.Changeset.change(role: role)
+    |> Repo.update!()
+  end
 end

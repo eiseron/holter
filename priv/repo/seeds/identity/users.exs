@@ -10,7 +10,7 @@ defmodule Holter.Seeds.Identity.Users do
   @dev_password "Holter-Dev-1!"
   @terms_version "v1"
 
-  def create_dev(workspace) do
+  def create_dev(workspaces) do
     pepper = Application.fetch_env!(:holter, :identity)[:pepper]
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -20,14 +20,15 @@ defmodule Holter.Seeds.Identity.Users do
         email: @dev_email,
         hashed_password: Password.hash(@dev_password, pepper),
         terms_accepted_at: now,
-        terms_version: @terms_version,
-        preferred_locale: "pt_BR"
+        terms_version: @terms_version
       })
       |> Ecto.Changeset.put_change(:email_verified_at, now)
       |> Ecto.Changeset.put_change(:onboarding_status, :active)
       |> Repo.insert!()
 
-    {:ok, _membership} = Memberships.create_default_membership(user, workspace)
+    Enum.each(workspaces, fn workspace ->
+      {:ok, _membership} = Memberships.create_default_membership(user, workspace)
+    end)
 
     IO.puts("[seeds] Created dev user #{@dev_email} (password: #{@dev_password})")
     user
