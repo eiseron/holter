@@ -24,6 +24,8 @@ defmodule HolterWeb.Router do
     plug :accepts, ["json"]
     plug HolterWeb.Plugs.SessionMetadataPlug
     plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
+    plug HolterWeb.Plugs.FetchApiBearerPlug
+    plug HolterWeb.Plugs.RequireWorkspaceMemberPlug
   end
 
   get "/healthz", HolterWeb.HealthController, :show

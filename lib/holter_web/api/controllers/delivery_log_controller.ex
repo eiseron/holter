@@ -1,5 +1,6 @@
 defmodule HolterWeb.Api.DeliveryLogController do
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   import HolterWeb.Api.ParamHelpers
@@ -7,10 +8,12 @@ defmodule HolterWeb.Api.DeliveryLogController do
   alias Holter.Delivery
   alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias HolterWeb.Api.DeliveryLogSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: HolterWeb.Api.OpenApiError
+  plug RequireScopePlug, "read:delivery_logs" when action in [:index]
 
   tags(["Delivery Logs"])
 

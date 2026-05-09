@@ -1,9 +1,16 @@
 defmodule HolterWeb.Api.DailyMetricControllerTest do
   use HolterWeb.ConnCase
 
-  setup %{conn: conn} do
-    monitor = monitor_fixture()
-    {:ok, conn: put_req_header(conn, "accept", "application/json"), monitor: monitor}
+  setup %{conn: conn, current_user: user} do
+    workspace = workspace_fixture()
+    monitor = monitor_fixture(%{workspace_id: workspace.id})
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> authed_api_conn({user, workspace})
+
+    {:ok, conn: conn, monitor: monitor, workspace: workspace}
   end
 
   describe "GET /api/v1/monitors/:monitor_id/daily_metrics" do

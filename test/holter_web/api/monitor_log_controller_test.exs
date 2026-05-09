@@ -1,10 +1,16 @@
 defmodule HolterWeb.Api.MonitorLogControllerTest do
   use HolterWeb.ConnCase
 
-  setup %{conn: conn} do
+  setup %{conn: conn, current_user: user} do
     workspace = workspace_fixture()
     monitor = monitor_fixture(%{workspace_id: workspace.id})
-    {:ok, conn: put_req_header(conn, "accept", "application/json"), monitor: monitor}
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> authed_api_conn({user, workspace})
+
+    {:ok, conn: conn, monitor: monitor, workspace: workspace, current_user: user}
   end
 
   describe "GET /api/v1/monitors/:monitor_id/logs" do

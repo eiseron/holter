@@ -4,7 +4,7 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
 
   alias Holter.Delivery.{Engine, WebhookChannels}
 
-  setup %{conn: conn} do
+  setup %{conn: conn, current_user: user} do
     workspace = workspace_fixture()
 
     {:ok, channel} =
@@ -18,8 +18,9 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       conn
       |> put_req_header("accept", "application/json")
       |> put_req_header("content-type", "application/json")
+      |> authed_api_conn({user, workspace})
 
-    {:ok, conn: conn, workspace: workspace, channel: channel}
+    {:ok, conn: conn, workspace: workspace, channel: channel, current_user: user}
   end
 
   describe "SSRF prevention — channel create via API" do

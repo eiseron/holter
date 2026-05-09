@@ -67,6 +67,28 @@ defmodule HolterWeb.ConnCase do
     |> Plug.Conn.put_session(:user_token, token)
   end
 
+  @doc """
+  Mints an API token for `user` scoped to `workspace` and stamps it on
+  `conn` as `Authorization: Bearer …`. Used by API controller tests
+  to satisfy the `FetchApiBearerPlug` after #35 wired auth into the
+  `:api` pipeline.
+
+  Defaults to all advertised scopes. Pass `scopes: [...]` to test
+  scope-restricted tokens.
+  """
+  def authed_api_conn(conn, {user, workspace}, opts \\ []) do
+    alias Holter.Identity.ApiTokens
+    alias Holter.Identity.Scopes
+
+    scopes = Keyword.get(opts, :scopes, Scopes.all())
+    name = Keyword.get(opts, :name, "test-#{System.unique_integer([:positive])}")
+
+    {:ok, _token, plaintext} =
+      ApiTokens.create_token(user, workspace, %{name: name, scopes: scopes})
+
+    Plug.Conn.put_req_header(conn, "authorization", "Bearer " <> plaintext)
+  end
+
   defp flush_test_mailbox do
     receive do
       {:email, _} -> flush_test_mailbox()

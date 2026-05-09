@@ -4,14 +4,18 @@ defmodule HolterWeb.Api.IncidentController do
   Includes OpenAPI 3.0 operation definitions.
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   import HolterWeb.Api.ParamHelpers
 
   alias Holter.Monitoring
   alias HolterWeb.Api.IncidentSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
+
+  plug RequireScopePlug, "read:incidents" when action in [:index, :show]
 
   @valid_types ~w(downtime defacement ssl_expiry)
   @valid_states ~w(open resolved)

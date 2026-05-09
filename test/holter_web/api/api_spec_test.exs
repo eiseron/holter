@@ -6,6 +6,17 @@ defmodule HolterWeb.Api.ApiSpecTest do
   alias HolterWeb.Api.ApiSpec
   alias OpenApiSpex.OpenApi
 
+  setup %{conn: conn, current_user: user} do
+    workspace = workspace_fixture()
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> authed_api_conn({user, workspace})
+
+    {:ok, conn: conn, workspace: workspace, current_user: user}
+  end
+
   test "API spec is valid" do
     spec = ApiSpec.spec()
     assert %OpenApi{info: %{title: "Holter API"}} = spec
@@ -35,9 +46,7 @@ defmodule HolterWeb.Api.ApiSpecTest do
     refute Enum.any?(Map.keys(paths), fn path -> String.starts_with?(path, "/api/api/v1") end)
   end
 
-  test "Workspace response matches schema", %{conn: conn} do
-    workspace = workspace_fixture(%{slug: "spec-test"})
-
+  test "Workspace response matches schema", %{conn: conn, workspace: workspace} do
     json =
       conn
       |> get(~p"/api/v1/workspaces/#{workspace.slug}")
@@ -46,8 +55,8 @@ defmodule HolterWeb.Api.ApiSpecTest do
     assert_schema(json, "WorkspaceResponse", ApiSpec.spec())
   end
 
-  test "Monitor response matches schema", %{conn: conn} do
-    monitor = monitor_fixture()
+  test "Monitor response matches schema", %{conn: conn, workspace: workspace} do
+    monitor = monitor_fixture(%{workspace_id: workspace.id})
 
     json =
       conn

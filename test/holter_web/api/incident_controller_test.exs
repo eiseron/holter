@@ -4,16 +4,18 @@ defmodule HolterWeb.Api.IncidentControllerTest do
   import OpenApiSpex.TestAssertions
   alias HolterWeb.Api.MonitoringApiSpec
 
-  setup %{conn: conn} do
-    monitor = monitor_fixture()
+  setup %{conn: conn, current_user: user} do
+    workspace = workspace_fixture()
+    monitor = monitor_fixture(%{workspace_id: workspace.id})
     api_spec = MonitoringApiSpec.spec()
 
     conn =
       conn
       |> put_req_header("accept", "application/json")
       |> put_req_header("content-type", "application/json")
+      |> authed_api_conn({user, workspace})
 
-    {:ok, conn: conn, monitor: monitor, api_spec: api_spec}
+    {:ok, conn: conn, monitor: monitor, workspace: workspace, api_spec: api_spec}
   end
 
   describe "GET /api/v1/incidents/:id - Schema Sync Verification" do

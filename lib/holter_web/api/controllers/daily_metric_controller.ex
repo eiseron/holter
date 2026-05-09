@@ -4,14 +4,18 @@ defmodule HolterWeb.Api.DailyMetricController do
   Includes OpenAPI 3.0 operation definitions.
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   import HolterWeb.Api.ParamHelpers
 
   alias Holter.Monitoring
   alias HolterWeb.Api.DailyMetricSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
+
+  plug RequireScopePlug, "read:metrics" when action in [:index]
 
   tags(["Metrics"])
 

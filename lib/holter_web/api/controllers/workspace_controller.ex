@@ -4,12 +4,16 @@ defmodule HolterWeb.Api.WorkspaceController do
   Includes OpenAPI 3.0 operation definitions.
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Monitoring
   alias HolterWeb.Api.WorkspaceSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
+
+  plug RequireScopePlug, "read:workspaces" when action in [:show]
 
   tags(["Workspaces"])
 

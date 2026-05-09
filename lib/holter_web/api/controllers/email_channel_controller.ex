@@ -3,15 +3,23 @@ defmodule HolterWeb.Api.EmailChannelController do
   REST API controller for the standalone email-channel resource (#29).
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Delivery.{EmailChannels, Engine}
   alias Holter.Monitoring
   alias HolterWeb.Api.EmailChannelSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: HolterWeb.Api.OpenApiError
+  plug RequireScopePlug, "read:channels" when action in [:index, :show]
+
+  plug RequireScopePlug,
+       "write:channels" when action in [:create, :update, :delete, :rotate_anti_phishing_code]
+
+  plug RequireScopePlug, "ping:channels" when action in [:ping]
 
   tags(["Email Channels"])
 

@@ -3,15 +3,23 @@ defmodule HolterWeb.Api.WebhookChannelController do
   REST API controller for the standalone webhook-channel resource (#29).
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Delivery.{Engine, WebhookChannels}
   alias Holter.Monitoring
   alias HolterWeb.Api.WebhookChannelSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: HolterWeb.Api.OpenApiError
+  plug RequireScopePlug, "read:channels" when action in [:index, :show]
+
+  plug RequireScopePlug,
+       "write:channels" when action in [:create, :update, :delete, :rotate_signing_token]
+
+  plug RequireScopePlug, "ping:channels" when action in [:ping]
 
   tags(["Webhook Channels"])
 

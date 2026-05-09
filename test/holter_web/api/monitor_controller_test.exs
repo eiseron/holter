@@ -7,7 +7,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   alias Holter.Monitoring
   alias HolterWeb.Api.ApiSpec
 
-  setup %{conn: conn} do
+  setup %{conn: conn, current_user: user} do
     workspace = workspace_fixture(%{name: "Test Workspace", slug: "test-workspace"})
     api_spec = ApiSpec.spec()
 
@@ -15,8 +15,9 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       conn
       |> put_req_header("accept", "application/json")
       |> put_req_header("content-type", "application/json")
+      |> authed_api_conn({user, workspace})
 
-    {:ok, conn: conn, workspace: workspace, api_spec: api_spec}
+    {:ok, conn: conn, workspace: workspace, api_spec: api_spec, current_user: user}
   end
 
   defp json_post(conn, path, body) do
@@ -145,9 +146,13 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   end
 
   describe "POST /api/v1/workspaces/:workspace_slug/monitors — quota enforcement" do
-    test "returns 422 when workspace is at max_monitors capacity", %{conn: conn} do
+    test "returns 422 when workspace is at max_monitors capacity", %{
+      conn: conn,
+      current_user: user
+    } do
       full_workspace = workspace_fixture(%{max_monitors: 1})
       monitor_fixture(%{workspace_id: full_workspace.id})
+      conn = authed_api_conn(conn, {user, full_workspace})
 
       conn =
         json_post(conn, ~p"/api/v1/workspaces/#{full_workspace.slug}/monitors", %{
@@ -165,8 +170,12 @@ defmodule HolterWeb.Api.MonitorControllerTest do
                json_response(conn, 422)
     end
 
-    test "returns 422 when interval_seconds is below workspace minimum", %{conn: conn} do
+    test "returns 422 when interval_seconds is below workspace minimum", %{
+      conn: conn,
+      current_user: user
+    } do
       strict_workspace = workspace_fixture(%{min_interval_seconds: 300})
+      conn = authed_api_conn(conn, {user, strict_workspace})
 
       conn =
         json_post(conn, ~p"/api/v1/workspaces/#{strict_workspace.slug}/monitors", %{
@@ -216,9 +225,13 @@ defmodule HolterWeb.Api.MonitorControllerTest do
   end
 
   describe "PUT /api/v1/monitors/:id — quota enforcement" do
-    test "returns 422 when interval_seconds is below workspace minimum", %{conn: conn} do
+    test "returns 422 when interval_seconds is below workspace minimum", %{
+      conn: conn,
+      current_user: user
+    } do
       strict_workspace = workspace_fixture(%{min_interval_seconds: 300})
       monitor = monitor_fixture(%{workspace_id: strict_workspace.id, interval_seconds: 300})
+      conn = authed_api_conn(conn, {user, strict_workspace})
 
       conn =
         json_put(conn, ~p"/api/v1/monitors/#{monitor.id}", %{
@@ -253,7 +266,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       assert updated_monitor.workspace_id == workspace.id
     end
 
-    test "prevents bypassing quota by unarchiving a monitor", %{conn: conn} do
+    test "prevents bypassing quota by unarchiving a monitor", %{conn: conn, current_user: user} do
       full_workspace = workspace_fixture(%{max_monitors: 1})
       monitor_fixture(%{workspace_id: full_workspace.id})
 
@@ -261,6 +274,8 @@ defmodule HolterWeb.Api.MonitorControllerTest do
         monitor_fixture(%{workspace_id: full_workspace.id, logical_state: :archived})
 
       assert Monitoring.at_quota?(full_workspace)
+
+      conn = authed_api_conn(conn, {user, full_workspace})
 
       conn =
         json_put(conn, ~p"/api/v1/monitors/#{archived_monitor.id}", %{

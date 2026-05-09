@@ -7,7 +7,7 @@ defmodule HolterWeb.Api.WebhookChannelControllerTest do
   alias Holter.Delivery.WebhookChannels
   alias HolterWeb.Api.ApiSpec
 
-  setup %{conn: conn} do
+  setup %{conn: conn, current_user: user} do
     workspace = workspace_fixture(%{name: "Test Workspace", slug: "test-workspace"})
     api_spec = ApiSpec.spec()
 
@@ -15,8 +15,9 @@ defmodule HolterWeb.Api.WebhookChannelControllerTest do
       conn
       |> put_req_header("accept", "application/json")
       |> put_req_header("content-type", "application/json")
+      |> authed_api_conn({user, workspace})
 
-    {:ok, conn: conn, workspace: workspace, api_spec: api_spec}
+    {:ok, conn: conn, workspace: workspace, api_spec: api_spec, current_user: user}
   end
 
   defp json_post(conn, path, body), do: post(conn, path, Jason.encode!(body))

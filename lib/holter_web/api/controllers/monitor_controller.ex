@@ -4,15 +4,19 @@ defmodule HolterWeb.Api.MonitorController do
   Includes OpenAPI 3.0 operation definitions.
   """
   use HolterWeb, :controller
+  use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Monitor
   alias HolterWeb.Api.MonitorSchemas
+  alias HolterWeb.Plugs.RequireScopePlug
 
   action_fallback HolterWeb.Api.FallbackController
 
   plug OpenApiSpex.Plug.CastAndValidate, render_error: HolterWeb.Api.OpenApiError
+  plug RequireScopePlug, "read:monitors" when action in [:index, :show]
+  plug RequireScopePlug, "write:monitors" when action in [:create, :update, :delete]
 
   tags(["Monitors"])
 
