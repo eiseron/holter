@@ -36,6 +36,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok =
         perform_job(EmailDispatcher, %{
           "email_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -53,6 +54,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
       perform_job(EmailDispatcher, %{
         "email_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -71,6 +73,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
 
       perform_job(EmailDispatcher, %{
         "email_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -91,6 +94,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok =
         perform_job(EmailDispatcher, %{
           "email_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "test" => true
         })
 
@@ -106,6 +110,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok =
         perform_job(EmailDispatcher, %{
           "email_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "test" => true
         })
 
@@ -124,6 +129,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       :ok =
         perform_job(EmailDispatcher, %{
           "email_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "test" => true
         })
 
@@ -143,6 +149,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       result =
         perform_job(EmailDispatcher, %{
           "email_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -160,6 +167,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcherTest do
       assert {:cancel, :no_verified_recipients} =
                perform_job(EmailDispatcher, %{
                  "email_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "test" => true
                })
 

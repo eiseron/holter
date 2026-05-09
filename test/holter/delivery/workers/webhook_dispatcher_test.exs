@@ -37,6 +37,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       :ok =
         perform_job(WebhookDispatcher, %{
           "webhook_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "monitor_id" => monitor.id,
           "incident_id" => incident.id,
           "event" => "down"
@@ -57,6 +58,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -78,6 +80,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -109,6 +112,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -130,6 +134,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -159,6 +164,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"
@@ -182,6 +188,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       :ok =
         perform_job(WebhookDispatcher, %{
           "webhook_channel_id" => channel.id,
+          "workspace_id" => channel.workspace_id,
           "test" => true
         })
 
@@ -197,6 +204,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       assert {:error, _} =
                perform_job(WebhookDispatcher, %{
                  "webhook_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "test" => true
                })
     end
@@ -222,6 +230,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       assert {:error, _} =
                perform_job(WebhookDispatcher, %{
                  "webhook_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "test" => true
                })
 
@@ -234,6 +243,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       assert {:error, _} =
                perform_job(WebhookDispatcher, %{
                  "webhook_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "test" => true
                })
     end
@@ -246,6 +256,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       assert {:error, _} =
                perform_job(WebhookDispatcher, %{
                  "webhook_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "test" => true
                })
     end
@@ -262,6 +273,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
       assert :ok =
                perform_job(WebhookDispatcher, %{
                  "webhook_channel_id" => channel.id,
+                 "workspace_id" => channel.workspace_id,
                  "monitor_id" => monitor.id,
                  "incident_id" => incident.id,
                  "event" => "down"
@@ -294,6 +306,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcherTest do
 
       perform_job(WebhookDispatcher, %{
         "webhook_channel_id" => channel.id,
+        "workspace_id" => channel.workspace_id,
         "monitor_id" => monitor.id,
         "incident_id" => incident.id,
         "event" => "down"

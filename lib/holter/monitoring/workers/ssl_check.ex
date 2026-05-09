@@ -2,24 +2,21 @@ defmodule Holter.Monitoring.Workers.SSLCheck do
   @moduledoc """
   Oban worker responsible for performing SSL expiration and handshake checks.
   """
-  use Oban.Worker,
+  use Holter.Monitoring.Workers.WorkspaceScopedWorker,
     queue: :checks,
     max_attempts: 2,
     unique: [period: 60, states: [:available, :scheduled, :executing]]
 
   alias Holter.Monitoring
   alias Holter.Monitoring.SecurityScanner
-  alias Holter.Repo.Tenant
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id, "workspace_id" => workspace_id}}) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      monitor = Monitoring.get_monitor!(id)
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
+  def perform(%Oban.Job{args: %{"id" => id}}) do
+    monitor = Monitoring.get_monitor!(id)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      process_check(monitor, now)
-      :ok
-    end)
+    process_check(monitor, now)
+    :ok
   end
 
   defp process_check(%{ssl_ignore: true} = monitor, now) do

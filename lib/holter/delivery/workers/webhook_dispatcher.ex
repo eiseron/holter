@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.Workers.WebhookDispatcher do
   @moduledoc false
 
-  use Oban.Worker, queue: :notifications, max_attempts: 20
+  use Holter.Monitoring.Workers.WorkspaceScopedWorker, queue: :notifications, max_attempts: 20
 
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Delivery.{HttpClient, WebhookChannel, WebhookChannels, WebhookSignature}

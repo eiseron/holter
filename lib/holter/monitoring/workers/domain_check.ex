@@ -9,26 +9,23 @@ defmodule Holter.Monitoring.Workers.DomainCheck do
   noisy alerts. `last_domain_check_at` is bumped on both success and failure
   to keep the dispatcher's 24h cadence honest.
   """
-  use Oban.Worker,
+  use Holter.Monitoring.Workers.WorkspaceScopedWorker,
     queue: :checks,
     max_attempts: 2,
     unique: [period: 60, states: [:available, :scheduled, :executing]]
 
   alias Holter.Monitoring
   alias Holter.Monitoring.DomainScanner
-  alias Holter.Repo.Tenant
 
   require Logger
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => id, "workspace_id" => workspace_id}}) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      monitor = Monitoring.get_monitor!(id)
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
+  def perform(%Oban.Job{args: %{"id" => id}}) do
+    monitor = Monitoring.get_monitor!(id)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      process_check(monitor, now)
-      :ok
-    end)
+    process_check(monitor, now)
+    :ok
   end
 
   defp process_check(%{domain_check_ignore: true} = monitor, now) do

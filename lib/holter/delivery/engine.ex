@@ -23,11 +23,21 @@ defmodule Holter.Delivery.Engine do
     }
 
     Enum.each(WebhookChannels.list_for_monitor(monitor_id), fn channel ->
-      Oban.insert(WebhookDispatcher.new(Map.put(ctx, "webhook_channel_id", channel.id)))
+      args =
+        ctx
+        |> Map.put("webhook_channel_id", channel.id)
+        |> Map.put("workspace_id", channel.workspace_id)
+
+      Oban.insert(WebhookDispatcher.new(args))
     end)
 
     Enum.each(EmailChannels.list_for_monitor(monitor_id), fn channel ->
-      Oban.insert(EmailDispatcher.new(Map.put(ctx, "email_channel_id", channel.id)))
+      args =
+        ctx
+        |> Map.put("email_channel_id", channel.id)
+        |> Map.put("workspace_id", channel.workspace_id)
+
+      Oban.insert(EmailDispatcher.new(args))
     end)
 
     Broadcaster.broadcast_notification_dispatched(monitor_id, incident_id, event)
@@ -52,7 +62,13 @@ defmodule Holter.Delivery.Engine do
 
     with :ok <- check_cooldown(channel.last_test_dispatched_at, now) do
       result =
-        Oban.insert(WebhookDispatcher.new(%{"webhook_channel_id" => channel.id, "test" => true}))
+        Oban.insert(
+          WebhookDispatcher.new(%{
+            "webhook_channel_id" => channel.id,
+            "workspace_id" => channel.workspace_id,
+            "test" => true
+          })
+        )
 
       WebhookChannels.touch_test_dispatched_at(channel, now)
       Broadcaster.broadcast_test_dispatched(channel.id)
@@ -66,7 +82,13 @@ defmodule Holter.Delivery.Engine do
     with :ok <- check_cooldown(channel.last_test_dispatched_at, now),
          :ok <- validate_email_test_dispatch(channel) do
       result =
-        Oban.insert(EmailDispatcher.new(%{"email_channel_id" => channel.id, "test" => true}))
+        Oban.insert(
+          EmailDispatcher.new(%{
+            "email_channel_id" => channel.id,
+            "workspace_id" => channel.workspace_id,
+            "test" => true
+          })
+        )
 
       EmailChannels.touch_test_dispatched_at(channel, now)
       Broadcaster.broadcast_test_dispatched(channel.id)

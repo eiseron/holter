@@ -54,6 +54,7 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
         result =
           perform_job(WebhookDispatcher, %{
             "webhook_channel_id" => channel.id,
+            "workspace_id" => channel.workspace_id,
             "test" => true
           })
 

@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.Workers.EmailDispatcher do
   @moduledoc false
 
-  use Oban.Worker, queue: :notifications, max_attempts: 20
+  use Holter.Monitoring.Workers.WorkspaceScopedWorker, queue: :notifications, max_attempts: 20
 
   import Swoosh.Email
 
