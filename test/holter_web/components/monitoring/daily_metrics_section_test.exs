@@ -3,7 +3,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsSectionTest do
   import Phoenix.LiveViewTest
   import HolterWeb.Components.Monitoring.DailyMetricsSection
 
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
 
   test "renders empty state message" do
     html = render_component(&daily_metrics_section/1, metrics: [])

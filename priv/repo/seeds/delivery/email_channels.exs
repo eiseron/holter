@@ -1,7 +1,9 @@
 defmodule Holter.Seeds.Delivery.EmailChannels do
   @moduledoc false
 
-  alias Holter.Delivery.{EmailChannel, EmailChannelRecipient, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
+  alias Holter.Delivery.Models.{EmailChannel, EmailChannelRecipient}
   alias Holter.Repo
 
   def create_for(workspace, monitors) do

@@ -2,7 +2,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
   alias Holter.Repo.Tenant
   alias HolterWeb.LiveView.PubSubSubscriptions
 

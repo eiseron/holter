@@ -13,9 +13,9 @@ defmodule Holter.Identity.Memberships do
 
   import Ecto.Query
 
-  alias Holter.Identity.WorkspaceMembership
+  alias Holter.Identity.Models.WorkspaceMembership
   alias Holter.Monitoring
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
   alias Holter.Repo
   alias Holter.Repo.Tenant
 

@@ -2,7 +2,7 @@ defmodule HolterWeb.Api.DailyMetricJSON do
   @moduledoc """
   JSON view for rendering daily metric data.
   """
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
 
   def index(%{
         result: %{

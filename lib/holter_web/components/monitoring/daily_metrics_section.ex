@@ -5,7 +5,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsSection do
   import HolterWeb.Components.Header
   import HolterWeb.Components.Table
 
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
 
   @doc """
   Renders the daily uptime history section with a metrics table.

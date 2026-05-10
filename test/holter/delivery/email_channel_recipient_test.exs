@@ -1,7 +1,9 @@
 defmodule Holter.Delivery.EmailChannelRecipientTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery.{EmailChannelRecipient, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
+  alias Holter.Delivery.Models.EmailChannelRecipient
 
   setup do
     workspace = workspace_fixture()

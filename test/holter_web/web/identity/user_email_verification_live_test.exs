@@ -5,7 +5,7 @@ defmodule HolterWeb.Web.Identity.UserEmailVerificationLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias Holter.Identity.User
+  alias Holter.Identity.Models.User
   alias Holter.Repo
 
   describe "GET /identity/verify-email/:token" do

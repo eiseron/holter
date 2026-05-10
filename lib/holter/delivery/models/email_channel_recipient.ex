@@ -1,7 +1,7 @@
-defmodule Holter.Delivery.EmailChannelRecipient do
+defmodule Holter.Delivery.Models.EmailChannelRecipient do
   @moduledoc """
   CC recipient on an email channel — its own verification token and
-  state, scoped to a single `Holter.Delivery.EmailChannel`.
+  state, scoped to a single `Holter.Delivery.Models.EmailChannel`.
   """
   use Ecto.Schema
 
@@ -16,7 +16,7 @@ defmodule Holter.Delivery.EmailChannelRecipient do
     field :token_expires_at, :naive_datetime
     field :verified_at, :naive_datetime
 
-    belongs_to :email_channel, Holter.Delivery.EmailChannel
+    belongs_to :email_channel, Holter.Delivery.Models.EmailChannel
 
     timestamps()
   end

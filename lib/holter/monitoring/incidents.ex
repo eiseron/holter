@@ -4,7 +4,8 @@ defmodule Holter.Monitoring.Incidents do
   use Gettext, backend: HolterWeb.Gettext
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Incident, Pagination}
+  alias Holter.Monitoring.{Broadcaster, Pagination}
+  alias Holter.Monitoring.Models.Incident
   alias Holter.Repo
 
   @label_left 40

@@ -2,7 +2,7 @@ defmodule Holter.Security.RlsWorkspaceMembershipsTest do
   use Holter.DataCase, async: false
 
   alias Holter.Identity.Memberships
-  alias Holter.Identity.WorkspaceMembership
+  alias Holter.Identity.Models.WorkspaceMembership
   alias Holter.Repo
 
   setup do

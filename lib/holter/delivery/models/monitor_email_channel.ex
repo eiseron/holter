@@ -1,4 +1,4 @@
-defmodule Holter.Delivery.MonitorEmailChannel do
+defmodule Holter.Delivery.Models.MonitorEmailChannel do
   @moduledoc """
   Join row binding a monitor to an email channel.
   """
@@ -8,8 +8,8 @@ defmodule Holter.Delivery.MonitorEmailChannel do
   @primary_key false
   @foreign_key_type :binary_id
   schema "monitor_email_channels" do
-    belongs_to :monitor, Holter.Monitoring.Monitor
-    belongs_to :email_channel, Holter.Delivery.EmailChannel
+    belongs_to :monitor, Holter.Monitoring.Models.Monitor
+    belongs_to :email_channel, Holter.Delivery.Models.EmailChannel
 
     field :is_active, :boolean, default: true
     field :inserted_at, :utc_datetime

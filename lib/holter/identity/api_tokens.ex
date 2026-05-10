@@ -29,10 +29,10 @@ defmodule Holter.Identity.ApiTokens do
 
   import Ecto.Query
 
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.Memberships
-  alias Holter.Identity.User
-  alias Holter.Monitoring.Workspace
+  alias Holter.Identity.Models.ApiToken
+  alias Holter.Identity.Models.User
+  alias Holter.Monitoring.Models.Workspace
   alias Holter.Repo
   alias Holter.Repo.Tenant
 

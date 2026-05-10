@@ -129,7 +129,7 @@ defmodule HolterWeb.Web.Identity.UserLive.ShowTest do
 
     test "renders the workspace name without a link when the user is only a :member",
          %{conn: conn, current_user: user, current_workspace: workspace} do
-      [m] = Repo.all(Holter.Identity.WorkspaceMembership)
+      [m] = Repo.all(Holter.Identity.Models.WorkspaceMembership)
       {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Repo.update()
 
       {:ok, _lv, html} = live(conn, ~p"/identity/user/#{user.id}")

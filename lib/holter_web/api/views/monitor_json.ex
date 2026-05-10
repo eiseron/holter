@@ -2,7 +2,7 @@ defmodule HolterWeb.Api.MonitorJSON do
   @moduledoc """
   JSON view for rendering monitor data.
   """
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   def index(%{monitors: %{data: monitors, meta: meta}}) do
     %{

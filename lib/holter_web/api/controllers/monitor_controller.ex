@@ -8,7 +8,7 @@ defmodule HolterWeb.Api.MonitorController do
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
   alias HolterWeb.Api.MonitorSchemas
   alias HolterWeb.Plugs.RequireScopePlug
 

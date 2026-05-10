@@ -7,7 +7,7 @@ defmodule HolterWeb.Api.EmailChannelJSON do
   a sibling resource under `/email_channels/:id/recipients` once that
   endpoint is wired up.
   """
-  alias Holter.Delivery.EmailChannel
+  alias Holter.Delivery.Models.EmailChannel
 
   def index(%{channels: channels}) do
     %{data: Enum.map(channels, &data/1)}

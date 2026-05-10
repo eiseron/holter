@@ -25,7 +25,7 @@ defmodule Holter.SeedsTest do
               Holter.Seeds.Delivery.EmailChannels
             ]}
 
-  alias Holter.Delivery.{
+  alias Holter.Delivery.Models.{
     EmailChannel,
     EmailChannelRecipient,
     MonitorEmailChannel,
@@ -33,7 +33,7 @@ defmodule Holter.SeedsTest do
     WebhookChannel
   }
 
-  alias Holter.Monitoring.{DailyMetric, Incident, Monitor, Workspace}
+  alias Holter.Monitoring.Models.{DailyMetric, Incident, Monitor, Workspace}
   alias Holter.Seeds.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Seeds.Monitoring.{DailyMetrics, Incidents, Monitors, Workspaces}
   alias Holter.Seeds.Time

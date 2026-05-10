@@ -1,7 +1,7 @@
 defmodule Holter.Security.RlsWebhookChannelsTest do
   use Holter.DataCase, async: false
 
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
   alias Holter.Delivery.WebhookChannels
   alias Holter.Repo
 

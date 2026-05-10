@@ -1,7 +1,7 @@
 defmodule Holter.Seeds.Monitoring.Monitors do
   @moduledoc false
 
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
   alias Holter.Repo
   alias Holter.Seeds.Time
 

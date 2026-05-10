@@ -1,7 +1,7 @@
 defmodule Holter.Identity.TokenTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Identity.Token
+  alias Holter.Identity.Models.Token
 
   defp future(seconds_from_now) do
     DateTime.utc_now()

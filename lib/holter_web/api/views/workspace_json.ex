@@ -2,7 +2,7 @@ defmodule HolterWeb.Api.WorkspaceJSON do
   @moduledoc """
   JSON view for rendering workspace data.
   """
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
 
   def show(%{workspace: workspace}) do
     %{data: data(workspace)}

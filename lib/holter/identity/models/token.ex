@@ -1,4 +1,4 @@
-defmodule Holter.Identity.Token do
+defmodule Holter.Identity.Models.Token do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -14,7 +14,7 @@ defmodule Holter.Identity.Token do
     field :used_at, :utc_datetime
     field :expires_at, :utc_datetime
 
-    belongs_to :user, Holter.Identity.User
+    belongs_to :user, Holter.Identity.Models.User
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

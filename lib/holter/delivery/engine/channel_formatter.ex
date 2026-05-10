@@ -3,7 +3,7 @@ defmodule Holter.Delivery.Engine.ChannelFormatter do
 
   use Gettext, backend: HolterWeb.Gettext
 
-  alias Holter.Delivery.EmailChannel
+  alias Holter.Delivery.Models.EmailChannel
 
   def format_payload(payload, :webhook) do
     {:ok, json} = Jason.encode(payload)

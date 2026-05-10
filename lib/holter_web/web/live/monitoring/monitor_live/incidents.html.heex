@@ -21,7 +21,7 @@
           label={gettext("Type")}
           prompt={gettext("All Types")}
           options={
-            Enum.map(Holter.Monitoring.Incident.types(), fn t ->
+            Enum.map(Holter.Monitoring.Models.Incident.types(), fn t ->
               {Holter.Monitoring.Incidents.type_label(t), to_string(t)}
             end)
           }

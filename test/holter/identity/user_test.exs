@@ -1,7 +1,7 @@
 defmodule Holter.Identity.UserTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Identity.User
+  alias Holter.Identity.Models.User
 
   describe "registration_changeset/2" do
     test "is valid with email, hashed_password, and accepted terms" do

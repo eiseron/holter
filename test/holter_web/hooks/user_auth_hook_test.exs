@@ -85,7 +85,7 @@ defmodule HolterWeb.Hooks.UserAuthHookTest do
     test "redirects a :member to /", %{conn: conn} do
       %{user: user, workspace: workspace} = verified_user_fixture()
 
-      [m] = Holter.Repo.all(Holter.Identity.WorkspaceMembership)
+      [m] = Holter.Repo.all(Holter.Identity.Models.WorkspaceMembership)
       {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Holter.Repo.update()
 
       assert {:error, {:redirect, %{to: "/"}}} =

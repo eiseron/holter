@@ -7,9 +7,9 @@ defmodule HolterWeb.Web.Identity.UserResetPasswordLiveTest do
   import Swoosh.TestAssertions
 
   alias Holter.Identity
+  alias Holter.Identity.Models.User
   alias Holter.Identity.Password
   alias Holter.Identity.Tokens
-  alias Holter.Identity.User
   alias Holter.Repo
 
   defp pepper, do: Application.fetch_env!(:holter, :identity)[:pepper]

@@ -1,8 +1,8 @@
 defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
   use HolterWeb, :workspace_live_view
 
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Models.ApiToken
   alias Holter.Identity.Scopes
 
   def scope_label("read:workspaces"), do: gettext("View workspace")

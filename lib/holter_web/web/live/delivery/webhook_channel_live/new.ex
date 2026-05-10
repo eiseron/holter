@@ -4,7 +4,9 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.New do
   import HolterWeb.Components.Delivery.MonitorChannelSelect
   import HolterWeb.Components.Delivery.WebhookChannelFormFields
 
-  alias Holter.Delivery.{WebhookChannel, WebhookChannels}
+  alias Holter.Delivery.WebhookChannels
+
+  alias Holter.Delivery.Models.WebhookChannel
   alias Holter.Monitoring
 
   @impl true

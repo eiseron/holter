@@ -3,7 +3,7 @@ defmodule HolterWeb.Plugs.FetchApiBearerPlug do
   Resolves the API caller from the `Authorization: Bearer <plaintext>`
   header. On success, assigns:
 
-    * `:current_api_token` — the loaded `%Holter.Identity.ApiToken{}`
+    * `:current_api_token` — the loaded `%Holter.Identity.Models.ApiToken{}`
     * `:current_user`      — the user who issued it
     * `:current_workspace` — the workspace it is scoped to
     * `:token_scopes`      — the scope strings carried by the token
@@ -21,8 +21,8 @@ defmodule HolterWeb.Plugs.FetchApiBearerPlug do
   import Plug.Conn
 
   alias Holter.Identity
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Models.ApiToken
   alias Holter.Monitoring
   alias Holter.Repo
 
@@ -67,7 +67,7 @@ defmodule HolterWeb.Plugs.FetchApiBearerPlug do
   end
 
   defp load_user(user_id) do
-    case Repo.get(Identity.User, user_id) do
+    case Repo.get(Identity.Models.User, user_id) do
       nil -> :error
       user -> {:ok, user}
     end

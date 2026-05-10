@@ -4,7 +4,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Incidents do
   import HolterWeb.LiveView.SortPagination
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Incident
+  alias Holter.Monitoring.Models.Incident
   alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @valid_filter_keys ~w(page page_size type state date_from date_to)

@@ -2,7 +2,7 @@ defmodule Holter.Security.RlsMonitorsTest do
   use Holter.DataCase, async: false
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
   alias Holter.Repo
 
   setup do

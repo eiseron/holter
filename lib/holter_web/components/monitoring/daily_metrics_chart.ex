@@ -2,7 +2,7 @@ defmodule HolterWeb.Components.Monitoring.DailyMetricsChart do
   @moduledoc false
   use HolterWeb, :component
 
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
   alias HolterWeb.Components.ChartUtils
 
   @bar_area_height 160

@@ -2,7 +2,7 @@ defmodule Holter.Delivery.ChannelLogs do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Delivery.{EmailChannel, WebhookChannel}
+  alias Holter.Delivery.Models.{EmailChannel, WebhookChannel}
   alias Holter.Monitoring.{DateFilter, Pagination}
   alias Holter.Repo
 

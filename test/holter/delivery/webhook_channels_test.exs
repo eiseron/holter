@@ -3,7 +3,7 @@ defmodule Holter.Delivery.WebhookChannelsTest do
 
   import Holter.MonitoringFixtures
 
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
   alias Holter.Delivery.WebhookChannels
 
   describe "create/1" do

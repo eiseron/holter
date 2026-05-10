@@ -3,7 +3,7 @@ defmodule Holter.MonitoringTest do
   use Oban.Testing, repo: Holter.Repo
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
 
   @valid_attrs %{
     url: "https://example.com",
@@ -16,7 +16,7 @@ defmodule Holter.MonitoringTest do
   @invalid_attrs %{url: nil, method: nil, interval_seconds: nil}
 
   describe "Monitor Context Operations" do
-    alias Holter.Monitoring.Monitor
+    alias Holter.Monitoring.Models.Monitor
 
     setup do
       workspace = workspace_fixture()

@@ -5,7 +5,6 @@ defmodule Holter.Identity do
   """
 
   alias Holter.Identity.{ApiTokens, Memberships, Passwords, Tokens, Users}
-
   defdelegate register_user(attrs), to: Users
   defdelegate get_user!(id), to: Users
   defdelegate get_user_by_email_and_password(email, password), to: Users

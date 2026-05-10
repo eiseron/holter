@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.NotificationChannelAllowlistTest do
   use Holter.DataCase, async: false
 
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
 
   setup do
     previous = Application.get_env(:holter, :network, [])

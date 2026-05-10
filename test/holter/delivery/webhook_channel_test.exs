@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.WebhookChannelTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
 
   describe "changeset/2" do
     test "is invalid without a url" do

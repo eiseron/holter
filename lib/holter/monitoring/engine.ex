@@ -8,7 +8,8 @@ defmodule Holter.Monitoring.Engine do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine.{IncidentManager, ResponseValidator}
-  alias Holter.Monitoring.{Monitor, Monitors}
+  alias Holter.Monitoring.Models.Monitor
+  alias Holter.Monitoring.Monitors
   alias Holter.Network.Guard, as: NetworkGuard
 
   def process_response(monitor, response, metadata) do

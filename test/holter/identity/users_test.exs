@@ -5,7 +5,7 @@ defmodule Holter.Identity.UsersTest do
 
   alias Holter.Identity
   alias Holter.Identity.Memberships
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
 
   defp valid_registration_attrs(overrides \\ %{}) do
     Enum.into(overrides, %{

@@ -1,4 +1,4 @@
-defmodule Holter.Monitoring.Incident do
+defmodule Holter.Monitoring.Models.Incident do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -14,7 +14,7 @@ defmodule Holter.Monitoring.Incident do
     field :root_cause, :string
     field :monitor_snapshot, :map
 
-    belongs_to :monitor, Holter.Monitoring.Monitor
+    belongs_to :monitor, Holter.Monitoring.Models.Monitor
 
     timestamps(type: :utc_datetime)
   end

@@ -1,4 +1,4 @@
-defmodule Holter.Monitoring.Workspace do
+defmodule Holter.Monitoring.Models.Workspace do
   use Ecto.Schema
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
@@ -43,7 +43,7 @@ defmodule Holter.Monitoring.Workspace do
 
     field :default_locale, :string
 
-    has_many :monitors, Holter.Monitoring.Monitor
+    has_many :monitors, Holter.Monitoring.Models.Monitor
 
     timestamps(type: :utc_datetime)
   end

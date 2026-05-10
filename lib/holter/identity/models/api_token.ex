@@ -1,4 +1,4 @@
-defmodule Holter.Identity.ApiToken do
+defmodule Holter.Identity.Models.ApiToken do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -18,8 +18,8 @@ defmodule Holter.Identity.ApiToken do
     field :last_used_at, :utc_datetime
     field :revoked_at, :utc_datetime
 
-    belongs_to :user, Holter.Identity.User
-    belongs_to :workspace, Holter.Monitoring.Workspace
+    belongs_to :user, Holter.Identity.Models.User
+    belongs_to :workspace, Holter.Monitoring.Models.Workspace
 
     timestamps(type: :utc_datetime)
   end

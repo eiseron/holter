@@ -2,8 +2,8 @@ defmodule Holter.Seeds.Identity.Users do
   @moduledoc false
 
   alias Holter.Identity.Memberships
+  alias Holter.Identity.Models.User
   alias Holter.Identity.Password
-  alias Holter.Identity.User
   alias Holter.Repo
 
   @dev_email "alice@holter.test"

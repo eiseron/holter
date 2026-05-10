@@ -1,4 +1,4 @@
-defmodule Holter.Identity.User do
+defmodule Holter.Identity.Models.User do
   use Ecto.Schema
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset

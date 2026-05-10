@@ -1,7 +1,9 @@
 defmodule Holter.Security.RlsEmailChannelsTest do
   use Holter.DataCase, async: false
 
-  alias Holter.Delivery.{EmailChannel, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
+  alias Holter.Delivery.Models.EmailChannel
   alias Holter.Repo
 
   setup do

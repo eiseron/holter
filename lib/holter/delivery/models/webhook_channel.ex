@@ -1,4 +1,4 @@
-defmodule Holter.Delivery.WebhookChannel do
+defmodule Holter.Delivery.Models.WebhookChannel do
   @moduledoc false
   use Ecto.Schema
 
@@ -20,7 +20,7 @@ defmodule Holter.Delivery.WebhookChannel do
     field :last_test_dispatched_at, :utc_datetime
     field :locale, :string
 
-    belongs_to :workspace, Holter.Monitoring.Workspace
+    belongs_to :workspace, Holter.Monitoring.Models.Workspace
 
     timestamps(type: :utc_datetime)
   end

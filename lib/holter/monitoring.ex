@@ -4,7 +4,6 @@ defmodule Holter.Monitoring do
   """
 
   alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Workspaces}
-
   defdelegate list_monitors(actor), to: Monitors
   defdelegate count_monitors(actor, workspace_id), to: Monitors
   defdelegate at_quota?(actor, workspace, exclude_monitor_id \\ nil), to: Monitors

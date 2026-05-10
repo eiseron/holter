@@ -4,7 +4,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetrics do
   import HolterWeb.LiveView.SortPagination
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
   alias HolterWeb.LiveView.{FilterParams, PubSubSubscriptions}
 
   @sortable_cols ~w(date uptime_percent avg_latency_ms total_downtime_minutes)

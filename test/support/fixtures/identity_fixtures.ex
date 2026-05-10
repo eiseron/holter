@@ -5,10 +5,10 @@ defmodule Holter.IdentityFixtures do
 
   alias Holter.Identity
   alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Models.User
   alias Holter.Identity.Scopes
   alias Holter.Identity.Tokens
-  alias Holter.Identity.User
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
   alias Holter.MonitoringFixtures
   alias Holter.Repo
 

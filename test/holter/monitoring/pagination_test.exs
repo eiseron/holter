@@ -2,7 +2,8 @@ defmodule Holter.Monitoring.PaginationTest do
   use Holter.DataCase, async: true
 
   import Ecto.Query
-  alias Holter.Monitoring.{MonitorLog, Pagination}
+  alias Holter.Monitoring.Models.MonitorLog
+  alias Holter.Monitoring.Pagination
   alias Holter.Repo
 
   describe "resolve_page_size/2" do

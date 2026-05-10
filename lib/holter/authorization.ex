@@ -34,9 +34,9 @@ defmodule Holter.Authorization do
 
   Three actor shapes are recognised:
 
-    * `%Holter.Identity.User{}` — the canonical actor passed by
+    * `%Holter.Identity.Models.User{}` — the canonical actor passed by
       LiveViews and API controllers (`current_user`).
-    * `%Holter.Identity.ApiToken{}` — accepted as a fallback path
+    * `%Holter.Identity.Models.ApiToken{}` — accepted as a fallback path
       (mix tasks, IEx, internal flows). Authorization validates that the
       token's `:user` association is preloaded **and** that the token
       carries the scope returned by `scope_for/2` for the action. The
@@ -59,8 +59,8 @@ defmodule Holter.Authorization do
   """
 
   alias Holter.Authorization.Policies
-  alias Holter.Identity.{ApiToken, User}
-  alias Holter.Monitoring.Monitor
+  alias Holter.Identity.Models.{ApiToken, User}
+  alias Holter.Monitoring.Models.Monitor
 
   def can?(:system, _action, _subject), do: true
 

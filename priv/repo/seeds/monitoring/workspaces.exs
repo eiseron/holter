@@ -1,7 +1,7 @@
 defmodule Holter.Seeds.Monitoring.Workspaces do
   @moduledoc false
 
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
   alias Holter.Repo
 
   def create_default do

@@ -12,8 +12,8 @@ defmodule Holter.Delivery.WebhookChannels do
 
   import Ecto.Query
 
-  alias Holter.Delivery.MonitorWebhookChannel
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.MonitorWebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
   alias Holter.Repo
 
   def list(workspace_id) do

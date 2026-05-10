@@ -2,9 +2,9 @@ defmodule Holter.AuthorizationTest do
   use Holter.DataCase, async: true
 
   alias Holter.Authorization
-  alias Holter.Identity.ApiToken
+  alias Holter.Identity.Models.ApiToken
   alias Holter.Identity.Scopes
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   describe ":system actor" do
     test "is authorized to :read a monitor instance" do

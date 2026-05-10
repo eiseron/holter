@@ -1,7 +1,7 @@
 defmodule Holter.Identity.ApiTokenTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Identity.ApiToken
+  alias Holter.Identity.Models.ApiToken
 
   describe "compute_hash/1" do
     test "produces a 32-byte SHA-256 digest" do

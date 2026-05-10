@@ -2,7 +2,7 @@ defmodule HolterWeb.Api.IncidentJSON do
   @moduledoc """
   JSON view for rendering incident data.
   """
-  alias Holter.Monitoring.Incident
+  alias Holter.Monitoring.Models.Incident
 
   def index(%{result: %{data: incidents, meta: meta}}) do
     %{

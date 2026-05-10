@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.MonitorSsrfTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   defp monitor_changeset(url) do
     Monitor.changeset(%Monitor{}, %{

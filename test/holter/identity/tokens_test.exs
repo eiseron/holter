@@ -1,7 +1,7 @@
 defmodule Holter.Identity.TokensTest do
   use Holter.DataCase, async: false
 
-  alias Holter.Identity.Token
+  alias Holter.Identity.Models.Token
   alias Holter.Identity.Tokens
 
   describe "create_session_token/2" do

@@ -35,7 +35,7 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
   import Holter.RLSHelpers, only: [setup_app_role: 0]
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.MonitorLog
+  alias Holter.Monitoring.Models.MonitorLog
   alias Holter.Monitoring.Workers.{HTTPCheck, MonitorDispatcher}
   alias Holter.Repo
   alias Holter.Repo.Tenant

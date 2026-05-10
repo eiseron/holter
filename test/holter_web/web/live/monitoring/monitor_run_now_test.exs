@@ -6,7 +6,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
   import Phoenix.LiveViewTest
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   setup do
     monitor =

@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
   use Holter.DataCase, async: true
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   describe "create_monitor/1 — max_monitors quota" do
     test "rejects when workspace is at capacity" do

@@ -2,7 +2,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   use HolterWeb, :monitoring_live_view
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   @impl true
   def mount(%{"workspace_slug" => slug}, _session, socket) do

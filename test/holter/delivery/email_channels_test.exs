@@ -4,9 +4,9 @@ defmodule Holter.Delivery.EmailChannelsTest do
   import Holter.MonitoringFixtures
   import Swoosh.TestAssertions
 
-  alias Holter.Delivery.EmailChannel
-  alias Holter.Delivery.EmailChannelRecipient
   alias Holter.Delivery.EmailChannels
+  alias Holter.Delivery.Models.EmailChannel
+  alias Holter.Delivery.Models.EmailChannelRecipient
   alias Holter.Repo
 
   describe "create/1" do

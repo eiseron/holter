@@ -1,14 +1,9 @@
 defmodule Holter.Delivery.Engine do
   @moduledoc false
 
-  alias Holter.Delivery.{
-    Broadcaster,
-    EmailChannel,
-    EmailChannels,
-    WebhookChannel,
-    WebhookChannels
-  }
+  alias Holter.Delivery.{Broadcaster, EmailChannels, WebhookChannels}
 
+  alias Holter.Delivery.Models.{EmailChannel, WebhookChannel}
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
 
   @test_dispatch_cooldown 60

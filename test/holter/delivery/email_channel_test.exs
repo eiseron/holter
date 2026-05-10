@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.EmailChannelTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery.EmailChannel
+  alias Holter.Delivery.Models.EmailChannel
 
   describe "changeset/2" do
     test "is invalid without a name" do

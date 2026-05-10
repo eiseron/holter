@@ -2,7 +2,7 @@ defmodule Holter.Identity.Emails.PasswordChangedTest do
   use Holter.DataCase, async: true
 
   alias Holter.Identity.Emails.PasswordChanged
-  alias Holter.Identity.User
+  alias Holter.Identity.Models.User
 
   defp build_email(overrides \\ []) do
     user = struct!(User, email: "alice@holter.test")

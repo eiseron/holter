@@ -1,7 +1,7 @@
 defmodule Holter.Seeds.Monitoring.DailyMetrics do
   @moduledoc false
 
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
   alias Holter.Repo
 
   def create_for(monitors) do

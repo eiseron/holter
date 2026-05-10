@@ -7,7 +7,7 @@ defmodule HolterWeb.Web.Identity.UserForgotPasswordLiveTest do
   import Phoenix.LiveViewTest
   import Swoosh.TestAssertions
 
-  alias Holter.Identity.Token
+  alias Holter.Identity.Models.Token
   alias Holter.Repo
 
   defp drain_mailbox do

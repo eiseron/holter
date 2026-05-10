@@ -1,4 +1,4 @@
-defmodule Holter.Monitoring.DailyMetric do
+defmodule Holter.Monitoring.Models.DailyMetric do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -10,7 +10,7 @@ defmodule Holter.Monitoring.DailyMetric do
     field :avg_latency_ms, :integer, default: 0
     field :total_downtime_minutes, :integer, default: 0
 
-    belongs_to :monitor, Holter.Monitoring.Monitor
+    belongs_to :monitor, Holter.Monitoring.Models.Monitor
 
     timestamps(type: :utc_datetime)
   end

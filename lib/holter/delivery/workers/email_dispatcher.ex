@@ -5,8 +5,10 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   import Swoosh.Email
 
-  alias Holter.Delivery.{EmailChannel, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
+  alias Holter.Delivery.Models.EmailChannel
   alias Holter.I18n.Locale
   alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring

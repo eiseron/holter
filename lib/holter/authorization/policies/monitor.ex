@@ -1,6 +1,6 @@
 defmodule Holter.Authorization.Policies.Monitor do
   @moduledoc """
-  Authorization policy for `Holter.Monitoring.Monitor`.
+  Authorization policy for `Holter.Monitoring.Models.Monitor`.
 
   Resolves the parent workspace from either an instance subject
   (`%Monitor{workspace_id: ...}`) or an intent tuple
@@ -20,9 +20,8 @@ defmodule Holter.Authorization.Policies.Monitor do
   @behaviour Holter.Authorization.Policy
 
   alias Holter.Identity.Memberships
-  alias Holter.Identity.User
-  alias Holter.Monitoring.{Monitor, Workspace}
-
+  alias Holter.Identity.Models.User
+  alias Holter.Monitoring.Models.{Monitor, Workspace}
   @impl true
   def can?(%User{} = user, action, %Monitor{workspace_id: workspace_id}) do
     workspace_role_check(user, action, %Workspace{id: workspace_id})

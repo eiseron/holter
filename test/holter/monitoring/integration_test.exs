@@ -101,11 +101,12 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "stamps resolved_at on the incident", %{incident: incident} do
-      assert Holter.Repo.get!(Holter.Monitoring.Incident, incident.id).resolved_at
+      assert Holter.Repo.get!(Holter.Monitoring.Models.Incident, incident.id).resolved_at
     end
 
     test "records duration_seconds on the incident", %{incident: incident} do
-      assert Holter.Repo.get!(Holter.Monitoring.Incident, incident.id).duration_seconds >= 0
+      assert Holter.Repo.get!(Holter.Monitoring.Models.Incident, incident.id).duration_seconds >=
+               0
     end
   end
 

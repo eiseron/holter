@@ -4,8 +4,10 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   import HolterWeb.Components.Delivery.EmailChannelFormFields
   import HolterWeb.Components.Delivery.MonitorChannelSelect
 
-  alias Holter.Delivery.{EmailChannel, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
   alias Holter.Delivery.Emails.RecipientVerification
+  alias Holter.Delivery.Models.EmailChannel
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
 

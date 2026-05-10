@@ -4,7 +4,7 @@ defmodule HolterWeb.Api.Security do
 
   Public API endpoints under `/api/v1` require an `Authorization: Bearer
   <token>` header carrying a Holter API token (workspace-scoped, see
-  `Holter.Identity.ApiToken`). This module exports the scheme entry to
+  `Holter.Identity.Models.ApiToken`). This module exports the scheme entry to
   drop into `components.securitySchemes` and the global requirement to
   apply it to every operation by default.
   """

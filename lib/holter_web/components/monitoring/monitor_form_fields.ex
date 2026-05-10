@@ -4,7 +4,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorFormFields do
 
   import HolterWeb.Components.Input
 
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
   alias HolterWeb.Components.Monitoring.IntervalFormat
 
   @doc """

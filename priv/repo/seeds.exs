@@ -8,7 +8,7 @@ Code.require_file("seeds/identity/api_tokens.exs", __DIR__)
 Code.require_file("seeds/delivery/webhook_channels.exs", __DIR__)
 Code.require_file("seeds/delivery/email_channels.exs", __DIR__)
 
-alias Holter.Monitoring.Workspace
+alias Holter.Monitoring.Models.Workspace
 alias Holter.Repo
 alias Holter.Seeds.Delivery.{EmailChannels, WebhookChannels}
 alias Holter.Seeds.Identity.{ApiTokens, Users}

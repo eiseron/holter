@@ -14,7 +14,6 @@ defmodule Holter.Monitoring.MonitorClient do
     @behaviour Holter.Monitoring.MonitorClient
 
     alias Holter.Monitoring.{CertificateParser, Rdap}
-
     @max_body_bytes 5 * 1024 * 1024
 
     def body_within_limit?(body, limit \\ @max_body_bytes)

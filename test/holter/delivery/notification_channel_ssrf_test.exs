@@ -1,7 +1,7 @@
 defmodule Holter.Delivery.NotificationChannelSsrfTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Delivery.{EmailChannel, WebhookChannel}
+  alias Holter.Delivery.Models.{EmailChannel, WebhookChannel}
 
   defp webhook_changeset(url) do
     %WebhookChannel{}

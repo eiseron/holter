@@ -1,9 +1,9 @@
 defmodule Holter.Identity.MembershipsTest do
   use Holter.DataCase, async: true
 
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.Memberships
-  alias Holter.Identity.WorkspaceMembership
+  alias Holter.Identity.Models.ApiToken
+  alias Holter.Identity.Models.WorkspaceMembership
   alias Holter.Repo.Tenant
 
   describe "create_default_membership/2" do
@@ -222,7 +222,7 @@ defmodule Holter.Identity.MembershipsTest do
       summary =
         Memberships.list_workspace_memberships_for_user(user)
         |> Enum.map(fn m ->
-          %Holter.Monitoring.Workspace{slug: slug} = m.workspace
+          %Holter.Monitoring.Models.Workspace{slug: slug} = m.workspace
           {slug, m.role}
         end)
         |> Enum.sort()

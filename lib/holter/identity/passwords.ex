@@ -15,10 +15,10 @@ defmodule Holter.Identity.Passwords do
   alias Holter.Identity.EmailNormalizer
   alias Holter.Identity.Emails.PasswordChanged
   alias Holter.Identity.Emails.PasswordResetRequest
+  alias Holter.Identity.Models.Token
+  alias Holter.Identity.Models.User
   alias Holter.Identity.Password
-  alias Holter.Identity.Token
   alias Holter.Identity.Tokens
-  alias Holter.Identity.User
   alias Holter.Mailers.InfoMailer
   alias Holter.Repo
 

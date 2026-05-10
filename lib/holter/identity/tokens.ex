@@ -8,8 +8,8 @@ defmodule Holter.Identity.Tokens do
 
   import Ecto.Query
 
-  alias Holter.Identity.Token
-  alias Holter.Identity.User
+  alias Holter.Identity.Models.Token
+  alias Holter.Identity.Models.User
   alias Holter.Repo
 
   def create_session_token(%User{id: user_id}, context \\ %{}) do

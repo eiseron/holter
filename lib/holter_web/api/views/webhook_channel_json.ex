@@ -5,7 +5,7 @@ defmodule HolterWeb.Api.WebhookChannelJSON do
   Flat response shape — webhook fields live on the top-level object,
   no parent-channel wrapper.
   """
-  alias Holter.Delivery.WebhookChannel
+  alias Holter.Delivery.Models.WebhookChannel
 
   def index(%{channels: channels}) do
     %{data: Enum.map(channels, &data/1)}

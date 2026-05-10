@@ -24,10 +24,10 @@ defmodule Holter.Delivery.EmailChannels do
   import Ecto.Query
 
   alias Ecto.Multi
-  alias Holter.Delivery.EmailChannel
-  alias Holter.Delivery.EmailChannelRecipient
   alias Holter.Delivery.Emails.RecipientVerification
-  alias Holter.Delivery.MonitorEmailChannel
+  alias Holter.Delivery.Models.EmailChannel
+  alias Holter.Delivery.Models.EmailChannelRecipient
+  alias Holter.Delivery.Models.MonitorEmailChannel
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
   alias Holter.Repo

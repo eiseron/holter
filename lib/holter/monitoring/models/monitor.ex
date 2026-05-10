@@ -1,4 +1,4 @@
-defmodule Holter.Monitoring.Monitor do
+defmodule Holter.Monitoring.Models.Monitor do
   use Ecto.Schema
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
@@ -86,9 +86,9 @@ defmodule Holter.Monitoring.Monitor do
 
     field :open_incidents_count, :integer, virtual: true, default: 0
 
-    belongs_to :workspace, Holter.Monitoring.Workspace
-    has_many :daily_metrics, Holter.Monitoring.DailyMetric
-    has_many :logs, Holter.Monitoring.MonitorLog
+    belongs_to :workspace, Holter.Monitoring.Models.Workspace
+    has_many :daily_metrics, Holter.Monitoring.Models.DailyMetric
+    has_many :logs, Holter.Monitoring.Models.MonitorLog
 
     timestamps(type: :utc_datetime)
   end

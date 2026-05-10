@@ -2,9 +2,9 @@ defmodule Holter.Seeds.Identity.ApiTokens do
   @moduledoc false
 
   alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Models.User
   alias Holter.Identity.Scopes
-  alias Holter.Identity.User
-  alias Holter.Monitoring.Workspace
+  alias Holter.Monitoring.Models.Workspace
 
   def create_dev(%User{} = user, %Workspace{} = workspace) do
     {:ok, _token, plaintext} =

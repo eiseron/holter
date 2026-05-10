@@ -34,16 +34,9 @@ defmodule Holter.Monitoring.Monitors do
   alias Holter.Authorization
   alias Holter.Identity.Tenant, as: IdentityTenant
 
-  alias Holter.Monitoring.{
-    Broadcaster,
-    Incident,
-    Incidents,
-    Monitor,
-    Pagination,
-    Workspace,
-    Workspaces
-  }
+  alias Holter.Monitoring.{Broadcaster, Incidents, Pagination, Workspaces}
 
+  alias Holter.Monitoring.Models.{Incident, Monitor, Workspace}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
@@ -349,7 +342,7 @@ defmodule Holter.Monitoring.Monitors do
 
   defp status_from_latest_log(monitor_id) do
     log =
-      Holter.Monitoring.MonitorLog
+      Holter.Monitoring.Models.MonitorLog
       |> where([l], l.monitor_id == ^monitor_id)
       |> order_by([l], desc: l.checked_at, desc: l.inserted_at)
       |> limit(1)
@@ -389,7 +382,7 @@ defmodule Holter.Monitoring.Monitors do
     monitor_ids = Enum.map(monitors, & &1.id)
 
     logs_by_monitor =
-      Holter.Monitoring.MonitorLog
+      Holter.Monitoring.Models.MonitorLog
       |> where([l], l.monitor_id in ^monitor_ids)
       |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
       |> Repo.all()

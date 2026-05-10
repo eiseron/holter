@@ -2,8 +2,8 @@ defmodule HolterWeb.Plugs.FetchApiBearerPlugTest do
   use HolterWeb.ConnCase, async: false
 
   alias Ecto.Changeset
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.ApiTokens
+  alias Holter.Identity.Models.ApiToken
   alias Holter.Repo
   alias Holter.Repo.Tenant
   alias HolterWeb.Plugs.FetchApiBearerPlug

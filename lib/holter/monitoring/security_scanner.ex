@@ -6,7 +6,8 @@ defmodule Holter.Monitoring.SecurityScanner do
   use Gettext, backend: HolterWeb.Gettext
 
   alias Holter.Monitoring
-  alias Holter.Monitoring.{Incidents, Monitor}
+  alias Holter.Monitoring.Incidents
+  alias Holter.Monitoring.Models.Monitor
 
   def process_ssl(monitor, expiration_date) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)

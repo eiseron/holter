@@ -21,7 +21,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
       current_user: user,
       current_workspace: workspace
     } do
-      [m] = Repo.all(Holter.Identity.WorkspaceMembership)
+      [m] = Repo.all(Holter.Identity.Models.WorkspaceMembership)
       assert m.user_id == user.id
       {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Repo.update()
 

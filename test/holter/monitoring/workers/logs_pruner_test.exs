@@ -2,7 +2,7 @@ defmodule Holter.Monitoring.Workers.LogsPrunerTest do
   use Holter.DataCase, async: true
   use Oban.Testing, repo: Holter.Repo
 
-  alias Holter.Monitoring.MonitorLog
+  alias Holter.Monitoring.Models.MonitorLog
   alias Holter.Monitoring.Workers.LogsPruner
 
   setup do

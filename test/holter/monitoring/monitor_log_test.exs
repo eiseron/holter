@@ -1,6 +1,6 @@
 defmodule Holter.Monitoring.MonitorLogTest do
   use Holter.DataCase, async: true
-  alias Holter.Monitoring.MonitorLog
+  alias Holter.Monitoring.Models.MonitorLog
 
   @valid_attrs %{
     status: :up,

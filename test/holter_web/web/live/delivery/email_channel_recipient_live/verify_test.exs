@@ -3,7 +3,9 @@ defmodule HolterWeb.Web.Delivery.EmailChannelRecipientLive.VerifyTest do
 
   import Phoenix.LiveViewTest
 
-  alias Holter.Delivery.{EmailChannelRecipient, EmailChannels}
+  alias Holter.Delivery.EmailChannels
+
+  alias Holter.Delivery.Models.EmailChannelRecipient
 
   setup do
     workspace = workspace_fixture()

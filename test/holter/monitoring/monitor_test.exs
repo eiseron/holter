@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.MonitorTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Monitoring.Monitor
+  alias Holter.Monitoring.Models.Monitor
 
   defp base_attrs(overrides) do
     Map.merge(

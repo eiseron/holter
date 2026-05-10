@@ -1,8 +1,8 @@
 defmodule Holter.Delivery.Engine.ChannelFormatterTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Delivery.EmailChannel
   alias Holter.Delivery.Engine.ChannelFormatter
+  alias Holter.Delivery.Models.EmailChannel
 
   defp down_payload do
     %{

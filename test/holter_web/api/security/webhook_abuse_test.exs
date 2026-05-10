@@ -274,10 +274,10 @@ defmodule HolterWeb.Api.Security.WebhookAbuseTest do
       |> DateTime.truncate(:second)
 
     cond do
-      wc = Holter.Repo.get(Holter.Delivery.WebhookChannel, channel_id) ->
+      wc = Holter.Repo.get(Holter.Delivery.Models.WebhookChannel, channel_id) ->
         wc |> Ecto.Changeset.change(last_test_dispatched_at: past) |> Holter.Repo.update!()
 
-      ec = Holter.Repo.get(Holter.Delivery.EmailChannel, channel_id) ->
+      ec = Holter.Repo.get(Holter.Delivery.Models.EmailChannel, channel_id) ->
         ec |> Ecto.Changeset.change(last_test_dispatched_at: past) |> Holter.Repo.update!()
 
       true ->

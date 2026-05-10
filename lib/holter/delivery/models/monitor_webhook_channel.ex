@@ -1,4 +1,4 @@
-defmodule Holter.Delivery.MonitorWebhookChannel do
+defmodule Holter.Delivery.Models.MonitorWebhookChannel do
   @moduledoc """
   Join row binding a monitor to a webhook channel.
   """
@@ -8,8 +8,8 @@ defmodule Holter.Delivery.MonitorWebhookChannel do
   @primary_key false
   @foreign_key_type :binary_id
   schema "monitor_webhook_channels" do
-    belongs_to :monitor, Holter.Monitoring.Monitor
-    belongs_to :webhook_channel, Holter.Delivery.WebhookChannel
+    belongs_to :monitor, Holter.Monitoring.Models.Monitor
+    belongs_to :webhook_channel, Holter.Delivery.Models.WebhookChannel
 
     field :is_active, :boolean, default: true
     field :inserted_at, :utc_datetime

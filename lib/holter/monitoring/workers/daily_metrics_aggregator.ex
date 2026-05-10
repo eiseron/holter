@@ -8,7 +8,7 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregator do
 
   alias Holter.Monitoring
   alias Holter.Monitoring.Aggregator
-  alias Holter.Monitoring.DailyMetric
+  alias Holter.Monitoring.Models.DailyMetric
   alias Holter.Monitoring.Workers.LogsPruner
   alias Holter.Repo
 

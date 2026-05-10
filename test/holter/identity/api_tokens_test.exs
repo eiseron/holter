@@ -2,9 +2,9 @@ defmodule Holter.Identity.ApiTokensTest do
   use Holter.DataCase, async: false
 
   alias Ecto.Changeset
-  alias Holter.Identity.ApiToken
   alias Holter.Identity.ApiTokens
   alias Holter.Identity.Memberships
+  alias Holter.Identity.Models.ApiToken
   alias Holter.Repo
   alias Holter.Repo.Tenant
 

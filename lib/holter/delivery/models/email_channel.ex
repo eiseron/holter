@@ -1,4 +1,4 @@
-defmodule Holter.Delivery.EmailChannel do
+defmodule Holter.Delivery.Models.EmailChannel do
   @moduledoc false
   use Ecto.Schema
 
@@ -18,9 +18,9 @@ defmodule Holter.Delivery.EmailChannel do
     field :last_test_dispatched_at, :utc_datetime
     field :locale, :string
 
-    belongs_to :workspace, Holter.Monitoring.Workspace
+    belongs_to :workspace, Holter.Monitoring.Models.Workspace
 
-    has_many :recipients, Holter.Delivery.EmailChannelRecipient
+    has_many :recipients, Holter.Delivery.Models.EmailChannelRecipient
 
     timestamps(type: :utc_datetime)
   end
