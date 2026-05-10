@@ -1,6 +1,7 @@
 defmodule Holter.Monitoring.Models.Workspace do
   use Ecto.Schema
   use Gettext, backend: HolterWeb.Gettext
+
   import Ecto.Changeset
 
   alias Holter.I18n.Locale

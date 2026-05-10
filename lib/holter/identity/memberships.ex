@@ -103,4 +103,27 @@ defmodule Holter.Identity.Memberships do
       )
     end)
   end
+
+  @doc """
+  Subquery returning every workspace id the user is a member of,
+  regardless of role. Designed to be composed into authz scopes from
+  other contexts so they never need to import `WorkspaceMembership`
+  directly.
+  """
+  def accessible_workspace_ids_subquery(%{id: user_id}) do
+    from wm in WorkspaceMembership,
+      where: wm.user_id == ^user_id,
+      select: wm.workspace_id
+  end
+
+  @doc """
+  Subquery returning workspace ids where the user holds `:owner` or
+  `:admin`. Mirror of `accessible_workspace_ids_subquery/1` for
+  admin-only authz rules.
+  """
+  def admin_workspace_ids_subquery(%{id: user_id}) do
+    from wm in WorkspaceMembership,
+      where: wm.user_id == ^user_id and wm.role in [:owner, :admin],
+      select: wm.workspace_id
+  end
 end

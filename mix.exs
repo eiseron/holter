@@ -59,6 +59,7 @@ defmodule Holter.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
+      {:bodyguard, "~> 2.4"},
       {:argon2_elixir, "~> 4.0"},
       {:oban, "~> 2.21"},
       {:floki, "~> 0.38.1"},

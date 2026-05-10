@@ -1,6 +1,7 @@
 defmodule Holter.Monitoring.Models.Monitor do
   use Ecto.Schema
   use Gettext, backend: HolterWeb.Gettext
+
   import Ecto.Changeset
 
   alias Holter.Network.Guard, as: NetworkGuard

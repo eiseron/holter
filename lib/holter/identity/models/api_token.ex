@@ -1,5 +1,6 @@
 defmodule Holter.Identity.Models.ApiToken do
   use Ecto.Schema
+
   import Ecto.Changeset
 
   alias Holter.Identity.Scopes
