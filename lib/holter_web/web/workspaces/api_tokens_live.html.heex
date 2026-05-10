@@ -84,11 +84,10 @@
         </div>
       </.form>
     <% else %>
-      <.empty_state>
-        <p data-testid="non-owner-notice">
-          {gettext("Only workspace owners can manage API tokens.")}
-        </p>
-      </.empty_state>
+      <.empty_state
+        data-testid="non-owner-notice"
+        title={gettext("Only workspace owners can manage API tokens")}
+      />
     <% end %>
 
     <section class="h-fieldset-card" aria-labelledby="token-list-heading">

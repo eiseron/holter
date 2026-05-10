@@ -19,8 +19,14 @@
   />
 
   <div class="h-mt-6">
-    <.empty_state :if={Enum.empty?(@metrics)} class="h-empty-state">
-      <p>{gettext("No history recorded yet. Metrics are aggregated daily at midnight.")}</p>
+    <.empty_state
+      :if={Enum.empty?(@metrics)}
+      title={gettext("No daily history yet")}
+      description={gettext("Metrics are aggregated daily at midnight. Check back tomorrow.")}
+    >
+      <:icon>
+        <.icon name="chart-bar" class="h-icon-size-8" />
+      </:icon>
     </.empty_state>
 
     <.table :if={not Enum.empty?(@metrics)} id="metrics-table" rows={@metrics}>

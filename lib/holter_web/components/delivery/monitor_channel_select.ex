@@ -16,9 +16,7 @@ defmodule HolterWeb.Components.Delivery.MonitorChannelSelect do
         {gettext("Select which monitors will trigger notifications through this channel.")}
       </p>
       <%= if Enum.empty?(@monitors) do %>
-        <.empty_state>
-          <p>{gettext("No monitors in this workspace yet.")}</p>
-        </.empty_state>
+        <.empty_state title={gettext("No monitors in this workspace yet")} />
       <% else %>
         <div class="h-monitor-select-grid">
           <%= for monitor <- @monitors do %>

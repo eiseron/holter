@@ -37,11 +37,21 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveTest do
       assert html =~ "Notification Channels"
     end
 
-    test "Given a workspace with no channels, when mounted, then the empty state is shown",
+    test "Given a workspace with no channels, when mounted, then the empty state title is shown",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
+      {:ok, lv, _html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
-      assert html =~ "No notification channels yet"
+      assert has_element?(lv, "section.h-empty-state h2", "No notification channels yet")
+    end
+
+    test "Given a workspace with no channels, when mounted, then the empty state has a primary CTA",
+         %{conn: conn, workspace: workspace} do
+      {:ok, lv, _html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
+
+      assert has_element?(
+               lv,
+               ~s|section.h-empty-state .h-empty-state-actions a[href="/delivery/workspaces/#{workspace.slug}/channels/new"]|
+             )
     end
 
     test "Given a workspace with a webhook channel, when mounted, then it appears in the list",

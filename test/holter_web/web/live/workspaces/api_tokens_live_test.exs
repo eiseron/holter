@@ -195,9 +195,14 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLiveTest do
     } do
       :ok = set_role(user.id, :admin)
 
-      {:ok, lv, html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}/api-tokens")
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}/api-tokens")
 
-      assert html =~ "Only workspace owners can manage API tokens."
+      assert has_element?(
+               lv,
+               "section.h-empty-state[data-testid=non-owner-notice] h2",
+               "Only workspace owners can manage API tokens"
+             )
+
       refute has_element?(lv, "form#new-api-token-form")
     end
   end

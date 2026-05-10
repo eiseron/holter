@@ -18,11 +18,21 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
       assert html =~ "Monitors"
     end
 
-    test "Given a workspace with no monitors, when mounted, then the empty state is shown",
+    test "Given a workspace with no monitors, when mounted, then the empty state title is shown",
          %{conn: conn, workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+      {:ok, lv, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
-      assert html =~ "No assets monitored"
+      assert has_element?(lv, "section.h-empty-state h2", "No monitors yet")
+    end
+
+    test "Given a workspace with no monitors and below quota, when mounted, then the empty state has a primary CTA",
+         %{conn: conn, workspace: workspace} do
+      {:ok, lv, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+      assert has_element?(
+               lv,
+               ~s|section.h-empty-state .h-empty-state-actions a[href="/monitoring/workspaces/#{workspace.slug}/monitor/new"]|
+             )
     end
 
     test "Given a workspace with monitors, when mounted, then monitor URLs are listed",

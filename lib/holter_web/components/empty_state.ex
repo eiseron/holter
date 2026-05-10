@@ -2,27 +2,35 @@ defmodule HolterWeb.Components.EmptyState do
   @moduledoc false
   use HolterWeb, :component
 
-  @doc """
-  Renders an empty state container.
+  attr :title, :string, default: nil
+  attr :description, :string, default: nil
+  attr :variant, :string, default: "default", values: ~w(default boxed)
+  attr :class, :any, default: nil
+  attr :rest, :global
 
-  ## Examples
-
-      <.empty_state>
-        <p>No items found.</p>
-      </.empty_state>
-
-      <.empty_state class="h-empty-state-dark">
-        <p>No monitors found in this workspace.</p>
-      </.empty_state>
-  """
-  attr :class, :string, default: "h-empty-state"
-  slot :inner_block, required: true
+  slot :icon
+  slot :actions
+  slot :inner_block
 
   def empty_state(assigns) do
     ~H"""
-    <div class={@class}>
-      {render_slot(@inner_block)}
-    </div>
+    <section
+      class={["h-empty-state", "h-empty-state-#{@variant}", @class]}
+      role="status"
+      {@rest}
+    >
+      <div :if={@icon != []} class="h-empty-state-icon" aria-hidden="true">
+        {render_slot(@icon)}
+      </div>
+      <h2 :if={@title} class="h-empty-state-title">{@title}</h2>
+      <p :if={@description} class="h-empty-state-description">{@description}</p>
+      <div :if={@actions != []} class="h-empty-state-actions">
+        {render_slot(@actions)}
+      </div>
+      <%= if is_nil(@title) and is_nil(@description) do %>
+        {render_slot(@inner_block)}
+      <% end %>
+    </section>
     """
   end
 end
