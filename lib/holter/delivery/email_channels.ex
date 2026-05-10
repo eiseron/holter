@@ -5,18 +5,20 @@ defmodule Holter.Delivery.EmailChannels do
   receive alerts lives in `email_channel_recipients`. Per-recipient
   verification (and the resend flow) lives here, against that table.
 
-  Public functions whose DB work is keyed on a workspace wrap in
-  `Holter.Repo.Tenant.with_workspace!/2`, so the RLS policies on
+  Public functions assume the caller has already stamped the tenant
+  via one of the entry-point macros (`HolterWeb.LiveTenancy`,
+  `HolterWeb.ApiTenancy`, or
+  `Holter.Monitoring.Workers.WorkspaceScopedWorker`). RLS policies on
   `email_channels` (workspace-keyed direct) and
   `email_channel_recipients` / `monitor_email_channels` (anchored on
-  `email_channels.workspace_id`) see the correct tenant under the
-  `holter_app` role at runtime.
+  `email_channels.workspace_id`) read `app.current_workspace_id` set
+  by the boundary stamp.
 
   Public recipient-verification URLs include the workspace slug
   (`/delivery/workspaces/:slug/email-channels/recipients/verify/:token`)
-  so the anonymous verify LiveView can stamp the tenant from the URL
-  before reading the recipient by token — RLS does not have a
-  non-tenant path for these reads.
+  so the anonymous verify LiveView can resolve the workspace from the
+  URL and stamp the tenant before reading the recipient by token —
+  RLS does not have a non-tenant path for these reads.
   """
 
   import Ecto.Query
@@ -26,27 +28,21 @@ defmodule Holter.Delivery.EmailChannels do
   alias Holter.Delivery.EmailChannelRecipient
   alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.MonitorEmailChannel
-  alias Holter.Identity.Tenant, as: IdentityTenant
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
   alias Holter.Repo
-  alias Holter.Repo.Tenant
 
   def list(workspace_id) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      EmailChannel
-      |> where([e], e.workspace_id == ^workspace_id)
-      |> order_by([e], asc: e.name)
-      |> Repo.all()
-    end)
+    EmailChannel
+    |> where([e], e.workspace_id == ^workspace_id)
+    |> order_by([e], asc: e.name)
+    |> Repo.all()
   end
 
   def count(workspace_id) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      EmailChannel
-      |> where([e], e.workspace_id == ^workspace_id)
-      |> Repo.aggregate(:count)
-    end)
+    EmailChannel
+    |> where([e], e.workspace_id == ^workspace_id)
+    |> Repo.aggregate(:count)
   end
 
   def get(id) do
@@ -61,29 +57,15 @@ defmodule Holter.Delivery.EmailChannels do
   def get!(id), do: Repo.get!(EmailChannel, id)
 
   def create(attrs \\ %{}) do
-    workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
-
-    case IdentityTenant.parse_workspace_id(workspace_id) do
-      {:ok, _} ->
-        Tenant.with_workspace!(workspace_id, fn ->
-          %EmailChannel{}
-          |> EmailChannel.changeset(attrs)
-          |> Repo.insert()
-        end)
-
-      {:error, _} ->
-        %EmailChannel{}
-        |> EmailChannel.changeset(attrs)
-        |> Repo.insert()
-    end
+    %EmailChannel{}
+    |> EmailChannel.changeset(attrs)
+    |> Repo.insert()
   end
 
   def update(%EmailChannel{} = channel, attrs) do
-    Tenant.with_workspace!(channel.workspace_id, fn ->
-      channel
-      |> EmailChannel.changeset(attrs)
-      |> Repo.update()
-    end)
+    channel
+    |> EmailChannel.changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
@@ -97,22 +79,20 @@ defmodule Holter.Delivery.EmailChannels do
   def apply_staged_changes(%EmailChannel{} = channel, %{} = staged) do
     %{attrs: attrs, additions: additions, removed_ids: removed_ids} = staged
 
-    Tenant.with_workspace!(channel.workspace_id, fn ->
-      Multi.new()
-      |> Multi.update(:channel, EmailChannel.changeset(channel, attrs))
-      |> Multi.run(:remove, fn repo, _changes ->
-        remove_recipients(repo, channel.id, removed_ids)
-      end)
-      |> Multi.run(:added, fn repo, _changes ->
-        insert_recipients(repo, channel.id, additions)
-      end)
-      |> Repo.transaction()
-      |> finalize_staged_changes()
+    Multi.new()
+    |> Multi.update(:channel, EmailChannel.changeset(channel, attrs))
+    |> Multi.run(:remove, fn repo, _changes ->
+      remove_recipients(repo, channel.id, removed_ids)
     end)
+    |> Multi.run(:added, fn repo, _changes ->
+      insert_recipients(repo, channel.id, additions)
+    end)
+    |> Repo.transaction()
+    |> finalize_staged_changes()
   end
 
   def delete(%EmailChannel{} = channel) do
-    Tenant.with_workspace!(channel.workspace_id, fn -> Repo.delete(channel) end)
+    Repo.delete(channel)
   end
 
   def change(%EmailChannel{} = channel, attrs \\ %{}),

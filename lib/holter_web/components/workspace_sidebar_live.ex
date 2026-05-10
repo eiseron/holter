@@ -4,12 +4,16 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
   alias Holter.Delivery
   alias Holter.Monitoring
+  alias Holter.Repo.Tenant
 
   @impl true
   def update(assigns, socket) do
     %{workspace: workspace, current_view: current_view} = assigns
-    monitor_count = Monitoring.count_monitors(workspace.id)
-    channel_count = Delivery.count_channels(workspace.id)
+
+    {monitor_count, channel_count} =
+      Tenant.with_workspace!(workspace.id, fn ->
+        {Monitoring.count_monitors(workspace.id), Delivery.count_channels(workspace.id)}
+      end)
 
     {:ok,
      socket

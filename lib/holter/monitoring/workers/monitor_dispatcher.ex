@@ -7,6 +7,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.{DomainCheck, HTTPCheck, SSLCheck}
   alias Holter.Network.Guard, as: NetworkGuard
+  alias Holter.Repo.Tenant
 
   @domain_check_interval_seconds 24 * 60 * 60
 
@@ -17,9 +18,11 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
     jobs =
       Monitoring.list_workspaces()
       |> Enum.flat_map(fn workspace ->
-        workspace.id
-        |> Monitoring.list_monitors_for_dispatch()
-        |> Enum.flat_map(&jobs_for_monitor(&1, now))
+        Tenant.with_workspace!(workspace.id, fn ->
+          workspace.id
+          |> Monitoring.list_monitors_for_dispatch()
+          |> Enum.flat_map(&jobs_for_monitor(&1, now))
+        end)
       end)
 
     if Enum.any?(jobs) do

@@ -35,6 +35,21 @@ defmodule HolterWeb.LiveTenancy do
   Or, more commonly, attach it once in `HolterWeb.monitoring_live_view`
   / `HolterWeb.delivery_live_view` so every workspace-scoped LiveView
   gets the wrap automatically.
+
+  ## LiveComponents are not covered
+
+  This macro only wraps LiveView callbacks. `Phoenix.LiveComponent`
+  has its own lifecycle (`update/2`) that runs during the parent's
+  render diff — *after* the wrapped callback has returned and the
+  `Repo.checkout` has released the connection. Stateful components
+  that hit RLS-enforced tables must therefore stamp their own tenant
+  in `update/2`:
+
+      def update(assigns, socket) do
+        Tenant.with_workspace!(assigns.workspace.id, fn ->
+          load_counts(assigns.workspace.id)
+        end)
+      end
   """
 
   alias Holter.Repo.Tenant

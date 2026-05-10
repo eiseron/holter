@@ -1,22 +1,27 @@
 defmodule Holter.Monitoring.Monitors do
   @moduledoc """
-  Coordinator for the `monitors` table. Every public function that
-  reads or writes monitor rows resolves a workspace from its inputs and
-  wraps the DB work in `Holter.Repo.Tenant.with_workspace!/2`, so the
-  RLS policy on `monitors` (`tenant_isolation`, keyed on
-  `app.current_workspace_id`) sees the right tenant under the
-  `holter_app` role at runtime.
+  Coordinator for the `monitors` table.
 
-  `list_monitors/0` is intentionally NOT wrapped — the caller is
-  expected to iterate over workspaces and call `with_workspace!/2`
-  per row. `list_monitors_for_dispatch/1` already takes the
-  workspace and wraps internally so the periodic dispatcher can call
-  it once per workspace it iterates.
+  Public functions assume the caller has already stamped the tenant via
+  one of the entry-point macros (`HolterWeb.LiveTenancy`,
+  `HolterWeb.ApiTenancy`, or
+  `Holter.Monitoring.Workers.WorkspaceScopedWorker`). Each macro wraps
+  the whole callback in `Holter.Repo.Tenant.with_workspace!/2`, so by
+  the time control reaches a coordinator the RLS session var is
+  already set under the `holter_app` role and the policy on `monitors`
+  (`tenant_isolation`, keyed on `app.current_workspace_id`) sees the
+  right tenant.
 
-  By-id fetchers (`get_monitor/1`, `get_monitor!/1`) are also NOT
-  wrapped: the caller (controller, LiveView, worker) sets the tenant
-  before calling, since the workspace cannot be derived from the id
-  alone.
+  Callers running outside a boundary (mix tasks, IEx, scripts,
+  cross-workspace workers like `MonitorDispatcher` that iterate
+  workspaces) must stamp explicitly. Forgetting to stamp produces
+  empty results from RLS, which surfaces as `:not_found` or zero
+  counts — never a cross-tenant leak.
+
+  `list_monitors/0` is the only public read that does not depend on a
+  tenant: it is used by the periodic `MonitorDispatcher`, which then
+  calls `list_monitors_for_dispatch/1` per workspace inside its own
+  per-row stamp.
   """
 
   import Ecto.Query
@@ -35,65 +40,58 @@ defmodule Holter.Monitoring.Monitors do
 
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
-  alias Holter.Repo.Tenant
 
   def list_monitors do
     Repo.all(Monitor)
   end
 
   def list_monitors_by_workspace(workspace_id) do
-    Tenant.with_workspace!(workspace_id, fn ->
+    Monitor
+    |> where([m], m.workspace_id == ^workspace_id)
+    |> tactical_ranking()
+    |> Repo.all()
+  end
+
+  def list_monitors_with_sparklines(workspace_id, log_limit \\ 30) do
+    monitors =
       Monitor
       |> where([m], m.workspace_id == ^workspace_id)
       |> tactical_ranking()
       |> Repo.all()
-    end)
-  end
 
-  def list_monitors_with_sparklines(workspace_id, log_limit \\ 30) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      monitors =
-        Monitor
-        |> where([m], m.workspace_id == ^workspace_id)
-        |> tactical_ranking()
-        |> Repo.all()
+    monitor_ids = Enum.map(monitors, & &1.id)
 
-      monitor_ids = Enum.map(monitors, & &1.id)
+    logs_by_monitor =
+      Holter.Monitoring.MonitorLog
+      |> where([l], l.monitor_id in ^monitor_ids)
+      |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
+      |> Repo.all()
+      |> Enum.group_by(& &1.monitor_id)
+      |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
 
-      logs_by_monitor =
-        Holter.Monitoring.MonitorLog
-        |> where([l], l.monitor_id in ^monitor_ids)
-        |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
-        |> Repo.all()
-        |> Enum.group_by(& &1.monitor_id)
-        |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
+    incident_counts =
+      Incident
+      |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
+      |> group_by([i], i.monitor_id)
+      |> select([i], {i.monitor_id, count(i.id)})
+      |> Repo.all()
+      |> Map.new()
 
-      incident_counts =
-        Incident
-        |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
-        |> group_by([i], i.monitor_id)
-        |> select([i], {i.monitor_id, count(i.id)})
-        |> Repo.all()
-        |> Map.new()
-
-      Enum.map(monitors, fn monitor ->
-        %{
-          monitor
-          | logs: Map.get(logs_by_monitor, monitor.id, []),
-            open_incidents_count: Map.get(incident_counts, monitor.id, 0)
-        }
-      end)
+    Enum.map(monitors, fn monitor ->
+      %{
+        monitor
+        | logs: Map.get(logs_by_monitor, monitor.id, []),
+          open_incidents_count: Map.get(incident_counts, monitor.id, 0)
+      }
     end)
   end
 
   def get_monitor!(id), do: Repo.get!(Monitor, id)
 
   def count_monitors(workspace_id) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      Monitor
-      |> where(workspace_id: ^workspace_id)
-      |> Repo.aggregate(:count, :id)
-    end)
+    Monitor
+    |> where(workspace_id: ^workspace_id)
+    |> Repo.aggregate(:count, :id)
   end
 
   def get_monitor(id) do
@@ -110,37 +108,32 @@ defmodule Holter.Monitoring.Monitors do
     page = Map.get(params, :page, 1) |> max(1)
     page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
 
-    Tenant.with_workspace!(workspace_id, fn ->
-      base_query =
-        Monitor
-        |> where([m], m.workspace_id == ^workspace_id)
+    base_query =
+      Monitor
+      |> where([m], m.workspace_id == ^workspace_id)
 
-      filtered_query =
-        base_query
-        |> maybe_filter_by(:logical_state, params)
-        |> maybe_filter_by(:health_status, params)
+    filtered_query =
+      base_query
+      |> maybe_filter_by(:logical_state, params)
+      |> maybe_filter_by(:health_status, params)
 
-      total = Repo.aggregate(filtered_query, :count, :id)
+    total = Repo.aggregate(filtered_query, :count, :id)
 
-      monitors =
-        filtered_query
-        |> tactical_ranking()
-        |> Pagination.paginate_query(page, page_size)
-        |> Repo.all()
+    monitors =
+      filtered_query
+      |> tactical_ranking()
+      |> Pagination.paginate_query(page, page_size)
+      |> Repo.all()
 
-      %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
-    end)
+    %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
   end
 
   def create_monitor(attrs \\ %{}) do
     workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
 
     case IdentityTenant.parse_workspace_id(workspace_id) do
-      {:ok, _} ->
-        Tenant.with_workspace!(workspace_id, fn -> do_create_monitor(attrs, workspace_id) end)
-
-      {:error, _} ->
-        {:error, :not_found}
+      {:ok, _} -> do_create_monitor(attrs, workspace_id)
+      {:error, _} -> {:error, :not_found}
     end
   end
 
@@ -157,43 +150,37 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def update_monitor(%Monitor{} = monitor, attrs) do
-    Tenant.with_workspace!(monitor.workspace_id, fn -> do_update_monitor(monitor, attrs) end)
+    do_update_monitor(monitor, attrs)
   end
 
-  def at_quota?(%{max_monitors: max, id: ws_id} = workspace, exclude_monitor_id \\ nil) do
-    Tenant.with_workspace!(workspace, fn ->
-      query =
-        Monitor
-        |> where([m], m.workspace_id == ^ws_id)
-        |> where([m], m.logical_state != :archived)
+  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
+    query =
+      Monitor
+      |> where([m], m.workspace_id == ^ws_id)
+      |> where([m], m.logical_state != :archived)
 
-      query =
-        if exclude_monitor_id do
-          where(query, [m], m.id != ^exclude_monitor_id)
-        else
-          query
-        end
+    query =
+      if exclude_monitor_id do
+        where(query, [m], m.id != ^exclude_monitor_id)
+      else
+        query
+      end
 
-      count = Repo.aggregate(query, :count, :id)
-      count >= max
-    end)
+    count = Repo.aggregate(query, :count, :id)
+    count >= max
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do
-    Tenant.with_workspace!(monitor.workspace_id, fn ->
-      workspace = Repo.get!(Workspace, monitor.workspace_id)
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
 
-      with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
-        now = DateTime.utc_now() |> DateTime.truncate(:second)
-        system_update_monitor(monitor, %{last_manual_check_at: now})
-      end
-    end)
+    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      system_update_monitor(monitor, %{last_manual_check_at: now})
+    end
   end
 
   def delete_monitor(%Monitor{} = monitor) do
-    Tenant.with_workspace!(monitor.workspace_id, fn ->
-      Repo.delete(monitor)
-    end)
+    Repo.delete(monitor)
   end
 
   def change_monitor(%Monitor{} = monitor, attrs \\ %{}) do
@@ -205,22 +192,20 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   def recalculate_health_status(%Monitor{} = monitor) do
-    Tenant.with_workspace!(monitor.workspace_id, fn ->
-      monitor = get_monitor!(monitor.id)
-      log_status = status_from_latest_log(monitor.id)
-      open_incidents = Incidents.list_open_incidents(monitor.id)
-      incident_status = determine_incident_status(open_incidents)
+    monitor = get_monitor!(monitor.id)
+    log_status = status_from_latest_log(monitor.id)
+    open_incidents = Incidents.list_open_incidents(monitor.id)
+    incident_status = determine_incident_status(open_incidents)
 
-      new_status =
-        [log_status, incident_status]
-        |> Enum.max_by(&status_severity/1, fn -> :unknown end)
+    new_status =
+      [log_status, incident_status]
+      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
 
-      if monitor.health_status != new_status do
-        system_update_monitor(monitor, %{health_status: new_status})
-      else
-        {:ok, monitor}
-      end
-    end)
+    if monitor.health_status != new_status do
+      system_update_monitor(monitor, %{health_status: new_status})
+    else
+      {:ok, monitor}
+    end
   end
 
   def status_severity(:down), do: 4
@@ -230,23 +215,21 @@ defmodule Holter.Monitoring.Monitors do
   def status_severity(_), do: 0
 
   def list_monitors_for_dispatch(workspace_id) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      now = DateTime.utc_now()
+    now = DateTime.utc_now()
 
-      Monitor
-      |> where([m], m.workspace_id == ^workspace_id and m.logical_state == :active)
-      |> where(
-        [m],
-        is_nil(m.last_checked_at) or
-          fragment(
-            "? + (? * interval '1 second') <= ?",
-            m.last_checked_at,
-            m.interval_seconds,
-            ^now
-          )
-      )
-      |> Repo.all()
-    end)
+    Monitor
+    |> where([m], m.workspace_id == ^workspace_id and m.logical_state == :active)
+    |> where(
+      [m],
+      is_nil(m.last_checked_at) or
+        fragment(
+          "? + (? * interval '1 second') <= ?",
+          m.last_checked_at,
+          m.interval_seconds,
+          ^now
+        )
+    )
+    |> Repo.all()
   end
 
   defp do_create_monitor(attrs, workspace_id) do
