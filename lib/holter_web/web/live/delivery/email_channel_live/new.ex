@@ -14,7 +14,9 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
         changeset = EmailChannels.change(%EmailChannel{workspace_id: workspace.id})
-        available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+
+        available_monitors =
+          Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
 
         {:ok,
          socket

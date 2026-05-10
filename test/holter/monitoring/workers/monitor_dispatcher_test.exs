@@ -35,7 +35,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     end
 
     test "skips monitor when paused", %{monitor: monitor} do
-      Monitoring.update_monitor(monitor, %{logical_state: :paused})
+      Monitoring.update_monitor(:system, monitor, %{logical_state: :paused})
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
@@ -43,7 +43,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     end
 
     test "skips SSLCheck enqueue when ssl_ignore is true", %{monitor: monitor} do
-      Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+      Monitoring.update_monitor(:system, monitor, %{ssl_ignore: true})
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
@@ -70,7 +70,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     end
 
     test "skips DomainCheck when domain_check_ignore is true", %{monitor: monitor} do
-      Monitoring.update_monitor(monitor, %{domain_check_ignore: true})
+      Monitoring.update_monitor(:system, monitor, %{domain_check_ignore: true})
 
       :ok = MonitorDispatcher.perform(%Oban.Job{})
 
@@ -118,7 +118,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     workspace = workspace_fixture()
 
     {:ok, monitor} =
-      Monitoring.create_monitor(%{
+      Monitoring.create_monitor(:system, %{
         url: "https://active.local",
         method: :get,
         interval_seconds: 60,
@@ -132,7 +132,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
   defp create_active_monitor_with_last_domain_check(seconds_ago) do
     monitor = create_active_monitor()
     time = DateTime.utc_now() |> DateTime.add(seconds_ago, :second) |> DateTime.truncate(:second)
-    {:ok, updated} = Monitoring.update_monitor(monitor, %{last_domain_check_at: time})
+    {:ok, updated} = Monitoring.update_monitor(:system, monitor, %{last_domain_check_at: time})
     updated
   end
 
@@ -140,7 +140,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
     workspace = workspace_fixture()
 
     {:ok, monitor} =
-      Monitoring.create_monitor(%{
+      Monitoring.create_monitor(:system, %{
         url: url,
         method: :get,
         interval_seconds: 60,
@@ -153,7 +153,7 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcherTest do
 
   defp set_last_checked_at(monitor, seconds_ago) do
     time = DateTime.utc_now() |> DateTime.add(seconds_ago, :second)
-    Monitoring.update_monitor(monitor, %{last_checked_at: time})
+    Monitoring.update_monitor(:system, monitor, %{last_checked_at: time})
   end
 
   defp assert_enqueued_check(monitor) do

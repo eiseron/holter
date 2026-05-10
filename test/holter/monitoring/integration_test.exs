@@ -50,7 +50,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :down
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :down
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
@@ -93,7 +93,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
     end
 
     test "closes the open incident", %{monitor: monitor} do
@@ -117,7 +117,7 @@ defmodule Holter.Monitoring.IntegrationTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
 
     test "opens a defacement incident", %{monitor: monitor} do

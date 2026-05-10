@@ -12,26 +12,26 @@ defmodule Holter.Monitoring.SecurityScanner do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     {:ok, updated_monitor} =
-      Monitoring.update_monitor(monitor, %{ssl_expires_at: expiration_date})
+      Monitoring.update_monitor(:system, monitor, %{ssl_expires_at: expiration_date})
 
     expiration_date
     |> DateTime.diff(now, :day)
     |> classify_ssl_expiry()
     |> dispatch_ssl_action(updated_monitor, now)
 
-    Monitoring.recalculate_health_status(updated_monitor)
+    Monitoring.recalculate_health_status(:system, updated_monitor)
   end
 
   def handle_ssl_error(monitor, reason) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
     cause = gettext("SSL Error: %{reason}", reason: inspect(reason))
     open_or_update_ssl_incident(monitor, %{type: :ssl_expiry, now: now, cause: cause})
-    Monitoring.recalculate_health_status(monitor)
+    Monitoring.recalculate_health_status(:system, monitor)
   end
 
   def resolve_ssl_incident(monitor, now) do
     do_resolve_ssl_incident(monitor, now)
-    Monitoring.recalculate_health_status(monitor)
+    Monitoring.recalculate_health_status(:system, monitor)
   end
 
   defp classify_ssl_expiry(days) when days < 0, do: {:open, gettext("Certificate expired")}

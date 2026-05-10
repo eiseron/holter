@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
   alias HolterWeb.Api.{
     DeliveryLogSchemas,
     EmailChannelSchemas,
+    Security,
     WebhookChannelSchemas
   }
 
@@ -32,7 +33,9 @@ defmodule HolterWeb.Api.DeliveryApiSpec do
         %Server{url: "/"}
       ],
       paths: delivery_paths,
+      security: Security.requirement(),
       components: %OpenApiSpex.Components{
+        securitySchemes: Security.schemes(),
         schemas:
           WebhookChannelSchemas.all()
           |> Map.merge(EmailChannelSchemas.all())

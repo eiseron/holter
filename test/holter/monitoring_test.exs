@@ -26,16 +26,16 @@ defmodule Holter.MonitoringTest do
 
     test "Given an existing monitor, when listing monitors, then it returns the monitor within a list",
          %{valid_attrs: valid_attrs} do
-      {:ok, monitor} = Monitoring.create_monitor(valid_attrs)
+      {:ok, monitor} = Monitoring.create_monitor(:system, valid_attrs)
       monitor = %{monitor | raw_keyword_positive: nil, raw_keyword_negative: nil}
-      assert Monitoring.list_monitors() == [monitor]
+      assert Monitoring.list_monitors(:system) == [monitor]
     end
 
     test "Given an existing monitor id, when fetching by id, then it returns the exact monitor struct",
          %{valid_attrs: valid_attrs} do
-      {:ok, monitor} = Monitoring.create_monitor(valid_attrs)
+      {:ok, monitor} = Monitoring.create_monitor(:system, valid_attrs)
       monitor = %{monitor | raw_keyword_positive: nil, raw_keyword_negative: nil}
-      assert Monitoring.get_monitor!(monitor.id) == monitor
+      assert Monitoring.get_monitor!(:system, monitor.id) == monitor
     end
 
     test "Given valid attributes, when creating a monitor, then it successfully persists and triggers an initial check",
@@ -46,7 +46,7 @@ defmodule Holter.MonitoringTest do
                 keyword_positive: ["success", "login"],
                 keyword_negative: ["hacked", "defaced"]
               } = monitor} =
-               Monitoring.create_monitor(valid_attrs)
+               Monitoring.create_monitor(:system, valid_attrs)
 
       assert_enqueued(
         worker: Holter.Monitoring.Workers.HTTPCheck,
@@ -64,21 +64,24 @@ defmodule Holter.MonitoringTest do
     test "Given missing required fields, when creating a monitor, then it rejects insertion and returns an error changeset",
          %{workspace: workspace} do
       assert {:error, %Ecto.Changeset{valid?: false}} =
-               Monitoring.create_monitor(Map.put(@invalid_attrs, :workspace_id, workspace.id))
+               Monitoring.create_monitor(
+                 :system,
+                 Map.put(@invalid_attrs, :workspace_id, workspace.id)
+               )
     end
 
     test "Given a monitor, when creating a change template, then it returns an empty tracking changeset properly",
          %{valid_attrs: valid_attrs} do
-      {:ok, monitor} = Monitoring.create_monitor(valid_attrs)
+      {:ok, monitor} = Monitoring.create_monitor(:system, valid_attrs)
       assert %Ecto.Changeset{valid?: true} = Monitoring.change_monitor(monitor)
     end
 
     test "Given a monitor with keywords, when clearing keywords, then it persists empty positive list",
          %{valid_attrs: valid_attrs} do
-      {:ok, monitor} = Monitoring.create_monitor(valid_attrs)
+      {:ok, monitor} = Monitoring.create_monitor(:system, valid_attrs)
 
       {:ok, updated} =
-        Monitoring.update_monitor(monitor, %{
+        Monitoring.update_monitor(:system, monitor, %{
           "raw_keyword_positive" => "",
           "raw_keyword_negative" => ""
         })
@@ -88,10 +91,10 @@ defmodule Holter.MonitoringTest do
 
     test "Given a monitor with keywords, when clearing keywords, then it persists empty negative list",
          %{valid_attrs: valid_attrs} do
-      {:ok, monitor} = Monitoring.create_monitor(valid_attrs)
+      {:ok, monitor} = Monitoring.create_monitor(:system, valid_attrs)
 
       {:ok, updated} =
-        Monitoring.update_monitor(monitor, %{
+        Monitoring.update_monitor(:system, monitor, %{
           "raw_keyword_positive" => "",
           "raw_keyword_negative" => ""
         })
@@ -102,9 +105,12 @@ defmodule Holter.MonitoringTest do
     test "Given a monitor with custom headers, when clearing headers, then it persists an empty map",
          %{valid_attrs: valid_attrs} do
       {:ok, monitor} =
-        Monitoring.create_monitor(Map.put(valid_attrs, :raw_headers, "{\"X-Test\": \"Value\"}"))
+        Monitoring.create_monitor(
+          :system,
+          Map.put(valid_attrs, :raw_headers, "{\"X-Test\": \"Value\"}")
+        )
 
-      {:ok, updated} = Monitoring.update_monitor(monitor, %{"raw_headers" => ""})
+      {:ok, updated} = Monitoring.update_monitor(:system, monitor, %{"raw_headers" => ""})
       assert updated.headers == %{}
     end
   end

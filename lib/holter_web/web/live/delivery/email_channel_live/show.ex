@@ -16,7 +16,10 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
     with {:ok, channel} <- EmailChannels.get(id),
          {:ok, workspace} <- Monitoring.get_workspace(channel.workspace_id) do
       changeset = EmailChannels.change(channel)
-      available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+
+      available_monitors =
+        Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
+
       linked_monitor_ids = EmailChannels.list_monitor_ids_for(id)
 
       {:ok,

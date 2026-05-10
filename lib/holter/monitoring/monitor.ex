@@ -168,7 +168,7 @@ defmodule Holter.Monitoring.Monitor do
     new_state = get_field(changeset, :logical_state)
 
     if state_changed? and changeset.data.logical_state == :archived and new_state != :archived do
-      if Holter.Monitoring.at_quota?(workspace, changeset.data.id) do
+      if Holter.Monitoring.at_quota?(:system, workspace, changeset.data.id) do
         add_error(changeset, :logical_state, gettext("Monitor limit reached for this workspace"),
           code: :quota_reached
         )

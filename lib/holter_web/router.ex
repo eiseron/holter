@@ -28,6 +28,11 @@ defmodule HolterWeb.Router do
     plug HolterWeb.Plugs.RequireWorkspaceMemberPlug
   end
 
+  pipeline :api_public do
+    plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, otp_app: :holter, module: HolterWeb.Api.ApiSpec
+  end
+
   get "/healthz", HolterWeb.HealthController, :show
 
   scope "/", HolterWeb.Web do
@@ -237,7 +242,7 @@ defmodule HolterWeb.Router do
     end
 
     scope "/api" do
-      pipe_through :api
+      pipe_through :api_public
       get "/openapi", OpenApiSpex.Plug.RenderSpec, []
     end
 

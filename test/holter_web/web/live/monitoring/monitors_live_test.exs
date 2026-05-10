@@ -135,7 +135,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
 
       assert has_element?(lv, "[data-role='monitor-url']", "https://gone.local")
 
-      Monitoring.delete_monitor(monitor)
+      Monitoring.delete_monitor(:system, monitor)
 
       Phoenix.PubSub.broadcast(
         Holter.PubSub,

@@ -661,6 +661,16 @@ components:
       type: object
       x-struct:
       x-validate:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: Holter API token (hk_...)
+      description: |
+        Workspace-scoped API token issued via `/identity/settings/api-tokens`.
+        Send as `Authorization: Bearer hk_...`. Each token carries one or
+        more scopes (e.g. `read:monitors`, `write:monitors`); endpoints
+        document the scope they require in their 403 response body.
+      scheme: bearer
+      type: http
 info:
   description: API for notification channel management and alert dispatch.
   title: Holter Delivery API
@@ -2941,7 +2951,8 @@ paths:
       summary: Create webhook channel
       tags:
         - Webhook Channels
-security: []
+security:
+  - bearerAuth: []
 servers:
   - url: /
     variables: {}

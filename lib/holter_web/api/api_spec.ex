@@ -14,6 +14,7 @@ defmodule HolterWeb.Api.ApiSpec do
     IncidentSchemas,
     MonitorLogSchemas,
     MonitorSchemas,
+    Security,
     WebhookChannelSchemas,
     WorkspaceSchemas
   }
@@ -33,7 +34,9 @@ defmodule HolterWeb.Api.ApiSpec do
         %Server{url: "/"}
       ],
       paths: Paths.from_router(Router),
+      security: Security.requirement(),
       components: %OpenApiSpex.Components{
+        securitySchemes: Security.schemes(),
         schemas:
           MonitorSchemas.all()
           |> Map.merge(WorkspaceSchemas.all())

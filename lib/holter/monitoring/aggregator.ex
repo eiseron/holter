@@ -7,7 +7,7 @@ defmodule Holter.Monitoring.Aggregator do
   alias Holter.Repo
 
   def aggregate_monitor_date(monitor_id, date) do
-    monitor = Holter.Monitoring.get_monitor!(monitor_id)
+    monitor = Holter.Monitoring.get_monitor!(:system, monitor_id)
     now = DateTime.utc_now()
     time_range = build_day_range(date, monitor, now)
 

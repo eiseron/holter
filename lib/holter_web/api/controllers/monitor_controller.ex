@@ -56,7 +56,7 @@ defmodule HolterWeb.Api.MonitorController do
         |> Map.put(:workspace_id, workspace.id)
         |> atomize_enum_params()
 
-      monitors = Monitoring.list_monitors_filtered(params)
+      monitors = Monitoring.list_monitors_filtered(conn.assigns.current_user, params)
       render(conn, :index, monitors: monitors)
     end
   end
@@ -78,7 +78,7 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def show(conn, %{"id" => id}) do
-    with {:ok, monitor} <- Monitoring.get_monitor(id) do
+    with {:ok, monitor} <- Monitoring.get_monitor(conn.assigns.current_user, id) do
       render(conn, :show, monitor: monitor)
     end
   end
@@ -100,12 +100,14 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def create(conn, %{workspace_slug: workspace_slug}) do
+    actor = conn.assigns.current_user
     body = conn.body_params
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
-         :ok <- if(Monitoring.at_quota?(workspace), do: {:error, :quota_reached}, else: :ok),
+         :ok <-
+           if(Monitoring.at_quota?(actor, workspace), do: {:error, :quota_reached}, else: :ok),
          monitor_params = Map.put(body, :workspace_id, workspace.id),
-         {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(monitor_params) do
+         {:ok, %Monitor{} = monitor} <- Monitoring.create_monitor(actor, monitor_params) do
       conn
       |> put_status(:created)
       |> render(:show, monitor: monitor)
@@ -134,10 +136,11 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def update(conn, %{"id" => id}) do
+    actor = conn.assigns.current_user
     monitor_params = conn.body_params["monitor"] || conn.body_params[:monitor] || conn.body_params
 
-    with {:ok, monitor} <- Monitoring.get_monitor(id),
-         {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(monitor, monitor_params) do
+    with {:ok, monitor} <- Monitoring.get_monitor(actor, id),
+         {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(actor, monitor, monitor_params) do
       render(conn, :show, monitor: monitor)
     end
   end
@@ -161,8 +164,10 @@ defmodule HolterWeb.Api.MonitorController do
   )
 
   def delete(conn, %{"id" => id}) do
-    with {:ok, monitor} <- Monitoring.get_monitor(id),
-         {:ok, %Monitor{}} <- Monitoring.delete_monitor(monitor) do
+    actor = conn.assigns.current_user
+
+    with {:ok, monitor} <- Monitoring.get_monitor(actor, id),
+         {:ok, %Monitor{}} <- Monitoring.delete_monitor(actor, monitor) do
       send_resp(conn, :no_content, "")
     end
   end

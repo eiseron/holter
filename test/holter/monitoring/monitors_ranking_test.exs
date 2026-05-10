@@ -26,7 +26,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
       Monitoring.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
       Monitoring.create_incident(incident_attrs(monitor.id, %{type: :ssl_expiry}))
 
-      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      [result] = Monitoring.list_monitors_with_sparklines(:system, workspace.id)
       assert result.open_incidents_count == 2
     end
 
@@ -34,7 +34,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
          %{workspace: workspace} do
       monitor_fixture(%{workspace_id: workspace.id})
 
-      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      [result] = Monitoring.list_monitors_with_sparklines(:system, workspace.id)
       assert result.open_incidents_count == 0
     end
 
@@ -44,7 +44,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
       {:ok, incident} = Monitoring.create_incident(incident_attrs(monitor.id, %{type: :downtime}))
       Monitoring.resolve_incident(incident, DateTime.utc_now() |> DateTime.truncate(:second))
 
-      [result] = Monitoring.list_monitors_with_sparklines(workspace.id)
+      [result] = Monitoring.list_monitors_with_sparklines(:system, workspace.id)
       assert result.open_incidents_count == 0
     end
   end
@@ -59,7 +59,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
       Monitoring.create_incident(incident_attrs(m1.id, %{type: :ssl_expiry}))
       Monitoring.create_incident(incident_attrs(m2.id, %{type: :downtime}))
 
-      [first | _] = Monitoring.list_monitors_by_workspace(workspace.id)
+      [first | _] = Monitoring.list_monitors_by_workspace(:system, workspace.id)
       assert first.id == m1.id
     end
 
@@ -70,7 +70,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
 
       Monitoring.create_incident(incident_attrs(m_with.id, %{type: :ssl_expiry}))
 
-      monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+      monitors = Monitoring.list_monitors_by_workspace(:system, workspace.id)
       ids = Enum.map(monitors, & &1.id)
 
       assert Enum.find_index(ids, &(&1 == m_with.id)) <
@@ -87,7 +87,7 @@ defmodule Holter.Monitoring.MonitorsRankingTest do
       Monitoring.resolve_incident(incident, DateTime.utc_now() |> DateTime.truncate(:second))
       Monitoring.create_incident(incident_attrs(m_open.id, %{type: :downtime}))
 
-      monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+      monitors = Monitoring.list_monitors_by_workspace(:system, workspace.id)
       ids = Enum.map(monitors, & &1.id)
 
       assert Enum.find_index(ids, &(&1 == m_open.id)) <

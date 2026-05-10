@@ -16,7 +16,7 @@ defmodule Holter.Monitoring.EngineTest do
   setup do
     workspace = workspace_fixture()
     attrs = Map.put(@monitor_attrs, :workspace_id, workspace.id)
-    {:ok, monitor} = Monitoring.create_monitor(attrs)
+    {:ok, monitor} = Monitoring.create_monitor(:system, attrs)
     %{monitor: monitor, workspace: workspace}
   end
 
@@ -31,7 +31,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
     end
   end
 
@@ -46,7 +46,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :down
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :down
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
@@ -68,7 +68,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :down
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :down
     end
 
     test "opens a downtime incident", %{monitor: monitor} do
@@ -94,7 +94,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
 
     test "opens a defacement incident", %{monitor: monitor} do
@@ -129,7 +129,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 
@@ -149,7 +149,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
     end
   end
 
@@ -160,7 +160,7 @@ defmodule Holter.Monitoring.EngineTest do
     end
 
     test "sets health_status to :down", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :down
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :down
     end
 
     test "records the exception message in the log", %{monitor: monitor} do
@@ -357,7 +357,7 @@ defmodule Holter.Monitoring.EngineTest do
 
     test "monitor health_status reflects :compromised from open ssl_expiry incident, not raw :up check",
          %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 
@@ -384,7 +384,7 @@ defmodule Holter.Monitoring.EngineTest do
 
     test "monitor health_status reflects :degraded from open warning ssl_expiry incident, not raw :up check",
          %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :degraded
     end
   end
 
@@ -440,7 +440,7 @@ defmodule Holter.Monitoring.EngineTest do
     test "Given a DOWN monitor, when it returns to UP, then the generated log SHOULD be UP (fails if bug exists)",
          %{monitor: monitor} do
       {:ok, _} = Engine.handle_failure(monitor, %RuntimeError{message: "fail"}, 100)
-      monitor = Monitoring.get_monitor!(monitor.id)
+      monitor = Monitoring.get_monitor!(:system, monitor.id)
       assert monitor.health_status == :down
 
       response = %Req.Response{status: 200, body: "success", headers: []}
@@ -485,7 +485,7 @@ defmodule Holter.Monitoring.EngineTest do
       _response = %Req.Response{status: 200, body: "success", headers: []}
 
       {:ok, stale_monitor} =
-        Monitoring.update_monitor(monitor, %{
+        Monitoring.update_monitor(:system, monitor, %{
           health_status: :up,
           last_checked_at: DateTime.add(t2, -60, :second)
         })

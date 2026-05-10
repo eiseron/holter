@@ -57,7 +57,7 @@ defmodule HolterWeb.Api.MonitorLogController do
   )
 
   def index(conn, %{"monitor_id" => monitor_id} = params) do
-    with {:ok, monitor} <- Monitoring.get_monitor(monitor_id) do
+    with {:ok, monitor} <- Monitoring.get_monitor(conn.assigns.current_user, monitor_id) do
       filters = sanitize_filters(params)
       result = Monitoring.list_monitor_logs(monitor, filters)
       render(conn, :index, logs: result)
@@ -86,7 +86,7 @@ defmodule HolterWeb.Api.MonitorLogController do
   )
 
   def show(conn, %{"monitor_id" => monitor_id, "id" => id}) do
-    with {:ok, monitor} <- Monitoring.get_monitor(monitor_id) do
+    with {:ok, monitor} <- Monitoring.get_monitor(conn.assigns.current_user, monitor_id) do
       log = Monitoring.get_monitor_log!(id)
 
       if log.monitor_id == monitor.id do

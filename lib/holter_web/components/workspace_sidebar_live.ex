@@ -9,10 +9,12 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
   @impl true
   def update(assigns, socket) do
     %{workspace: workspace, current_view: current_view} = assigns
+    current_user = assigns[:current_user]
 
     {monitor_count, channel_count} =
       Tenant.with_workspace!(workspace.id, fn ->
-        {Monitoring.count_monitors(workspace.id), Delivery.count_channels(workspace.id)}
+        {Monitoring.count_monitors(current_user, workspace.id),
+         Delivery.count_channels(workspace.id)}
       end)
 
     {:ok,
@@ -21,7 +23,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
      |> assign(:current_view, current_view)
      |> assign(:monitor_count, monitor_count)
      |> assign(:channel_count, channel_count)
-     |> assign(:current_user, assigns[:current_user])
+     |> assign(:current_user, current_user)
      |> assign(:current_workspace_membership, assigns[:current_workspace_membership])}
   end
 

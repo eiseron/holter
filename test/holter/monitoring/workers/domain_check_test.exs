@@ -35,11 +35,11 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
     end
 
     test "updates the monitor domain_expires_at field", %{monitor: monitor, expiry: expiry} do
-      assert Monitoring.get_monitor!(monitor.id).domain_expires_at == expiry
+      assert Monitoring.get_monitor!(:system, monitor.id).domain_expires_at == expiry
     end
 
     test "stamps last_domain_check_at to a recent timestamp on success", %{monitor: monitor} do
-      stamped_at = Monitoring.get_monitor!(monitor.id).last_domain_check_at
+      stamped_at = Monitoring.get_monitor!(:system, monitor.id).last_domain_check_at
       assert DateTime.diff(DateTime.utc_now(), stamped_at, :second) <= 5
     end
   end
@@ -61,11 +61,11 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
     end
 
     test "does not update domain_expires_at", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_monitor!(monitor.id).domain_expires_at)
+      assert is_nil(Monitoring.get_monitor!(:system, monitor.id).domain_expires_at)
     end
 
     test "still stamps last_domain_check_at to honour cadence gating", %{monitor: monitor} do
-      stamped_at = Monitoring.get_monitor!(monitor.id).last_domain_check_at
+      stamped_at = Monitoring.get_monitor!(:system, monitor.id).last_domain_check_at
       assert DateTime.diff(DateTime.utc_now(), stamped_at, :second) <= 5
     end
 
@@ -82,7 +82,7 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
         started_at: DateTime.utc_now() |> DateTime.add(-1, :day) |> DateTime.truncate(:second)
       })
 
-      {:ok, monitor} = Monitoring.update_monitor(monitor, %{domain_check_ignore: true})
+      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{domain_check_ignore: true})
 
       :ok =
         perform_job(DomainCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
@@ -95,7 +95,7 @@ defmodule Holter.Monitoring.Workers.DomainCheckTest do
     end
 
     test "does not perform the RDAP lookup", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_monitor!(monitor.id).domain_expires_at)
+      assert is_nil(Monitoring.get_monitor!(:system, monitor.id).domain_expires_at)
     end
   end
 

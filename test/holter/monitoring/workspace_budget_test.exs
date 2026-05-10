@@ -46,32 +46,34 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       workspace = exhausted_short_workspace()
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      assert {:error, :short_budget_exhausted} = Monitoring.mark_manual_check_triggered(monitor)
+      assert {:error, :short_budget_exhausted} =
+               Monitoring.mark_manual_check_triggered(:system, monitor)
     end
 
     test "does not stamp last_manual_check_at when short budget exhausted" do
       workspace = exhausted_short_workspace()
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      Monitoring.mark_manual_check_triggered(monitor)
+      Monitoring.mark_manual_check_triggered(:system, monitor)
 
-      assert Monitoring.get_monitor!(monitor.id).last_manual_check_at == nil
+      assert Monitoring.get_monitor!(:system, monitor.id).last_manual_check_at == nil
     end
 
     test "returns long_budget_exhausted when hourly cap is reached" do
       workspace = exhausted_long_workspace()
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      assert {:error, :long_budget_exhausted} = Monitoring.mark_manual_check_triggered(monitor)
+      assert {:error, :long_budget_exhausted} =
+               Monitoring.mark_manual_check_triggered(:system, monitor)
     end
 
     test "does not stamp last_manual_check_at when long budget exhausted" do
       workspace = exhausted_long_workspace()
       monitor = monitor_fixture(%{workspace_id: workspace.id})
 
-      Monitoring.mark_manual_check_triggered(monitor)
+      Monitoring.mark_manual_check_triggered(:system, monitor)
 
-      assert Monitoring.get_monitor!(monitor.id).last_manual_check_at == nil
+      assert Monitoring.get_monitor!(:system, monitor.id).last_manual_check_at == nil
     end
   end
 
@@ -80,7 +82,7 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       workspace = exhausted_short_workspace()
 
       {:ok, monitor} =
-        Monitoring.create_monitor(%{
+        Monitoring.create_monitor(:system, %{
           url: "https://second.example.com",
           method: :get,
           interval_seconds: 60,
@@ -96,7 +98,7 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       ws_id = workspace.id
 
       assert {:ok, %{url: ^url, workspace_id: ^ws_id}} =
-               Monitoring.create_monitor(%{
+               Monitoring.create_monitor(:system, %{
                  url: url,
                  method: :get,
                  interval_seconds: 60,
@@ -146,7 +148,7 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       workspace = exhausted_short_create_workspace()
 
       assert {:error, :create_rate_limited} =
-               Monitoring.create_monitor(%{
+               Monitoring.create_monitor(:system, %{
                  url: "https://rate-limited.example.com",
                  method: :get,
                  interval_seconds: 60,
@@ -158,7 +160,7 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       workspace = exhausted_long_create_workspace()
 
       assert {:error, :create_rate_limited} =
-               Monitoring.create_monitor(%{
+               Monitoring.create_monitor(:system, %{
                  url: "https://rate-limited.example.com",
                  method: :get,
                  interval_seconds: 60,
@@ -170,21 +172,21 @@ defmodule Holter.Monitoring.WorkspaceBudgetTest do
       workspace = exhausted_short_create_workspace()
 
       {:error, :create_rate_limited} =
-        Monitoring.create_monitor(%{
+        Monitoring.create_monitor(:system, %{
           url: "https://rate-limited-no-persist.example.com",
           method: :get,
           interval_seconds: 60,
           workspace_id: workspace.id
         })
 
-      assert Monitoring.list_monitors_by_workspace(workspace.id) == []
+      assert Monitoring.list_monitors_by_workspace(:system, workspace.id) == []
     end
 
     test "bypasses create budget for archived monitors" do
       workspace = exhausted_short_create_workspace()
 
       assert {:ok, _} =
-               Monitoring.create_monitor(%{
+               Monitoring.create_monitor(:system, %{
                  url: "https://archived.example.com",
                  method: :get,
                  interval_seconds: 60,

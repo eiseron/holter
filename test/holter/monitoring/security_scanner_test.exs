@@ -21,7 +21,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
       checked_at: DateTime.utc_now() |> DateTime.add(-1, :hour)
     })
 
-    {:ok, monitor} = Holter.Monitoring.recalculate_health_status(monitor)
+    {:ok, monitor} = Holter.Monitoring.recalculate_health_status(:system, monitor)
 
     %{monitor: monitor}
   end
@@ -34,7 +34,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "updates the monitor ssl_expires_at field", %{monitor: monitor, expiry: expiry} do
-      assert Monitoring.get_monitor!(monitor.id).ssl_expires_at == expiry
+      assert Monitoring.get_monitor!(:system, monitor.id).ssl_expires_at == expiry
     end
 
     test "does not open any incident", %{monitor: monitor} do
@@ -59,7 +59,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "downgrades monitor health to :degraded", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :degraded
     end
   end
 
@@ -80,7 +80,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "downgrades monitor health to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 
@@ -92,7 +92,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "downgrades monitor health to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 
@@ -116,7 +116,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "updates monitor health to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 
@@ -128,7 +128,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
       expiry_good = DateTime.utc_now() |> DateTime.add(20, :day)
       SecurityScanner.process_ssl(monitor, expiry_good)
 
-      {:ok, _} = Holter.Monitoring.recalculate_health_status(monitor)
+      {:ok, _} = Holter.Monitoring.recalculate_health_status(:system, monitor)
       :ok
     end
 
@@ -137,7 +137,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "restores monitor health to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
     end
   end
 
@@ -152,7 +152,7 @@ defmodule Holter.Monitoring.SecurityScannerTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
     end
   end
 

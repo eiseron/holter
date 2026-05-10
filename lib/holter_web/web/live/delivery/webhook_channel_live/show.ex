@@ -14,7 +14,10 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
     with {:ok, channel} <- WebhookChannels.get(id),
          {:ok, workspace} <- Monitoring.get_workspace(channel.workspace_id) do
       changeset = WebhookChannels.change(channel)
-      available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+
+      available_monitors =
+        Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
+
       linked_monitor_ids = WebhookChannels.list_monitor_ids_for(id)
 
       {:ok,

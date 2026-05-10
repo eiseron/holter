@@ -53,7 +53,7 @@ defmodule Holter.MonitoringFixtures do
       }
       |> Map.merge(attrs)
 
-    {:ok, monitor} = Holter.Monitoring.create_monitor(attrs)
+    {:ok, monitor} = Holter.Monitoring.create_monitor(:system, attrs)
 
     monitor
   end

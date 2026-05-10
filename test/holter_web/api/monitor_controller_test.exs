@@ -67,7 +67,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       body = json_response(conn, 201)
 
       assert %{"id" => id} = body["data"]
-      assert Monitoring.get_monitor!(id).workspace_id == workspace.id
+      assert Monitoring.get_monitor!(:system, id).workspace_id == workspace.id
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => id})
       assert_schema(body, "MonitorResponse", spec)
     end
@@ -262,7 +262,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
         "monitor" => %{"workspace_id" => other_workspace.id}
       })
 
-      updated_monitor = Monitoring.get_monitor!(monitor.id)
+      updated_monitor = Monitoring.get_monitor!(:system, monitor.id)
       assert updated_monitor.workspace_id == workspace.id
     end
 
@@ -273,7 +273,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
       archived_monitor =
         monitor_fixture(%{workspace_id: full_workspace.id, logical_state: :archived})
 
-      assert Monitoring.at_quota?(full_workspace)
+      assert Monitoring.at_quota?(:system, full_workspace)
 
       conn = authed_api_conn(conn, {user, full_workspace})
 
@@ -297,7 +297,7 @@ defmodule HolterWeb.Api.MonitorControllerTest do
 
       conn = delete(conn, ~p"/api/v1/monitors/#{monitor.id}")
       assert response(conn, 204)
-      assert Monitoring.get_monitor(monitor.id) == {:error, :not_found}
+      assert Monitoring.get_monitor(:system, monitor.id) == {:error, :not_found}
     end
   end
 end

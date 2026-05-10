@@ -34,7 +34,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLive do
 
   defp fetch_monitors(socket) do
     workspace = socket.assigns.workspace
-    monitors = Monitoring.list_monitors_with_sparklines(workspace.id)
+    monitors = Monitoring.list_monitors_with_sparklines(socket.assigns.current_user, workspace.id)
     active_count = Enum.count(monitors, &(&1.logical_state != :archived))
 
     socket

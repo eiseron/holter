@@ -10,7 +10,7 @@ defmodule Holter.Monitoring.Workers.DispatcherLogsPipelineRLSTest do
         ↓ enqueues HTTPCheck.new(%{id, workspace_id})
       HTTPCheck.perform/1
         ↓ Tenant.with_workspace!(workspace_id) wraps the body
-        ↓ Monitoring.get_monitor!(id) — RLS resolves under workspace
+        ↓ Monitoring.get_monitor!(:system, id) — RLS resolves under workspace
         ↓ engine writes a monitor_log row
 
   Without the dispatcher's per-workspace iteration AND the workers'

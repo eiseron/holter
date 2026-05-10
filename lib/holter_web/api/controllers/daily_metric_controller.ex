@@ -52,7 +52,7 @@ defmodule HolterWeb.Api.DailyMetricController do
   )
 
   def index(conn, %{"monitor_id" => monitor_id} = params) do
-    with {:ok, monitor} <- Monitoring.get_monitor(monitor_id) do
+    with {:ok, monitor} <- Monitoring.get_monitor(conn.assigns.current_user, monitor_id) do
       filters = sanitize_filters(params)
       result = Monitoring.list_daily_metrics(monitor.id, filters)
       render(conn, :index, result: result)

@@ -67,7 +67,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   @impl true
   def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    case Monitoring.update_monitor(socket.assigns.monitor, monitor_params) do
+    case Monitoring.update_monitor(
+           socket.assigns.current_user,
+           socket.assigns.monitor,
+           monitor_params
+         ) do
       {:ok, monitor} ->
         hydrated_monitor = hydrate_virtual_array_fields(monitor)
 
@@ -84,7 +88,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   @impl true
   def handle_event("delete", _params, socket) do
-    {:ok, _} = Monitoring.delete_monitor(socket.assigns.monitor)
+    {:ok, _} = Monitoring.delete_monitor(socket.assigns.current_user, socket.assigns.monitor)
 
     {:noreply,
      socket
@@ -105,7 +109,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     monitor =
       Tenant.with_workspace!(workspace.id, fn ->
-        Monitoring.get_monitor!(socket.assigns.monitor.id)
+        Monitoring.get_monitor!(socket.assigns.current_user, socket.assigns.monitor.id)
       end)
 
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
@@ -155,9 +159,11 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   end
 
   defp trigger_manual_check(socket) do
-    case Monitoring.mark_manual_check_triggered(socket.assigns.monitor) do
+    actor = socket.assigns.current_user
+
+    case Monitoring.mark_manual_check_triggered(actor, socket.assigns.monitor) do
       {:ok, updated_monitor} ->
-        Monitoring.enqueue_checks(updated_monitor)
+        Monitoring.enqueue_checks(actor, updated_monitor)
 
         {:noreply,
          socket

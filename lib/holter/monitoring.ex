@@ -5,23 +5,23 @@ defmodule Holter.Monitoring do
 
   alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Workspaces}
 
-  defdelegate list_monitors, to: Monitors
-  defdelegate count_monitors(workspace_id), to: Monitors
-  defdelegate at_quota?(workspace, exclude_monitor_id \\ nil), to: Monitors
-  defdelegate get_monitor!(id), to: Monitors
-  defdelegate get_monitor(id), to: Monitors
-  defdelegate create_monitor(attrs), to: Monitors
-  defdelegate enqueue_checks(monitor), to: Monitors
-  defdelegate update_monitor(monitor, attrs), to: Monitors
-  defdelegate delete_monitor(monitor), to: Monitors
+  defdelegate list_monitors(actor), to: Monitors
+  defdelegate count_monitors(actor, workspace_id), to: Monitors
+  defdelegate at_quota?(actor, workspace, exclude_monitor_id \\ nil), to: Monitors
+  defdelegate get_monitor!(actor, id), to: Monitors
+  defdelegate get_monitor(actor, id), to: Monitors
+  defdelegate create_monitor(actor, attrs), to: Monitors
+  defdelegate enqueue_checks(actor, monitor), to: Monitors
+  defdelegate update_monitor(actor, monitor, attrs), to: Monitors
+  defdelegate delete_monitor(actor, monitor), to: Monitors
   defdelegate change_monitor(monitor, attrs \\ %{}), to: Monitors
   defdelegate change_monitor(monitor, attrs, workspace), to: Monitors
-  defdelegate recalculate_health_status(monitor), to: Monitors
-  defdelegate list_monitors_for_dispatch(workspace_id), to: Monitors
-  defdelegate mark_manual_check_triggered(monitor), to: Monitors
-  defdelegate list_monitors_by_workspace(workspace_id), to: Monitors
-  defdelegate list_monitors_with_sparklines(workspace_id, limit \\ 30), to: Monitors
-  defdelegate list_monitors_filtered(params), to: Monitors
+  defdelegate recalculate_health_status(actor, monitor), to: Monitors
+  defdelegate list_monitors_for_dispatch(actor, workspace_id), to: Monitors
+  defdelegate mark_manual_check_triggered(actor, monitor), to: Monitors
+  defdelegate list_monitors_by_workspace(actor, workspace_id), to: Monitors
+  defdelegate list_monitors_with_sparklines(actor, workspace_id, limit \\ 30), to: Monitors
+  defdelegate list_monitors_filtered(actor, params), to: Monitors
 
   defdelegate list_monitor_logs(monitor, filters), to: Logs
   defdelegate list_recent_logs_for_chart(monitor_id, hours \\ 24), to: Logs

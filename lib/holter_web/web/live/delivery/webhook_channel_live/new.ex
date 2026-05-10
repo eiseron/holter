@@ -12,7 +12,9 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.New do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
         changeset = WebhookChannels.change(%WebhookChannel{workspace_id: workspace.id})
-        available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+
+        available_monitors =
+          Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
 
         {:ok,
          socket

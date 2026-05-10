@@ -129,7 +129,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
   describe "perform/1 with ssl_ignore enabled" do
     setup %{monitor: monitor} do
-      {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
+      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{ssl_ignore: true})
 
       expect(MonitorClientMock, :request, fn opts ->
         assert opts[:connect_options][:transport_opts][:verify] == :verify_none
@@ -146,7 +146,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
   describe "perform/1 with follow_redirects enabled" do
     test "follows a single redirect", %{monitor: monitor} do
-      {:ok, monitor} = Monitoring.update_monitor(monitor, %{follow_redirects: true})
+      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{follow_redirects: true})
 
       expect(MonitorClientMock, :request, fn opts ->
         assert opts[:url] == "https://1.2.3.4"
@@ -173,7 +173,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "follows multiple redirects up to max_redirects", %{monitor: monitor} do
       {:ok, monitor} =
-        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 2})
+        Monitoring.update_monitor(:system, monitor, %{follow_redirects: true, max_redirects: 2})
 
       expect(MonitorClientMock, :request, fn _opts ->
         {:ok, %Req.Response{status: 301, headers: [{"location", "/1"}], body: ""}}
@@ -196,7 +196,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "stops at max_redirects", %{monitor: monitor} do
       {:ok, monitor} =
-        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 1})
+        Monitoring.update_monitor(:system, monitor, %{follow_redirects: true, max_redirects: 1})
 
       expect(MonitorClientMock, :request, fn _opts ->
         {:ok, %Req.Response{status: 301, headers: [{"location", "/1"}], body: ""}}
@@ -216,7 +216,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
 
     test "handles circular redirects", %{monitor: monitor} do
       {:ok, monitor} =
-        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 5})
+        Monitoring.update_monitor(:system, monitor, %{follow_redirects: true, max_redirects: 5})
 
       expect(MonitorClientMock, :request, 6, fn opts ->
         location = if String.ends_with?(opts[:url], "A"), do: "/B", else: "/A"
@@ -234,7 +234,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
   describe "redirect_list with a two-hop chain" do
     setup %{monitor: monitor} do
       {:ok, monitor} =
-        Monitoring.update_monitor(monitor, %{follow_redirects: true, max_redirects: 3})
+        Monitoring.update_monitor(:system, monitor, %{follow_redirects: true, max_redirects: 3})
 
       expect(MonitorClientMock, :request, fn _opts ->
         {:ok, %Req.Response{status: 301, headers: [{"location", "/hop1"}], body: ""}}
@@ -373,6 +373,6 @@ defmodule Holter.Monitoring.Workers.HTTPCheckTest do
   defp job_args(monitor), do: %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
 
   defp current_status(monitor) do
-    Monitoring.get_monitor!(monitor.id).health_status
+    Monitoring.get_monitor!(:system, monitor.id).health_status
   end
 end
