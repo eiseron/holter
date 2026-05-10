@@ -7,6 +7,24 @@ defmodule Holter.Identity.ApiTokens do
 
   Plaintext is returned to callers exactly once at creation; only the
   SHA-256 digest is persisted.
+
+  ## Tenant context
+
+  `list_tokens_for_workspace/1`, `create_token/3` and `revoke_token/1`
+  are called from `HolterWeb.Web.Workspaces.ApiTokensLive`, which uses
+  `:workspace_live_view` and inherits `HolterWeb.LiveTenancy` — the
+  boundary stamps `app.current_workspace_id` for the whole callback,
+  so the coordinator does not re-stamp.
+
+  Two functions stamp tenant themselves because they run *before* the
+  boundary has set one:
+
+    * `fetch_active_token_by_plaintext/1` calls a SECURITY DEFINER
+      function and is therefore tenant-agnostic by design.
+    * `touch_last_used/2` runs inside `HolterWeb.Plugs.FetchApiBearerPlug`,
+      which fires before `HolterWeb.ApiTenancy` wraps the controller
+      action. Without the explicit `Tenant.with_workspace!/2` here the
+      `UPDATE` would silently affect zero rows under RLS.
   """
 
   import Ecto.Query
@@ -36,13 +54,11 @@ defmodule Holter.Identity.ApiTokens do
   Lists all tokens for the given workspace, newest first.
   """
   def list_tokens_for_workspace(%Workspace{id: workspace_id}) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      Repo.all(
-        from t in ApiToken,
-          where: t.workspace_id == ^workspace_id,
-          order_by: [desc: t.inserted_at]
-      )
-    end)
+    Repo.all(
+      from t in ApiToken,
+        where: t.workspace_id == ^workspace_id,
+        order_by: [desc: t.inserted_at]
+    )
   end
 
   @doc """
@@ -76,11 +92,9 @@ defmodule Holter.Identity.ApiTokens do
   def revoke_token(%ApiToken{revoked_at: nil} = token) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    Tenant.with_workspace!(token.workspace_id, fn ->
-      token
-      |> ApiToken.revoke_changeset(now)
-      |> Repo.update()
-    end)
+    token
+    |> ApiToken.revoke_changeset(now)
+    |> Repo.update()
   end
 
   def revoke_token(%ApiToken{} = token), do: {:ok, token}
@@ -113,12 +127,7 @@ defmodule Holter.Identity.ApiTokens do
       |> Map.put(:hashed_value, hashed)
       |> ApiToken.insert_changeset()
 
-    result =
-      Tenant.with_workspace!(workspace.id, fn ->
-        Repo.insert(changeset)
-      end)
-
-    case result do
+    case Repo.insert(changeset) do
       {:ok, token} -> {:ok, token, plaintext}
       {:error, changeset} -> {:error, changeset}
     end
