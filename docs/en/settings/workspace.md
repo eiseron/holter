@@ -5,7 +5,7 @@ description: Workspace-wide preferences. Owner/admin only.
 
 # Workspace Settings
 
-Open Workspace settings from the **Workspace settings** entry in the workspace sidebar (visible only to admins and owners) or by clicking your workspace's name from the [User settings](user.md) page. The page lives at `/workspaces/{workspace-slug}`.
+Open Workspace settings from the **Settings** entry in the workspace sidebar (visible only to admins and owners) or by clicking your workspace's name from the [User settings](user.md) page. The page lives at `/identity/workspaces/{workspace-slug}`.
 
 Only members whose role is `Owner` or `Admin` can edit this page. The sidebar entry is hidden from regular members; opening the URL directly sends them back to the dashboard.
 

@@ -5,7 +5,7 @@ description: Preferências do workspace inteiro. Apenas owner/admin.
 
 # Configurações do Workspace
 
-Abra as configurações do Workspace pela entrada **Configurações do workspace** na barra lateral (visível apenas para admins e owners) ou clicando no nome do workspace a partir das [Configurações de Usuário](user.md). A página fica em `/workspaces/{slug-do-workspace}`.
+Abra as configurações do Workspace pela entrada **Configurações** na barra lateral do workspace (visível apenas para admins e owners) ou clicando no nome do workspace a partir das [Configurações de Usuário](user.md). A página fica em `/identity/workspaces/{slug-do-workspace}`.
 
 Apenas membros com papel `Owner` ou `Admin` podem editar esta página. A entrada na barra lateral fica oculta para membros comuns; abrir a URL diretamente os manda de volta ao dashboard.
 

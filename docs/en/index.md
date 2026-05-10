@@ -20,4 +20,4 @@ New to Holter? Start here:
 | [Identity](identity/index.md) | Account creation, email verification, and sign-in |
 | [Monitoring](monitoring/index.md) | Continuous URL checks, uptime history, incident alerts, and technical logs |
 | [Delivery](delivery/index.md) | Notification channels for receiving alerts when monitors go down or recover |
-| [Settings](settings/index.md) | User and workspace configuration |
+| [Settings](settings/index.md) | User and workspace configuration, including API tokens |
