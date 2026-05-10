@@ -137,41 +137,46 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
          put_flash(socket, :info, gettext("%{email} is already on this channel.", email: email))}
 
       true ->
+        socket = assign(socket, :pending_additions, socket.assigns.pending_additions ++ [email])
+
         {:noreply,
          socket
-         |> assign(:pending_additions, socket.assigns.pending_additions ++ [email])
-         |> push_event("recipient-input-clear", %{})}
+         |> push_event("recipient-input-clear", %{})
+         |> sync_form_dirty()}
     end
   end
 
   @impl true
   def handle_event("cancel_pending_recipient", %{"email" => email}, socket) do
     {:noreply,
-     assign(
-       socket,
+     socket
+     |> assign(
        :pending_additions,
        Enum.reject(socket.assigns.pending_additions, &(&1 == email))
-     )}
+     )
+     |> sync_form_dirty()}
   end
 
   @impl true
   def handle_event("mark_recipient_for_removal", %{"id" => id}, socket) do
     {:noreply,
-     assign(
-       socket,
+     socket
+     |> assign(
        :pending_removed_ids,
        MapSet.put(socket.assigns.pending_removed_ids, id)
-     )}
+     )
+     |> sync_form_dirty()}
   end
 
   @impl true
   def handle_event("restore_recipient", %{"id" => id}, socket) do
     {:noreply,
-     assign(
-       socket,
+     socket
+     |> assign(
        :pending_removed_ids,
        MapSet.delete(socket.assigns.pending_removed_ids, id)
-     )}
+     )
+     |> sync_form_dirty()}
   end
 
   @impl true
@@ -229,6 +234,14 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
   def handle_info(_message, socket), do: {:noreply, socket}
 
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  defp sync_form_dirty(socket) do
+    dirty =
+      socket.assigns.pending_additions != [] or
+        MapSet.size(socket.assigns.pending_removed_ids) > 0
+
+    push_event(socket, "form-dirty", %{form: "email-channel-form", dirty: dirty})
+  end
 
   defp deliver_verification_email(recipient, channel, workspace_slug) do
     verification_url =

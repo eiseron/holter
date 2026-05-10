@@ -51,10 +51,12 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
     email = String.trim(email)
 
     if valid_email?(email) and email not in socket.assigns.pending_recipients do
+      socket = assign(socket, :pending_recipients, socket.assigns.pending_recipients ++ [email])
+
       {:noreply,
        socket
-       |> assign(:pending_recipients, socket.assigns.pending_recipients ++ [email])
-       |> push_event("recipient-input-clear", %{})}
+       |> push_event("recipient-input-clear", %{})
+       |> sync_form_dirty()}
     else
       {:noreply, socket}
     end
@@ -63,7 +65,11 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   @impl true
   def handle_event("remove_pending_recipient", %{"email" => email}, socket) do
     updated = Enum.reject(socket.assigns.pending_recipients, &(&1 == email))
-    {:noreply, assign(socket, :pending_recipients, updated)}
+
+    {:noreply,
+     socket
+     |> assign(:pending_recipients, updated)
+     |> sync_form_dirty()}
   end
 
   @impl true
@@ -93,6 +99,13 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]
 
   defp valid_email?(email), do: email =~ ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  defp sync_form_dirty(socket) do
+    push_event(socket, "form-dirty", %{
+      form: "email-channel-form",
+      dirty: socket.assigns.pending_recipients != []
+    })
+  end
 
   defp persist_pending_recipients(channel, emails) do
     workspace_slug = Holter.Monitoring.get_workspace!(channel.workspace_id).slug

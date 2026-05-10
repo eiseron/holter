@@ -25,6 +25,7 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/holter"
 import topbar from "../vendor/topbar"
+import "./unsaved_changes"
 
 function getOrCreateSessionId() {
   let sessionId = sessionStorage.getItem("session_id")

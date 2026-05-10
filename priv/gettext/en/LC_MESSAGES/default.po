@@ -223,12 +223,12 @@ msgstr "Deleting..."
 msgid "Monitor Settings"
 msgstr "Monitor Settings"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:91
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:95
 #, elixir-autogen, elixir-format
 msgid "Monitor deleted successfully"
 msgstr "Monitor deleted successfully"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:76
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:80
 #, elixir-autogen, elixir-format
 msgid "Monitor updated successfully"
 msgstr "Monitor updated successfully"
@@ -246,7 +246,7 @@ msgid "Yes, Delete Completely"
 msgstr "Yes, Delete Completely"
 
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:239
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:123
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:125
 #, elixir-autogen, elixir-format
 msgid "Active"
 msgstr "Up"
@@ -270,7 +270,7 @@ msgstr "Daily Uptime History"
 msgid "Date"
 msgstr "Date"
 
-#: lib/holter/monitoring/incidents.ex:67
+#: lib/holter/monitoring/incidents.ex:68
 #: lib/holter_web/components/monitoring/daily_metrics_section.ex:40
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:78
 #: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.html.heex:60
@@ -334,7 +334,7 @@ msgstr "Run Now"
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:19
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:86
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:117
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:119
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr "Status"
@@ -391,7 +391,7 @@ msgstr "Content Snippet"
 msgid "Details"
 msgstr "Details"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:176
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:182
 #, elixir-autogen, elixir-format
 msgid "Failed to trigger check"
 msgstr "Failed to trigger check"
@@ -517,30 +517,30 @@ msgstr "You have unsaved changes. Please save them before checking."
 
 #: lib/holter_web/web/live/delivery/channels_live.ex:22
 #: lib/holter_web/web/live/delivery/channels_live/new.ex:18
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:30
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:27
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:34
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:31
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:34
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:25
 #, elixir-autogen, elixir-format
 msgid "Workspace not found"
 msgstr "Workspace not found"
 
-#: lib/holter/monitoring/engine.ex:45
+#: lib/holter/monitoring/engine.ex:46
 #, elixir-autogen, elixir-format
 msgid "Access to restricted internal address blocked"
 msgstr "Access to restricted internal address blocked"
 
-#: lib/holter/monitoring/security_scanner.ex:37
+#: lib/holter/monitoring/security_scanner.ex:38
 #, elixir-autogen, elixir-format
 msgid "Certificate expired"
 msgstr "Certificate expired"
 
-#: lib/holter/monitoring/security_scanner.ex:40
+#: lib/holter/monitoring/security_scanner.ex:41
 #, elixir-autogen, elixir-format
 msgid "Certificate expires in %{days} days (Critical)"
 msgstr "Certificate expires in %{days} days (Critical)"
 
-#: lib/holter/monitoring/security_scanner.ex:43
+#: lib/holter/monitoring/security_scanner.ex:44
 #, elixir-autogen, elixir-format
 msgid "Certificate expires in %{days} days (Warning)"
 msgstr "Certificate expires in %{days} days (Warning)"
@@ -550,57 +550,57 @@ msgstr "Certificate expires in %{days} days (Warning)"
 msgid "HTTP Error: %{status}"
 msgstr "HTTP Error: %{status}"
 
-#: lib/holter/monitoring/monitor.ex:172
+#: lib/holter/monitoring/models/monitor.ex:172
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace"
 msgstr "Monitor limit reached for this workspace"
 
-#: lib/holter/monitoring/security_scanner.ex:27
+#: lib/holter/monitoring/security_scanner.ex:28
 #, elixir-autogen, elixir-format
 msgid "SSL Error: %{reason}"
 msgstr "SSL Error: %{reason}"
 
-#: lib/holter/monitoring/workspace.ex:130
+#: lib/holter/monitoring/models/workspace.ex:130
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "cannot be changed after creation"
 
-#: lib/holter/monitoring/monitor.ex:291
+#: lib/holter/monitoring/models/monitor.ex:291
 #, elixir-autogen, elixir-format
 msgid "cannot have more than %{max_keywords} keywords (got %{count})"
 msgstr "cannot have more than %{max_keywords} keywords (got %{count})"
 
-#: lib/holter/monitoring/monitor.ex:369
+#: lib/holter/monitoring/models/monitor.ex:369
 #, elixir-autogen, elixir-format
 msgid "is a restricted internal address"
 msgstr "is a restricted internal address"
 
-#: lib/holter/monitoring/monitor.ex:266
+#: lib/holter/monitoring/models/monitor.ex:266
 #, elixir-autogen, elixir-format
 msgid "is only applicable to HTTPS URLs"
 msgstr "is only applicable to HTTPS URLs"
 
-#: lib/holter/monitoring/monitor.ex:334
+#: lib/holter/monitoring/models/monitor.ex:334
 #, elixir-autogen, elixir-format
 msgid "must be a valid JSON object"
 msgstr "must be a valid JSON object"
 
-#: lib/holter/monitoring/monitor.ex:254
+#: lib/holter/monitoring/models/monitor.ex:254
 #, elixir-autogen, elixir-format
 msgid "must be a valid JSON string"
 msgstr "must be a valid JSON string"
 
-#: lib/holter/monitoring/monitor.ex:382
+#: lib/holter/monitoring/models/monitor.ex:382
 #, elixir-autogen, elixir-format
 msgid "must be a valid http or https URL"
 msgstr "must be a valid http or https URL"
 
-#: lib/holter/monitoring/monitor.ex:232
+#: lib/holter/monitoring/models/monitor.ex:232
 #, elixir-autogen, elixir-format
 msgid "must be empty for %{method} requests"
 msgstr "must be empty for %{method} requests"
 
-#: lib/holter/monitoring/monitor.ex:213
+#: lib/holter/monitoring/models/monitor.ex:213
 #, elixir-autogen, elixir-format
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "must be less than the check interval (%{interval}s)"
@@ -662,7 +662,7 @@ msgstr "Monitor Details"
 msgid "Monitor Logs"
 msgstr "Monitor Logs"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:173
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:179
 #, elixir-autogen, elixir-format
 msgid "Hourly check limit reached for this workspace."
 msgstr "Hourly check limit reached for this workspace."
@@ -677,7 +677,7 @@ msgstr "Network Error"
 msgid "The connection failed before a response was received (no HTTP status code)."
 msgstr "The connection failed before a response was received (no HTTP status code)."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:169
+#: lib/holter_web/web/live/monitoring/monitor_live/show.ex:175
 #, elixir-autogen, elixir-format
 msgid "Too many checks in the last minute. Please wait."
 msgstr "Too many checks in the last minute. Please wait."
@@ -723,7 +723,7 @@ msgstr "All States"
 msgid "All Types"
 msgstr "All Types"
 
-#: lib/holter/monitoring/incidents.ex:68
+#: lib/holter/monitoring/incidents.ex:69
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:82
 #, elixir-autogen, elixir-format
 msgid "Defacement"
@@ -807,7 +807,7 @@ msgstr "Results"
 msgid "Root Cause"
 msgstr "Root Cause"
 
-#: lib/holter/monitoring/incidents.ex:69
+#: lib/holter/monitoring/incidents.ex:70
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:86
 #, elixir-autogen, elixir-format
 msgid "SSL Expiry"
@@ -892,15 +892,15 @@ msgstr "View incident"
 msgid "View log"
 msgstr "View log"
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:10
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:16
 #: lib/holter_web/web/identity/user_login_live.html.heex:12
 #: lib/holter_web/web/identity/user_registration_live.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "Email"
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:117
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:92
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:120
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:95
 #, elixir-autogen, elixir-format
 msgid "Failed to enqueue test notification"
 msgstr "Failed to enqueue test notification"
@@ -924,7 +924,7 @@ msgstr "Incident timeline"
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:17
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:35
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:100
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:102
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr "Name"
@@ -937,9 +937,9 @@ msgid "New Channel"
 msgstr "New Channel"
 
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.ex:33
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:39
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:42
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.ex:33
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:34
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:37
 #, elixir-autogen, elixir-format
 msgid "Not found"
 msgstr "Not found"
@@ -965,8 +965,8 @@ msgstr "Send Test"
 msgid "Target"
 msgstr "Target"
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:93
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:78
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:96
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:81
 #, elixir-autogen, elixir-format
 msgid "Test notification enqueued"
 msgstr "Test notification enqueued"
@@ -992,7 +992,7 @@ msgstr "Select which monitors will trigger notifications through this channel."
 msgid "Edit"
 msgstr "Edit"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:41
+#: lib/holter_web/components/workspace_sidebar_live.ex:47
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:19
 #: lib/holter_web/web/live/monitoring/monitors_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1071,7 +1071,7 @@ msgstr ""
 msgid "This verification link is invalid or has already been used."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:212
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:219
 #, elixir-autogen, elixir-format
 msgid "Verification email sent to %{email}"
 msgstr ""
@@ -1091,7 +1091,7 @@ msgstr ""
 msgid "e.g. Production Alerts"
 msgstr ""
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:53
+#: lib/holter_web/components/workspace_sidebar_live.ex:59
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Notifications"
 msgstr "Notification Channels"
@@ -1138,7 +1138,7 @@ msgstr "View log"
 msgid "Anti-phishing code"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:182
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:189
 #, elixir-autogen, elixir-format
 msgid "Anti-phishing code regenerated. The next email will contain the new code."
 msgstr ""
@@ -1191,7 +1191,7 @@ msgstr ""
 msgid "Show signing token"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:104
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:107
 #, elixir-autogen, elixir-format
 msgid "Signing token regenerated. Update your receiver to avoid missed alerts."
 msgstr ""
@@ -1238,7 +1238,7 @@ msgstr ""
 msgid "Regenerate if leaked."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:220
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:227
 #, elixir-autogen, elixir-format
 msgid "Failed to send verification email"
 msgstr ""
@@ -1258,13 +1258,13 @@ msgstr "Resolved"
 msgid "Resend verification email to %{email}"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:217
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:224
 #, elixir-autogen, elixir-format
 msgid "This recipient is already verified."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:113
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:88
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:116
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:91
 #, elixir-autogen, elixir-format
 msgid "Wait before sending another test ping for this channel."
 msgstr ""
@@ -1274,23 +1274,23 @@ msgstr ""
 msgid "Check this to disable WHOIS/RDAP lookups for this monitor's domain."
 msgstr "Check this to disable WHOIS/RDAP lookups for this monitor's domain."
 
-#: lib/holter/monitoring/incidents.ex:70
+#: lib/holter/monitoring/incidents.ex:71
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:90
 #, elixir-autogen, elixir-format
 msgid "Domain Expiry"
 msgstr "Domain Expiry"
 
-#: lib/holter/monitoring/domain_scanner.ex:44
+#: lib/holter/monitoring/domain_scanner.ex:45
 #, elixir-autogen, elixir-format
 msgid "Domain expired"
 msgstr "Domain expired"
 
-#: lib/holter/monitoring/domain_scanner.ex:47
+#: lib/holter/monitoring/domain_scanner.ex:48
 #, elixir-autogen, elixir-format
 msgid "Domain expires in %{days} days (Critical)"
 msgstr "Domain expires in %{days} days (Critical)"
 
-#: lib/holter/monitoring/domain_scanner.ex:50
+#: lib/holter/monitoring/domain_scanner.ex:51
 #, elixir-autogen, elixir-format
 msgid "Domain expires in %{days} days (Warning)"
 msgstr "Domain expires in %{days} days (Warning)"
@@ -1372,12 +1372,12 @@ msgstr ""
 msgid "Email channel"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:200
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:207
 #, elixir-autogen, elixir-format
 msgid "Email channel deleted successfully"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:72
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:75
 #, elixir-autogen, elixir-format
 msgid "Email channel updated successfully"
 msgstr ""
@@ -1387,12 +1387,12 @@ msgstr ""
 msgid "Email details"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:188
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:195
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Failed to regenerate the anti-phishing code"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:109
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:112
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Failed to regenerate the signing token"
 msgstr ""
@@ -1407,13 +1407,13 @@ msgstr ""
 msgid "Invalid email or password."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:22
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:26
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Email Channel"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:20
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:24
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Webhook Channel"
@@ -1483,17 +1483,17 @@ msgstr ""
 msgid "Webhook channel"
 msgstr "Webhook"
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:54
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:58
 #, elixir-autogen, elixir-format
 msgid "Webhook channel created successfully"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:121
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:124
 #, elixir-autogen, elixir-format
 msgid "Webhook channel deleted successfully"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:60
+#: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:63
 #, elixir-autogen, elixir-format
 msgid "Webhook channel updated successfully"
 msgstr ""
@@ -1518,7 +1518,7 @@ msgstr ""
 msgid "You have been signed out."
 msgstr ""
 
-#: lib/holter_web/hooks/user_auth_hook.ex:56
+#: lib/holter_web/hooks/user_auth_hook.ex:59
 #, elixir-autogen, elixir-format
 msgid "You must sign in to access this page."
 msgstr ""
@@ -1538,7 +1538,7 @@ msgstr ""
 msgid "must be a string"
 msgstr ""
 
-#: lib/holter/identity/user.ex:44
+#: lib/holter/identity/models/user.ex:44
 #, elixir-autogen, elixir-format
 msgid "must be a valid email address"
 msgstr ""
@@ -1573,7 +1573,7 @@ msgstr ""
 msgid "can't be blank"
 msgstr "can't be blank"
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:28
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:34
 #: lib/holter_web/web/identity/user_reset_password_live.html.heex:42
 #, elixir-autogen, elixir-format
 msgid "Back to sign in"
@@ -1611,7 +1611,7 @@ msgstr ""
 msgid "New password"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:24
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:30
 #, elixir-autogen, elixir-format
 msgid "Send instructions"
 msgstr ""
@@ -1707,12 +1707,12 @@ msgstr[1] ""
 msgid "%{verified}/%{total} verified"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:103
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:106
 #, elixir-autogen, elixir-format
 msgid "Cannot send a test: this channel has no verified recipients. Add at least one and verify it first."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:80
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:89
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Channel created. Verification email sent to each recipient."
 msgstr ""
@@ -1722,7 +1722,7 @@ msgstr ""
 msgid "No recipients"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:134
+#: lib/holter_web/web/live/delivery/email_channel_live/show.ex:137
 #, elixir-autogen, elixir-format
 msgid "%{email} is already on this channel."
 msgstr ""
@@ -1780,8 +1780,8 @@ msgstr ""
 msgid "Portuguese (Brazil)"
 msgstr ""
 
-#: lib/holter/identity/user.ex:66
-#: lib/holter/monitoring/workspace.ex:104
+#: lib/holter/identity/models/user.ex:66
+#: lib/holter/monitoring/models/workspace.ex:104
 #, elixir-autogen, elixir-format
 msgid "is not a supported locale"
 msgstr ""
@@ -1802,7 +1802,7 @@ msgid "Member"
 msgstr ""
 
 #: lib/holter_web/components/user_sidebar.ex:57
-#: lib/holter_web/components/workspace_sidebar_live.ex:89
+#: lib/holter_web/components/workspace_sidebar_live.ex:95
 #: lib/holter_web/web/identity/user_live/show.ex:30
 #: lib/holter_web/web/identity/user_live/show.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1842,7 +1842,7 @@ msgstr ""
 msgid "Workspace"
 msgstr "Workspace not found"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:65
+#: lib/holter_web/components/workspace_sidebar_live.ex:71
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
@@ -1955,14 +1955,14 @@ msgstr ""
 msgid "unknown"
 msgstr "Unknown"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:76
+#: lib/holter_web/components/workspace_sidebar_live.ex:82
 #: lib/holter_web/web/workspaces/api_tokens_live.ex:58
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "API tokens"
 msgstr "API tokens"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:93
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Active tokens"
 msgstr "Active tokens"
@@ -1972,7 +1972,7 @@ msgstr "Active tokens"
 msgid "Create a new token"
 msgstr "Create a new token"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:79
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:81
 #, elixir-autogen, elixir-format
 msgid "Generate token"
 msgstr "Generate token"
@@ -1982,12 +1982,12 @@ msgstr "Generate token"
 msgid "I've stored it — dismiss"
 msgstr "I've stored it — dismiss"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:108
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:110
 #, elixir-autogen, elixir-format
 msgid "Last used"
 msgstr "Last used"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:114
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:116
 #, elixir-autogen, elixir-format
 msgid "Never"
 msgstr "Never"
@@ -1997,28 +1997,28 @@ msgstr "Never"
 msgid "Only workspace owners can create API tokens."
 msgstr "Only workspace owners can create API tokens."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:87
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:89
 #, elixir-autogen, elixir-format
 msgid "Only workspace owners can manage API tokens."
 msgstr "Only workspace owners can manage API tokens."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:135
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:137
 #, elixir-autogen, elixir-format
 msgid "Revoke"
 msgstr "Revoke"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:133
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:135
 #, elixir-autogen, elixir-format
 msgid "Revoke this token? This cannot be undone."
 msgstr "Revoke this token? This cannot be undone."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:120
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:122
 #, elixir-autogen, elixir-format
 msgid "Revoked"
 msgstr "Revoked"
 
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:59
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Scopes"
 msgstr "Scopes"
@@ -2038,7 +2038,7 @@ msgstr "Token created — copy it now"
 msgid "e.g. CI / read-only dashboard"
 msgstr "e.g. CI / read-only dashboard"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:78
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:80
 #, elixir-autogen, elixir-format
 msgid "Generating..."
 msgstr "Generating..."
@@ -2142,3 +2142,8 @@ msgstr "View notification channels"
 #, elixir-autogen, elixir-format
 msgid "View workspace"
 msgstr "View workspace"
+
+#: lib/holter_web/components/layouts.ex:13
+#, elixir-autogen, elixir-format
+msgid "You have unsaved changes. Leave without saving?"
+msgstr "You have unsaved changes. Leave without saving?"
