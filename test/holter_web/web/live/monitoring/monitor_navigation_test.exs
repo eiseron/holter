@@ -42,6 +42,15 @@ defmodule HolterWeb.Web.Monitoring.MonitorNavigationTest do
       assert has_element?(view, "a[href='#{detail_path}']")
     end
 
+    test "the navigate link is the card-spanning anchor so the whole card is the click target",
+         %{conn: conn, workspace: workspace, monitor: monitor} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+      detail_path = ~p"/monitoring/monitor/#{monitor.id}"
+
+      assert has_element?(view, "a.monitor-card-link[href='#{detail_path}']")
+    end
+
     test "following the dashboard's monitor link mounts the detail LiveView for that monitor",
          %{conn: conn, workspace: workspace, monitor: monitor} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")

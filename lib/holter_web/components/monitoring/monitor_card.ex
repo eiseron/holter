@@ -41,7 +41,7 @@ defmodule HolterWeb.Components.Monitoring.MonitorCard do
         </span>
         <.link
           navigate={@detail_url}
-          class="h-text-sky-400 h-text-sm h-font-semibold h-hover-underline"
+          class="monitor-card-link h-text-sky-400 h-text-sm h-font-semibold h-hover-underline"
         >
           {gettext("Details")} →
         </.link>

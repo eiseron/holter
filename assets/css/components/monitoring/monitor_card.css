@@ -8,11 +8,18 @@
   overflow: hidden;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .monitor-card-premium:hover {
   background: var(--color-monitor-surface-hover);
   border-color: var(--color-monitor-border-hover);
+}
+
+.monitor-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
 .monitor-meta-premium {
@@ -32,6 +39,7 @@
   gap: var(--space-2);
   opacity: 0;
   transition: opacity var(--transition-base);
+  z-index: 1;
 }
 
 .monitor-card-premium:hover .history-controls {

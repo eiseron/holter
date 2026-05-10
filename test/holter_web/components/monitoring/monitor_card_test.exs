@@ -4,6 +4,8 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
   import Phoenix.LiveViewTest
   import HolterWeb.Components.Monitoring.MonitorCard
 
+  defp doc(html), do: Floki.parse_fragment!(html)
+
   defp monitor_attrs(overrides \\ %{}) do
     Map.merge(
       %{
@@ -46,6 +48,18 @@ defmodule HolterWeb.Components.Monitoring.MonitorCardTest do
     test "renders link to detail_url" do
       html = render_component(&monitor_card/1, monitor: monitor_attrs(), detail_url: "/my/detail")
       assert html =~ "/my/detail"
+    end
+
+    test "Given the rendered card, when inspecting the detail anchor, then it carries the card-spanning link class" do
+      html = render_component(&monitor_card/1, monitor: monitor_attrs(), detail_url: "/my/detail")
+
+      assert [_anchor] = doc(html) |> Floki.find(~s|a.monitor-card-link[href="/my/detail"]|)
+    end
+
+    test "Given the rendered card, when counting focusable anchors, then exactly one is present" do
+      html = render_component(&monitor_card/1, monitor: monitor_attrs(), detail_url: "/d")
+
+      assert doc(html) |> Floki.find("a") |> length() == 1
     end
   end
 
