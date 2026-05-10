@@ -30,7 +30,7 @@ defmodule HolterWeb.Components.UserSidebar do
         <li :for={membership <- @memberships}>
           <.link
             :if={membership.role in [:owner, :admin]}
-            navigate={~p"/workspaces/#{membership.workspace.slug}"}
+            navigate={~p"/identity/workspaces/#{membership.workspace.slug}"}
             class="h-sidebar-link"
           >
             <span class="h-sidebar-link-label">{membership.workspace.name}</span>

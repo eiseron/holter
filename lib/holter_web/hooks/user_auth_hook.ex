@@ -26,9 +26,12 @@ defmodule HolterWeb.Hooks.UserAuthHook do
       `:require_email_channel_member` — UUID-routed counterparts.
       Each loads the resource by id, walks to its workspace, verifies
       membership, exposes the resolved resource (`@current_monitor`,
-      `@current_incident`, etc.) and `@current_workspace`, redirects
-      to `/` on any miss. LiveView mounts read these from assigns —
-      they do not import `Holter.Identity` themselves.
+      `@current_incident`, etc.), `@current_workspace` and
+      `@current_workspace_membership`, redirects to `/` on any miss.
+      LiveView mounts read these from assigns — they do not import
+      `Holter.Identity` themselves. The membership assign keeps the
+      workspace sidebar's admin-gated links visible across resource
+      pages, not just on workspace-slug routes.
     * `:redirect_if_authenticated` — bounces signed-in users away from
       sign-up / sign-in screens to their first workspace dashboard.
     * `:assign_current_user` — exposes `@current_user` to the layout
@@ -103,10 +106,13 @@ defmodule HolterWeb.Hooks.UserAuthHook do
     user = socket.assigns.current_user
 
     with {:ok, monitor} <- Tenant.with_user!(user, fn -> Monitoring.get_monitor(id) end),
-         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+         {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
+         membership when not is_nil(membership) <-
+           Identity.get_workspace_membership(user, workspace) do
       {:cont,
        socket
        |> assign(:current_workspace, workspace)
+       |> assign(:current_workspace_membership, membership)
        |> assign(:current_monitor, monitor)}
     else
       _ -> {:halt, redirect(socket, to: ~p"/")}
@@ -119,10 +125,13 @@ defmodule HolterWeb.Hooks.UserAuthHook do
     Tenant.with_user!(user, fn ->
       with {:ok, incident} <- Monitoring.get_incident(incident_id),
            {:ok, monitor} <- Monitoring.get_monitor(incident.monitor_id),
-           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
+           membership when not is_nil(membership) <-
+             Identity.get_workspace_membership(user, workspace) do
         {:cont,
          socket
          |> assign(:current_workspace, workspace)
+         |> assign(:current_workspace_membership, membership)
          |> assign(:current_monitor, monitor)
          |> assign(:current_incident, incident)}
       else
@@ -137,10 +146,13 @@ defmodule HolterWeb.Hooks.UserAuthHook do
     Tenant.with_user!(user, fn ->
       with {:ok, log} <- Monitoring.get_monitor_log(log_id),
            {:ok, monitor} <- Monitoring.get_monitor(log.monitor_id),
-           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id) do
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
+           membership when not is_nil(membership) <-
+             Identity.get_workspace_membership(user, workspace) do
         {:cont,
          socket
          |> assign(:current_workspace, workspace)
+         |> assign(:current_workspace_membership, membership)
          |> assign(:current_monitor, monitor)
          |> assign(:current_log, log)}
       else
@@ -154,10 +166,13 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
     Tenant.with_user!(user, fn ->
       with {:ok, channel} <- WebhookChannels.get(id),
-           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id),
+           membership when not is_nil(membership) <-
+             Identity.get_workspace_membership(user, workspace) do
         {:cont,
          socket
          |> assign(:current_workspace, workspace)
+         |> assign(:current_workspace_membership, membership)
          |> assign(:current_channel, channel)}
       else
         _ -> {:halt, redirect(socket, to: ~p"/")}
@@ -170,10 +185,13 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
     Tenant.with_user!(user, fn ->
       with {:ok, channel} <- EmailChannels.get(id),
-           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id) do
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, channel.workspace_id),
+           membership when not is_nil(membership) <-
+             Identity.get_workspace_membership(user, workspace) do
         {:cont,
          socket
          |> assign(:current_workspace, workspace)
+         |> assign(:current_workspace_membership, membership)
          |> assign(:current_channel, channel)}
       else
         _ -> {:halt, redirect(socket, to: ~p"/")}

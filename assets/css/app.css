@@ -49,4 +49,6 @@
 @import "./components/delivery/notification_channel_recipients.css";
 @import "./components/delivery/secret_card.css";
 
+@import "./components/identity/api_token_scope.css";
+
 .hidden { display: none !important; }

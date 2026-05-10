@@ -1,0 +1,143 @@
+<.page_container>
+  <:title>{gettext("API tokens")}</:title>
+  <:subtitle>{@current_workspace.name}</:subtitle>
+
+  <div class="h-form-sections">
+    <%= if @new_plaintext do %>
+      <section
+        class="h-fieldset-card"
+        aria-labelledby="new-token-heading"
+        data-testid="new-token-panel"
+      >
+        <h3 id="new-token-heading" class="h-fieldset-legend">
+          {gettext("Token created — copy it now")}
+        </h3>
+        <p class="h-help-text">
+          {gettext(
+            "This is the only time the plaintext is shown. Store it in your secret manager."
+          )}
+        </p>
+        <pre id="new-token-value" data-testid="new-token-value"><code>{@new_plaintext}</code></pre>
+        <div class="h-actions-row h-justify-end h-gap-4">
+          <button
+            type="button"
+            class="h-btn h-btn-soft"
+            onclick="navigator.clipboard.writeText(document.getElementById('new-token-value').textContent.trim())"
+          >
+            {gettext("Copy")}
+          </button>
+          <.button type="button" variant="primary" phx-click="dismiss_plaintext">
+            {gettext("I've stored it — dismiss")}
+          </.button>
+        </div>
+      </section>
+    <% end %>
+
+    <%= if @owner? do %>
+      <.form
+        for={@form}
+        id="new-api-token-form"
+        phx-submit="create_token"
+        class="h-form-sections"
+      >
+        <div class="h-fieldset-card">
+          <h3 class="h-fieldset-legend">{gettext("Create a new token")}</h3>
+
+          <div class="h-form-grid">
+            <.input
+              field={@form[:name]}
+              type="text"
+              label={gettext("Name")}
+              placeholder={gettext("e.g. CI / read-only dashboard")}
+              required
+              maxlength="64"
+              value=""
+            />
+          </div>
+
+          <fieldset class="h-form-grid">
+            <legend class="h-help-text">{gettext("Scopes")}</legend>
+            <div class="h-form-grid h-grid-cols-2">
+              <label :for={scope <- @scopes} class="h-token-scope">
+                <input
+                  type="checkbox"
+                  name="api_token[scopes][]"
+                  value={scope}
+                  checked={scope in (@form[:scopes].value || [])}
+                />
+                <div class="h-token-scope__copy">
+                  <div class="h-token-scope__title">
+                    <strong>{__MODULE__.scope_label(scope)}</strong>
+                    <code class="h-token-scope__id">{scope}</code>
+                  </div>
+                  <p class="h-help-text">{__MODULE__.scope_description(scope)}</p>
+                </div>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="h-actions-row h-justify-end">
+            <.button type="submit" variant="primary" phx-disable-with={gettext("Generating...")}>
+              {gettext("Generate token")}
+            </.button>
+          </div>
+        </div>
+      </.form>
+    <% else %>
+      <.empty_state>
+        <p data-testid="non-owner-notice">
+          {gettext("Only workspace owners can manage API tokens.")}
+        </p>
+      </.empty_state>
+    <% end %>
+
+    <section class="h-fieldset-card" aria-labelledby="token-list-heading">
+      <h3 id="token-list-heading" class="h-fieldset-legend">{gettext("Active tokens")}</h3>
+
+      <.table
+        id="api-tokens-tbody"
+        rows={@streams.tokens}
+        row_item={fn {_id, token} -> token end}
+      >
+        <:col :let={token} label={gettext("Name")}>{token.name}</:col>
+        <:col :let={token} label={gettext("Scopes")}>
+          <ul class="h-token-scope-list">
+            <li :for={scope <- token.scopes} title={scope}>
+              {__MODULE__.scope_label(scope)}
+            </li>
+          </ul>
+        </:col>
+        <:col :let={token} label={gettext("Last used")}>
+          <%= if token.last_used_at do %>
+            <time datetime={DateTime.to_iso8601(token.last_used_at)}>
+              {Calendar.strftime(token.last_used_at, "%Y-%m-%d %H:%M")}
+            </time>
+          <% else %>
+            <span class="h-text-muted">{gettext("Never")}</span>
+          <% end %>
+        </:col>
+        <:col :let={token} label={gettext("Status")}>
+          <%= if token.revoked_at do %>
+            <span class="h-text-muted" data-testid="token-status-revoked">
+              {gettext("Revoked")}
+            </span>
+          <% else %>
+            <strong data-testid="token-status-active">{gettext("Active")}</strong>
+          <% end %>
+        </:col>
+        <:action :let={token}>
+          <button
+            :if={@owner? and is_nil(token.revoked_at)}
+            type="button"
+            class="h-btn h-btn-danger"
+            phx-click="revoke"
+            phx-value-id={token.id}
+            data-confirm={gettext("Revoke this token? This cannot be undone.")}
+          >
+            {gettext("Revoke")}
+          </button>
+        </:action>
+      </.table>
+    </section>
+  </div>
+</.page_container>

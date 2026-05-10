@@ -114,7 +114,7 @@ defmodule HolterWeb.Router do
     end
   end
 
-  scope "/workspaces/:workspace_slug", HolterWeb.Web.Workspaces do
+  scope "/identity/workspaces/:workspace_slug", HolterWeb.Web.Workspaces do
     pipe_through :browser
 
     live_session :authenticated_workspace_settings,
@@ -124,6 +124,7 @@ defmodule HolterWeb.Router do
         HolterWeb.Hooks.LocaleHook
       ] do
       live "/", ShowLive, :show
+      live "/api-tokens", ApiTokensLive, :index
     end
   end
 

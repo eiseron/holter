@@ -39,7 +39,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLive do
         {:noreply,
          socket
          |> put_flash(:info, gettext("Saved."))
-         |> push_navigate(to: ~p"/workspaces/#{workspace.slug}", replace: true)}
+         |> push_navigate(to: ~p"/identity/workspaces/#{workspace.slug}", replace: true)}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "workspace"))}

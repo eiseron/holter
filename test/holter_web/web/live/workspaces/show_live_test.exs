@@ -13,7 +13,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
 
   describe "auth gate" do
     test "lets an :owner reach the workspace page", %{conn: conn, current_workspace: workspace} do
-      {:ok, _lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, _lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
     end
 
     test "redirects a :member-only user to /", %{
@@ -25,11 +25,12 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
       assert m.user_id == user.id
       {:ok, _} = m |> Ecto.Changeset.change(role: :member) |> Repo.update()
 
-      assert {:error, {:redirect, %{to: "/"}}} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      assert {:error, {:redirect, %{to: "/"}}} =
+               live(conn, ~p"/identity/workspaces/#{workspace.slug}")
     end
 
     test "redirects when the slug does not exist", %{conn: conn} do
-      assert {:error, {:redirect, %{to: "/"}}} = live(conn, ~p"/workspaces/no-such-slug")
+      assert {:error, {:redirect, %{to: "/"}}} = live(conn, ~p"/identity/workspaces/no-such-slug")
     end
   end
 
@@ -38,7 +39,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
          %{conn: conn, current_workspace: workspace} do
       {:ok, _} = Monitoring.update_workspace(workspace, %{default_locale: "pt_BR"})
 
-      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
 
       selected_options =
         lv
@@ -51,7 +52,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
     end
 
     test "persists a valid locale choice", %{conn: conn, current_workspace: workspace} do
-      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
 
       lv
       |> form("#workspace-settings-form", workspace: %{default_locale: "pt_BR"})
@@ -63,7 +64,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
     test "ignores an unrecognized locale value submitted out-of-band",
          %{conn: conn, current_workspace: workspace} do
       original = workspace.default_locale
-      {:ok, lv, _html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
 
       render_submit(
         element(lv, "#workspace-settings-form"),
@@ -77,7 +78,7 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
   describe "sidebar links" do
     test "marks the Workspace settings link as the active sidebar item",
          %{conn: conn, current_workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, _lv, html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
 
       parsed = Floki.parse_fragment!(html)
 
@@ -88,12 +89,12 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
           for {"href", h} <- attrs, do: h
         end)
 
-      assert active == ["/workspaces/#{workspace.slug}"]
+      assert active == ["/identity/workspaces/#{workspace.slug}"]
     end
 
     test "exposes a My account shortcut to the signed-in user's settings",
          %{conn: conn, current_user: user, current_workspace: workspace} do
-      {:ok, _lv, html} = live(conn, ~p"/workspaces/#{workspace.slug}")
+      {:ok, _lv, html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
 
       footer_links =
         html

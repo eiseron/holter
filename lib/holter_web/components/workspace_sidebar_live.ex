@@ -60,13 +60,24 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
         </li>
         <li :if={admin?(@current_workspace_membership)}>
           <.link
-            navigate={~p"/workspaces/#{@workspace.slug}"}
+            navigate={~p"/identity/workspaces/#{@workspace.slug}"}
             class={[
               "h-sidebar-link",
               active?(@current_view, workspace_settings_views()) && "h-sidebar-link--active"
             ]}
           >
             <span class="h-sidebar-link-label">{gettext("Settings")}</span>
+          </.link>
+        </li>
+        <li :if={admin?(@current_workspace_membership)}>
+          <.link
+            navigate={~p"/identity/workspaces/#{@workspace.slug}/api-tokens"}
+            class={[
+              "h-sidebar-link",
+              active?(@current_view, api_tokens_views()) && "h-sidebar-link--active"
+            ]}
+          >
+            <span class="h-sidebar-link-label">{gettext("API tokens")}</span>
           </.link>
         </li>
       </ul>
@@ -119,6 +130,10 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
   defp workspace_settings_views do
     [HolterWeb.Web.Workspaces.ShowLive]
+  end
+
+  defp api_tokens_views do
+    [HolterWeb.Web.Workspaces.ApiTokensLive]
   end
 
   defp user_settings_views do

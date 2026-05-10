@@ -124,7 +124,7 @@ defmodule HolterWeb.Web.Identity.UserLive.ShowTest do
           for {"href", h} <- attrs, do: h
         end)
 
-      assert "/workspaces/#{workspace.slug}" in hrefs
+      assert "/identity/workspaces/#{workspace.slug}" in hrefs
     end
 
     test "renders the workspace name without a link when the user is only a :member",
@@ -145,7 +145,7 @@ defmodule HolterWeb.Web.Identity.UserLive.ShowTest do
           for {"href", h} <- attrs, do: h
         end)
 
-      refute "/workspaces/#{workspace.slug}" in hrefs
+      refute "/identity/workspaces/#{workspace.slug}" in hrefs
     end
   end
 end

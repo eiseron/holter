@@ -79,7 +79,7 @@ defmodule HolterWeb.Hooks.UserAuthHookTest do
       assert {:ok, _lv, _html} =
                conn
                |> log_in_user(user)
-               |> live(~p"/workspaces/#{workspace.slug}")
+               |> live(~p"/identity/workspaces/#{workspace.slug}")
     end
 
     test "redirects a :member to /", %{conn: conn} do
@@ -91,7 +91,7 @@ defmodule HolterWeb.Hooks.UserAuthHookTest do
       assert {:error, {:redirect, %{to: "/"}}} =
                conn
                |> log_in_user(user)
-               |> live(~p"/workspaces/#{workspace.slug}")
+               |> live(~p"/identity/workspaces/#{workspace.slug}")
     end
   end
 

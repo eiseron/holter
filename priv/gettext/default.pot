@@ -246,6 +246,7 @@ msgid "Yes, Delete Completely"
 msgstr ""
 
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:239
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:123
 #, elixir-autogen, elixir-format
 msgid "Active"
 msgstr ""
@@ -333,6 +334,7 @@ msgstr ""
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:19
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:86
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:117
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr ""
@@ -921,6 +923,8 @@ msgstr ""
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:17
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:17
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:35
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:100
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr ""
@@ -1140,6 +1144,7 @@ msgid "Anti-phishing code regenerated. The next email will contain the new code.
 msgstr ""
 
 #: lib/holter_web/components/delivery/secret_card.ex:56
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:27
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr ""
@@ -1797,7 +1802,7 @@ msgid "Member"
 msgstr ""
 
 #: lib/holter_web/components/user_sidebar.ex:57
-#: lib/holter_web/components/workspace_sidebar_live.ex:78
+#: lib/holter_web/components/workspace_sidebar_live.ex:89
 #: lib/holter_web/web/identity/user_live/show.ex:30
 #: lib/holter_web/web/identity/user_live/show.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1948,4 +1953,192 @@ msgstr ""
 #: lib/holter/delivery/engine/channel_formatter.ex:80
 #, elixir-autogen, elixir-format
 msgid "unknown"
+msgstr ""
+
+#: lib/holter_web/components/workspace_sidebar_live.ex:76
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:58
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
+#, elixir-autogen, elixir-format
+msgid "API tokens"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "Active tokens"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "Create a new token"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Generate token"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "I've stored it — dismiss"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "Last used"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Never"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:88
+#, elixir-autogen, elixir-format
+msgid "Only workspace owners can create API tokens."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "Only workspace owners can manage API tokens."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:135
+#, elixir-autogen, elixir-format
+msgid "Revoke"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:133
+#, elixir-autogen, elixir-format
+msgid "Revoke this token? This cannot be undone."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "Revoked"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:59
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "Scopes"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "This is the only time the plaintext is shown. Store it in your secret manager."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:13
+#, elixir-autogen, elixir-format
+msgid "Token created — copy it now"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "e.g. CI / read-only dashboard"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "Generating..."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:26
+#, elixir-autogen, elixir-format
+msgid "Create, update and delete monitors."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:41
+#, elixir-autogen, elixir-format
+msgid "Create, update and delete notification channels (and rotate their secrets)."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:23
+#, elixir-autogen, elixir-format
+msgid "List monitors and read their current status."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:10
+#, elixir-autogen, elixir-format
+msgid "Manage monitors"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:15
+#, elixir-autogen, elixir-format
+msgid "Manage notification channels"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:47
+#, elixir-autogen, elixir-format
+msgid "Read channel delivery history."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Read daily uptime metrics."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "Read incidents and their timeline."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:29
+#, elixir-autogen, elixir-format
+msgid "Read raw monitor check logs."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:38
+#, elixir-autogen, elixir-format
+msgid "Read webhook and email channel configuration."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:20
+#, elixir-autogen, elixir-format
+msgid "Read workspace metadata."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:44
+#, elixir-autogen, elixir-format
+msgid "Send test deliveries to webhook and email channels."
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:16
+#, elixir-autogen, elixir-format
+msgid "Send test pings"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:17
+#, elixir-autogen, elixir-format
+msgid "View delivery history"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:13
+#, elixir-autogen, elixir-format
+msgid "View incidents"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:11
+#, elixir-autogen, elixir-format
+msgid "View logs"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:12
+#, elixir-autogen, elixir-format
+msgid "View metrics"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:9
+#, elixir-autogen, elixir-format
+msgid "View monitors"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:14
+#, elixir-autogen, elixir-format
+msgid "View notification channels"
+msgstr ""
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:8
+#, elixir-autogen, elixir-format
+msgid "View workspace"
 msgstr ""
