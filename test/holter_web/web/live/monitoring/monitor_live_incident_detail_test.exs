@@ -21,6 +21,20 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIncidentDetailTest do
     %{monitor: monitor, incident: incident}
   end
 
+  describe "back navigation" do
+    test "back link points to the monitors list",
+         %{conn: conn, monitor: monitor, incident: incident} do
+      workspace = Monitoring.get_workspace!(monitor.workspace_id)
+
+      {:ok, lv, _html} = live(conn, ~p"/monitoring/incidents/#{incident.id}")
+
+      assert has_element?(
+               lv,
+               "a.h-btn-back[href='/monitoring/workspaces/#{workspace.slug}/monitors']"
+             )
+    end
+  end
+
   describe "incident detail log links" do
     test "renders a link to each log associated with the incident",
          %{conn: conn, monitor: monitor, incident: incident} do

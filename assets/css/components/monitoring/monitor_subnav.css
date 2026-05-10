@@ -18,7 +18,8 @@
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.h-nav-link:hover {
+.h-nav-link:hover,
+.h-nav-link[aria-current="page"] {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
 }

@@ -39,12 +39,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.DailyMetricsTest do
       assert has_element?(lv, ".h-text-muted.h-font-mono", monitor.url)
     end
 
-    test "back link points to monitor show screen", %{conn: conn} do
+    test "back link points to the monitors list", %{conn: conn} do
       monitor = monitor_fixture()
+      workspace = Holter.Monitoring.get_workspace!(monitor.workspace_id)
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}/daily_metrics")
 
-      assert has_element?(lv, "a[href='/monitoring/monitor/#{monitor.id}']")
+      assert has_element?(
+               lv,
+               "a.h-btn-back[href='/monitoring/workspaces/#{workspace.slug}/monitors']"
+             )
     end
 
     test "technical logs link is present", %{conn: conn} do

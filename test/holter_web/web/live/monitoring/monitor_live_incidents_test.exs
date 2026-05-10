@@ -46,8 +46,13 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveIncidentsTest do
       assert html =~ ~s(data-role="incident-type")
     end
 
-    test "back link points to monitor details", %{view: view, monitor: monitor} do
-      assert has_element?(view, "a.h-btn-back[href='/monitoring/monitor/#{monitor.id}']")
+    test "back link points to the monitors list", %{view: view, monitor: monitor} do
+      workspace = Monitoring.get_workspace!(monitor.workspace_id)
+
+      assert has_element?(
+               view,
+               "a.h-btn-back[href='/monitoring/workspaces/#{workspace.slug}/monitors']"
+             )
     end
   end
 

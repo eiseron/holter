@@ -27,13 +27,17 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveLogDetailTest do
       assert html =~ monitor.url
     end
 
-    test "Given a log, when mounted, then the back link points to the logs page",
+    test "Given a log, when mounted, then the back link points to the monitors list",
          %{conn: conn, monitor: monitor} do
       log = log_fixture(%{monitor_id: monitor.id})
+      workspace = Holter.Monitoring.get_workspace!(monitor.workspace_id)
 
       {:ok, lv, _html} = live(conn, ~p"/monitoring/logs/#{log.id}")
 
-      assert has_element?(lv, "a[href='/monitoring/monitor/#{monitor.id}/logs']")
+      assert has_element?(
+               lv,
+               "a.h-btn-back[href='/monitoring/workspaces/#{workspace.slug}/monitors']"
+             )
     end
 
     test "Given a log with status UP, when mounted, then the status pill is rendered",

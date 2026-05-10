@@ -34,6 +34,16 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       assert html =~ "Max Redirects"
     end
 
+    test "Given a monitor, when page loads, then back link points to the monitors list",
+         %{conn: conn, monitor: monitor, workspace: workspace} do
+      {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
+
+      assert has_element?(
+               view,
+               "a.h-btn-back[href='/monitoring/workspaces/#{workspace.slug}/monitors']"
+             )
+    end
+
     test "Given follow redirects unchecked, when validate fires, then max redirects field is hidden",
          %{conn: conn, monitor: monitor} do
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
