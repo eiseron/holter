@@ -21,6 +21,19 @@ defmodule Holter.Delivery.Engine.ChannelFormatterTest do
     }
   end
 
+  defp up_payload, do: %{down_payload() | event: "monitor_up"}
+
+  defp test_payload do
+    %{
+      version: "1.0",
+      event: "test_ping",
+      timestamp: "2026-04-20T10:00:00Z",
+      channel: %{id: "ch-1", name: "Ops Email"}
+    }
+  end
+
+  defp channel_with_code, do: %EmailChannel{anti_phishing_code: "ABCD-EFGH"}
+
   describe "format_payload/2 — :webhook" do
     test "returns valid JSON as first element" do
       {json, _headers} = ChannelFormatter.format_payload(down_payload(), :webhook)
@@ -39,87 +52,92 @@ defmodule Holter.Delivery.Engine.ChannelFormatterTest do
     end
   end
 
-  describe "format_payload/2 — :email" do
-    test "subject contains the monitor URL for a down event" do
-      {subject, _body} = ChannelFormatter.format_payload(down_payload(), :email)
-      assert String.contains?(subject, "https://example.com")
+  describe "format_email/2 — subject" do
+    test "embeds the monitor URL for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).subject =~ "https://example.com"
     end
 
-    test "subject indicates alert for monitor_down event" do
-      {subject, _body} = ChannelFormatter.format_payload(down_payload(), :email)
-      assert String.contains?(subject, "Alert")
+    test "uses the alert verbiage for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).subject =~ "Alert"
     end
 
-    test "subject indicates resolved for monitor_up event" do
-      payload = %{down_payload() | event: "monitor_up"}
-      {subject, _body} = ChannelFormatter.format_payload(payload, :email)
-      assert String.contains?(subject, "Resolved")
+    test "uses the resolved verbiage for an up event" do
+      assert ChannelFormatter.format_email(up_payload()).subject =~ "Resolved"
     end
 
-    test "body contains the event name" do
-      {_subject, body} = ChannelFormatter.format_payload(down_payload(), :email)
-      assert String.contains?(body, "monitor_down")
-    end
-
-    test "body contains the monitor URL" do
-      {_subject, body} = ChannelFormatter.format_payload(down_payload(), :email)
-      assert String.contains?(body, "https://example.com")
-    end
-
-    test "body contains the root cause" do
-      {_subject, body} = ChannelFormatter.format_payload(down_payload(), :email)
-      assert String.contains?(body, "Server 500")
+    test "names the channel for a test ping" do
+      assert ChannelFormatter.format_email(test_payload()).subject =~ "Ops Email"
     end
   end
 
-  describe "append_anti_phishing_footer/2" do
-    test "appends a 'Verification code:' line referencing the channel's code" do
-      footer_body =
-        ChannelFormatter.append_anti_phishing_footer(
-          "incident details",
-          %EmailChannel{anti_phishing_code: "ABCD-EFGH"}
-        )
-
-      assert footer_body =~ "Verification code: ABCD-EFGH"
+  describe "format_email/2 — text body" do
+    test "lists the event name for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).text =~ "monitor_down"
     end
 
-    test "preserves the original body as a prefix" do
-      original = "incident details"
-
-      result =
-        ChannelFormatter.append_anti_phishing_footer(original, %EmailChannel{
-          anti_phishing_code: "ABCD-EFGH"
-        })
-
-      assert String.starts_with?(result, original)
+    test "lists the monitor URL for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).text =~ "https://example.com"
     end
 
-    test "warns the recipient not to trust messages missing the code" do
-      result =
-        ChannelFormatter.append_anti_phishing_footer("body", %EmailChannel{
-          anti_phishing_code: "ABCD-EFGH"
-        })
+    test "includes the incident root cause when one is set" do
+      assert ChannelFormatter.format_email(down_payload()).text =~ "Server 500"
+    end
+
+    test "frames the body with the shared Holter wordmark header" do
+      assert String.starts_with?(ChannelFormatter.format_email(down_payload()).text, "Holter")
+    end
+
+    test "appends the verification code when the channel carries one" do
+      result = ChannelFormatter.format_email(down_payload(), channel_with_code()).text
+
+      assert result =~ "Verification code: ABCD-EFGH"
+    end
+
+    test "warns the recipient not to trust messages missing the verification code" do
+      result = ChannelFormatter.format_email(down_payload(), channel_with_code()).text
 
       assert result =~ "do not trust"
     end
 
-    test "warns the recipient not to forward the email to untrusted parties" do
+    test "omits the anti-phishing footer when the channel has no code" do
       result =
-        ChannelFormatter.append_anti_phishing_footer("body", %EmailChannel{
-          anti_phishing_code: "ABCD-EFGH"
-        })
+        ChannelFormatter.format_email(down_payload(), %EmailChannel{anti_phishing_code: nil}).text
 
-      assert result =~ "Do not forward this email"
+      refute result =~ "Verification code"
+    end
+  end
+
+  describe "format_email/2 — html body" do
+    test "embeds the monitor URL for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).html =~ "https://example.com"
     end
 
-    test "returns the body untouched when the channel has no anti_phishing_code" do
-      assert ChannelFormatter.append_anti_phishing_footer("body", %EmailChannel{
-               anti_phishing_code: nil
-             }) == "body"
+    test "includes the down heading for a down event" do
+      assert ChannelFormatter.format_email(down_payload()).html =~ "Monitor down"
     end
 
-    test "returns the body untouched when the second argument is not an EmailChannel" do
-      assert ChannelFormatter.append_anti_phishing_footer("body", nil) == "body"
+    test "includes the recovered heading for an up event" do
+      assert ChannelFormatter.format_email(up_payload()).html =~ "Monitor recovered"
+    end
+
+    test "includes the test notification heading for a test ping" do
+      assert ChannelFormatter.format_email(test_payload()).html =~ "Test notification"
+    end
+
+    test "renders the verification code inside the html footer when the channel carries one" do
+      assert ChannelFormatter.format_email(down_payload(), channel_with_code()).html =~
+               "ABCD-EFGH"
+    end
+
+    test "omits the anti-phishing block from html when the channel has no code" do
+      result =
+        ChannelFormatter.format_email(down_payload(), %EmailChannel{anti_phishing_code: nil}).html
+
+      refute result =~ "Verification code"
+    end
+
+    test "produces a complete HTML document with a DOCTYPE" do
+      assert String.starts_with?(ChannelFormatter.format_email(down_payload()).html, "<!DOCTYPE")
     end
   end
 end

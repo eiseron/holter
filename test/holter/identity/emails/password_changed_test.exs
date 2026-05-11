@@ -36,5 +36,29 @@ defmodule Holter.Identity.Emails.PasswordChangedTest do
 
       assert email.text_body =~ "did not perform"
     end
+
+    test "frames the plain-text body with the shared Holter wordmark header" do
+      email = build_email()
+
+      assert String.starts_with?(email.text_body, "Holter")
+    end
+
+    test "ships an HTML body alongside the plain-text body" do
+      email = build_email()
+
+      assert is_binary(email.html_body) and email.html_body != ""
+    end
+
+    test "states in the HTML body that all other sessions were revoked" do
+      email = build_email()
+
+      assert email.html_body =~ "revoked"
+    end
+
+    test "invites the user to contact support in the HTML body if the change was not theirs" do
+      email = build_email()
+
+      assert email.html_body =~ "contact support"
+    end
   end
 end

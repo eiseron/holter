@@ -239,6 +239,9 @@ defmodule HolterWeb.Router do
 
       live_dashboard "/dashboard", metrics: HolterWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+
+      live "/emails", HolterWeb.Web.Dev.EmailPreviewLive
+      live "/emails/:preview_key/:variant_key", HolterWeb.Web.Dev.EmailPreviewLive
     end
 
     scope "/api" do

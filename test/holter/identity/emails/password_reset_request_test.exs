@@ -57,5 +57,31 @@ defmodule Holter.Identity.Emails.PasswordResetRequestTest do
 
       assert email.text_body =~ "15"
     end
+
+    test "frames the plain-text body with the shared Holter wordmark header" do
+      email = build_email()
+
+      assert String.starts_with?(email.text_body, "Holter")
+    end
+
+    test "ships an HTML body alongside the plain-text body" do
+      email = build_email()
+
+      assert is_binary(email.html_body) and email.html_body != ""
+    end
+
+    test "embeds the reset URL as a clickable anchor in the HTML body" do
+      url = "https://app.holter.test/identity/reset-password/clickable-html"
+
+      email = build_email(url: url)
+
+      assert email.html_body =~ ~s(href="#{url}")
+    end
+
+    test "calls out the 15-minute expiry in the HTML body so users do not stash it" do
+      email = build_email()
+
+      assert email.html_body =~ "15 minutes"
+    end
   end
 end

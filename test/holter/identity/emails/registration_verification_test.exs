@@ -51,5 +51,31 @@ defmodule Holter.Identity.Emails.RegistrationVerificationTest do
 
       assert email.text_body =~ "did not create"
     end
+
+    test "frames the plain-text body with the shared Holter wordmark header" do
+      email = build_email()
+
+      assert String.starts_with?(email.text_body, "Holter")
+    end
+
+    test "ships an HTML body alongside the plain-text body" do
+      email = build_email()
+
+      assert is_binary(email.html_body) and email.html_body != ""
+    end
+
+    test "embeds the verification URL as a clickable anchor in the HTML body" do
+      url = "https://app.holter.test/identity/verify-email/clickable-html"
+
+      email = build_email(url: url)
+
+      assert email.html_body =~ ~s(href="#{url}")
+    end
+
+    test "renders the welcome heading in the HTML body" do
+      email = build_email()
+
+      assert email.html_body =~ "Welcome to Holter"
+    end
   end
 end

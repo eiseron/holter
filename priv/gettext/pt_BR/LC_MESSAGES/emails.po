@@ -1,0 +1,302 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: lib/holter/delivery/emails/alert_up.ex:31
+#, elixir-autogen, elixir-format
+msgid "%{url} is reachable again."
+msgstr "%{url} está acessível novamente."
+
+#: lib/holter/delivery/emails/alert_up.ex:35
+#, elixir-autogen, elixir-format
+msgid "%{url} is responding successfully again. Holter will keep watching it."
+msgstr "%{url} está respondendo com sucesso novamente. O Holter continuará monitorando."
+
+#: lib/holter/delivery/emails/alert_test.ex:33
+#, elixir-autogen, elixir-format
+msgid "A test notification to verify channel delivery."
+msgstr "Uma notificação de teste para verificar a entrega do canal."
+
+#: lib/holter/identity/emails/password_changed.ex:40
+#, elixir-autogen, elixir-format
+msgid "All active sessions on other devices have been revoked. You will need to sign in again on those devices using the new password."
+msgstr "Todas as sessões ativas em outros dispositivos foram revogadas. Você precisará entrar novamente nesses dispositivos usando a nova senha."
+
+#: lib/holter/delivery/emails/alert_test.ex:50
+#, elixir-autogen, elixir-format
+msgid "Channel"
+msgstr "Canal"
+
+#: lib/holter/identity/emails/password_reset_request.ex:51
+#, elixir-autogen, elixir-format
+msgid "Choose a new password"
+msgstr "Escolher nova senha"
+
+#: lib/holter/identity/emails/password_reset_request.ex:45
+#, elixir-autogen, elixir-format
+msgid "Click the button below to choose a new password. For security, this link expires in 15 minutes and can only be used once."
+msgstr "Clique no botão abaixo para escolher uma nova senha. Por segurança, este link expira em 15 minutos e só pode ser usado uma vez."
+
+#: lib/holter/identity/emails/registration_verification.ex:39
+#, elixir-autogen, elixir-format
+msgid "Click the button below to verify your email address and activate your account."
+msgstr "Clique no botão abaixo para verificar seu endereço de email e ativar sua conta."
+
+#: lib/holter/identity/emails/registration_verification.ex:35
+#, elixir-autogen, elixir-format
+msgid "Confirm your email to activate notifications and monitors."
+msgstr "Confirme seu email para ativar notificações e monitores."
+
+#: lib/holter/identity/emails/password_changed.ex:33
+#, elixir-autogen, elixir-format
+msgid "Confirmation that your Holter password was just changed."
+msgstr "Confirmação de que a senha da sua conta no Holter foi alterada."
+
+#: lib/holter/delivery/emails/alert_down.ex:52
+#: lib/holter/delivery/emails/alert_up.ex:42
+#, elixir-autogen, elixir-format
+msgid "Event"
+msgstr "Evento"
+
+#: lib/holter/delivery/emails/alert_down.ex:45
+#, elixir-autogen, elixir-format
+msgid "Holter detected that %{url} is currently unreachable or returning errors."
+msgstr "O Holter detectou que %{url} está inacessível ou retornando erros no momento."
+
+#: lib/holter/delivery/emails/alert_down.ex:41
+#, elixir-autogen, elixir-format
+msgid "Holter detected that %{url} is unreachable."
+msgstr "O Holter detectou que %{url} está inacessível."
+
+#: lib/holter/emails/layout.ex:55
+#: lib/holter/emails/layout.ex:90
+#, elixir-autogen, elixir-format
+msgid "Holter is the uptime and incident monitor from Eiseron."
+msgstr "Holter é o monitor de uptime e incidentes da Eiseron."
+
+#: lib/holter/identity/emails/password_reset_request.ex:24
+#: lib/holter/identity/emails/password_reset_request.ex:34
+#, elixir-autogen, elixir-format
+msgid "Holter password reset"
+msgstr "Redefinição de senha do Holter"
+
+#: lib/holter/delivery/emails/recipient_verification.ex:55
+#: lib/holter/identity/emails/password_reset_request.ex:54
+#: lib/holter/identity/emails/registration_verification.ex:54
+#, elixir-autogen, elixir-format
+msgid "If the button does not work, paste this link into your browser:"
+msgstr "Se o botão não funcionar, cole este link no seu navegador:"
+
+#: lib/holter/identity/emails/registration_verification.ex:58
+#, elixir-autogen, elixir-format
+msgid "If you did not create a Holter account, you can ignore this message."
+msgstr "Se você não criou uma conta no Holter, pode ignorar esta mensagem."
+
+#: lib/holter/emails/components.ex:113
+#, elixir-autogen, elixir-format
+msgid "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code."
+msgstr "Se você não esperava este email, não confie em mensagens que se digam do Holter sem este código."
+
+#: lib/holter/identity/emails/password_changed.ex:46
+#, elixir-autogen, elixir-format
+msgid "If you did not perform this change, contact support immediately — your account may be compromised."
+msgstr "Se não foi você quem fez essa alteração, entre em contato com o suporte imediatamente — sua conta pode estar comprometida."
+
+#: lib/holter/identity/emails/password_reset_request.ex:58
+#, elixir-autogen, elixir-format
+msgid "If you did not request a password reset, you can safely ignore this message — your current password is still valid."
+msgstr "Se você não solicitou uma redefinição de senha, pode ignorar esta mensagem com segurança — sua senha atual continua válida."
+
+#: lib/holter/delivery/emails/alert_test.ex:44
+#, elixir-autogen, elixir-format
+msgid "If you received this message, delivery to this address is working."
+msgstr "Se você recebeu esta mensagem, a entrega para este endereço está funcionando."
+
+#: lib/holter/delivery/emails/alert_down.ex:61
+#: lib/holter/delivery/emails/alert_up.ex:51
+#, elixir-autogen, elixir-format
+msgid "Incident type"
+msgstr "Tipo do incidente"
+
+#: lib/holter/delivery/emails/alert_down.ex:53
+#: lib/holter/delivery/emails/alert_up.ex:43
+#, elixir-autogen, elixir-format
+msgid "Monitor"
+msgstr "Monitor"
+
+#: lib/holter/delivery/emails/alert_down.ex:43
+#, elixir-autogen, elixir-format
+msgid "Monitor down"
+msgstr "Monitor fora do ar"
+
+#: lib/holter/delivery/emails/alert_up.ex:33
+#, elixir-autogen, elixir-format
+msgid "Monitor recovered"
+msgstr "Monitor recuperado"
+
+#: lib/holter/identity/emails/password_reset_request.ex:35
+#, elixir-autogen, elixir-format
+msgid "Pick a new password. The link expires in 15 minutes."
+msgstr "Escolha uma nova senha. O link expira em 15 minutos."
+
+#: lib/holter/identity/emails/password_reset_request.ex:37
+#, elixir-autogen, elixir-format
+msgid "Reset your password"
+msgstr "Redefinir sua senha"
+
+#: lib/holter/delivery/emails/alert_down.ex:71
+#, elixir-autogen, elixir-format
+msgid "Root cause"
+msgstr "Causa raiz"
+
+#: lib/holter/delivery/emails/alert_down.ex:66
+#: lib/holter/delivery/emails/alert_up.ex:56
+#, elixir-autogen, elixir-format
+msgid "Started at"
+msgstr "Iniciado em"
+
+#: lib/holter/delivery/emails/alert_down.ex:55
+#: lib/holter/delivery/emails/alert_up.ex:45
+#, elixir-autogen, elixir-format
+msgid "Status"
+msgstr "Status"
+
+#: lib/holter/delivery/emails/alert_test.ex:35
+#, elixir-autogen, elixir-format
+msgid "Test notification"
+msgstr "Notificação de teste"
+
+#: lib/holter/delivery/emails/alert_test.ex:37
+#, elixir-autogen, elixir-format
+msgid "This is a test notification from channel %{name}."
+msgstr "Esta é uma notificação de teste do canal %{name}."
+
+#: lib/holter/delivery/emails/alert_down.ex:58
+#: lib/holter/delivery/emails/alert_test.ex:51
+#: lib/holter/delivery/emails/alert_up.ex:48
+#, elixir-autogen, elixir-format
+msgid "Timestamp"
+msgstr "Data e hora"
+
+#: lib/holter/identity/emails/registration_verification.ex:45
+#, elixir-autogen, elixir-format
+msgid "Until you do, you can sign in but cannot create monitors or notification channels."
+msgstr "Até que faça isso, você pode entrar mas não pode criar monitores nem canais de notificação."
+
+#: lib/holter/emails/components.ex:106
+#, elixir-autogen, elixir-format
+msgid "Verification code:"
+msgstr "Código de verificação:"
+
+#: lib/holter/identity/emails/registration_verification.ex:51
+#, elixir-autogen, elixir-format
+msgid "Verify email"
+msgstr "Verificar email"
+
+#: lib/holter/identity/emails/registration_verification.ex:24
+#: lib/holter/identity/emails/registration_verification.ex:34
+#, elixir-autogen, elixir-format
+msgid "Verify your Holter account"
+msgstr "Verifique sua conta no Holter"
+
+#: lib/holter/identity/emails/password_reset_request.ex:39
+#, elixir-autogen, elixir-format
+msgid "We received a request to reset the password on your Holter account."
+msgstr "Recebemos uma solicitação para redefinir a senha da sua conta no Holter."
+
+#: lib/holter/identity/emails/password_reset_request.ex:69
+#, elixir-autogen, elixir-format
+msgid "We received a request to reset the password on your Holter account.\n\nFollow the link below to choose a new password. For security, this link expires in 15 minutes and can only be used once.\n\n%{url}\n\nIf you did not request a password reset, you can safely ignore this message — your current password is still valid."
+msgstr "Recebemos uma solicitação para redefinir a senha da sua conta no Holter.\n\nSiga o link abaixo para escolher uma nova senha. Por segurança, este link expira em 15 minutos e só pode ser usado uma vez.\n\n%{url}\n\nSe você não solicitou uma redefinição de senha, pode ignorar esta mensagem com segurança — sua senha atual continua válida."
+
+#: lib/holter/identity/emails/registration_verification.ex:37
+#, elixir-autogen, elixir-format
+msgid "Welcome to Holter"
+msgstr "Bem-vindo ao Holter"
+
+#: lib/holter/identity/emails/registration_verification.ex:69
+#, elixir-autogen, elixir-format
+msgid "Welcome to Holter.\n\nClick the link below to verify your email address and activate your account. Until you do, you can sign in but cannot create monitors or notification channels.\n\n%{url}\n\nIf you did not create a Holter account, you can ignore this message."
+msgstr "Bem-vindo ao Holter.\n\nClique no link abaixo para verificar seu endereço de email e ativar sua conta. Até que faça isso, você pode entrar mas não pode criar monitores nem canais de notificação.\n\n%{url}\n\nSe você não criou uma conta no Holter, pode ignorar esta mensagem."
+
+#: lib/holter/identity/emails/password_changed.ex:37
+#, elixir-autogen, elixir-format
+msgid "Your Holter account password has been changed successfully."
+msgstr "A senha da sua conta no Holter foi alterada com sucesso."
+
+#: lib/holter/identity/emails/password_changed.ex:57
+#, elixir-autogen, elixir-format
+msgid "Your Holter account password has been changed successfully.\n\nAll active sessions on other devices have been revoked. You will need to sign in again on those devices using the new password.\n\nIf you did not perform this change, contact support immediately — your account may be compromised."
+msgstr "A senha da sua conta no Holter foi alterada com sucesso.\n\nTodas as sessões ativas em outros dispositivos foram revogadas. Você precisará entrar novamente nesses dispositivos usando a nova senha.\n\nSe não foi você quem fez essa alteração, entre em contato com o suporte imediatamente — sua conta pode estar comprometida."
+
+#: lib/holter/identity/emails/password_changed.ex:24
+#: lib/holter/identity/emails/password_changed.ex:32
+#: lib/holter/identity/emails/password_changed.ex:35
+#, elixir-autogen, elixir-format
+msgid "Your password has been changed"
+msgstr "Sua senha foi alterada"
+
+#: lib/holter/delivery/emails/alert_down.ex:72
+#, elixir-autogen, elixir-format
+msgid "unknown"
+msgstr "desconhecido"
+
+#: lib/holter/delivery/emails/recipient_verification.ex:52
+#, elixir-autogen, elixir-format
+msgid "Confirm address"
+msgstr "Confirmar endereço"
+
+#: lib/holter/delivery/emails/recipient_verification.ex:38
+#, elixir-autogen, elixir-format
+msgid "Confirm this address"
+msgstr "Confirme este endereço"
+
+#: lib/holter/delivery/emails/recipient_verification.ex:25
+#: lib/holter/delivery/emails/recipient_verification.ex:35
+#, elixir-autogen, elixir-format
+msgid "Confirm this address to receive monitoring alerts"
+msgstr "Confirme este endereço para receber alertas de monitoramento"
+
+#: lib/holter/delivery/emails/recipient_verification.ex:36
+#, elixir-autogen, elixir-format
+msgid "Confirm this address to start receiving Holter alerts."
+msgstr "Confirme este endereço para começar a receber alertas do Holter."
+
+#: lib/holter/delivery/emails/recipient_verification.ex:46
+#, elixir-autogen, elixir-format
+msgid "If you confirm, you will receive notifications when an external system being monitored goes down or recovers."
+msgstr "Se confirmar, você receberá notificações quando um sistema externo monitorado ficar fora do ar ou se recuperar."
+
+#: lib/holter/delivery/emails/recipient_verification.ex:40
+#, elixir-autogen, elixir-format
+msgid "Someone added this address to receive copies of monitoring alerts from a Holter service."
+msgstr "Alguém adicionou este endereço para receber cópias de alertas de monitoramento de um serviço Holter."
+
+#: lib/holter/delivery/emails/recipient_verification.ex:76
+#, elixir-autogen, elixir-format
+msgid "Someone added this address to receive copies of monitoring alerts from a Holter service.\n\nIf you confirm, you will receive notifications when an external system being monitored goes down or recovers. We do not disclose what is being monitored in this email so you can decide based on whether you expected the request, not the target.\n\nConfirm this address: %{url}\n\nThis link expires in 48 hours. If you did not expect this email, you can ignore it; no alerts will be sent."
+msgstr "Alguém adicionou este endereço para receber cópias de alertas de monitoramento de um serviço Holter.\n\nSe confirmar, você receberá notificações quando um sistema externo monitorado ficar fora do ar ou se recuperar. Não divulgamos neste email o que está sendo monitorado para que você decida com base em ter ou não esperado a solicitação, não no alvo.\n\nConfirme este endereço: %{url}\n\nEste link expira em 48 horas. Se você não esperava este email, pode ignorá-lo; nenhum alerta será enviado."
+
+#: lib/holter/delivery/emails/recipient_verification.ex:65
+#, elixir-autogen, elixir-format
+msgid "This link expires in 48 hours. If you did not expect this email, you can ignore it; no alerts will be sent."
+msgstr "Este link expira em 48 horas. Se você não esperava este email, pode ignorá-lo; nenhum alerta será enviado."
+
+#: lib/holter/delivery/emails/recipient_verification.ex:59
+#, elixir-autogen, elixir-format
+msgid "We do not disclose what is being monitored in this email so you can decide based on whether you expected the request, not the target."
+msgstr "Não divulgamos neste email o que está sendo monitorado para que você decida com base em ter ou não esperado a solicitação, não no alvo."
+
+#: lib/holter/emails/components.ex:119
+#, elixir-autogen, elixir-format
+msgid "Do not forward this email to anyone you do not trust — the verification code above is a shared secret that lets the recipient impersonate Holter."
+msgstr "Não encaminhe este email para ninguém em quem não confie — o código de verificação acima é um segredo compartilhado que permite ao destinatário se passar pelo Holter."

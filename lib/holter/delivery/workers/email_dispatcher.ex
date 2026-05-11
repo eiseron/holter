@@ -35,10 +35,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
         now: now
       })
 
-    {subject, body} = ChannelFormatter.format_payload(payload, :email)
-    body = ChannelFormatter.append_anti_phishing_footer(body, channel)
-
-    deliver(channel, subject, body)
+    deliver(channel, ChannelFormatter.format_email(payload, channel))
   end
 
   def perform(%Oban.Job{args: %{"email_channel_id" => channel_id, "test" => true}}) do
@@ -48,10 +45,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     apply_channel_locale(channel)
 
     payload = PayloadBuilder.build_test_payload(channel, :email, now)
-    {subject, body} = ChannelFormatter.format_payload(payload, :email)
-    body = ChannelFormatter.append_anti_phishing_footer(body, channel)
-
-    deliver(channel, subject, body)
+    deliver(channel, ChannelFormatter.format_email(payload, channel))
   end
 
   defp apply_channel_locale(%EmailChannel{} = channel) do
@@ -65,14 +59,14 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     Gettext.put_locale(HolterWeb.Gettext, locale)
   end
 
-  defp deliver(channel, subject, body) do
+  defp deliver(channel, %{} = formatted) do
     case EmailChannels.list_verified_emails(channel.id) do
       [] -> {:cancel, :no_verified_recipients}
-      addresses -> send_email(addresses, subject, body)
+      addresses -> send_email(addresses, formatted)
     end
   end
 
-  defp send_email(addresses, subject, body) do
+  defp send_email(addresses, %{subject: subject, text: text, html: html}) do
     from = from_address()
 
     new()
@@ -80,7 +74,8 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
     |> to(from)
     |> then(fn email -> Enum.reduce(addresses, email, &bcc(&2, &1)) end)
     |> subject(subject)
-    |> text_body(body)
+    |> text_body(text)
+    |> html_body(html)
     |> AlertMailer.deliver()
 
     :ok
