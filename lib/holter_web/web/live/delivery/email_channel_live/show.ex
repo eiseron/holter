@@ -56,6 +56,8 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
 
   @impl true
   def handle_event("save", %{"email_channel" => params} = full_params, socket) do
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
     monitor_ids = Map.get(full_params, "monitor_ids", [])
 
     staged = %{
@@ -64,21 +66,26 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
       removed_ids: MapSet.to_list(socket.assigns.pending_removed_ids)
     }
 
-    case EmailChannels.apply_staged_changes(socket.assigns.channel, staged) do
-      {:ok, %{channel: channel, added: added_recipients}} ->
-        EmailChannels.sync_monitors_for(channel.id, monitor_ids)
-        workspace_slug = socket.assigns.workspace.slug
-        Enum.each(added_recipients, &deliver_verification_email(&1, channel, workspace_slug))
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, %{channel: updated, added: added_recipients}} <-
+           EmailChannels.apply_staged_changes(channel, staged) do
+      EmailChannels.sync_monitors_for(updated.id, monitor_ids)
+      workspace_slug = socket.assigns.workspace.slug
+      Enum.each(added_recipients, &deliver_verification_email(&1, updated, workspace_slug))
 
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Email channel updated successfully"))
+       |> assign(:channel, updated)
+       |> assign(:linked_monitor_ids, EmailChannels.list_monitor_ids_for(updated.id))
+       |> assign(:saved_recipients, EmailChannels.list_recipients(updated.id))
+       |> assign(:pending_additions, [])
+       |> assign(:pending_removed_ids, MapSet.new())
+       |> assign(:form, to_form(EmailChannels.change(updated)))}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Email channel updated successfully"))
-         |> assign(:channel, channel)
-         |> assign(:linked_monitor_ids, EmailChannels.list_monitor_ids_for(channel.id))
-         |> assign(:saved_recipients, EmailChannels.list_recipients(channel.id))
-         |> assign(:pending_additions, [])
-         |> assign(:pending_removed_ids, MapSet.new())
-         |> assign(:form, to_form(EmailChannels.change(channel)))}
+         put_flash(socket, :error, gettext("You are not allowed to update this channel."))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -87,16 +94,23 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
 
   @impl true
   def handle_event("test", _params, socket) do
-    case Engine.dispatch_test_email(socket.assigns.channel.id) do
-      {:ok, _} ->
-        {:ok, refreshed} = EmailChannels.get(socket.assigns.channel.id)
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
 
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, _} <- Engine.dispatch_test_email(channel.id) do
+      {:ok, refreshed} = EmailChannels.get(channel.id)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Test notification enqueued"))
+       |> assign(:test_sent, true)
+       |> assign(:channel, refreshed)
+       |> ChannelLiveCommon.assign_test_cooldown(refreshed.last_test_dispatched_at)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Test notification enqueued"))
-         |> assign(:test_sent, true)
-         |> assign(:channel, refreshed)
-         |> ChannelLiveCommon.assign_test_cooldown(refreshed.last_test_dispatched_at)}
+         put_flash(socket, :error, gettext("You are not allowed to test this channel."))}
 
       {:error, :no_verified_recipients} ->
         {:noreply,
@@ -181,15 +195,26 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
 
   @impl true
   def handle_event("regenerate_secret", _params, socket) do
-    case EmailChannels.regenerate_anti_phishing_code(socket.assigns.channel) do
-      {:ok, updated} ->
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
+
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, updated} <- EmailChannels.regenerate_anti_phishing_code(channel) do
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         gettext("Anti-phishing code regenerated. The next email will contain the new code.")
+       )
+       |> assign(:channel, updated)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           gettext("Anti-phishing code regenerated. The next email will contain the new code.")
-         )
-         |> assign(:channel, updated)}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to rotate this channel's secret.")
+         )}
 
       {:error, _} ->
         {:noreply,
@@ -199,27 +224,41 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
 
   @impl true
   def handle_event("delete_channel", _params, socket) do
+    actor = socket.assigns.current_user
     channel = socket.assigns.channel
     workspace = socket.assigns.workspace
-    {:ok, _} = EmailChannels.delete(channel)
 
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Email channel deleted successfully"))
-     |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    with :ok <- authorize(actor, :delete, channel),
+         {:ok, _} <- EmailChannels.delete(channel) do
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Email channel deleted successfully"))
+       |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    else
+      {:error, :unauthorized} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("You are not allowed to delete this channel."))}
+    end
   end
 
   @impl true
   def handle_event("resend_recipient_verification", %{"id" => id}, socket) do
-    case EmailChannels.resend_recipient_verification(id) do
-      {:ok, recipient} ->
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
+
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, recipient} <- EmailChannels.resend_recipient_verification(id) do
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         gettext("Verification email sent to %{email}", email: recipient.email)
+       )
+       |> assign(:saved_recipients, EmailChannels.list_recipients(channel.id))}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           gettext("Verification email sent to %{email}", email: recipient.email)
-         )
-         |> assign(:saved_recipients, EmailChannels.list_recipients(socket.assigns.channel.id))}
+         put_flash(socket, :error, gettext("You are not allowed to manage this channel."))}
 
       {:error, :already_verified} ->
         {:noreply, put_flash(socket, :info, gettext("This recipient is already verified."))}

@@ -48,14 +48,24 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
 
   @impl true
   def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    attrs = Map.put(monitor_params, "workspace_id", socket.assigns.workspace.id)
+    actor = socket.assigns.current_user
+    workspace = socket.assigns.workspace
+    attrs = Map.put(monitor_params, "workspace_id", workspace.id)
 
-    case Monitoring.create_monitor(socket.assigns.current_user, attrs) do
-      {:ok, monitor} ->
+    with :ok <- authorize(actor, :create, {Monitor, workspace}),
+         {:ok, monitor} <- Monitoring.create_monitor(actor, attrs) do
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Monitor created successfully"))
+       |> push_navigate(to: ~p"/monitoring/monitor/#{monitor.id}")}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Monitor created successfully"))
-         |> push_navigate(to: ~p"/monitoring/monitor/#{monitor.id}")}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to create monitors in this workspace.")
+         )}
 
       {:error, :quota_exceeded} ->
         {:noreply,

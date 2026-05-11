@@ -4,9 +4,8 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.New do
   import HolterWeb.Components.Delivery.MonitorChannelSelect
   import HolterWeb.Components.Delivery.WebhookChannelFormFields
 
-  alias Holter.Delivery.WebhookChannels
-
   alias Holter.Delivery.Models.WebhookChannel
+  alias Holter.Delivery.WebhookChannels
   alias Holter.Monitoring
 
   @impl true
@@ -45,18 +44,27 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.New do
 
   @impl true
   def handle_event("save", %{"webhook_channel" => params} = full_params, socket) do
+    actor = socket.assigns.current_user
     workspace = socket.assigns.workspace
     attrs = Map.put(params, "workspace_id", workspace.id)
     monitor_ids = Map.get(full_params, "monitor_ids", [])
 
-    case WebhookChannels.create(attrs) do
-      {:ok, channel} ->
-        WebhookChannels.sync_monitors_for(channel.id, monitor_ids)
+    with :ok <- authorize(actor, :create, {WebhookChannel, workspace}),
+         {:ok, channel} <- WebhookChannels.create(attrs) do
+      WebhookChannels.sync_monitors_for(channel.id, monitor_ids)
 
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Webhook channel created successfully"))
+       |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Webhook channel created successfully"))
-         |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to create channels in this workspace.")
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}

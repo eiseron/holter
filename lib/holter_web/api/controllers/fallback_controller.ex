@@ -27,6 +27,13 @@ defmodule HolterWeb.Api.FallbackController do
     |> render(:"403")
   end
 
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:forbidden)
+    |> put_view(json: HolterWeb.Api.ErrorJSON)
+    |> render(:"403")
+  end
+
   def call(conn, {:error, :quota_reached}) do
     conn
     |> put_status(:unprocessable_entity)

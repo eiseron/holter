@@ -69,13 +69,21 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
     user = socket.assigns.current_user
     workspace = socket.assigns.current_workspace
 
-    case ApiTokens.create_token(user, workspace, normalize(attrs)) do
-      {:ok, token, plaintext} ->
+    with :ok <- authorize(user, :create, {ApiToken, workspace}),
+         {:ok, token, plaintext} <- ApiTokens.create_token(user, workspace, normalize(attrs)) do
+      {:noreply,
+       socket
+       |> assign(:new_plaintext, plaintext)
+       |> assign(:form, build_form())
+       |> stream_insert(:tokens, token, at: 0)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> assign(:new_plaintext, plaintext)
-         |> assign(:form, build_form())
-         |> stream_insert(:tokens, token, at: 0)}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to create API tokens in this workspace.")
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "api_token"))}
@@ -95,16 +103,21 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
   end
 
   def handle_event("revoke", %{"id" => id}, socket) do
+    user = socket.assigns.current_user
     workspace = socket.assigns.current_workspace
     tokens = ApiTokens.list_tokens_for_workspace(workspace)
 
-    case Enum.find(tokens, &(&1.id == id)) do
+    with %ApiToken{} = token <- Enum.find(tokens, &(&1.id == id)),
+         :ok <- authorize(user, :revoke, token),
+         {:ok, revoked} <- ApiTokens.revoke_token(token) do
+      {:noreply, stream_insert(socket, :tokens, revoked)}
+    else
       nil ->
         {:noreply, socket}
 
-      %ApiToken{} = token ->
-        {:ok, revoked} = ApiTokens.revoke_token(token)
-        {:noreply, stream_insert(socket, :tokens, revoked)}
+      {:error, :unauthorized} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("You are not allowed to revoke this token."))}
     end
   end
 

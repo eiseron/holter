@@ -51,19 +51,25 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
 
   @impl true
   def handle_event("save", %{"webhook_channel" => params} = full_params, socket) do
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
     monitor_ids = Map.get(full_params, "monitor_ids", [])
 
-    case WebhookChannels.update(socket.assigns.channel, params) do
-      {:ok, channel} ->
-        WebhookChannels.sync_monitors_for(channel.id, monitor_ids)
-        linked_monitor_ids = WebhookChannels.list_monitor_ids_for(channel.id)
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, updated} <- WebhookChannels.update(channel, params) do
+      WebhookChannels.sync_monitors_for(updated.id, monitor_ids)
+      linked_monitor_ids = WebhookChannels.list_monitor_ids_for(updated.id)
 
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Webhook channel updated successfully"))
+       |> assign(:channel, updated)
+       |> assign(:linked_monitor_ids, linked_monitor_ids)
+       |> assign(:form, to_form(WebhookChannels.change(updated)))}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Webhook channel updated successfully"))
-         |> assign(:channel, channel)
-         |> assign(:linked_monitor_ids, linked_monitor_ids)
-         |> assign(:form, to_form(WebhookChannels.change(channel)))}
+         put_flash(socket, :error, gettext("You are not allowed to update this channel."))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -72,16 +78,23 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
 
   @impl true
   def handle_event("test", _params, socket) do
-    case Engine.dispatch_test_webhook(socket.assigns.channel.id) do
-      {:ok, _} ->
-        {:ok, refreshed} = WebhookChannels.get(socket.assigns.channel.id)
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
 
+    with :ok <- authorize(actor, :test, channel),
+         {:ok, _} <- Engine.dispatch_test_webhook(channel.id) do
+      {:ok, refreshed} = WebhookChannels.get(channel.id)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Test notification enqueued"))
+       |> assign(:test_sent, true)
+       |> assign(:channel, refreshed)
+       |> ChannelLiveCommon.assign_test_cooldown(refreshed.last_test_dispatched_at)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Test notification enqueued"))
-         |> assign(:test_sent, true)
-         |> assign(:channel, refreshed)
-         |> ChannelLiveCommon.assign_test_cooldown(refreshed.last_test_dispatched_at)}
+         put_flash(socket, :error, gettext("You are not allowed to test this channel."))}
 
       {:error, :test_dispatch_rate_limited} ->
         {:noreply,
@@ -98,15 +111,26 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
 
   @impl true
   def handle_event("regenerate_secret", _params, socket) do
-    case WebhookChannels.regenerate_signing_token(socket.assigns.channel) do
-      {:ok, updated} ->
+    actor = socket.assigns.current_user
+    channel = socket.assigns.channel
+
+    with :ok <- authorize(actor, :update, channel),
+         {:ok, updated} <- WebhookChannels.regenerate_signing_token(channel) do
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         gettext("Signing token regenerated. Update your receiver to avoid missed alerts.")
+       )
+       |> assign(:channel, updated)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           gettext("Signing token regenerated. Update your receiver to avoid missed alerts.")
-         )
-         |> assign(:channel, updated)}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to rotate this channel's secret.")
+         )}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to regenerate the signing token"))}
@@ -115,14 +139,21 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
 
   @impl true
   def handle_event("delete_channel", _params, socket) do
+    actor = socket.assigns.current_user
     channel = socket.assigns.channel
     workspace = socket.assigns.workspace
-    {:ok, _} = WebhookChannels.delete(channel)
 
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Webhook channel deleted successfully"))
-     |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    with :ok <- authorize(actor, :delete, channel),
+         {:ok, _} <- WebhookChannels.delete(channel) do
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Webhook channel deleted successfully"))
+       |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    else
+      {:error, :unauthorized} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("You are not allowed to delete this channel."))}
+    end
   end
 
   @impl true

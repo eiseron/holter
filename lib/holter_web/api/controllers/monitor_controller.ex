@@ -104,6 +104,7 @@ defmodule HolterWeb.Api.MonitorController do
     body = conn.body_params
 
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
+         :ok <- authorize(actor, :create, {Monitor, workspace}),
          :ok <-
            if(Monitoring.at_quota?(actor, workspace), do: {:error, :quota_reached}, else: :ok),
          monitor_params = Map.put(body, :workspace_id, workspace.id),
@@ -140,6 +141,7 @@ defmodule HolterWeb.Api.MonitorController do
     monitor_params = conn.body_params["monitor"] || conn.body_params[:monitor] || conn.body_params
 
     with {:ok, monitor} <- Monitoring.get_monitor(actor, id),
+         :ok <- authorize(actor, :update, monitor),
          {:ok, %Monitor{} = monitor} <- Monitoring.update_monitor(actor, monitor, monitor_params) do
       render(conn, :show, monitor: monitor)
     end
@@ -167,6 +169,7 @@ defmodule HolterWeb.Api.MonitorController do
     actor = conn.assigns.current_user
 
     with {:ok, monitor} <- Monitoring.get_monitor(actor, id),
+         :ok <- authorize(actor, :delete, monitor),
          {:ok, %Monitor{}} <- Monitoring.delete_monitor(actor, monitor) do
       send_resp(conn, :no_content, "")
     end

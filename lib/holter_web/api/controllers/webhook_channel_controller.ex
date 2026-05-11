@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.WebhookChannelController do
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Delivery.{Engine, WebhookChannels}
+  alias Holter.Delivery.Models.WebhookChannel
   alias Holter.Monitoring
   alias HolterWeb.Api.WebhookChannelSchemas
   alias HolterWeb.Plugs.RequireScopePlug
@@ -84,7 +85,10 @@ defmodule HolterWeb.Api.WebhookChannelController do
   )
 
   def create(conn, %{workspace_slug: workspace_slug}) do
+    actor = conn.assigns.current_user
+
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
+         :ok <- authorize(actor, :create, {WebhookChannel, workspace}),
          attrs = Map.put(conn.body_params, :workspace_id, workspace.id),
          {:ok, channel} <- WebhookChannels.create(attrs) do
       conn
@@ -116,7 +120,10 @@ defmodule HolterWeb.Api.WebhookChannelController do
   )
 
   def update(conn, %{id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- WebhookChannels.get(id),
+         :ok <- authorize(actor, :update, channel),
          {:ok, updated} <- WebhookChannels.update(channel, conn.body_params) do
       render(conn, :show, channel: updated)
     end
@@ -139,7 +146,10 @@ defmodule HolterWeb.Api.WebhookChannelController do
   )
 
   def delete(conn, %{id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- WebhookChannels.get(id),
+         :ok <- authorize(actor, :delete, channel),
          {:ok, _} <- WebhookChannels.delete(channel) do
       send_resp(conn, :no_content, "")
     end
@@ -165,7 +175,10 @@ defmodule HolterWeb.Api.WebhookChannelController do
   )
 
   def ping(conn, %{webhook_channel_id: id}) do
-    with {:ok, _} <- WebhookChannels.get(id),
+    actor = conn.assigns.current_user
+
+    with {:ok, channel} <- WebhookChannels.get(id),
+         :ok <- authorize(actor, :test, channel),
          {:ok, _} <- Engine.dispatch_test_webhook(id) do
       send_resp(conn, :accepted, "")
     end
@@ -191,7 +204,10 @@ defmodule HolterWeb.Api.WebhookChannelController do
   )
 
   def rotate_signing_token(conn, %{webhook_channel_id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- WebhookChannels.get(id),
+         :ok <- authorize(actor, :update, channel),
          {:ok, updated} <- WebhookChannels.regenerate_signing_token(channel) do
       render(conn, :show, channel: updated)
     end

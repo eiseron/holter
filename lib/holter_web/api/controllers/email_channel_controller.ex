@@ -7,6 +7,7 @@ defmodule HolterWeb.Api.EmailChannelController do
   use OpenApiSpex.ControllerSpecs
 
   alias Holter.Delivery.{EmailChannels, Engine}
+  alias Holter.Delivery.Models.EmailChannel
   alias Holter.Monitoring
   alias HolterWeb.Api.EmailChannelSchemas
   alias HolterWeb.Plugs.RequireScopePlug
@@ -82,7 +83,10 @@ defmodule HolterWeb.Api.EmailChannelController do
   )
 
   def create(conn, %{workspace_slug: workspace_slug}) do
+    actor = conn.assigns.current_user
+
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug),
+         :ok <- authorize(actor, :create, {EmailChannel, workspace}),
          attrs = Map.put(conn.body_params, :workspace_id, workspace.id),
          {:ok, channel} <- EmailChannels.create(attrs) do
       conn
@@ -112,7 +116,10 @@ defmodule HolterWeb.Api.EmailChannelController do
   )
 
   def update(conn, %{id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- EmailChannels.get(id),
+         :ok <- authorize(actor, :update, channel),
          {:ok, updated} <- EmailChannels.update(channel, conn.body_params) do
       render(conn, :show, channel: updated)
     end
@@ -135,7 +142,10 @@ defmodule HolterWeb.Api.EmailChannelController do
   )
 
   def delete(conn, %{id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- EmailChannels.get(id),
+         :ok <- authorize(actor, :delete, channel),
          {:ok, _} <- EmailChannels.delete(channel) do
       send_resp(conn, :no_content, "")
     end
@@ -163,7 +173,10 @@ defmodule HolterWeb.Api.EmailChannelController do
   )
 
   def ping(conn, %{email_channel_id: id}) do
-    with {:ok, _} <- EmailChannels.get(id),
+    actor = conn.assigns.current_user
+
+    with {:ok, channel} <- EmailChannels.get(id),
+         :ok <- authorize(actor, :update, channel),
          {:ok, _} <- Engine.dispatch_test_email(id) do
       send_resp(conn, :accepted, "")
     else
@@ -202,7 +215,10 @@ defmodule HolterWeb.Api.EmailChannelController do
   )
 
   def rotate_anti_phishing_code(conn, %{email_channel_id: id}) do
+    actor = conn.assigns.current_user
+
     with {:ok, channel} <- EmailChannels.get(id),
+         :ok <- authorize(actor, :update, channel),
          {:ok, updated} <- EmailChannels.regenerate_anti_phishing_code(channel) do
       render(conn, :show, channel: updated)
     end

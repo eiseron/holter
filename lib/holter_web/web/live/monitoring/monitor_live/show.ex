@@ -67,19 +67,23 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   @impl true
   def handle_event("save", %{"monitor" => monitor_params}, socket) do
-    case Monitoring.update_monitor(
-           socket.assigns.current_user,
-           socket.assigns.monitor,
-           monitor_params
-         ) do
-      {:ok, monitor} ->
-        hydrated_monitor = hydrate_virtual_array_fields(monitor)
+    actor = socket.assigns.current_user
+    monitor = socket.assigns.monitor
 
+    with :ok <- authorize(actor, :update, monitor),
+         {:ok, updated} <- Monitoring.update_monitor(actor, monitor, monitor_params) do
+      hydrated_monitor = hydrate_virtual_array_fields(updated)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Monitor updated successfully"))
+       |> assign(:monitor, hydrated_monitor)
+       |> assign(:form, to_form(Monitoring.change_monitor(hydrated_monitor)))}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Monitor updated successfully"))
-         |> assign(:monitor, hydrated_monitor)
-         |> assign(:form, to_form(Monitoring.change_monitor(hydrated_monitor)))}
+         |> put_flash(:error, gettext("You are not allowed to update this monitor."))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -88,12 +92,21 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   @impl true
   def handle_event("delete", _params, socket) do
-    {:ok, _} = Monitoring.delete_monitor(socket.assigns.current_user, socket.assigns.monitor)
+    actor = socket.assigns.current_user
+    monitor = socket.assigns.monitor
 
-    {:noreply,
-     socket
-     |> put_flash(:info, gettext("Monitor deleted successfully"))
-     |> push_navigate(to: "/")}
+    with :ok <- authorize(actor, :delete, monitor),
+         {:ok, _} <- Monitoring.delete_monitor(actor, monitor) do
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Monitor deleted successfully"))
+       |> push_navigate(to: "/")}
+    else
+      {:error, :unauthorized} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, gettext("You are not allowed to delete this monitor."))}
+    end
   end
 
   @impl true
@@ -160,15 +173,19 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
   defp trigger_manual_check(socket) do
     actor = socket.assigns.current_user
+    monitor = socket.assigns.monitor
 
-    case Monitoring.mark_manual_check_triggered(actor, socket.assigns.monitor) do
-      {:ok, updated_monitor} ->
-        Monitoring.enqueue_checks(actor, updated_monitor)
+    with :ok <- authorize(actor, :run_now, monitor),
+         {:ok, updated_monitor} <- Monitoring.mark_manual_check_triggered(actor, monitor) do
+      Monitoring.enqueue_checks(actor, updated_monitor)
 
-        {:noreply,
-         socket
-         |> assign(:monitor, hydrate_virtual_array_fields(updated_monitor))
-         |> assign_cooldown(updated_monitor.last_manual_check_at)}
+      {:noreply,
+       socket
+       |> assign(:monitor, hydrate_virtual_array_fields(updated_monitor))
+       |> assign_cooldown(updated_monitor.last_manual_check_at)}
+    else
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, gettext("You are not allowed to run this monitor."))}
 
       {:error, :short_budget_exhausted} ->
         {:noreply,

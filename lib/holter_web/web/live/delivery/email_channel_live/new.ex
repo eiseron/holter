@@ -74,22 +74,31 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
 
   @impl true
   def handle_event("save", %{"email_channel" => params} = full_params, socket) do
+    actor = socket.assigns.current_user
     workspace = socket.assigns.workspace
     attrs = Map.put(params, "workspace_id", workspace.id)
     monitor_ids = Map.get(full_params, "monitor_ids", [])
 
-    case EmailChannels.create(attrs) do
-      {:ok, channel} ->
-        EmailChannels.sync_monitors_for(channel.id, monitor_ids)
-        persist_pending_recipients(channel, socket.assigns.pending_recipients)
+    with :ok <- authorize(actor, :create, {EmailChannel, workspace}),
+         {:ok, channel} <- EmailChannels.create(attrs) do
+      EmailChannels.sync_monitors_for(channel.id, monitor_ids)
+      persist_pending_recipients(channel, socket.assigns.pending_recipients)
 
+      {:noreply,
+       socket
+       |> put_flash(
+         :info,
+         gettext("Channel created. Verification email sent to each recipient.")
+       )
+       |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           gettext("Channel created. Verification email sent to each recipient.")
-         )
-         |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not allowed to create channels in this workspace.")
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}

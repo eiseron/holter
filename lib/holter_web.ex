@@ -42,6 +42,7 @@ defmodule HolterWeb do
         layouts: [html: HolterWeb.Layouts]
 
       import Plug.Conn
+      import HolterWeb.Authorization
       use Gettext, backend: HolterWeb.Gettext
 
       unquote(verified_routes())
@@ -170,6 +171,7 @@ defmodule HolterWeb do
       import Phoenix.HTML.Form
       import Phoenix.Component
 
+      import HolterWeb.Authorization
       import HolterWeb.Components.Flash
       import HolterWeb.Components.Button
       import HolterWeb.Components.Input

@@ -32,14 +32,21 @@ defmodule HolterWeb.Web.Workspaces.ShowLive do
 
   @impl true
   def handle_event("save", %{"workspace" => attrs}, socket) do
-    case Monitoring.update_workspace(socket.assigns.current_workspace, attrs) do
-      {:ok, workspace} ->
-        Gettext.put_locale(HolterWeb.Gettext, effective_locale(socket, workspace))
+    actor = socket.assigns.current_user
+    workspace = socket.assigns.current_workspace
 
+    with :ok <- authorize(actor, :update, workspace),
+         {:ok, updated} <- Monitoring.update_workspace(workspace, attrs) do
+      Gettext.put_locale(HolterWeb.Gettext, effective_locale(socket, updated))
+
+      {:noreply,
+       socket
+       |> put_flash(:info, gettext("Saved."))
+       |> push_navigate(to: ~p"/identity/workspaces/#{updated.slug}", replace: true)}
+    else
+      {:error, :unauthorized} ->
         {:noreply,
-         socket
-         |> put_flash(:info, gettext("Saved."))
-         |> push_navigate(to: ~p"/identity/workspaces/#{workspace.slug}", replace: true)}
+         put_flash(socket, :error, gettext("You are not allowed to update this workspace."))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "workspace"))}
