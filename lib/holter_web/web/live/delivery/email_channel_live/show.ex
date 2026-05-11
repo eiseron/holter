@@ -18,7 +18,7 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.Show do
       changeset = EmailChannels.change(channel)
 
       available_monitors =
-        Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
+        Monitoring.list_monitors_by_workspace(workspace.id)
 
       linked_monitor_ids = EmailChannels.list_monitor_ids_for(id)
 

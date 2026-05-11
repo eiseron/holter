@@ -21,7 +21,7 @@ defmodule Holter.Monitoring.Workers.DomainCheck do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id}}) do
-    monitor = Monitoring.get_monitor!(:system, id)
+    monitor = Monitoring.get_monitor!(id)
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     process_check(monitor, now)

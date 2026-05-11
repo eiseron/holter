@@ -19,8 +19,8 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
       Monitoring.list_workspaces()
       |> Enum.flat_map(fn workspace ->
         Tenant.with_workspace!(workspace.id, fn ->
-          :system
-          |> Monitoring.list_monitors_for_dispatch(workspace.id)
+          workspace.id
+          |> Monitoring.list_monitors_for_dispatch()
           |> Enum.flat_map(&jobs_for_monitor(&1, now))
         end)
       end)

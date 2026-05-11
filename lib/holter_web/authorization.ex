@@ -11,7 +11,7 @@ defmodule HolterWeb.Authorization do
   `import HolterWeb.Authorization`, so call sites just write:
 
       with :ok <- authorize(actor, :delete, monitor),
-           {:ok, _} <- Monitoring.delete_monitor(actor, monitor) do
+           {:ok, _} <- Monitoring.delete_monitor(monitor) do
         ...
       end
 

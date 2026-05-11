@@ -71,7 +71,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     monitor = socket.assigns.monitor
 
     with :ok <- authorize(actor, :update, monitor),
-         {:ok, updated} <- Monitoring.update_monitor(actor, monitor, monitor_params) do
+         {:ok, updated} <- Monitoring.update_monitor(monitor, monitor_params) do
       hydrated_monitor = hydrate_virtual_array_fields(updated)
 
       {:noreply,
@@ -96,7 +96,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     monitor = socket.assigns.monitor
 
     with :ok <- authorize(actor, :delete, monitor),
-         {:ok, _} <- Monitoring.delete_monitor(actor, monitor) do
+         {:ok, _} <- Monitoring.delete_monitor(monitor) do
       {:noreply,
        socket
        |> put_flash(:info, gettext("Monitor deleted successfully"))
@@ -122,7 +122,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
 
     monitor =
       Tenant.with_workspace!(workspace.id, fn ->
-        Monitoring.get_monitor!(socket.assigns.current_user, socket.assigns.monitor.id)
+        Monitoring.get_monitor!(socket.assigns.monitor.id)
       end)
 
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
@@ -176,8 +176,8 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
     monitor = socket.assigns.monitor
 
     with :ok <- authorize(actor, :run_now, monitor),
-         {:ok, updated_monitor} <- Monitoring.mark_manual_check_triggered(actor, monitor) do
-      Monitoring.enqueue_checks(actor, updated_monitor)
+         {:ok, updated_monitor} <- Monitoring.mark_manual_check_triggered(monitor) do
+      Monitoring.enqueue_checks(updated_monitor)
 
       {:noreply,
        socket

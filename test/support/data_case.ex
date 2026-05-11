@@ -25,7 +25,6 @@ defmodule Holter.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Holter.AuthorizationAssertions
       import Holter.DataCase
       import Holter.IdentityFixtures
       import Holter.MonitoringFixtures

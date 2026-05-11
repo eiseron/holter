@@ -18,148 +18,144 @@ defmodule Holter.Monitoring.Monitors do
   empty results from RLS, which surfaces as `:not_found` or zero
   counts — never a cross-tenant leak.
 
-  Every public function (other than the system-only entry points
-  marked with the `:system` actor) takes an `actor` as its first
-  argument and is expected to delegate the role decision to
-  `Holter.Authorization`. RLS remains enabled as defence in depth.
-
-  `list_monitors/1` and `list_monitors_for_dispatch/2` accept only the
-  `:system` actor: they support `MonitorDispatcher`, which iterates the
-  global `workspaces` table and re-stamps tenant per row before
-  delegating back into per-workspace reads.
+  Authorization is enforced at the request boundary via
+  `HolterWeb.Authorization.authorize/3` (controllers + LiveViews) and
+  the per-resource policies in `Holter.Monitoring.Policies.*`. By the
+  time a coordinator function runs, the caller has already passed the
+  policy check; this module trusts its inputs and focuses on database
+  state. RLS stays enabled as defence in depth.
   """
 
   import Ecto.Query
 
-  alias Holter.Authorization
   alias Holter.Identity.Tenant, as: IdentityTenant
-
   alias Holter.Monitoring.{Broadcaster, Incidents, Pagination, Workspaces}
-
   alias Holter.Monitoring.Models.{Incident, Monitor, Workspace}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
 
-  def list_monitors(:system) do
+  def list_monitors do
     Repo.all(Monitor)
   end
 
-  def list_monitors_by_workspace(actor, workspace_id) do
-    if can_access_workspace?(actor, :read, workspace_id) do
+  def list_monitors_by_workspace(workspace_id) do
+    Monitor
+    |> where([m], m.workspace_id == ^workspace_id)
+    |> tactical_ranking()
+    |> Repo.all()
+  end
+
+  def list_monitors_with_sparklines(workspace_id, log_limit \\ 30) do
+    monitors =
       Monitor
       |> where([m], m.workspace_id == ^workspace_id)
       |> tactical_ranking()
       |> Repo.all()
-    else
-      []
-    end
+
+    monitor_ids = Enum.map(monitors, & &1.id)
+
+    logs_by_monitor =
+      Holter.Monitoring.Models.MonitorLog
+      |> where([l], l.monitor_id in ^monitor_ids)
+      |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
+      |> Repo.all()
+      |> Enum.group_by(& &1.monitor_id)
+      |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
+
+    incident_counts =
+      Incident
+      |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
+      |> group_by([i], i.monitor_id)
+      |> select([i], {i.monitor_id, count(i.id)})
+      |> Repo.all()
+      |> Map.new()
+
+    Enum.map(monitors, fn monitor ->
+      %{
+        monitor
+        | logs: Map.get(logs_by_monitor, monitor.id, []),
+          open_incidents_count: Map.get(incident_counts, monitor.id, 0)
+      }
+    end)
   end
 
-  def list_monitors_with_sparklines(actor, workspace_id, log_limit \\ 30) do
-    if can_access_workspace?(actor, :read, workspace_id) do
-      do_list_monitors_with_sparklines(workspace_id, log_limit)
-    else
-      []
-    end
+  def get_monitor!(id), do: Repo.get!(Monitor, id)
+
+  def count_monitors(workspace_id) do
+    Monitor
+    |> where(workspace_id: ^workspace_id)
+    |> Repo.aggregate(:count, :id)
   end
 
-  def get_monitor!(actor, id) do
-    monitor = Repo.get!(Monitor, id)
-
-    case Authorization.authorize(actor, :read, monitor) do
-      :ok -> monitor
-      {:error, :forbidden} -> raise Ecto.NoResultsError, queryable: Monitor
-    end
-  end
-
-  def count_monitors(actor, workspace_id) do
-    if can_access_workspace?(actor, :read, workspace_id) do
-      Monitor
-      |> where(workspace_id: ^workspace_id)
-      |> Repo.aggregate(:count, :id)
-    else
-      0
-    end
-  end
-
-  def get_monitor(actor, id) do
+  def get_monitor(id) do
     with {:ok, _} <- Ecto.UUID.cast(id),
-         %Monitor{} = monitor <- Repo.get(Monitor, id),
-         :ok <- Authorization.authorize(actor, :read, monitor) do
+         %Monitor{} = monitor <- Repo.get(Monitor, id) do
       {:ok, monitor}
     else
-      {:error, :forbidden} -> {:error, :not_found}
       _ -> {:error, :not_found}
     end
   end
 
-  def list_monitors_filtered(actor, params) do
+  def list_monitors_filtered(params) do
     workspace_id = Map.fetch!(params, :workspace_id)
+    page = Map.get(params, :page, 1) |> max(1)
+    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
+    base_query = where(Monitor, [m], m.workspace_id == ^workspace_id)
 
-    if can_access_workspace?(actor, :read, workspace_id) do
-      do_list_monitors_filtered(workspace_id, params)
-    else
-      page = Map.get(params, :page, 1) |> max(1)
-      page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
-      %{data: [], meta: %{page: page, page_size: page_size, total: 0}}
-    end
+    filtered_query =
+      base_query
+      |> maybe_filter_by(:logical_state, params)
+      |> maybe_filter_by(:health_status, params)
+
+    total = Repo.aggregate(filtered_query, :count, :id)
+
+    monitors =
+      filtered_query
+      |> tactical_ranking()
+      |> Pagination.paginate_query(page, page_size)
+      |> Repo.all()
+
+    %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
   end
 
-  def create_monitor(actor, attrs \\ %{}) do
+  def create_monitor(attrs \\ %{}) do
     workspace_id = attrs[:workspace_id] || attrs["workspace_id"]
 
-    with {:ok, _} <- IdentityTenant.parse_workspace_id(workspace_id),
-         :ok <- authorize_workspace(actor, :write, workspace_id) do
-      do_create_monitor(attrs, workspace_id)
-    else
-      {:error, :forbidden} -> {:error, :forbidden}
+    case IdentityTenant.parse_workspace_id(workspace_id) do
+      {:ok, _} -> do_create_monitor(attrs, workspace_id)
       {:error, _} -> {:error, :not_found}
     end
   end
 
-  def enqueue_checks(actor, %Monitor{} = monitor) do
-    with :ok <- Authorization.authorize(actor, :write, monitor) do
-      args = %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
-      HTTPCheck.new(args) |> Oban.insert()
+  def enqueue_checks(%Monitor{} = monitor) do
+    args = %{"id" => monitor.id, "workspace_id" => monitor.workspace_id}
+    HTTPCheck.new(args) |> Oban.insert()
 
-      if String.starts_with?(monitor.url, "https") do
-        SSLCheck.new(args) |> Oban.insert()
-      end
+    if String.starts_with?(monitor.url, "https") do
+      SSLCheck.new(args) |> Oban.insert()
+    end
 
-      :ok
+    :ok
+  end
+
+  def update_monitor(%Monitor{} = monitor, attrs) do
+    do_update_monitor(monitor, attrs)
+  end
+
+  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
+    do_at_quota?(max, ws_id, exclude_monitor_id)
+  end
+
+  def mark_manual_check_triggered(%Monitor{} = monitor) do
+    workspace = Repo.get!(Workspace, monitor.workspace_id)
+
+    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      system_update_monitor(monitor, %{last_manual_check_at: now})
     end
   end
 
-  def update_monitor(actor, %Monitor{} = monitor, attrs) do
-    with :ok <- Authorization.authorize(actor, :write, monitor) do
-      do_update_monitor(monitor, attrs)
-    end
-  end
-
-  def at_quota?(actor, %{max_monitors: max, id: ws_id} = workspace, exclude_monitor_id \\ nil) do
-    if can_access_workspace?(actor, :read, workspace) do
-      do_at_quota?(max, ws_id, exclude_monitor_id)
-    else
-      false
-    end
-  end
-
-  def mark_manual_check_triggered(actor, %Monitor{} = monitor) do
-    with :ok <- Authorization.authorize(actor, :write, monitor) do
-      workspace = Repo.get!(Workspace, monitor.workspace_id)
-
-      with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
-        now = DateTime.utc_now() |> DateTime.truncate(:second)
-        system_update_monitor(monitor, %{last_manual_check_at: now})
-      end
-    end
-  end
-
-  def delete_monitor(actor, %Monitor{} = monitor) do
-    with :ok <- Authorization.authorize(actor, :delete, monitor) do
-      Repo.delete(monitor)
-    end
-  end
+  def delete_monitor(%Monitor{} = monitor), do: Repo.delete(monitor)
 
   def change_monitor(%Monitor{} = monitor, attrs \\ %{}) do
     Monitor.changeset(monitor, attrs)
@@ -169,9 +165,20 @@ defmodule Holter.Monitoring.Monitors do
     Monitor.changeset(monitor, attrs, workspace)
   end
 
-  def recalculate_health_status(actor, %Monitor{} = monitor) do
-    with :ok <- Authorization.authorize(actor, :write, monitor) do
-      do_recalculate_health_status(monitor)
+  def recalculate_health_status(%Monitor{} = monitor) do
+    monitor = Repo.get!(Monitor, monitor.id)
+    log_status = status_from_latest_log(monitor.id)
+    open_incidents = Incidents.list_open_incidents(monitor.id)
+    incident_status = determine_incident_status(open_incidents)
+
+    new_status =
+      [log_status, incident_status]
+      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
+
+    if monitor.health_status != new_status do
+      system_update_monitor(monitor, %{health_status: new_status})
+    else
+      {:ok, monitor}
     end
   end
 
@@ -181,7 +188,7 @@ defmodule Holter.Monitoring.Monitors do
   def status_severity(:up), do: 1
   def status_severity(_), do: 0
 
-  def list_monitors_for_dispatch(:system, workspace_id) do
+  def list_monitors_for_dispatch(workspace_id) do
     now = DateTime.utc_now()
 
     Monitor
@@ -208,7 +215,7 @@ defmodule Holter.Monitoring.Monitors do
          :ok <- check_create_rate_limit(workspace, logical_state),
          {:ok, monitor} <- Repo.insert(changeset),
          {:ok, should_enqueue} <- check_trigger_budget(monitor, workspace) do
-      if should_enqueue, do: enqueue_checks(:system, monitor)
+      if should_enqueue, do: enqueue_checks(monitor)
       Broadcaster.broadcast({:ok, monitor}, :monitor_created, monitor.id)
       {:ok, monitor}
     end
@@ -312,7 +319,7 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   defp check_monitor_quota(workspace, logical_state) do
-    if logical_state not in [:archived, "archived"] and at_quota?(:system, workspace) do
+    if logical_state not in [:archived, "archived"] and at_quota?(workspace) do
       {:error, :quota_reached}
     else
       :ok
@@ -351,78 +358,6 @@ defmodule Holter.Monitoring.Monitors do
     if log, do: log.status, else: :unknown
   end
 
-  defp do_list_monitors_filtered(workspace_id, params) do
-    page = Map.get(params, :page, 1) |> max(1)
-    page_size = Pagination.resolve_page_size(Map.get(params, :page_size))
-    base_query = where(Monitor, [m], m.workspace_id == ^workspace_id)
-
-    filtered_query =
-      base_query
-      |> maybe_filter_by(:logical_state, params)
-      |> maybe_filter_by(:health_status, params)
-
-    total = Repo.aggregate(filtered_query, :count, :id)
-
-    monitors =
-      filtered_query
-      |> tactical_ranking()
-      |> Pagination.paginate_query(page, page_size)
-      |> Repo.all()
-
-    %{data: monitors, meta: %{page: page, page_size: page_size, total: total}}
-  end
-
-  defp do_list_monitors_with_sparklines(workspace_id, log_limit) do
-    monitors =
-      Monitor
-      |> where([m], m.workspace_id == ^workspace_id)
-      |> tactical_ranking()
-      |> Repo.all()
-
-    monitor_ids = Enum.map(monitors, & &1.id)
-
-    logs_by_monitor =
-      Holter.Monitoring.Models.MonitorLog
-      |> where([l], l.monitor_id in ^monitor_ids)
-      |> order_by([l], asc: l.monitor_id, desc: l.checked_at)
-      |> Repo.all()
-      |> Enum.group_by(& &1.monitor_id)
-      |> Map.new(fn {id, logs} -> {id, Enum.take(logs, log_limit)} end)
-
-    incident_counts =
-      Incident
-      |> where([i], i.monitor_id in ^monitor_ids and is_nil(i.resolved_at))
-      |> group_by([i], i.monitor_id)
-      |> select([i], {i.monitor_id, count(i.id)})
-      |> Repo.all()
-      |> Map.new()
-
-    Enum.map(monitors, fn monitor ->
-      %{
-        monitor
-        | logs: Map.get(logs_by_monitor, monitor.id, []),
-          open_incidents_count: Map.get(incident_counts, monitor.id, 0)
-      }
-    end)
-  end
-
-  defp do_recalculate_health_status(monitor) do
-    monitor = Repo.get!(Monitor, monitor.id)
-    log_status = status_from_latest_log(monitor.id)
-    open_incidents = Incidents.list_open_incidents(monitor.id)
-    incident_status = determine_incident_status(open_incidents)
-
-    new_status =
-      [log_status, incident_status]
-      |> Enum.max_by(&status_severity/1, fn -> :unknown end)
-
-    if monitor.health_status != new_status do
-      system_update_monitor(monitor, %{health_status: new_status})
-    else
-      {:ok, monitor}
-    end
-  end
-
   defp do_at_quota?(max, ws_id, exclude_monitor_id) do
     query =
       Monitor
@@ -439,20 +374,4 @@ defmodule Holter.Monitoring.Monitors do
     count = Repo.aggregate(query, :count, :id)
     count >= max
   end
-
-  defp authorize_workspace(actor, action, workspace_or_id) do
-    Authorization.authorize(actor, action, intent_for_workspace(workspace_or_id))
-  end
-
-  defp can_access_workspace?(actor, action, workspace_or_id) do
-    Authorization.can?(actor, action, intent_for_workspace(workspace_or_id))
-  end
-
-  defp intent_for_workspace(%Workspace{} = workspace), do: {Monitor, workspace}
-
-  defp intent_for_workspace(%{id: id}) when is_binary(id),
-    do: {Monitor, %Workspace{id: id}}
-
-  defp intent_for_workspace(id) when is_binary(id),
-    do: {Monitor, %Workspace{id: id}}
 end

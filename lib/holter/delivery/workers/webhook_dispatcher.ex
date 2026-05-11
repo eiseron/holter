@@ -19,7 +19,7 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
         }
       }) do
     channel = WebhookChannels.get!(channel_id)
-    monitor = Monitoring.get_monitor!(:system, monitor_id)
+    monitor = Monitoring.get_monitor!(monitor_id)
     incident = Monitoring.get_incident!(incident_id)
     now = DateTime.utc_now()
 

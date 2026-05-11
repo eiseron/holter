@@ -7,7 +7,7 @@ defmodule Holter.Monitoring.AggregatorTest do
   describe "aggregate_monitor_date/2" do
     defp create_monitor(workspace, inserted_at) do
       {:ok, monitor} =
-        Monitoring.create_monitor(:system, %{
+        Monitoring.create_monitor(%{
           url: "https://example.com",
           method: :get,
           interval_seconds: 60,
@@ -21,7 +21,7 @@ defmodule Holter.Monitoring.AggregatorTest do
           Ecto.UUID.dump!(monitor.id)
         ])
 
-        Monitoring.get_monitor!(:system, monitor.id)
+        Monitoring.get_monitor!(monitor.id)
       else
         monitor
       end
@@ -150,7 +150,7 @@ defmodule Holter.Monitoring.AggregatorTest do
       workspace = workspace_fixture()
 
       {:ok, monitor} =
-        Monitoring.create_monitor(:system, %{
+        Monitoring.create_monitor(%{
           url: "https://example.com",
           method: :get,
           interval_seconds: 60,
@@ -163,7 +163,7 @@ defmodule Holter.Monitoring.AggregatorTest do
         Ecto.UUID.dump!(monitor.id)
       ])
 
-      %{monitor: Monitoring.get_monitor!(:system, monitor.id)}
+      %{monitor: Monitoring.get_monitor!(monitor.id)}
     end
 
     test "incidents list is shared — single DB fetch covers both downtime fields", %{
@@ -192,7 +192,7 @@ defmodule Holter.Monitoring.AggregatorTest do
       workspace = workspace_fixture()
 
       {:ok, monitor} =
-        Monitoring.create_monitor(:system, %{
+        Monitoring.create_monitor(%{
           url: "https://example.com",
           method: :get,
           interval_seconds: 60,
@@ -205,7 +205,7 @@ defmodule Holter.Monitoring.AggregatorTest do
         Ecto.UUID.dump!(monitor.id)
       ])
 
-      %{monitor: Monitoring.get_monitor!(:system, monitor.id)}
+      %{monitor: Monitoring.get_monitor!(monitor.id)}
     end
 
     test "counts only the overlap within the window for incidents starting before day start", %{

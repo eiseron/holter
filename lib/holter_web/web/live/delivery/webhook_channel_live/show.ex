@@ -16,7 +16,7 @@ defmodule HolterWeb.Web.Delivery.WebhookChannelLive.Show do
       changeset = WebhookChannels.change(channel)
 
       available_monitors =
-        Monitoring.list_monitors_by_workspace(socket.assigns.current_user, workspace.id)
+        Monitoring.list_monitors_by_workspace(workspace.id)
 
       linked_monitor_ids = WebhookChannels.list_monitor_ids_for(id)
 

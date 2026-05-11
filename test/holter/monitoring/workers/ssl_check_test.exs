@@ -33,7 +33,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
     end
 
     test "updates the monitor ssl_expires_at field", %{monitor: monitor, expiry: expiry} do
-      assert Monitoring.get_monitor!(:system, monitor.id).ssl_expires_at == expiry
+      assert Monitoring.get_monitor!(monitor.id).ssl_expires_at == expiry
     end
   end
 
@@ -53,7 +53,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
     end
 
     test "does not update the monitor ssl_expires_at field", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_monitor!(:system, monitor.id).ssl_expires_at)
+      assert is_nil(Monitoring.get_monitor!(monitor.id).ssl_expires_at)
     end
   end
 
@@ -77,7 +77,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
     end
 
     test "skips the SSL check logic", %{plain_monitor: plain_monitor} do
-      assert is_nil(Monitoring.get_monitor!(:system, plain_monitor.id).ssl_expires_at)
+      assert is_nil(Monitoring.get_monitor!(plain_monitor.id).ssl_expires_at)
     end
   end
 
@@ -89,7 +89,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
         started_at: DateTime.utc_now() |> DateTime.add(-1, :day)
       })
 
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{ssl_ignore: true})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
 
       :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
@@ -100,7 +100,7 @@ defmodule Holter.Monitoring.Workers.SSLCheckTest do
     end
 
     test "does not perform the SSL check", %{monitor: monitor} do
-      assert is_nil(Monitoring.get_monitor!(:system, monitor.id).ssl_expires_at)
+      assert is_nil(Monitoring.get_monitor!(monitor.id).ssl_expires_at)
     end
   end
 end

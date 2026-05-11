@@ -29,7 +29,6 @@ defmodule Holter.Identity.ApiTokens do
 
   import Ecto.Query
 
-  alias Holter.Identity.Memberships
   alias Holter.Identity.Models.ApiToken
   alias Holter.Identity.Models.User
   alias Holter.Monitoring.Models.Workspace
@@ -37,17 +36,14 @@ defmodule Holter.Identity.ApiTokens do
   alias Holter.Repo.Tenant
 
   @doc """
-  Creates an API token for `user` in `workspace`. Asserts the user holds
-  the `:owner` role on the workspace; non-owners get `{:error, :forbidden}`.
+  Creates an API token for `user` in `workspace`. The boundary
+  (`HolterWeb.Workspaces.ApiTokensLive`) authorizes via
+  `Holter.Identity.Policies.ApiToken` before calling.
 
   Returns `{:ok, token, plaintext}` on success — plaintext only here.
   """
   def create_token(%User{} = user, %Workspace{} = workspace, attrs) do
-    if Memberships.owner?(user, workspace) do
-      do_create_token(user, workspace, attrs)
-    else
-      {:error, :forbidden}
-    end
+    do_create_token(user, workspace, attrs)
   end
 
   @doc """

@@ -23,7 +23,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       checked_at: DateTime.utc_now() |> DateTime.add(-1, :hour)
     })
 
-    {:ok, monitor} = Monitoring.recalculate_health_status(:system, monitor)
+    {:ok, monitor} = Monitoring.recalculate_health_status(monitor)
 
     %{monitor: monitor}
   end
@@ -52,7 +52,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "updates the monitor ssl_expires_at field", %{monitor: monitor, expiry: expiry} do
-      assert Monitoring.get_monitor!(:system, monitor.id).ssl_expires_at == expiry
+      assert Monitoring.get_monitor!(monitor.id).ssl_expires_at == expiry
     end
 
     test "does not open any SSL incident", %{monitor: monitor} do
@@ -60,7 +60,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "sets health_status to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
   end
 
@@ -89,7 +89,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 
@@ -112,7 +112,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 
@@ -135,7 +135,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "sets health_status to :compromised", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :compromised
+      assert Monitoring.get_monitor!(monitor.id).health_status == :compromised
     end
   end
 
@@ -157,13 +157,13 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "sets health_status to :degraded", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :degraded
+      assert Monitoring.get_monitor!(monitor.id).health_status == :degraded
     end
   end
 
   describe "when ssl_ignore is enabled and no incident exists" do
     setup %{monitor: monitor} do
-      {:ok, _} = Monitoring.update_monitor(:system, monitor, %{ssl_ignore: true})
+      {:ok, _} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
       :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
@@ -173,7 +173,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "leaves health_status as :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
   end
 
@@ -183,7 +183,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
       expect(Holter.Monitoring.MonitorClientMock, :get_ssl_expiration, fn _ -> {:ok, expiry} end)
       :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
 
-      {:ok, _} = Monitoring.update_monitor(:system, monitor, %{ssl_ignore: true})
+      {:ok, _} = Monitoring.update_monitor(monitor, %{ssl_ignore: true})
       :ok = perform_job(SSLCheck, %{"id" => monitor.id, "workspace_id" => monitor.workspace_id})
       :ok
     end
@@ -193,7 +193,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "health_status is restored to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
   end
 
@@ -221,7 +221,7 @@ defmodule Holter.Monitoring.SSLIntegrationTest do
     end
 
     test "restores health_status to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
   end
 end

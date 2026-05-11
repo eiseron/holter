@@ -16,7 +16,7 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"id" => id}}) do
-    monitor = Monitoring.get_monitor!(:system, id)
+    monitor = Monitoring.get_monitor!(id)
 
     state = %{
       url: monitor.url,

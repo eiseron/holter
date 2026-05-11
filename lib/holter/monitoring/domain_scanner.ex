@@ -18,7 +18,7 @@ defmodule Holter.Monitoring.DomainScanner do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     {:ok, updated_monitor} =
-      Monitoring.update_monitor(:system, monitor, %{
+      Monitoring.update_monitor(monitor, %{
         domain_expires_at: expiration_date,
         last_domain_check_at: now
       })
@@ -28,18 +28,18 @@ defmodule Holter.Monitoring.DomainScanner do
     |> classify_domain_expiry()
     |> dispatch_domain_action(updated_monitor, now)
 
-    Monitoring.recalculate_health_status(:system, updated_monitor)
+    Monitoring.recalculate_health_status(updated_monitor)
   end
 
   def handle_domain_error(monitor, _reason) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    {:ok, _} = Monitoring.update_monitor(:system, monitor, %{last_domain_check_at: now})
+    {:ok, _} = Monitoring.update_monitor(monitor, %{last_domain_check_at: now})
     :ok
   end
 
   def resolve_domain_incident(monitor, now) do
     do_resolve_domain_incident(monitor, now)
-    Monitoring.recalculate_health_status(:system, monitor)
+    Monitoring.recalculate_health_status(monitor)
   end
 
   defp classify_domain_expiry(days) when days < 0, do: {:open, gettext("Domain expired")}

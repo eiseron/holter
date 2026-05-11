@@ -64,7 +64,7 @@ defmodule Holter.Monitoring.SnapshotTest do
     assert log1.monitor_snapshot["url"] == "https://example.local"
 
     {:ok, updated_monitor} =
-      Monitoring.update_monitor(:system, monitor, %{url: "https://new-url.local"})
+      Monitoring.update_monitor(monitor, %{url: "https://new-url.local"})
 
     Process.sleep(1100)
     {:ok, _} = Engine.process_response(updated_monitor, response_ok, %{duration_ms: 100})
@@ -79,7 +79,7 @@ defmodule Holter.Monitoring.SnapshotTest do
        %{monitor: monitor} do
     alias Holter.Monitoring.SecurityScanner
 
-    {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{url: "https://secure.local"})
+    {:ok, monitor} = Monitoring.update_monitor(monitor, %{url: "https://secure.local"})
 
     {:ok, _} = SecurityScanner.handle_ssl_error(monitor, :nxdomain)
 

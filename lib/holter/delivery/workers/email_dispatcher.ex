@@ -23,7 +23,7 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
         }
       }) do
     channel = EmailChannels.get!(channel_id)
-    monitor = Monitoring.get_monitor!(:system, monitor_id)
+    monitor = Monitoring.get_monitor!(monitor_id)
     incident = Monitoring.get_incident!(incident_id)
     now = DateTime.utc_now()
 

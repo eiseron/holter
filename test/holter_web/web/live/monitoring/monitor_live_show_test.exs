@@ -110,7 +110,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       |> form("#monitor-form", monitor: %{url: "https://updated.local"})
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).url == "https://updated.local"
+      assert Monitoring.get_monitor!(monitor.id).url == "https://updated.local"
     end
 
     test "Given a user updating interval, when form submitted, then interval persists in database",
@@ -125,7 +125,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       |> form("#monitor-form", monitor: %{interval_seconds: 60})
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).interval_seconds == 60
+      assert Monitoring.get_monitor!(monitor.id).interval_seconds == 60
     end
 
     test "Given malformed inputs, when the form validates, then it renders the validation output",
@@ -152,7 +152,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       |> form("#monitor-form", monitor: %{ssl_ignore: true})
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).ssl_ignore == true
+      assert Monitoring.get_monitor!(monitor.id).ssl_ignore == true
     end
 
     test "Given a user updating positive keywords, when submitted, then it tracks as an array", %{
@@ -168,7 +168,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       )
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).keyword_positive == [
+      assert Monitoring.get_monitor!(monitor.id).keyword_positive == [
                "checkout",
                "authentication"
              ]
@@ -188,7 +188,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       )
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).keyword_negative == [
+      assert Monitoring.get_monitor!(monitor.id).keyword_negative == [
                "fatal_error",
                "timeout"
              ]
@@ -207,7 +207,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       )
       |> render_submit()
 
-      assert Monitoring.get_monitor!(:system, monitor.id).headers == %{"x-api-key" => "secret"}
+      assert Monitoring.get_monitor!(monitor.id).headers == %{"x-api-key" => "secret"}
     end
 
     test "Given a user clicking the modal deletion confirmation, when processed, then the UX redirects",
@@ -231,7 +231,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       view |> element("button[phx-click=\"delete\"]") |> render_click()
-      assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(:system, monitor.id) end
+      assert_raise Ecto.NoResultsError, fn -> Monitoring.get_monitor!(monitor.id) end
     end
 
     test "Given a monitor, when user clicks Run Now, then it enqueues jobs and starts cooldown",
@@ -255,7 +255,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       conn: conn,
       monitor: monitor
     } do
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{logical_state: :paused})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{logical_state: :paused})
       {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       assert html =~ "PAUSED"
@@ -265,7 +265,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
       conn: conn,
       monitor: monitor
     } do
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{logical_state: :paused})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{logical_state: :paused})
       {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
       assert html =~ "h-status-paused"
@@ -329,7 +329,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
           root_cause: "Certificate expires in 8 days (Warning)"
         })
 
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{health_status: :degraded})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :degraded})
 
       {:ok, view, _html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
@@ -354,7 +354,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
     end
 
     test "the monitor health_status is restored to :up", %{monitor: monitor} do
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
     end
 
     test "the UI reflects the restored status", %{view: view} do
@@ -460,7 +460,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLiveShowTest do
 
     test "Given a down monitor, when user clicks Run Now and check succeeds, then UI updates to UP automatically",
          %{conn: conn, monitor: monitor} do
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{health_status: :down})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{health_status: :down})
 
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")

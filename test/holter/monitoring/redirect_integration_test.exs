@@ -54,7 +54,7 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
       :ok = perform_job(HTTPCheck, job_args)
 
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
 
       assert [%{redirect_count: 1, last_redirect_url: last_url}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
@@ -80,11 +80,11 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
       DummyService.enqueue("r3", status: 200, body: "TOO LATE")
 
-      {:ok, monitor} = Monitoring.update_monitor(:system, monitor, %{max_redirects: 2})
+      {:ok, monitor} = Monitoring.update_monitor(monitor, %{max_redirects: 2})
 
       :ok = perform_job(HTTPCheck, job_args)
 
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :down
+      assert Monitoring.get_monitor!(monitor.id).health_status == :down
 
       assert [%{redirect_count: 2, status_code: 302}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs
@@ -96,7 +96,7 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
       :ok = perform_job(HTTPCheck, job_args)
 
-      assert Monitoring.get_monitor!(:system, monitor.id).health_status == :up
+      assert Monitoring.get_monitor!(monitor.id).health_status == :up
 
       assert [%{redirect_count: 1, last_redirect_url: last_url}] =
                Monitoring.list_monitor_logs(monitor, %{}).logs

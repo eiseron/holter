@@ -26,7 +26,7 @@ defmodule Holter.Monitoring.Workers.DailyMetricsAggregator do
   end
 
   def perform(%Oban.Job{args: %{"all_monitors" => true, "date" => date_str}}) do
-    monitors = Monitoring.list_monitors(:system)
+    monitors = Monitoring.list_monitors()
 
     jobs =
       Enum.map(monitors, fn monitor ->

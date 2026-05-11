@@ -71,7 +71,7 @@ defmodule HolterWeb.Api.IncidentController do
   )
 
   def index(conn, %{"monitor_id" => monitor_id} = params) do
-    with {:ok, monitor} <- Monitoring.get_monitor(conn.assigns.current_user, monitor_id) do
+    with {:ok, monitor} <- Monitoring.get_monitor(monitor_id) do
       filters = sanitize_filters(params)
 
       result =

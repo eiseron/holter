@@ -30,7 +30,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
 
       view |> element("button[phx-click=\"run_now\"]") |> render_click()
 
-      updated_monitor = Monitoring.get_monitor!(:system, monitor.id)
+      updated_monitor = Monitoring.get_monitor!(monitor.id)
       assert updated_monitor.last_manual_check_at != nil
 
       assert_enqueued(worker: Holter.Monitoring.Workers.HTTPCheck, args: %{"id" => monitor.id})
@@ -44,7 +44,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       monitor: monitor
     } do
       {:ok, monitor} =
-        Monitoring.update_monitor(:system, monitor, %{
+        Monitoring.update_monitor(monitor, %{
           last_manual_check_at: DateTime.add(DateTime.utc_now(), -30, :second)
         })
 
@@ -66,7 +66,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
         DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() - 10), :second)
 
       {:ok, monitor} =
-        Monitoring.update_monitor(:system, monitor, %{last_manual_check_at: last_check})
+        Monitoring.update_monitor(monitor, %{last_manual_check_at: last_check})
 
       {:ok, view, _html} =
         live(conn, ~p"/monitoring/monitor/#{monitor.id}")
@@ -76,7 +76,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorRunNowTest do
       expired_check =
         DateTime.add(DateTime.utc_now(), -(Monitor.manual_check_cooldown() + 1), :second)
 
-      Monitoring.update_monitor(:system, monitor, %{last_manual_check_at: expired_check})
+      Monitoring.update_monitor(monitor, %{last_manual_check_at: expired_check})
 
       send(view.pid, {:monitor_updated, nil})
 

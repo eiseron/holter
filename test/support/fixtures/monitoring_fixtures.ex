@@ -8,7 +8,26 @@ defmodule Holter.MonitoringFixtures do
   tests pass the `:require_workspace_member` gate.
   """
 
+  alias Ecto.Changeset
   alias Holter.Identity.Memberships
+  alias Holter.IdentityFixtures
+  alias Holter.Repo
+  alias Holter.Repo.Tenant
+
+  @doc """
+  Creates a verified user, makes them member of a fresh workspace with
+  the given `role`, and returns `{user, workspace}`. Used by policy
+  tests that need to exercise role-gated rules.
+  """
+  def workspace_with_role(role) when role in [:owner, :admin, :member] do
+    user = IdentityFixtures.user_fixture()
+    workspace = workspace_fixture(owner: user)
+    coerce_membership_role(user, workspace, role)
+    {user, workspace}
+  end
+
+  @doc "Returns a fresh user with no workspace membership."
+  def non_member_user, do: IdentityFixtures.user_fixture()
 
   def workspace_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
@@ -53,7 +72,7 @@ defmodule Holter.MonitoringFixtures do
       }
       |> Map.merge(attrs)
 
-    {:ok, monitor} = Holter.Monitoring.create_monitor(:system, attrs)
+    {:ok, monitor} = Holter.Monitoring.create_monitor(attrs)
 
     monitor
   end
@@ -142,5 +161,17 @@ defmodule Holter.MonitoringFixtures do
   defp grant_membership(owner, workspace) do
     {:ok, _} = Memberships.create_default_membership(owner, workspace)
     :ok
+  end
+
+  defp coerce_membership_role(_user, _workspace, :owner), do: :ok
+
+  defp coerce_membership_role(user, workspace, role) do
+    membership = Memberships.get_membership(user, workspace)
+
+    Tenant.with_user!(user, fn ->
+      membership
+      |> Changeset.change(role: role)
+      |> Repo.update!()
+    end)
   end
 end

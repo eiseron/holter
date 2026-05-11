@@ -105,7 +105,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
   def on_mount(:require_monitor_member, %{"id" => id}, _session, socket) do
     user = socket.assigns.current_user
 
-    with {:ok, monitor} <- Tenant.with_user!(user, fn -> Monitoring.get_monitor(user, id) end),
+    with {:ok, monitor} <- Tenant.with_user!(user, fn -> Monitoring.get_monitor(id) end),
          {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
          membership when not is_nil(membership) <-
            Identity.get_workspace_membership(user, workspace) do
@@ -124,7 +124,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
     Tenant.with_user!(user, fn ->
       with {:ok, incident} <- Monitoring.get_incident(incident_id),
-           {:ok, monitor} <- Monitoring.get_monitor(user, incident.monitor_id),
+           {:ok, monitor} <- Monitoring.get_monitor(incident.monitor_id),
            {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
            membership when not is_nil(membership) <-
              Identity.get_workspace_membership(user, workspace) do
@@ -145,7 +145,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
     Tenant.with_user!(user, fn ->
       with {:ok, log} <- Monitoring.get_monitor_log(log_id),
-           {:ok, monitor} <- Monitoring.get_monitor(user, log.monitor_id),
+           {:ok, monitor} <- Monitoring.get_monitor(log.monitor_id),
            {:ok, workspace} <- Identity.fetch_workspace_for_member(user, monitor.workspace_id),
            membership when not is_nil(membership) <-
              Identity.get_workspace_membership(user, workspace) do

@@ -10,7 +10,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       monitor_fixture(%{workspace_id: workspace.id})
 
       assert {:error, :quota_reached} =
-               Monitoring.create_monitor(:system, %{
+               Monitoring.create_monitor(%{
                  url: "https://example.com",
                  method: "get",
                  interval_seconds: 60,
@@ -24,7 +24,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       monitor_fixture(%{workspace_id: workspace.id})
 
       assert {:ok, _monitor} =
-               Monitoring.create_monitor(:system, %{
+               Monitoring.create_monitor(%{
                  url: "https://example.com",
                  method: "get",
                  interval_seconds: 60,
@@ -36,10 +36,10 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
     test "does not count archived monitors against the quota" do
       workspace = workspace_fixture(%{max_monitors: 1})
       monitor = monitor_fixture(%{workspace_id: workspace.id})
-      {:ok, _} = Monitoring.update_monitor(:system, monitor, %{logical_state: :archived})
+      {:ok, _} = Monitoring.update_monitor(monitor, %{logical_state: :archived})
 
       assert {:ok, _monitor} =
-               Monitoring.create_monitor(:system, %{
+               Monitoring.create_monitor(%{
                  url: "https://example.com",
                  method: "get",
                  interval_seconds: 60,
@@ -54,7 +54,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       workspace = workspace_fixture(%{min_interval_seconds: 300})
 
       {:error, changeset} =
-        Monitoring.create_monitor(:system, %{
+        Monitoring.create_monitor(%{
           url: "https://example.com",
           method: "get",
           interval_seconds: 60,
@@ -69,7 +69,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       workspace = workspace_fixture(%{min_interval_seconds: 300})
 
       assert {:ok, _monitor} =
-               Monitoring.create_monitor(:system, %{
+               Monitoring.create_monitor(%{
                  url: "https://example.com",
                  method: "get",
                  interval_seconds: 300,
@@ -84,7 +84,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       workspace = workspace_fixture(%{min_interval_seconds: 300})
       monitor = monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 300})
 
-      {:error, changeset} = Monitoring.update_monitor(:system, monitor, %{interval_seconds: 60})
+      {:error, changeset} = Monitoring.update_monitor(monitor, %{interval_seconds: 60})
 
       assert changeset.errors[:interval_seconds]
     end
@@ -94,7 +94,7 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
       monitor = monitor_fixture(%{workspace_id: workspace.id, interval_seconds: 300})
 
       assert {:ok, %{interval_seconds: 300}} =
-               Monitoring.update_monitor(:system, monitor, %{interval_seconds: 300})
+               Monitoring.update_monitor(monitor, %{interval_seconds: 300})
     end
   end
 

@@ -3,7 +3,6 @@ defmodule Holter.Identity.ApiTokensTest do
 
   alias Ecto.Changeset
   alias Holter.Identity.ApiTokens
-  alias Holter.Identity.Memberships
   alias Holter.Identity.Models.ApiToken
   alias Holter.Repo
   alias Holter.Repo.Tenant
@@ -46,30 +45,6 @@ defmodule Holter.Identity.ApiTokensTest do
         ApiTokens.create_token(user, workspace, %{name: "CI", scopes: ["read:monitors"]})
 
       assert token.user_id == user.id
-    end
-
-    test "rejects creation when the user is not the workspace owner" do
-      owner = user_fixture()
-      member = user_fixture()
-      workspace = workspace_fixture(owner: owner)
-      grant_member_role(member, workspace, :member)
-
-      assert {:error, :forbidden} =
-               ApiTokens.create_token(member, workspace, %{
-                 name: "CI",
-                 scopes: ["read:monitors"]
-               })
-    end
-
-    test "rejects creation when the user has no membership at all" do
-      outsider = user_fixture()
-      workspace = workspace_fixture()
-
-      assert {:error, :forbidden} =
-               ApiTokens.create_token(outsider, workspace, %{
-                 name: "CI",
-                 scopes: ["read:monitors"]
-               })
     end
 
     test "surfaces the schema's empty-scope-list error" do
@@ -203,17 +178,5 @@ defmodule Holter.Identity.ApiTokensTest do
     user = user_fixture()
     workspace = workspace_fixture(owner: user)
     {user, workspace}
-  end
-
-  defp grant_member_role(user, workspace, role) do
-    {:ok, membership} = Memberships.create_default_membership(user, workspace)
-
-    Tenant.with_user!(user, fn ->
-      membership
-      |> Changeset.change(role: role)
-      |> Repo.update!()
-    end)
-
-    :ok
   end
 end

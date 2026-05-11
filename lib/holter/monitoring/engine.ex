@@ -149,7 +149,7 @@ defmodule Holter.Monitoring.Engine do
          now: now
        }) do
     {:ok, updated_monitor} =
-      Monitoring.update_monitor(:system, monitor, %{
+      Monitoring.update_monitor(monitor, %{
         health_status: effective_status,
         last_checked_at: now,
         last_success_at: if(check_status == :up, do: now, else: monitor.last_success_at)

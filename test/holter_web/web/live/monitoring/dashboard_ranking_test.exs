@@ -62,7 +62,7 @@ defmodule HolterWeb.Web.Monitoring.DashboardRankingTest do
       urls_initial = extract_monitor_urls(view)
       assert List.first(urls_initial) == monitor_2.url
 
-      {:ok, _} = Monitoring.update_monitor(:system, monitor_1, %{health_status: :down})
+      {:ok, _} = Monitoring.update_monitor(monitor_1, %{health_status: :down})
 
       urls_updated = extract_monitor_urls(view)
       assert List.first(urls_updated) == monitor_1.url

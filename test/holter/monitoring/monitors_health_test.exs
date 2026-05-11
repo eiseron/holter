@@ -56,7 +56,7 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
 
   describe "recalculate_health_status/1" do
     test "returns :unknown when no logs exist", %{monitor: monitor} do
-      {:ok, updated} = Monitoring.recalculate_health_status(:system, monitor)
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :unknown
     end
 
@@ -67,7 +67,7 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
         checked_at: DateTime.utc_now() |> DateTime.add(-10, :second)
       })
 
-      {:ok, updated} = Monitoring.recalculate_health_status(:system, monitor)
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :up
     end
 
@@ -84,7 +84,7 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
         checked_at: DateTime.utc_now() |> DateTime.add(-10, :second)
       })
 
-      {:ok, updated} = Monitoring.recalculate_health_status(:system, monitor)
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :down
     end
 
@@ -95,7 +95,7 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
         checked_at: DateTime.utc_now()
       })
 
-      {:ok, updated} = Monitoring.recalculate_health_status(:system, monitor)
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :compromised
     end
 
@@ -106,7 +106,7 @@ defmodule Holter.Monitoring.MonitorsHealthTest do
         checked_at: DateTime.utc_now()
       })
 
-      {:ok, updated} = Monitoring.recalculate_health_status(:system, monitor)
+      {:ok, updated} = Monitoring.recalculate_health_status(monitor)
       assert updated.health_status == :degraded
     end
   end

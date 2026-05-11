@@ -146,8 +146,8 @@ defmodule Holter.Security.RlsMonitorsTest do
     test "Monitoring.list_monitors_by_workspace/1 returns the workspace's monitors",
          %{workspace_a: workspace_a, monitor_a: monitor_a} do
       ids =
-        :system
-        |> Monitoring.list_monitors_by_workspace(workspace_a.id)
+        workspace_a.id
+        |> Monitoring.list_monitors_by_workspace()
         |> Enum.map(& &1.id)
 
       assert monitor_a.id in ids
@@ -155,13 +155,13 @@ defmodule Holter.Security.RlsMonitorsTest do
 
     test "Monitoring.count_monitors/1 counts only the requested workspace's monitors",
          %{workspace_a: workspace_a} do
-      assert Monitoring.count_monitors(:system, workspace_a.id) == 1
+      assert Monitoring.count_monitors(workspace_a.id) == 1
     end
 
     test "Monitoring.update_monitor/2 stamps workspace before updating",
          %{monitor_a: monitor_a} do
       assert {:ok, updated} =
-               Monitoring.update_monitor(:system, monitor_a, %{health_status: :degraded})
+               Monitoring.update_monitor(monitor_a, %{health_status: :degraded})
 
       assert updated.health_status == :degraded
     end

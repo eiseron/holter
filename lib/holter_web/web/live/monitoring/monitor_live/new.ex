@@ -8,7 +8,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
-        if Monitoring.at_quota?(socket.assigns.current_user, workspace) do
+        if Monitoring.at_quota?(workspace) do
           {:ok,
            socket
            |> put_flash(
@@ -53,7 +53,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
     attrs = Map.put(monitor_params, "workspace_id", workspace.id)
 
     with :ok <- authorize(actor, :create, {Monitor, workspace}),
-         {:ok, monitor} <- Monitoring.create_monitor(actor, attrs) do
+         {:ok, monitor} <- Monitoring.create_monitor(attrs) do
       {:noreply,
        socket
        |> put_flash(:info, gettext("Monitor created successfully"))

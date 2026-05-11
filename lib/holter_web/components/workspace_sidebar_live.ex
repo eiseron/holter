@@ -13,8 +13,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
     {monitor_count, channel_count} =
       Tenant.with_workspace!(workspace.id, fn ->
-        {Monitoring.count_monitors(current_user, workspace.id),
-         Delivery.count_channels(workspace.id)}
+        {Monitoring.count_monitors(workspace.id), Delivery.count_channels(workspace.id)}
       end)
 
     {:ok,
