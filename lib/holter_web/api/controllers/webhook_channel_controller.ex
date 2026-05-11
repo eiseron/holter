@@ -81,7 +81,8 @@ defmodule HolterWeb.Api.WebhookChannelController do
         {"Created channel", "application/json", WebhookChannelSchemas.webhook_channel_response()},
       unprocessable_entity:
         {"Validation error", "application/json", WebhookChannelSchemas.error()}
-    ]
+    ],
+    callbacks: WebhookChannelSchemas.dispatch_callback()
   )
 
   def create(conn, %{workspace_slug: workspace_slug}) do
@@ -116,7 +117,8 @@ defmodule HolterWeb.Api.WebhookChannelController do
       not_found: {"Channel not found", "application/json", WebhookChannelSchemas.error()},
       unprocessable_entity:
         {"Validation error", "application/json", WebhookChannelSchemas.error()}
-    ]
+    ],
+    callbacks: WebhookChannelSchemas.dispatch_callback()
   )
 
   def update(conn, %{id: id}) do

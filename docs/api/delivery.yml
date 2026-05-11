@@ -2,6 +2,33 @@
 components:
   responses: {}
   schemas:
+    ChannelSummary:
+      description: Lightweight channel reference included in test-ping payloads.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - webhook
+            - email
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - name
+        - type
+      title: ChannelSummary
+      type: object
+      x-struct:
+      x-validate:
     DeliveryLog:
       additionalProperties: false
       description: A delivery job log entry for a notification channel.
@@ -395,6 +422,84 @@ components:
       type: object
       x-struct:
       x-validate:
+    IncidentSummary:
+      description: Lightweight incident reference included in dispatch payloads.
+      properties:
+        duration_seconds:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        resolved_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        root_cause:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        started_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - downtime
+            - defacement
+            - ssl_expiry
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - type
+        - started_at
+        - resolved_at
+        - duration_seconds
+        - root_cause
+      title: IncidentSummary
+      type: object
+      x-struct:
+      x-validate:
+    MonitorSummary:
+      description: Lightweight monitor reference included in dispatch payloads.
+      properties:
+        health_status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - url
+        - health_status
+      title: MonitorSummary
+      type: object
+      x-struct:
+      x-validate:
     WebhookChannel:
       additionalProperties: false
       description: A webhook delivery channel.
@@ -658,6 +763,189 @@ components:
           x-struct:
           x-validate:
       title: WebhookChannelUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    WebhookDispatch:
+      description: |
+        Outbound payload Holter POSTs to the webhook URL when an incident opens or
+        resolves, or when the customer triggers a test ping. Discriminated on
+        `event`. Requests carry the `X-Holter-Signature: t=<unix>,v1=<hex>` header
+        (HMAC-SHA256 of `<timestamp>.<body>` keyed by the channel `signing_token`).
+      discriminator:
+        mapping:
+          monitor_down: '#/components/schemas/WebhookIncidentDispatch'
+          monitor_up: '#/components/schemas/WebhookIncidentDispatch'
+          test_ping: '#/components/schemas/WebhookTestPingDispatch'
+        propertyName: event
+      oneOf:
+        - $ref: '#/components/schemas/WebhookIncidentDispatch'
+        - $ref: '#/components/schemas/WebhookTestPingDispatch'
+      title: WebhookDispatch
+      x-struct:
+      x-validate:
+    WebhookIncidentDispatch:
+      description: Payload posted when a monitor incident opens or resolves.
+      properties:
+        event:
+          enum:
+            - monitor_down
+            - monitor_up
+          type: string
+          x-struct:
+          x-validate:
+        incident:
+          description: Lightweight incident reference included in dispatch payloads.
+          properties:
+            duration_seconds:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            resolved_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            root_cause:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            started_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - downtime
+                - defacement
+                - ssl_expiry
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - type
+            - started_at
+            - resolved_at
+            - duration_seconds
+            - root_cause
+          title: IncidentSummary
+          type: object
+          x-struct:
+          x-validate:
+        monitor:
+          description: Lightweight monitor reference included in dispatch payloads.
+          properties:
+            health_status:
+              enum:
+                - up
+                - down
+                - degraded
+                - compromised
+                - unknown
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            url:
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - url
+            - health_status
+          title: MonitorSummary
+          type: object
+          x-struct:
+          x-validate:
+        timestamp:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        version:
+          enum:
+            - '1.0'
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - version
+        - event
+        - timestamp
+        - monitor
+        - incident
+      title: WebhookIncidentDispatch
+      type: object
+      x-struct:
+      x-validate:
+    WebhookTestPingDispatch:
+      description: Payload posted when the customer triggers a test ping.
+      properties:
+        channel:
+          description: Lightweight channel reference included in test-ping payloads.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - webhook
+                - email
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - name
+            - type
+          title: ChannelSummary
+          type: object
+          x-struct:
+          x-validate:
+        event:
+          enum:
+            - test_ping
+          type: string
+          x-struct:
+          x-validate:
+        timestamp:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        version:
+          enum:
+            - '1.0'
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - version
+        - event
+        - timestamp
+        - channel
+      title: WebhookTestPingDispatch
       type: object
       x-struct:
       x-validate:
@@ -1711,7 +1999,34 @@ paths:
       tags:
         - Webhook Channels
     patch:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update (2)
       parameters:
@@ -1882,7 +2197,34 @@ paths:
       tags:
         - Webhook Channels
     put:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update
       parameters:
@@ -2802,7 +3144,34 @@ paths:
       tags:
         - Webhook Channels
     post:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Create a new webhook channel for the specified workspace.
       operationId: HolterWeb.Api.WebhookChannelController.create
       parameters:

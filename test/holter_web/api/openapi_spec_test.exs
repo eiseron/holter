@@ -37,4 +37,59 @@ defmodule HolterWeb.Api.OpenapiSpecTest do
       assert html_response(conn, 200) =~ "Swagger UI"
     end
   end
+
+  describe "webhook dispatch callbacks (issue #28)" do
+    test "the channel create operation serializes the webhookDispatch callback", %{conn: conn} do
+      json = conn |> get("/api/openapi") |> json_response(200)
+
+      callback =
+        get_in(json, [
+          "paths",
+          "/api/v1/workspaces/{workspace_slug}/webhook_channels",
+          "post",
+          "callbacks",
+          "webhookDispatch"
+        ])
+
+      assert is_map(callback)
+      assert Map.has_key?(callback, "{$request.body#/url}")
+
+      schema_ref =
+        get_in(callback, [
+          "{$request.body#/url}",
+          "post",
+          "requestBody",
+          "content",
+          "application/json",
+          "schema",
+          "$ref"
+        ])
+
+      assert schema_ref == "#/components/schemas/WebhookDispatch"
+    end
+
+    test "the channel update operation serializes the webhookDispatch callback", %{conn: conn} do
+      json = conn |> get("/api/openapi") |> json_response(200)
+
+      callback =
+        get_in(json, [
+          "paths",
+          "/api/v1/webhook_channels/{id}",
+          "patch",
+          "callbacks",
+          "webhookDispatch"
+        ])
+
+      assert is_map(callback)
+      assert Map.has_key?(callback, "{$request.body#/url}")
+    end
+
+    test "the spec publishes a WebhookDispatch schema discriminated by event", %{conn: conn} do
+      json = conn |> get("/api/openapi") |> json_response(200)
+      schema = get_in(json, ["components", "schemas", "WebhookDispatch"])
+
+      assert %{"oneOf" => variants, "discriminator" => %{"propertyName" => "event"}} = schema
+      assert length(variants) == 2
+    end
+  end
 end

@@ -253,30 +253,95 @@ Unchecking a monitor and saving immediately stops future notifications for that 
 
 You can also manage links via the API — include a `notification_channel_ids` array in the monitor create or update request body.
 
-## Payload Shape
+## What Holter Sends to Your Webhook
 
-When a monitor goes down or recovers, Holter sends the following JSON payload to webhook channels:
+Every alert is a single `POST` with `Content-Type: application/json` and the [`X-Holter-Signature` header](#header-format) so you can verify it really came from Holter.
+
+There are three kinds of payload, all sharing the same top-level shape. The `event` field tells you which one you received.
+
+### Incident opened — `event: "monitor_down"`
+
+Fired when Holter detects that one of your monitors started failing — site offline, content tampered with, SSL certificate expiring soon, etc.
 
 ```json
 {
-  "version": "1",
+  "version": "1.0",
   "event": "monitor_down",
   "timestamp": "2026-04-20T10:00:00Z",
   "monitor": {
-    "id": "...",
+    "id": "f0e1d2c3-...",
     "url": "https://example.com",
-    "method": "get"
+    "health_status": "down"
   },
   "incident": {
-    "id": "...",
+    "id": "a1b2c3d4-...",
     "type": "downtime",
     "started_at": "2026-04-20T10:00:00Z",
-    "resolved_at": null
+    "resolved_at": null,
+    "duration_seconds": null,
+    "root_cause": "connection refused"
   }
 }
 ```
 
-Events: `monitor_down`, `monitor_up`. For SSL expiry incidents the event is `ssl_expiry_down` / `ssl_expiry_up`.
+`incident.type` tells you **why** the alert fired:
+
+| `type` | What it means |
+|--------|---------------|
+| `downtime` | The monitor target is unreachable or returning an error. |
+| `defacement` | The monitored page changed in a way that suggests tampering. |
+| `ssl_expiry` | The TLS certificate is about to expire. |
+
+The **event name stays `monitor_down`** for all three — page your on-call once, then read `incident.type` to decide how to react.
+
+### Incident resolved — `event: "monitor_up"`
+
+Fired when an open incident closes. Same shape as `monitor_down`, but `incident.resolved_at` is now an ISO 8601 timestamp and `incident.duration_seconds` is filled in.
+
+```json
+{
+  "version": "1.0",
+  "event": "monitor_up",
+  "timestamp": "2026-04-20T10:15:30Z",
+  "monitor": { "id": "f0e1d2c3-...", "url": "https://example.com", "health_status": "up" },
+  "incident": {
+    "id": "a1b2c3d4-...",
+    "type": "downtime",
+    "started_at": "2026-04-20T10:00:00Z",
+    "resolved_at": "2026-04-20T10:15:30Z",
+    "duration_seconds": 930,
+    "root_cause": "connection refused"
+  }
+}
+```
+
+Use the `incident.id` to correlate `monitor_up` back to its `monitor_down` and close the page in your incident tool.
+
+### Test ping — `event: "test_ping"`
+
+Fired only when you click **Send Test** on the channel page (or call the equivalent API). The payload carries the **channel**, not a monitor or incident, so your receiver can confirm the integration works without faking an outage.
+
+```json
+{
+  "version": "1.0",
+  "event": "test_ping",
+  "timestamp": "2026-04-20T10:00:00Z",
+  "channel": {
+    "id": "9c8b7a6e-...",
+    "name": "PagerDuty production",
+    "type": "webhook"
+  }
+}
+```
+
+### How to respond
+
+| HTTP status | What Holter does |
+|-------------|------------------|
+| `2xx` | Considers the delivery acknowledged and moves on. |
+| Anything else | Records a failure in the [delivery logs](channel-logs.md) and retries with Oban's default backoff (up to 20 attempts). |
+
+Return `2xx` as soon as you have **persisted** the alert (e.g. enqueued it) — don't wait for downstream paging providers. A slow `2xx` is better than a `5xx`, but a request that does not finish within **15 seconds** is treated as a failure and retried.
 
 ## Related
 

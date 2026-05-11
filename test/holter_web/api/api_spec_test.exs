@@ -75,4 +75,99 @@ defmodule HolterWeb.Api.ApiSpecTest do
     conn = get(build_conn(), "/api/swagger")
     assert html_response(conn, 200) =~ "/api/openapi"
   end
+
+  describe "webhook dispatch callbacks (issue #28)" do
+    setup do
+      spec = ApiSpec.spec()
+      {:ok, spec: spec, schemas: spec.components.schemas}
+    end
+
+    test "exposes the dispatch payload schemas in components", %{schemas: schemas} do
+      for name <-
+            ~w(MonitorSummary IncidentSummary ChannelSummary WebhookIncidentDispatch WebhookTestPingDispatch WebhookDispatch) do
+        assert Map.has_key?(schemas, name), "missing schema #{name}"
+      end
+    end
+
+    test "WebhookDispatch is a oneOf union discriminated by event", %{schemas: schemas} do
+      assert %OpenApiSpex.Schema{
+               oneOf: variants,
+               discriminator: %OpenApiSpex.Discriminator{propertyName: "event", mapping: mapping}
+             } = schemas["WebhookDispatch"]
+
+      assert length(variants) == 2
+      assert Map.keys(mapping) |> Enum.sort() == ["monitor_down", "monitor_up", "test_ping"]
+    end
+
+    test "the incident dispatch variant only emits monitor_down and monitor_up", %{
+      schemas: schemas
+    } do
+      incident = schemas["WebhookIncidentDispatch"]
+
+      assert incident.properties.event.enum == ["monitor_down", "monitor_up"]
+      assert :monitor in incident.required
+      assert :incident in incident.required
+    end
+
+    test "the test ping variant emits test_ping with a channel reference", %{schemas: schemas} do
+      test_ping = schemas["WebhookTestPingDispatch"]
+
+      assert test_ping.properties.event.enum == ["test_ping"]
+      assert :channel in test_ping.required
+      refute :monitor in test_ping.required
+      refute :incident in test_ping.required
+    end
+
+    test "MonitorSummary enumerates the runtime health_status values", %{schemas: schemas} do
+      monitor = schemas["MonitorSummary"]
+
+      assert monitor.properties.health_status.enum == [
+               "up",
+               "down",
+               "degraded",
+               "compromised",
+               "unknown"
+             ]
+    end
+
+    test "IncidentSummary enumerates the runtime incident types", %{schemas: schemas} do
+      incident = schemas["IncidentSummary"]
+
+      assert incident.properties.type.enum == ["downtime", "defacement", "ssl_expiry"]
+    end
+
+    test "the channel create operation declares a webhookDispatch callback", %{spec: spec} do
+      path = spec.paths["/api/v1/workspaces/{workspace_slug}/webhook_channels"]
+
+      assert %OpenApiSpex.PathItem{post: %OpenApiSpex.Operation{callbacks: callbacks}} = path
+      assert Map.has_key?(callbacks, "webhookDispatch")
+
+      callback = callbacks["webhookDispatch"]
+      assert Map.has_key?(callback, "{$request.body#/url}")
+
+      %OpenApiSpex.PathItem{
+        post: %OpenApiSpex.Operation{
+          requestBody: %OpenApiSpex.RequestBody{
+            content: %{
+              "application/json" => %OpenApiSpex.MediaType{schema: schema_ref}
+            }
+          },
+          responses: responses
+        }
+      } = callback["{$request.body#/url}"]
+
+      assert %OpenApiSpex.Reference{"$ref": "#/components/schemas/WebhookDispatch"} = schema_ref
+      assert Map.keys(responses) |> Enum.sort() == ["2XX", "default"]
+    end
+
+    test "the channel update operation declares the same webhookDispatch callback", %{spec: spec} do
+      path = spec.paths["/api/v1/webhook_channels/{id}"]
+
+      assert %OpenApiSpex.PathItem{patch: %OpenApiSpex.Operation{callbacks: callbacks}} = path
+      assert Map.has_key?(callbacks, "webhookDispatch")
+
+      callback = callbacks["webhookDispatch"]
+      assert Map.has_key?(callback, "{$request.body#/url}")
+    end
+  end
 end

@@ -2,16 +2,168 @@
 components:
   responses: {}
   schemas:
-    DailyMetric:
+    Incident:
       additionalProperties: false
-      description: Aggregated daily uptime and performance metrics for a monitor.
+      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
       properties:
-        avg_latency_ms:
+        duration_seconds:
+          nullable: true
           type: integer
           x-struct:
           x-validate:
-        date:
-          format: date
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        resolved_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        root_cause:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        started_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - downtime
+            - defacement
+            - ssl_expiry
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - type
+        - started_at
+      title: Incident
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating a webhook channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        url:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+      title: WebhookChannelUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    WorkspaceResponse:
+      additionalProperties: false
+      description: Response containing a single workspace.
+      properties:
+        data:
+          additionalProperties: false
+          description: A workspace that groups monitors together.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            max_monitors:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            min_interval_seconds:
+              minimum: 10
+              type: integer
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            retention_days:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            slug:
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - name
+            - slug
+            - retention_days
+            - max_monitors
+            - min_interval_seconds
+          title: Workspace
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WorkspaceResponse
+      type: object
+      x-struct:
+      x-validate:
+    MonitorLog:
+      additionalProperties: false
+      description: A single check result for a monitor.
+      properties:
+        checked_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        error_message:
+          nullable: true
           type: string
           x-struct:
           x-validate:
@@ -25,7 +177,87 @@ components:
           type: string
           x-struct:
           x-validate:
-        total_downtime_minutes:
+        last_redirect_url:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        latency_ms:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        redirect_count:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        redirect_list:
+          items:
+            additionalProperties: false
+            properties:
+              ip:
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              url:
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - url
+              - ip
+            type: object
+            x-struct:
+            x-validate:
+          nullable: true
+          type: array
+          x-struct:
+          x-validate:
+        region:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        response_ip:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_snippet:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        status_code:
+          nullable: true
           type: integer
           x-struct:
           x-validate:
@@ -34,17 +266,216 @@ components:
           type: string
           x-struct:
           x-validate:
-        uptime_percent:
-          type: number
+      required:
+        - id
+        - status
+        - checked_at
+      title: MonitorLog
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelList:
+      description: List of email channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+            properties:
+              anti_phishing_code:
+                description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - settings
+              - anti_phishing_code
+              - last_test_dispatched_at
+              - inserted_at
+              - updated_at
+            title: EmailChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelList
+      type: object
+      x-struct:
+      x-validate:
+    ChannelSummary:
+      description: Lightweight channel reference included in test-ping payloads.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - webhook
+            - email
+          type: string
           x-struct:
           x-validate:
       required:
         - id
-        - date
-        - uptime_percent
-        - avg_latency_ms
-        - total_downtime_minutes
-      title: DailyMetric
+        - name
+        - type
+      title: ChannelSummary
+      type: object
+      x-struct:
+      x-validate:
+    MonitorUpdateRequest:
+      description: Parameters for updating a monitor. All fields are optional.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      title: MonitorUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating a webhook channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        url:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - name
+        - url
+      title: WebhookChannelCreateRequest
       type: object
       x-struct:
       x-validate:
@@ -131,56 +562,184 @@ components:
       type: object
       x-struct:
       x-validate:
-    DeliveryLog:
-      additionalProperties: false
-      description: A delivery job log entry for a notification channel.
+    WebhookChannelResponse:
+      description: Single webhook channel response.
       properties:
-        attempted_at:
-          format: date-time
-          nullable: true
-          type: string
+        data:
+          additionalProperties: false
+          description: A webhook delivery channel.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            signing_token:
+              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            url:
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - url
+            - settings
+            - signing_token
+            - last_test_dispatched_at
+            - inserted_at
+            - updated_at
+          title: WebhookChannel
+          type: object
           x-struct:
           x-validate:
-        errors:
-          items:
-            nullable: true
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
+      required:
+        - data
+      title: WebhookChannelResponse
+      type: object
+      x-struct:
+      x-validate:
+    WebhookIncidentDispatch:
+      description: Payload posted when a monitor incident opens or resolves.
+      properties:
         event:
-          nullable: true
+          enum:
+            - monitor_down
+            - monitor_up
           type: string
           x-struct:
           x-validate:
-        id:
-          type: integer
+        incident:
+          description: Lightweight incident reference included in dispatch payloads.
+          properties:
+            duration_seconds:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            resolved_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            root_cause:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            started_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - downtime
+                - defacement
+                - ssl_expiry
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - type
+            - started_at
+            - resolved_at
+            - duration_seconds
+            - root_cause
+          title: IncidentSummary
+          type: object
           x-struct:
           x-validate:
-        inserted_at:
+        monitor:
+          description: Lightweight monitor reference included in dispatch payloads.
+          properties:
+            health_status:
+              enum:
+                - up
+                - down
+                - degraded
+                - compromised
+                - unknown
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            url:
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - url
+            - health_status
+          title: MonitorSummary
+          type: object
+          x-struct:
+          x-validate:
+        timestamp:
           format: date-time
           type: string
           x-struct:
           x-validate:
-        status:
+        version:
           enum:
-            - success
-            - failed
-          type: string
-          x-struct:
-          x-validate:
-        worker:
+            - '1.0'
           type: string
           x-struct:
           x-validate:
       required:
-        - id
-        - status
-        - worker
-        - inserted_at
-      title: DeliveryLog
+        - version
+        - event
+        - timestamp
+        - monitor
+        - incident
+      title: WebhookIncidentDispatch
       type: object
       x-struct:
       x-validate:
@@ -267,96 +826,22 @@ components:
       type: object
       x-struct:
       x-validate:
-    EmailChannel:
+    MonitorLogList:
       additionalProperties: false
-      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
-      properties:
-        anti_phishing_code:
-          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_test_dispatched_at:
-          description: Timestamp of the most recent test ping. Used for cooldown gating.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        workspace_id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - workspace_id
-        - name
-        - settings
-        - anti_phishing_code
-        - last_test_dispatched_at
-        - inserted_at
-        - updated_at
-      title: EmailChannel
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelCreateRequest:
-      additionalProperties: false
-      description: Parameters for creating an email channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - name
-      title: EmailChannelCreateRequest
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelList:
-      description: List of email channels.
+      description: A paginated list of monitor log entries.
       properties:
         data:
           items:
             additionalProperties: false
-            description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+            description: A single check result for a monitor.
             properties:
-              anti_phishing_code:
-                description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+              checked_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              error_message:
+                nullable: true
                 type: string
                 x-struct:
                 x-validate:
@@ -370,20 +855,88 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              last_test_dispatched_at:
-                description: Timestamp of the most recent test ping. Used for cooldown gating.
-                format: date-time
+              last_redirect_url:
                 nullable: true
                 type: string
                 x-struct:
                 x-validate:
-              name:
+              latency_ms:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              monitor_snapshot:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              redirect_count:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              redirect_list:
+                items:
+                  additionalProperties: false
+                  properties:
+                    ip:
+                      type: string
+                      x-struct:
+                      x-validate:
+                    status_code:
+                      nullable: true
+                      type: integer
+                      x-struct:
+                      x-validate:
+                    url:
+                      type: string
+                      x-struct:
+                      x-validate:
+                  required:
+                    - url
+                    - ip
+                  type: object
+                  x-struct:
+                  x-validate:
+                nullable: true
+                type: array
+                x-struct:
+                x-validate:
+              region:
+                nullable: true
                 type: string
                 x-struct:
                 x-validate:
-              settings:
+              response_headers:
                 additionalProperties: true
+                nullable: true
                 type: object
+                x-struct:
+                x-validate:
+              response_ip:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              response_snippet:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - up
+                  - down
+                  - degraded
+                  - compromised
+                  - unknown
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
                 x-struct:
                 x-validate:
               updated_at:
@@ -391,198 +944,36 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              workspace_id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
             required:
               - id
-              - workspace_id
-              - name
-              - settings
-              - anti_phishing_code
-              - last_test_dispatched_at
-              - inserted_at
-              - updated_at
-            title: EmailChannel
+              - status
+              - checked_at
+            title: MonitorLog
             type: object
             x-struct:
             x-validate:
           type: array
           x-struct:
           x-validate:
-      required:
-        - data
-      title: EmailChannelList
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelResponse:
-      description: Single email channel response.
-      properties:
-        data:
+        meta:
           additionalProperties: false
-          description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
           properties:
-            anti_phishing_code:
-              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
-              type: string
+            page:
+              type: integer
               x-struct:
               x-validate:
-            id:
-              format: uuid
-              type: string
+            page_size:
+              type: integer
               x-struct:
               x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            last_test_dispatched_at:
-              description: Timestamp of the most recent test ping. Used for cooldown gating.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            workspace_id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - workspace_id
-            - name
-            - settings
-            - anti_phishing_code
-            - last_test_dispatched_at
-            - inserted_at
-            - updated_at
-          title: EmailChannel
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: EmailChannelResponse
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelUpdateRequest:
-      additionalProperties: false
-      description: Parameters for updating an email channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-      title: EmailChannelUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    Error:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-              x-struct:
-              x-validate:
-            message:
-              type: string
+            total_pages:
+              type: integer
               x-struct:
               x-validate:
           type: object
           x-struct:
           x-validate:
-      title: Error
-      type: object
-      x-struct:
-      x-validate:
-    Incident:
-      additionalProperties: false
-      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
-      properties:
-        duration_seconds:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        monitor_snapshot:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        resolved_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        root_cause:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        started_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        type:
-          enum:
-            - downtime
-            - defacement
-            - ssl_expiry
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - type
-        - started_at
-      title: Incident
+      title: MonitorLogList
       type: object
       x-struct:
       x-validate:
@@ -682,331 +1073,6 @@ components:
         - data
         - meta
       title: IncidentList
-      type: object
-      x-struct:
-      x-validate:
-    IncidentResponse:
-      additionalProperties: false
-      description: Response body for a single incident.
-      properties:
-        data:
-          additionalProperties: false
-          description: A detected downtime, defacement, or SSL expiry incident for a monitor.
-          properties:
-            duration_seconds:
-              nullable: true
-              type: integer
-              x-struct:
-              x-validate:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            monitor_snapshot:
-              additionalProperties: true
-              nullable: true
-              type: object
-              x-struct:
-              x-validate:
-            resolved_at:
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            root_cause:
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            started_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            type:
-              enum:
-                - downtime
-                - defacement
-                - ssl_expiry
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - type
-            - started_at
-          title: Incident
-          type: object
-          x-struct:
-          x-validate:
-      title: IncidentResponse
-      type: object
-      x-struct:
-      x-validate:
-    Monitor:
-      additionalProperties: false
-      description: A monitoring target for HTTP/HTTPS/SSL checks.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        domain_expires_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        headers:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        health_status:
-          enum:
-            - up
-            - down
-            - degraded
-            - compromised
-            - unknown
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        keyword_negative:
-          items:
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        keyword_positive:
-          items:
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        last_checked_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        last_domain_check_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        last_success_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        logical_state:
-          enum:
-            - active
-            - paused
-            - archived
-          type: string
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - head
-            - put
-            - patch
-            - delete
-            - options
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          description: Raw string of headers
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          description: Comma-separated negative keywords
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          description: Comma-separated positive keywords
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_expires_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - url
-        - method
-        - interval_seconds
-        - timeout_seconds
-      title: Monitor
-      type: object
-      x-struct:
-      x-validate:
-    MonitorCreateRequest:
-      description: Parameters for creating a monitor. url, method and interval_seconds are required.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - put
-            - patch
-            - delete
-            - options
-            - head
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - url
-        - method
-        - interval_seconds
-      title: MonitorCreateRequest
       type: object
       x-struct:
       x-validate:
@@ -1213,278 +1279,6 @@ components:
       type: object
       x-struct:
       x-validate:
-    MonitorLog:
-      additionalProperties: false
-      description: A single check result for a monitor.
-      properties:
-        checked_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        error_message:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_redirect_url:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        latency_ms:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        monitor_snapshot:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        redirect_count:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        redirect_list:
-          items:
-            additionalProperties: false
-            properties:
-              ip:
-                type: string
-                x-struct:
-                x-validate:
-              status_code:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              url:
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - url
-              - ip
-            type: object
-            x-struct:
-            x-validate:
-          nullable: true
-          type: array
-          x-struct:
-          x-validate:
-        region:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        response_headers:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        response_ip:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        response_snippet:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        status:
-          enum:
-            - up
-            - down
-            - degraded
-            - compromised
-            - unknown
-          type: string
-          x-struct:
-          x-validate:
-        status_code:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - status
-        - checked_at
-      title: MonitorLog
-      type: object
-      x-struct:
-      x-validate:
-    MonitorLogList:
-      additionalProperties: false
-      description: A paginated list of monitor log entries.
-      properties:
-        data:
-          items:
-            additionalProperties: false
-            description: A single check result for a monitor.
-            properties:
-              checked_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              error_message:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-              inserted_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              last_redirect_url:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              latency_ms:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              monitor_snapshot:
-                additionalProperties: true
-                nullable: true
-                type: object
-                x-struct:
-                x-validate:
-              redirect_count:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              redirect_list:
-                items:
-                  additionalProperties: false
-                  properties:
-                    ip:
-                      type: string
-                      x-struct:
-                      x-validate:
-                    status_code:
-                      nullable: true
-                      type: integer
-                      x-struct:
-                      x-validate:
-                    url:
-                      type: string
-                      x-struct:
-                      x-validate:
-                  required:
-                    - url
-                    - ip
-                  type: object
-                  x-struct:
-                  x-validate:
-                nullable: true
-                type: array
-                x-struct:
-                x-validate:
-              region:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              response_headers:
-                additionalProperties: true
-                nullable: true
-                type: object
-                x-struct:
-                x-validate:
-              response_ip:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              response_snippet:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              status:
-                enum:
-                  - up
-                  - down
-                  - degraded
-                  - compromised
-                  - unknown
-                type: string
-                x-struct:
-                x-validate:
-              status_code:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              updated_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - id
-              - status
-              - checked_at
-            title: MonitorLog
-            type: object
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        meta:
-          additionalProperties: false
-          properties:
-            page:
-              type: integer
-              x-struct:
-              x-validate:
-            page_size:
-              type: integer
-              x-struct:
-              x-validate:
-            total_pages:
-              type: integer
-              x-struct:
-              x-validate:
-          type: object
-          x-struct:
-          x-validate:
-      title: MonitorLogList
-      type: object
-      x-struct:
-      x-validate:
     MonitorLogResponse:
       additionalProperties: false
       description: Response containing a single monitor log entry.
@@ -1613,6 +1407,960 @@ components:
       required:
         - data
       title: MonitorLogResponse
+      type: object
+      x-struct:
+      x-validate:
+    DailyMetric:
+      additionalProperties: false
+      description: Aggregated daily uptime and performance metrics for a monitor.
+      properties:
+        avg_latency_ms:
+          type: integer
+          x-struct:
+          x-validate:
+        date:
+          format: date
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        total_downtime_minutes:
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        uptime_percent:
+          type: number
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - date
+        - uptime_percent
+        - avg_latency_ms
+        - total_downtime_minutes
+      title: DailyMetric
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelList:
+      description: List of webhook channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A webhook delivery channel.
+            properties:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              signing_token:
+                description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              url:
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - url
+              - settings
+              - signing_token
+              - last_test_dispatched_at
+              - inserted_at
+              - updated_at
+            title: WebhookChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WebhookChannelList
+      type: object
+      x-struct:
+      x-validate:
+    Workspace:
+      additionalProperties: false
+      description: A workspace that groups monitors together.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        max_monitors:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        min_interval_seconds:
+          minimum: 10
+          type: integer
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        retention_days:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        slug:
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - name
+        - slug
+        - retention_days
+        - max_monitors
+        - min_interval_seconds
+      title: Workspace
+      type: object
+      x-struct:
+      x-validate:
+    MonitorSummary:
+      description: Lightweight monitor reference included in dispatch payloads.
+      properties:
+        health_status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - url
+        - health_status
+      title: MonitorSummary
+      type: object
+      x-struct:
+      x-validate:
+    IncidentSummary:
+      description: Lightweight incident reference included in dispatch payloads.
+      properties:
+        duration_seconds:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        resolved_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        root_cause:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        started_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - downtime
+            - defacement
+            - ssl_expiry
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - type
+        - started_at
+        - resolved_at
+        - duration_seconds
+        - root_cause
+      title: IncidentSummary
+      type: object
+      x-struct:
+      x-validate:
+    IncidentResponse:
+      additionalProperties: false
+      description: Response body for a single incident.
+      properties:
+        data:
+          additionalProperties: false
+          description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+          properties:
+            duration_seconds:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            monitor_snapshot:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            resolved_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            root_cause:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            started_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - downtime
+                - defacement
+                - ssl_expiry
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - type
+            - started_at
+          title: Incident
+          type: object
+          x-struct:
+          x-validate:
+      title: IncidentResponse
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannel:
+      additionalProperties: false
+      description: A webhook delivery channel.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        signing_token:
+          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - name
+        - url
+        - settings
+        - signing_token
+        - last_test_dispatched_at
+        - inserted_at
+        - updated_at
+      title: WebhookChannel
+      type: object
+      x-struct:
+      x-validate:
+    MonitorCreateRequest:
+      description: Parameters for creating a monitor. url, method and interval_seconds are required.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - url
+        - method
+        - interval_seconds
+      title: MonitorCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    Monitor:
+      additionalProperties: false
+      description: A monitoring target for HTTP/HTTPS/SSL checks.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        domain_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        health_status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        keyword_negative:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        keyword_positive:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        last_checked_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_domain_check_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_success_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        logical_state:
+          enum:
+            - active
+            - paused
+            - archived
+          type: string
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - head
+            - put
+            - patch
+            - delete
+            - options
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          description: Raw string of headers
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          description: Comma-separated negative keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          description: Comma-separated positive keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - url
+        - method
+        - interval_seconds
+        - timeout_seconds
+      title: Monitor
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannel:
+      additionalProperties: false
+      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+      properties:
+        anti_phishing_code:
+          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - name
+        - settings
+        - anti_phishing_code
+        - last_test_dispatched_at
+        - inserted_at
+        - updated_at
+      title: EmailChannel
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating an email channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      title: EmailChannelUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    Error:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+              x-struct:
+              x-validate:
+            message:
+              type: string
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: Error
+      type: object
+      x-struct:
+      x-validate:
+    WebhookDispatch:
+      description: |
+        Outbound payload Holter POSTs to the webhook URL when an incident opens or
+        resolves, or when the customer triggers a test ping. Discriminated on
+        `event`. Requests carry the `X-Holter-Signature: t=<unix>,v1=<hex>` header
+        (HMAC-SHA256 of `<timestamp>.<body>` keyed by the channel `signing_token`).
+      discriminator:
+        mapping:
+          monitor_down: '#/components/schemas/WebhookIncidentDispatch'
+          monitor_up: '#/components/schemas/WebhookIncidentDispatch'
+          test_ping: '#/components/schemas/WebhookTestPingDispatch'
+        propertyName: event
+      oneOf:
+        - $ref: '#/components/schemas/WebhookIncidentDispatch'
+        - $ref: '#/components/schemas/WebhookTestPingDispatch'
+      title: WebhookDispatch
+      x-struct:
+      x-validate:
+    WebhookTestPingDispatch:
+      description: Payload posted when the customer triggers a test ping.
+      properties:
+        channel:
+          description: Lightweight channel reference included in test-ping payloads.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - webhook
+                - email
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - name
+            - type
+          title: ChannelSummary
+          type: object
+          x-struct:
+          x-validate:
+        event:
+          enum:
+            - test_ping
+          type: string
+          x-struct:
+          x-validate:
+        timestamp:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        version:
+          enum:
+            - '1.0'
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - version
+        - event
+        - timestamp
+        - channel
+      title: WebhookTestPingDispatch
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating an email channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - name
+      title: EmailChannelCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    DeliveryLog:
+      additionalProperties: false
+      description: A delivery job log entry for a notification channel.
+      properties:
+        attempted_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        errors:
+          items:
+            nullable: true
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        event:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          type: integer
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - success
+            - failed
+          type: string
+          x-struct:
+          x-validate:
+        worker:
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - status
+        - worker
+        - inserted_at
+      title: DeliveryLog
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelResponse:
+      description: Single email channel response.
+      properties:
+        data:
+          additionalProperties: false
+          description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+          properties:
+            anti_phishing_code:
+              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - settings
+            - anti_phishing_code
+            - last_test_dispatched_at
+            - inserted_at
+            - updated_at
+          title: EmailChannel
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelResponse
       type: object
       x-struct:
       x-validate:
@@ -1796,466 +2544,6 @@ components:
       required:
         - data
       title: MonitorResponse
-      type: object
-      x-struct:
-      x-validate:
-    MonitorUpdateRequest:
-      description: Parameters for updating a monitor. All fields are optional.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - put
-            - patch
-            - delete
-            - options
-            - head
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      title: MonitorUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannel:
-      additionalProperties: false
-      description: A webhook delivery channel.
-      properties:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_test_dispatched_at:
-          description: Timestamp of the most recent test ping. Used for cooldown gating.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        signing_token:
-          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        url:
-          type: string
-          x-struct:
-          x-validate:
-        workspace_id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - workspace_id
-        - name
-        - url
-        - settings
-        - signing_token
-        - last_test_dispatched_at
-        - inserted_at
-        - updated_at
-      title: WebhookChannel
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelCreateRequest:
-      additionalProperties: false
-      description: Parameters for creating a webhook channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        url:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - name
-        - url
-      title: WebhookChannelCreateRequest
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelList:
-      description: List of webhook channels.
-      properties:
-        data:
-          items:
-            additionalProperties: false
-            description: A webhook delivery channel.
-            properties:
-              id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-              inserted_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              last_test_dispatched_at:
-                description: Timestamp of the most recent test ping. Used for cooldown gating.
-                format: date-time
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              name:
-                type: string
-                x-struct:
-                x-validate:
-              settings:
-                additionalProperties: true
-                type: object
-                x-struct:
-                x-validate:
-              signing_token:
-                description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-                type: string
-                x-struct:
-                x-validate:
-              updated_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              url:
-                type: string
-                x-struct:
-                x-validate:
-              workspace_id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - id
-              - workspace_id
-              - name
-              - url
-              - settings
-              - signing_token
-              - last_test_dispatched_at
-              - inserted_at
-              - updated_at
-            title: WebhookChannel
-            type: object
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WebhookChannelList
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelResponse:
-      description: Single webhook channel response.
-      properties:
-        data:
-          additionalProperties: false
-          description: A webhook delivery channel.
-          properties:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            last_test_dispatched_at:
-              description: Timestamp of the most recent test ping. Used for cooldown gating.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            signing_token:
-              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            url:
-              type: string
-              x-struct:
-              x-validate:
-            workspace_id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - workspace_id
-            - name
-            - url
-            - settings
-            - signing_token
-            - last_test_dispatched_at
-            - inserted_at
-            - updated_at
-          title: WebhookChannel
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WebhookChannelResponse
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelUpdateRequest:
-      additionalProperties: false
-      description: Parameters for updating a webhook channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        url:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-      title: WebhookChannelUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    Workspace:
-      additionalProperties: false
-      description: A workspace that groups monitors together.
-      properties:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        max_monitors:
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        min_interval_seconds:
-          minimum: 10
-          type: integer
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        retention_days:
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        slug:
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - name
-        - slug
-        - retention_days
-        - max_monitors
-        - min_interval_seconds
-      title: Workspace
-      type: object
-      x-struct:
-      x-validate:
-    WorkspaceResponse:
-      additionalProperties: false
-      description: Response containing a single workspace.
-      properties:
-        data:
-          additionalProperties: false
-          description: A workspace that groups monitors together.
-          properties:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            max_monitors:
-              minimum: 1
-              type: integer
-              x-struct:
-              x-validate:
-            min_interval_seconds:
-              minimum: 10
-              type: integer
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            retention_days:
-              minimum: 1
-              type: integer
-              x-struct:
-              x-validate:
-            slug:
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - name
-            - slug
-            - retention_days
-            - max_monitors
-            - min_interval_seconds
-          title: Workspace
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WorkspaceResponse
       type: object
       x-struct:
       x-validate:
@@ -5298,7 +5586,34 @@ paths:
       tags:
         - Webhook Channels
     patch:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update (2)
       parameters:
@@ -5469,7 +5784,34 @@ paths:
       tags:
         - Webhook Channels
     put:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update
       parameters:
@@ -7137,7 +7479,34 @@ paths:
       tags:
         - Webhook Channels
     post:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Create a new webhook channel for the specified workspace.
       operationId: HolterWeb.Api.WebhookChannelController.create
       parameters:

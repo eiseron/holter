@@ -5298,7 +5298,34 @@ paths:
       tags:
         - Webhook Channels
     patch:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update (2)
       parameters:
@@ -5469,7 +5496,34 @@ paths:
       tags:
         - Webhook Channels
     put:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Update an existing webhook channel.
       operationId: HolterWeb.Api.WebhookChannelController.update
       parameters:
@@ -7137,7 +7191,34 @@ paths:
       tags:
         - Webhook Channels
     post:
-      callbacks: {}
+      callbacks:
+        webhookDispatch:
+          '{$request.body#/url}':
+            post:
+              callbacks: {}
+              deprecated: false
+              description: |
+                Holter POSTs this payload to the URL registered on the channel when a
+                monitor opens or resolves an incident, or when the customer triggers a
+                test ping. Signed via the `X-Holter-Signature: t=<unix>,v1=<hex>`
+                header (HMAC-SHA256 of `<timestamp>.<body>` keyed by `signing_token`).
+                Respond 2xx to acknowledge; non-2xx triggers Oban retry with backoff.
+              operationId: webhookDispatch
+              parameters: []
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookDispatch'
+                description: Dispatch payload
+                required: true
+              responses:
+                2XX:
+                  description: Delivery acknowledged.
+                default:
+                  description: Non-2xx triggers retry.
+              summary: Outbound dispatch to the customer's webhook URL
+              tags: []
       description: Create a new webhook channel for the specified workspace.
       operationId: HolterWeb.Api.WebhookChannelController.create
       parameters:

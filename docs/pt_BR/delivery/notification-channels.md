@@ -253,30 +253,95 @@ Desmarcar um monitor e salvar interrompe imediatamente as notificações futuras
 
 Você também pode gerenciar os vínculos via API — inclua um array `notification_channel_ids` no corpo da requisição de criação ou atualização do monitor.
 
-## Formato do Payload
+## O Que o Holter Envia para o Seu Webhook
 
-Quando um monitor cai ou se recupera, o Holter envia o seguinte payload JSON para canais webhook:
+Todo alerta é um único `POST` com `Content-Type: application/json` e o [cabeçalho `X-Holter-Signature`](#formato-do-cabeçalho) para você confirmar que veio mesmo do Holter.
+
+Existem três tipos de payload, todos com o mesmo formato no topo. O campo `event` diz qual deles você recebeu.
+
+### Incidente aberto — `event: "monitor_down"`
+
+Disparado quando o Holter detecta que um dos seus monitores começou a falhar — site fora do ar, conteúdo adulterado, certificado SSL prestes a expirar, etc.
 
 ```json
 {
-  "version": "1",
+  "version": "1.0",
   "event": "monitor_down",
   "timestamp": "2026-04-20T10:00:00Z",
   "monitor": {
-    "id": "...",
+    "id": "f0e1d2c3-...",
     "url": "https://exemplo.com",
-    "method": "get"
+    "health_status": "down"
   },
   "incident": {
-    "id": "...",
+    "id": "a1b2c3d4-...",
     "type": "downtime",
     "started_at": "2026-04-20T10:00:00Z",
-    "resolved_at": null
+    "resolved_at": null,
+    "duration_seconds": null,
+    "root_cause": "connection refused"
   }
 }
 ```
 
-Eventos: `monitor_down`, `monitor_up`. Para incidentes de expiração de SSL, o evento é `ssl_expiry_down` / `ssl_expiry_up`.
+`incident.type` diz **por que** o alerta disparou:
+
+| `type` | Significado |
+|--------|-------------|
+| `downtime` | O alvo do monitor está inacessível ou retornando erro. |
+| `defacement` | A página monitorada mudou de um jeito que sugere adulteração. |
+| `ssl_expiry` | O certificado TLS está prestes a expirar. |
+
+O **nome do evento permanece `monitor_down`** para os três casos — pageie seu plantão uma vez e leia `incident.type` para decidir como reagir.
+
+### Incidente resolvido — `event: "monitor_up"`
+
+Disparado quando um incidente aberto fecha. Mesmo formato do `monitor_down`, mas agora `incident.resolved_at` é um timestamp ISO 8601 e `incident.duration_seconds` está preenchido.
+
+```json
+{
+  "version": "1.0",
+  "event": "monitor_up",
+  "timestamp": "2026-04-20T10:15:30Z",
+  "monitor": { "id": "f0e1d2c3-...", "url": "https://exemplo.com", "health_status": "up" },
+  "incident": {
+    "id": "a1b2c3d4-...",
+    "type": "downtime",
+    "started_at": "2026-04-20T10:00:00Z",
+    "resolved_at": "2026-04-20T10:15:30Z",
+    "duration_seconds": 930,
+    "root_cause": "connection refused"
+  }
+}
+```
+
+Use o `incident.id` para correlacionar o `monitor_up` com seu `monitor_down` correspondente e fechar a página no seu sistema de incidentes.
+
+### Ping de teste — `event: "test_ping"`
+
+Disparado apenas quando você clica em **Enviar Teste** na página do canal (ou chama a API equivalente). O payload carrega o **canal** — não um monitor ou incidente — para o seu receptor confirmar que a integração está funcionando sem precisar simular uma queda.
+
+```json
+{
+  "version": "1.0",
+  "event": "test_ping",
+  "timestamp": "2026-04-20T10:00:00Z",
+  "channel": {
+    "id": "9c8b7a6e-...",
+    "name": "PagerDuty produção",
+    "type": "webhook"
+  }
+}
+```
+
+### Como responder
+
+| Status HTTP | O que o Holter faz |
+|-------------|-------------------|
+| `2xx` | Considera a entrega confirmada e segue em frente. |
+| Qualquer outro | Registra uma falha nos [logs de entrega](channel-logs.md) e tenta novamente com o backoff padrão do Oban (até 20 tentativas). |
+
+Retorne `2xx` assim que tiver **persistido** o alerta (ex: enfileirado) — não espere por provedores de paging downstream. Um `2xx` lento é melhor que um `5xx`, mas uma requisição que não termina em **15 segundos** é tratada como falha e re-tentada.
 
 ## Relacionado
 
