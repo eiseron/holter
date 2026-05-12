@@ -156,6 +156,17 @@ defmodule HolterWeb do
     end
   end
 
+  def admin_live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {HolterWeb.Layouts, :admin}
+
+      on_mount HolterWeb.ObservabilityHook
+
+      unquote(html_helpers())
+    end
+  end
+
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,

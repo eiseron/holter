@@ -31,6 +31,7 @@ defmodule HolterWeb.Authorization do
   alias Holter.Delivery.Policies, as: D
   alias Holter.Identity.Policies, as: I
   alias Holter.Monitoring.Policies, as: M
+  alias Holter.System.Policies, as: S
 
   @doc """
   Authorizes `user` to perform `action` on `subject`. Returns `:ok` or
@@ -53,10 +54,12 @@ defmodule HolterWeb.Authorization do
   defp policy_for(%Holter.Delivery.Models.EmailChannel{}), do: D.EmailChannel
   defp policy_for(%Holter.Delivery.Models.WebhookChannel{}), do: D.WebhookChannel
   defp policy_for(%Holter.Identity.Models.ApiToken{}), do: I.ApiToken
+  defp policy_for(%Holter.System.Models.Admin{}), do: S.Admin
 
   defp policy_for_module(Holter.Monitoring.Models.Monitor), do: M.Monitor
   defp policy_for_module(Holter.Monitoring.Models.Workspace), do: M.Workspace
   defp policy_for_module(Holter.Delivery.Models.EmailChannel), do: D.EmailChannel
   defp policy_for_module(Holter.Delivery.Models.WebhookChannel), do: D.WebhookChannel
   defp policy_for_module(Holter.Identity.Models.ApiToken), do: I.ApiToken
+  defp policy_for_module(Holter.System.Models.Admin), do: S.Admin
 end

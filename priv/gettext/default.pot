@@ -1285,13 +1285,13 @@ msgstr ""
 msgid "SSL certificate expires"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_registration_live.html.heex:52
+#: lib/holter_web/web/identity/user_registration_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Already have an account?"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_registration_live.html.heex:34
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:19
+#: lib/holter_web/web/identity/user_registration_live.html.heex:24
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:15
 #, elixir-autogen, elixir-format
 msgid "At least 12 characters with uppercase, lowercase, and a digit."
 msgstr ""
@@ -1321,17 +1321,17 @@ msgstr ""
 msgid "Create Webhook Channel"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_registration_live.html.heex:48
+#: lib/holter_web/web/identity/user_registration_live.html.heex:38
 #, elixir-autogen, elixir-format
 msgid "Create account"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:30
+#: lib/holter_web/web/identity/user_login_live.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Create an account"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_registration_live.html.heex:2
+#: lib/holter_web/web/identity/user_registration_live.html.heex:1
 #, elixir-autogen, elixir-format
 msgid "Create your Holter account"
 msgstr ""
@@ -1367,7 +1367,7 @@ msgstr ""
 msgid "Failed to regenerate the signing token"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_registration_live.html.heex:41
+#: lib/holter_web/web/identity/user_registration_live.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "I have read and agree to the Terms of Use and Privacy Policy."
 msgstr ""
@@ -1394,7 +1394,7 @@ msgstr ""
 msgid "New email channel"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:29
+#: lib/holter_web/web/identity/user_login_live.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "New to Holter?"
 msgstr ""
@@ -1404,8 +1404,8 @@ msgstr ""
 msgid "New webhook channel"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:17
-#: lib/holter_web/web/identity/user_registration_live.html.heex:21
+#: lib/holter_web/web/identity/user_login_live.html.heex:20
+#: lib/holter_web/web/identity/user_registration_live.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "Password"
 msgstr ""
@@ -1416,13 +1416,13 @@ msgid "Pick the channel type. You can create more later."
 msgstr ""
 
 #: lib/holter_web/web/identity/user_login_live.ex:8
-#: lib/holter_web/web/identity/user_login_live.html.heex:21
-#: lib/holter_web/web/identity/user_registration_live.html.heex:53
+#: lib/holter_web/web/identity/user_login_live.html.heex:25
+#: lib/holter_web/web/identity/user_registration_live.html.heex:44
 #, elixir-autogen, elixir-format
 msgid "Sign in"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_login_live.html.heex:2
+#: lib/holter_web/web/identity/user_login_live.html.heex:1
 #, elixir-autogen, elixir-format
 msgid "Sign in to Holter"
 msgstr ""
@@ -1533,25 +1533,25 @@ msgstr ""
 msgid "can't be blank"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:34
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:42
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:26
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:34
 #, elixir-autogen, elixir-format
 msgid "Back to sign in"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:24
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "Confirm new password"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:5
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Enter your account email. If it exists, we will send you reset instructions."
 msgstr ""
 
 #: lib/holter_web/web/identity/user_forgot_password_live.ex:12
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:2
-#: lib/holter_web/web/identity/user_login_live.html.heex:25
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:1
+#: lib/holter_web/web/identity/user_login_live.html.heex:29
 #, elixir-autogen, elixir-format
 msgid "Forgot your password?"
 msgstr ""
@@ -1561,18 +1561,18 @@ msgstr ""
 msgid "If this email exists, you will receive instructions."
 msgstr ""
 
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:6
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "New password"
 msgstr ""
 
-#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:30
+#: lib/holter_web/web/identity/user_forgot_password_live.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "Send instructions"
 msgstr ""
 
 #: lib/holter_web/web/identity/user_reset_password_live.ex:10
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:2
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:1
 #, elixir-autogen, elixir-format
 msgid "Set a new password"
 msgstr ""
@@ -1582,7 +1582,7 @@ msgstr ""
 msgid "This reset link is invalid or has expired."
 msgstr ""
 
-#: lib/holter_web/web/identity/user_reset_password_live.html.heex:38
+#: lib/holter_web/web/identity/user_reset_password_live.html.heex:30
 #, elixir-autogen, elixir-format
 msgid "Update password"
 msgstr ""
@@ -1817,7 +1817,7 @@ msgstr ""
 msgid "If you did not expect this email, do not trust messages claiming to be from Holter that omit this code."
 msgstr ""
 
-#: lib/holter/delivery/emails/alert_down.ex:84
+#: lib/holter/delivery/emails/alert_down.ex:86
 #, elixir-autogen, elixir-format
 msgid "Incident type: %{type}"
 msgstr ""
@@ -1854,12 +1854,12 @@ msgstr ""
 msgid "Resolved: %{url} is back up"
 msgstr ""
 
-#: lib/holter/delivery/emails/alert_down.ex:86
+#: lib/holter/delivery/emails/alert_down.ex:88
 #, elixir-autogen, elixir-format
 msgid "Root cause: %{cause}"
 msgstr ""
 
-#: lib/holter/delivery/emails/alert_down.ex:85
+#: lib/holter/delivery/emails/alert_down.ex:87
 #, elixir-autogen, elixir-format
 msgid "Started at: %{started_at}"
 msgstr ""
@@ -1890,7 +1890,7 @@ msgstr ""
 msgid "Verification code: %{code}"
 msgstr ""
 
-#: lib/holter/delivery/emails/alert_down.ex:86
+#: lib/holter/delivery/emails/alert_down.ex:88
 #, elixir-autogen, elixir-format
 msgid "unknown"
 msgstr ""
@@ -2131,6 +2131,97 @@ msgstr ""
 #: lib/holter_web/components/layouts.ex:13
 #, elixir-autogen, elixir-format
 msgid "You have unsaved changes. Leave without saving?"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:14
+#: lib/holter_web/web/admin/dashboard_live.ex:22
+#, elixir-autogen, elixir-format
+msgid "Admin Panel"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:48
+#, elixir-autogen, elixir-format
+msgid "Append-only history of every admin action."
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:48
+#: lib/holter_web/web/admin/dashboard_live.ex:47
+#, elixir-autogen, elixir-format
+msgid "Audit log"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:34
+#: lib/holter_web/web/admin/dashboard_live.ex:39
+#: lib/holter_web/web/admin/dashboard_live.ex:44
+#: lib/holter_web/web/admin/dashboard_live.ex:49
+#, elixir-autogen, elixir-format
+msgid "Coming soon"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:38
+#, elixir-autogen, elixir-format
+msgid "Cross-workspace visibility for support."
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:56
+#, elixir-autogen, elixir-format
+msgid "Exit admin"
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:42
+#: lib/holter_web/web/admin/dashboard_live.ex:42
+#, elixir-autogen, elixir-format
+msgid "Feature flags"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:43
+#, elixir-autogen, elixir-format
+msgid "Global kill switch, beta overrides, canary rollout."
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:24
+#, elixir-autogen, elixir-format
+msgid "God Mode foundation. Real admin features land in subsequent MRs — user CRM, impersonation, ban hammer, feature flags, and audit log viewer."
+msgstr ""
+
+#: lib/holter_web/components/layouts/admin.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "God mode"
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:24
+#, elixir-autogen, elixir-format
+msgid "Holter — Admin"
+msgstr ""
+
+#: lib/holter_web/web/admin/dashboard_live.ex:33
+#, elixir-autogen, elixir-format
+msgid "Search, inspect, impersonate, ban."
+msgstr ""
+
+#: lib/holter_web/components/layouts/admin.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "Sign out"
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:31
+#: lib/holter_web/components/admin_sidebar.ex:37
+#: lib/holter_web/components/admin_sidebar.ex:43
+#: lib/holter_web/components/admin_sidebar.ex:49
+#, elixir-autogen, elixir-format
+msgid "Soon"
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:30
+#: lib/holter_web/web/admin/dashboard_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Users"
+msgstr ""
+
+#: lib/holter_web/components/admin_sidebar.ex:36
+#: lib/holter_web/web/admin/dashboard_live.ex:37
+#, elixir-autogen, elixir-format
+msgid "Workspaces"
 msgstr ""
 
 #: lib/holter_web/web/workspaces/api_tokens_live.ex:85

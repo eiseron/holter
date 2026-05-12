@@ -1,0 +1,66 @@
+.h-admin-content {
+  padding: var(--space-8);
+}
+
+.h-admin-content-header {
+  margin-bottom: var(--space-6);
+}
+
+.h-admin-content-header h1 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+
+.h-admin-lede {
+  font-size: var(--text-sm);
+  opacity: 0.7;
+  max-width: 60ch;
+  margin: 0;
+}
+
+.h-admin-feature-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.h-admin-feature-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  background-color: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h-admin-feature-card h2 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0;
+}
+
+.h-admin-feature-card p {
+  font-size: var(--text-sm);
+  opacity: 0.7;
+  margin: 0;
+}
+
+.h-admin-feature-card--soon {
+  opacity: 0.6;
+}
+
+.h-admin-feature-status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: var(--radius-badge);
+  background-color: rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}

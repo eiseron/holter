@@ -53,9 +53,11 @@ defmodule Holter.Credo.Check.Design.RequireBodyguardPermit do
     dispatch_test_
     enqueue_
     recalculate_
+    promote_
+    demote_
   )
 
-  @guarded_namespaces [:Monitoring, :Delivery, :Identity]
+  @guarded_namespaces [:Monitoring, :Delivery, :Identity, :System]
 
   # Functions where the actor acts on its own identity (login, logout,
   # registration, password reset, locale preference). There is no third

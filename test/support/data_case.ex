@@ -28,6 +28,7 @@ defmodule Holter.DataCase do
       import Holter.DataCase
       import Holter.IdentityFixtures
       import Holter.MonitoringFixtures
+      import Holter.SystemFixtures
       import Mox
     end
   end

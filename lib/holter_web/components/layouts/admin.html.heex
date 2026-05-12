@@ -1,0 +1,19 @@
+<div class="h-workspace-layout h-admin-layout">
+  <HolterWeb.Components.AdminSidebar.admin_sidebar
+    current_user={@current_user}
+    current_view={@socket.view}
+  />
+  <main class="h-workspace-main h-admin-main">
+    <header class="h-admin-topbar" role="banner">
+      <span class="h-admin-env">{gettext("God mode")}</span>
+      <.link navigate={~p"/identity/user/#{@current_user.id}"} class="h-admin-actor">
+        {@current_user.email}
+      </.link>
+      <.link href={~p"/identity/logout"} method="delete" class="h-admin-signout">
+        {gettext("Sign out")}
+      </.link>
+    </header>
+    <.flash_group flash={@flash} />
+    {@inner_content}
+  </main>
+</div>

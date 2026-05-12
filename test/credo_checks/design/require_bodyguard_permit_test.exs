@@ -153,6 +153,46 @@ defmodule Holter.Credo.Check.Design.RequireBodyguardPermitTest do
       assert RequireBodyguardPermit.run(source) == []
     end
 
+    test "flags mutations in the System namespace" do
+      source =
+        """
+        defmodule HolterWeb.Web.Admin.UserController do
+          def promote(conn, %{"id" => id}) do
+            user = Identity.get_user!(id)
+            actor = Holter.System.Admins.fetch_for_user(conn.assigns.current_user)
+            {:ok, _} = Holter.System.Admins.promote_user(user, actor)
+            send_resp(conn, :ok, "")
+          end
+        end
+        """
+        |> parse("lib/holter_web/web/admin/user_controller.ex")
+
+      [issue] = RequireBodyguardPermit.run(source)
+
+      assert issue.message =~ "promote"
+    end
+
+    test "passes when System mutation is preceded by authorize/3" do
+      source =
+        """
+        defmodule HolterWeb.Web.Admin.UserController do
+          def promote(conn, %{"id" => id}) do
+            actor = conn.assigns.current_user
+            user = Identity.get_user!(id)
+
+            with :ok <- authorize(actor, :promote, user),
+                 actor_admin = Holter.System.Admins.fetch_for_user(actor),
+                 {:ok, _} <- Holter.System.Admins.promote_user(user, actor_admin) do
+              send_resp(conn, :ok, "")
+            end
+          end
+        end
+        """
+        |> parse("lib/holter_web/web/admin/user_controller.ex")
+
+      assert RequireBodyguardPermit.run(source) == []
+    end
+
     test "message identifies the offending function name" do
       source =
         """

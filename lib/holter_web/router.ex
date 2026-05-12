@@ -133,6 +133,18 @@ defmodule HolterWeb.Router do
     end
   end
 
+  scope "/admin", HolterWeb.Web.Admin do
+    pipe_through :browser
+
+    live_session :authenticated_admin,
+      on_mount: [
+        {HolterWeb.Hooks.AdminAuthHook, :require_admin},
+        HolterWeb.Hooks.LocaleHook
+      ] do
+      live "/", DashboardLive, :show
+    end
+  end
+
   scope "/delivery/workspaces/:workspace_slug", HolterWeb.Web.Delivery do
     pipe_through :browser
 

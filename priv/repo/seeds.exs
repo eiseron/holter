@@ -7,12 +7,14 @@ Code.require_file("seeds/identity/users.exs", __DIR__)
 Code.require_file("seeds/identity/api_tokens.exs", __DIR__)
 Code.require_file("seeds/delivery/webhook_channels.exs", __DIR__)
 Code.require_file("seeds/delivery/email_channels.exs", __DIR__)
+Code.require_file("seeds/system/admins.exs", __DIR__)
 
 alias Holter.Monitoring.Models.Workspace
 alias Holter.Repo
 alias Holter.Seeds.Delivery.{EmailChannels, WebhookChannels}
 alias Holter.Seeds.Identity.{ApiTokens, Users}
 alias Holter.Seeds.Monitoring.{DailyMetrics, Incidents, Monitors, Workspaces}
+alias Holter.Seeds.System, as: SeedsSystem
 
 if Repo.aggregate(Workspace, :count) == 0 do
   workspace = Workspaces.create_default()
@@ -24,4 +26,5 @@ if Repo.aggregate(Workspace, :count) == 0 do
   ApiTokens.create_dev(user, workspace)
   WebhookChannels.create_for(workspace, monitors)
   EmailChannels.create_for(workspace, monitors)
+  SeedsSystem.Admins.bootstrap_dev(user)
 end
