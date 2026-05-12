@@ -143,6 +143,7 @@ defmodule HolterWeb.Router do
       ] do
       live "/", DashboardLive, :show
       live "/users", UsersLive, :index
+      live "/users/:id", UsersLive.Show, :show
     end
   end
 

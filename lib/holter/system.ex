@@ -18,4 +18,5 @@ defmodule Holter.System do
   defdelegate log_audit!(params), to: AuditLogs, as: :log!
 
   defdelegate list_users(params \\ %{}), to: Users
+  defdelegate get_user_with_associations!(id), to: Users, as: :get_with_associations!
 end

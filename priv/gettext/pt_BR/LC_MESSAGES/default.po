@@ -33,7 +33,7 @@ msgstr "Intervalo de Verificação"
 msgid "Configure technical details, security rules, and intervals."
 msgstr "Configure os detalhes técnicos, regras de segurança e intervalos."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:24
+#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:27
 #, elixir-autogen, elixir-format
 msgid "Create Monitor"
 msgstr "Criar Monitor"
@@ -60,7 +60,7 @@ msgstr "Padrões de Intervalo"
 msgid "Method"
 msgstr "Método"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:59
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:61
 #, elixir-autogen, elixir-format
 msgid "Monitor created successfully"
 msgstr "Monitor criado com sucesso"
@@ -75,7 +75,7 @@ msgstr "Não Deve Conter (Desfigurações)"
 #: lib/holter_web/web/identity/user_live/show.html.heex:33
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:79
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:24
-#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:23
+#: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:26
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:108
 #: lib/holter_web/web/workspaces/show_live.html.heex:32
 #, elixir-autogen, elixir-format
@@ -246,6 +246,9 @@ msgid "Yes, Delete Completely"
 msgstr "Sim, Excluir Definitivamente"
 
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:239
+#: lib/holter_web/web/admin/users_live.ex:22
+#: lib/holter_web/web/admin/users_live.html.heex:35
+#: lib/holter_web/web/admin/users_live/show.ex:15
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:124
 #, elixir-autogen, elixir-format
 msgid "Active"
@@ -267,7 +270,7 @@ msgstr "Histórico Diário de Uptime"
 msgid "Date"
 msgstr "Data"
 
-#: lib/holter/monitoring/incidents.ex:68
+#: lib/holter/monitoring/incidents.ex:69
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:78
 #: lib/holter_web/web/live/monitoring/monitor_live/daily_metrics.html.heex:66
 #, elixir-autogen, elixir-format
@@ -317,6 +320,8 @@ msgstr "Cabeçalhos de Resposta"
 msgid "Run Now"
 msgstr "Executar Agora"
 
+#: lib/holter_web/web/admin/users_live.html.heex:30
+#: lib/holter_web/web/admin/users_live.html.heex:60
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:33
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:77
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:33
@@ -392,10 +397,10 @@ msgstr "Falha ao disparar a verificação"
 msgid "From"
 msgstr "De"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:27
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:10
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:18
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:39
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:29
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:14
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:22
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "New Monitor"
 msgstr "Novo Monitor"
@@ -457,13 +462,14 @@ msgstr "Desconhecido"
 msgid "Up"
 msgstr "Ativo"
 
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:7
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:8
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached (%{max}/%{max})"
 msgstr "Limite de monitores atingido (%{max}/%{max})"
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:16
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:75
+#: lib/holter/monitoring/models/monitor.ex:226
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:18
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:77
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace (max: %{max})"
 msgstr "Limite de monitores atingido para este workspace (máximo: %{max})"
@@ -503,8 +509,8 @@ msgstr "Você tem alterações não salvas. Por favor, salve-as antes de verific
 #: lib/holter_web/web/live/delivery/channels_live/new.ex:18
 #: lib/holter_web/web/live/delivery/email_channel_live/new.ex:34
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:30
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:34
-#: lib/holter_web/web/live/monitoring/monitors_live.ex:25
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:36
+#: lib/holter_web/web/live/monitoring/monitors_live.ex:26
 #, elixir-autogen, elixir-format
 msgid "Workspace not found"
 msgstr "Workspace não encontrado"
@@ -534,7 +540,7 @@ msgstr "Certificado expira em %{days} dias (Aviso)"
 msgid "HTTP Error: %{status}"
 msgstr "Erro HTTP: %{status}"
 
-#: lib/holter/monitoring/models/monitor.ex:173
+#: lib/holter/monitoring/models/monitor.ex:174
 #, elixir-autogen, elixir-format
 msgid "Monitor limit reached for this workspace"
 msgstr "Limite de monitores atingido para este workspace"
@@ -544,47 +550,47 @@ msgstr "Limite de monitores atingido para este workspace"
 msgid "SSL Error: %{reason}"
 msgstr "Erro SSL: %{reason}"
 
-#: lib/holter/monitoring/models/workspace.ex:131
+#: lib/holter/monitoring/models/workspace.ex:79
 #, elixir-autogen, elixir-format
 msgid "cannot be changed after creation"
 msgstr "não pode ser alterado após a criação"
 
-#: lib/holter/monitoring/models/monitor.ex:292
+#: lib/holter/monitoring/models/monitor.ex:336
 #, elixir-autogen, elixir-format
 msgid "cannot have more than %{max_keywords} keywords (got %{count})"
 msgstr "não pode ter mais de %{max_keywords} palavras-chave (tem %{count})"
 
-#: lib/holter/monitoring/models/monitor.ex:370
+#: lib/holter/monitoring/models/monitor.ex:414
 #, elixir-autogen, elixir-format
 msgid "is a restricted internal address"
 msgstr "é um endereço interno restrito"
 
-#: lib/holter/monitoring/models/monitor.ex:267
+#: lib/holter/monitoring/models/monitor.ex:311
 #, elixir-autogen, elixir-format
 msgid "is only applicable to HTTPS URLs"
 msgstr "é aplicável apenas a URLs HTTPS"
 
-#: lib/holter/monitoring/models/monitor.ex:335
+#: lib/holter/monitoring/models/monitor.ex:379
 #, elixir-autogen, elixir-format
 msgid "must be a valid JSON object"
 msgstr "deve ser um objeto JSON válido"
 
-#: lib/holter/monitoring/models/monitor.ex:255
+#: lib/holter/monitoring/models/monitor.ex:299
 #, elixir-autogen, elixir-format
 msgid "must be a valid JSON string"
 msgstr "deve ser uma string JSON válida"
 
-#: lib/holter/monitoring/models/monitor.ex:383
+#: lib/holter/monitoring/models/monitor.ex:427
 #, elixir-autogen, elixir-format
 msgid "must be a valid http or https URL"
 msgstr "deve ser uma URL http ou https válida"
 
-#: lib/holter/monitoring/models/monitor.ex:233
+#: lib/holter/monitoring/models/monitor.ex:277
 #, elixir-autogen, elixir-format
 msgid "must be empty for %{method} requests"
 msgstr "deve estar vazio para requisições %{method}"
 
-#: lib/holter/monitoring/models/monitor.ex:214
+#: lib/holter/monitoring/models/monitor.ex:258
 #, elixir-autogen, elixir-format
 msgid "must be less than the check interval (%{interval}s)"
 msgstr "deve ser menor que o intervalo de verificação (%{interval}s)"
@@ -666,7 +672,7 @@ msgstr "A conexão falhou antes de receber uma resposta (sem código de status H
 msgid "Too many checks in the last minute. Please wait."
 msgstr "Muitas verificações no último minuto. Por favor, aguarde."
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:85
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:87
 #, elixir-autogen, elixir-format
 msgid "Too many monitors created recently. Please wait before creating another."
 msgstr "Muitos monitores criados recentemente. Aguarde antes de criar outro."
@@ -707,7 +713,7 @@ msgstr "Todos os Estados"
 msgid "All Types"
 msgstr "Todos os Tipos"
 
-#: lib/holter/monitoring/incidents.ex:69
+#: lib/holter/monitoring/incidents.ex:70
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:82
 #, elixir-autogen, elixir-format
 msgid "Defacement"
@@ -748,6 +754,7 @@ msgid "No logs match the current filters"
 msgstr "Nenhum log corresponde aos filtros atuais"
 
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:95
+#: lib/holter_web/web/admin/dashboard_live.ex:37
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:38
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:94
@@ -786,7 +793,7 @@ msgstr "Resultados"
 msgid "Root Cause"
 msgstr "Causa Raiz"
 
-#: lib/holter/monitoring/incidents.ex:70
+#: lib/holter/monitoring/incidents.ex:71
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:86
 #, elixir-autogen, elixir-format
 msgid "SSL Expiry"
@@ -871,12 +878,14 @@ msgstr "Ver incidente"
 msgid "View log"
 msgstr "Ver log"
 
+#: lib/holter_web/web/admin/users_live.html.heex:49
+#: lib/holter_web/web/admin/users_live/show.html.heex:20
 #: lib/holter_web/web/identity/user_forgot_password_live.html.heex:16
 #: lib/holter_web/web/identity/user_login_live.html.heex:12
 #: lib/holter_web/web/identity/user_registration_live.html.heex:6
 #, elixir-autogen, elixir-format
 msgid "Email"
-msgstr "E-mail"
+msgstr "Email"
 
 #: lib/holter_web/web/live/delivery/email_channel_live/show.ex:134
 #: lib/holter_web/web/live/delivery/webhook_channel_live/show.ex:108
@@ -901,6 +910,7 @@ msgstr "Linha do tempo de incidentes"
 
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:17
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:17
+#: lib/holter_web/web/admin/users_live/show.html.heex:71
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:37
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
@@ -973,7 +983,7 @@ msgid "Edit"
 msgstr "Editar"
 
 #: lib/holter_web/components/workspace_sidebar_live.ex:46
-#: lib/holter_web/web/live/monitoring/monitors_live.ex:19
+#: lib/holter_web/web/live/monitoring/monitors_live.ex:20
 #: lib/holter_web/web/live/monitoring/monitors_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Monitors"
@@ -1015,10 +1025,13 @@ msgstr "Link expirado"
 msgid "Link not found"
 msgstr "Link não encontrado"
 
+#: lib/holter_web/web/admin/users_live.ex:21
+#: lib/holter_web/web/admin/users_live.html.heex:34
+#: lib/holter_web/web/admin/users_live/show.ex:14
 #: lib/holter_web/web/live/delivery/email_channel_live/show.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Pending verification"
-msgstr "Verificação pendente"
+msgstr "Aguardando verificação"
 
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:65
 #: lib/holter_web/web/live/delivery/email_channel_live/show.html.heex:109
@@ -1244,7 +1257,7 @@ msgstr "Aguarde antes de enviar outro ping de teste para este canal."
 msgid "Check this to disable WHOIS/RDAP lookups for this monitor's domain."
 msgstr "Marque esta opção para desabilitar consultas WHOIS/RDAP no domínio deste monitor."
 
-#: lib/holter/monitoring/incidents.ex:71
+#: lib/holter/monitoring/incidents.ex:72
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:90
 #, elixir-autogen, elixir-format
 msgid "Domain Expiry"
@@ -1721,12 +1734,13 @@ msgid "Portuguese (Brazil)"
 msgstr "Português (Brasil)"
 
 #: lib/holter/identity/models/user.ex:66
-#: lib/holter/monitoring/models/workspace.ex:105
+#: lib/holter/monitoring/models/workspace.ex:53
 #, elixir-autogen, elixir-format
 msgid "is not a supported locale"
 msgstr "não é um idioma suportado"
 
 #: lib/holter_web/components/user_sidebar.ex:68
+#: lib/holter_web/web/admin/users_live/show.ex:21
 #, elixir-autogen, elixir-format
 msgid "Admin"
 msgstr "Admin"
@@ -1737,6 +1751,7 @@ msgid "General"
 msgstr "Geral"
 
 #: lib/holter_web/components/user_sidebar.ex:69
+#: lib/holter_web/web/admin/users_live/show.ex:22
 #, elixir-autogen, elixir-format
 msgid "Member"
 msgstr "Membro"
@@ -1750,6 +1765,7 @@ msgid "My account"
 msgstr "Minha conta"
 
 #: lib/holter_web/components/user_sidebar.ex:67
+#: lib/holter_web/web/admin/users_live/show.ex:20
 #, elixir-autogen, elixir-format
 msgid "Owner"
 msgstr "Dono"
@@ -2083,7 +2099,7 @@ msgstr "Ver workspace"
 msgid "Create a channel to start receiving alerts when incidents occur."
 msgstr "Crie um canal para começar a receber alertas quando incidentes ocorrerem."
 
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:28
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Create your first monitor to start tracking uptime and latency."
 msgstr "Crie seu primeiro monitor para começar a rastrear disponibilidade e latência."
@@ -2113,7 +2129,7 @@ msgstr "Nenhum incidente corresponde aos filtros selecionados. Tente limpá-los 
 msgid "No monitors in this workspace yet"
 msgstr "Nenhum monitor neste workspace ainda"
 
-#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:27
+#: lib/holter_web/web/live/monitoring/monitors_live.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "No monitors yet"
 msgstr "Nenhum monitor ainda"
@@ -2139,42 +2155,41 @@ msgstr "Você tem alterações não salvas. Sair sem salvar?"
 msgid "Admin Panel"
 msgstr "Painel Administrativo"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:48
+#: lib/holter_web/web/admin/dashboard_live.ex:52
 #, elixir-autogen, elixir-format
 msgid "Append-only history of every admin action."
 msgstr "Histórico append-only de toda ação administrativa."
 
-#: lib/holter_web/components/admin_sidebar.ex:48
-#: lib/holter_web/web/admin/dashboard_live.ex:47
+#: lib/holter_web/components/admin_sidebar.ex:52
+#: lib/holter_web/web/admin/dashboard_live.ex:51
 #, elixir-autogen, elixir-format
 msgid "Audit log"
 msgstr "Log de auditoria"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:34
-#: lib/holter_web/web/admin/dashboard_live.ex:39
-#: lib/holter_web/web/admin/dashboard_live.ex:44
-#: lib/holter_web/web/admin/dashboard_live.ex:49
+#: lib/holter_web/web/admin/dashboard_live.ex:43
+#: lib/holter_web/web/admin/dashboard_live.ex:48
+#: lib/holter_web/web/admin/dashboard_live.ex:53
 #, elixir-autogen, elixir-format
 msgid "Coming soon"
 msgstr "Em breve"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:38
+#: lib/holter_web/web/admin/dashboard_live.ex:42
 #, elixir-autogen, elixir-format
 msgid "Cross-workspace visibility for support."
 msgstr "Visibilidade entre workspaces para suporte."
 
-#: lib/holter_web/components/admin_sidebar.ex:56
+#: lib/holter_web/components/admin_sidebar.ex:60
 #, elixir-autogen, elixir-format
 msgid "Exit admin"
 msgstr "Sair do admin"
 
-#: lib/holter_web/components/admin_sidebar.ex:42
-#: lib/holter_web/web/admin/dashboard_live.ex:42
+#: lib/holter_web/components/admin_sidebar.ex:46
+#: lib/holter_web/web/admin/dashboard_live.ex:46
 #, elixir-autogen, elixir-format
 msgid "Feature flags"
 msgstr "Feature flags"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:43
+#: lib/holter_web/web/admin/dashboard_live.ex:47
 #, elixir-autogen, elixir-format
 msgid "Global kill switch, beta overrides, canary rollout."
 msgstr "Kill switch global, overrides beta, rollout canário."
@@ -2189,37 +2204,37 @@ msgstr "Fundação do God Mode. Features reais chegam em MRs seguintes — CRM d
 msgid "God mode"
 msgstr "God mode"
 
-#: lib/holter_web/components/admin_sidebar.ex:24
+#: lib/holter_web/components/admin_sidebar.ex:23
 #, elixir-autogen, elixir-format
 msgid "Holter — Admin"
 msgstr "Holter — Admin"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:33
+#: lib/holter_web/web/admin/dashboard_live.ex:35
 #, elixir-autogen, elixir-format
 msgid "Search, inspect, impersonate, ban."
 msgstr "Buscar, inspecionar, personificar, banir."
 
-#: lib/holter_web/components/layouts/admin.html.heex:11
+#: lib/holter_web/components/layouts/admin.html.heex:13
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Sign out"
 msgstr "Sair"
 
-#: lib/holter_web/components/admin_sidebar.ex:31
-#: lib/holter_web/components/admin_sidebar.ex:37
-#: lib/holter_web/components/admin_sidebar.ex:43
-#: lib/holter_web/components/admin_sidebar.ex:49
+#: lib/holter_web/components/admin_sidebar.ex:41
+#: lib/holter_web/components/admin_sidebar.ex:47
+#: lib/holter_web/components/admin_sidebar.ex:53
 #, elixir-autogen, elixir-format
 msgid "Soon"
 msgstr "Em breve"
 
-#: lib/holter_web/components/admin_sidebar.ex:30
-#: lib/holter_web/web/admin/dashboard_live.ex:32
+#: lib/holter_web/components/admin_sidebar.ex:35
+#: lib/holter_web/web/admin/dashboard_live.ex:33
+#: lib/holter_web/web/admin/users_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Users"
 msgstr "Usuários"
 
-#: lib/holter_web/components/admin_sidebar.ex:36
-#: lib/holter_web/web/admin/dashboard_live.ex:37
+#: lib/holter_web/components/admin_sidebar.ex:40
+#: lib/holter_web/web/admin/dashboard_live.ex:41
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Workspaces"
 msgstr "Workspaces"
@@ -2235,7 +2250,7 @@ msgstr ""
 msgid "You are not allowed to create channels in this workspace."
 msgstr ""
 
-#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:67
+#: lib/holter_web/web/live/monitoring/monitor_live/new.ex:69
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to create monitors in this workspace."
 msgstr ""
@@ -2293,3 +2308,173 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to update this workspace."
 msgstr ""
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:89
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Action"
+msgstr "Ações"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "Actor"
+msgstr "Ator"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "Admin actions"
+msgstr "Ações de admin"
+
+#: lib/holter_web/web/admin/users_live/show.ex:32
+#, elixir-autogen, elixir-format
+msgid "Admin · %{email}"
+msgstr "Admin · %{email}"
+
+#: lib/holter_web/web/admin/users_live.ex:31
+#, elixir-autogen, elixir-format
+msgid "Admin · Users"
+msgstr "Admin · Usuários"
+
+#: lib/holter_web/web/admin/users_live.html.heex:32
+#, elixir-autogen, elixir-format, fuzzy
+msgid "All statuses"
+msgstr "Todos os status"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:81
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Audit log (%{n})"
+msgstr "Log de auditoria (%{n})"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Ban user"
+msgstr "Banir usuário"
+
+#: lib/holter_web/web/admin/users_live.ex:24
+#: lib/holter_web/web/admin/users_live.html.heex:37
+#: lib/holter_web/web/admin/users_live/show.ex:17
+#, elixir-autogen, elixir-format
+msgid "Banned"
+msgstr "Banido"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:53
+#: lib/holter_web/web/admin/users_live/show.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Coming soon — depends on Billing"
+msgstr "Em breve — depende de Billing"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Coming soon — impersonation MR"
+msgstr "Em breve — MR de impersonation"
+
+#: lib/holter_web/web/admin/users_live.html.heex:71
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Created at"
+msgstr "Criado em"
+
+#: lib/holter_web/web/admin/users_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Cross-workspace user lookup. Total: %{n}."
+msgstr "Busca de usuários entre workspaces. Total: %{n}."
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:26
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Email verified at"
+msgstr "Email verificado em"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Grant manual plan"
+msgstr "Conceder plano manual"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Identity"
+msgstr "Identidade"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "Internal ID"
+msgstr "ID interno"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "Joined %{date}"
+msgstr "Entrou em %{date}"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "Locale"
+msgstr "Idioma"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:83
+#, elixir-autogen, elixir-format
+msgid "No admin actions on this user yet"
+msgstr "Nenhuma ação administrativa neste usuário ainda"
+
+#: lib/holter_web/web/admin/users_live.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "No users match the current filters"
+msgstr "Nenhum usuário corresponde aos filtros atuais"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:31
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Not verified"
+msgstr "Não verificado"
+
+#: lib/holter_web/web/admin/users_live.ex:23
+#: lib/holter_web/web/admin/users_live.html.heex:36
+#: lib/holter_web/web/admin/users_live/show.ex:16
+#, elixir-autogen, elixir-format
+msgid "Pending billing"
+msgstr "Aguardando cobrança"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:75
+#, elixir-autogen, elixir-format
+msgid "Role"
+msgstr "Papel"
+
+#: lib/holter_web/web/admin/users_live.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Search by email"
+msgstr "Buscar por email"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "Sign in as this user"
+msgstr "Acessar como este usuário"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Slug"
+msgstr "Slug"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "User has no workspace memberships"
+msgstr "Usuário sem workspaces vinculados"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "When"
+msgstr "Quando"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:66
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Workspaces (%{n})"
+msgstr "Workspaces (%{n})"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "default"
+msgstr "padrão"
+
+#: lib/holter_web/web/admin/users_live.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "substring or domain fragment"
+msgstr "trecho ou domínio"
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "system"
+msgstr "sistema"

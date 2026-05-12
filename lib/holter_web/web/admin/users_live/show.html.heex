@@ -1,0 +1,102 @@
+<section class="h-admin-content">
+  <.back_link navigate={~p"/admin/users"} />
+
+  <header class="h-admin-content-header">
+    <h1>{@user.email}</h1>
+    <p class="h-admin-lede">
+      <span class={"h-status-tag h-status-tag--" <> Atom.to_string(@user.onboarding_status)}>
+        {status_label(@user.onboarding_status)}
+      </span>
+      <span class="h-admin-meta">
+        {gettext("Joined %{date}", date: Calendar.strftime(@user.inserted_at, "%Y-%m-%d"))}
+      </span>
+    </p>
+  </header>
+
+  <div class="h-admin-grid">
+    <article class="h-admin-card">
+      <h2>{gettext("Identity")}</h2>
+      <dl class="h-admin-dl">
+        <dt>{gettext("Email")}</dt>
+        <dd>{@user.email}</dd>
+
+        <dt>{gettext("Internal ID")}</dt>
+        <dd class="h-font-mono">{@user.id}</dd>
+
+        <dt>{gettext("Email verified at")}</dt>
+        <dd>
+          <%= if @user.email_verified_at do %>
+            {Calendar.strftime(@user.email_verified_at, "%Y-%m-%d %H:%M UTC")}
+          <% else %>
+            <span class="h-admin-muted">{gettext("Not verified")}</span>
+          <% end %>
+        </dd>
+
+        <dt>{gettext("Locale")}</dt>
+        <dd>{@user.preferred_locale || gettext("default")}</dd>
+      </dl>
+    </article>
+
+    <article class="h-admin-card">
+      <h2>{gettext("Admin actions")}</h2>
+      <ul class="h-admin-actions">
+        <li>
+          <button type="button" class="h-btn h-btn-soft" disabled>
+            {gettext("Sign in as this user")}
+          </button>
+          <span class="h-admin-action-meta">{gettext("Coming soon")}</span>
+        </li>
+        <li>
+          <button type="button" class="h-btn h-btn-soft" disabled>
+            {gettext("Grant manual plan")}
+          </button>
+          <span class="h-admin-action-meta">{gettext("Coming soon")}</span>
+        </li>
+        <li>
+          <button type="button" class="h-btn h-btn-soft h-btn-danger-soft" disabled>
+            {gettext("Ban user")}
+          </button>
+          <span class="h-admin-action-meta">{gettext("Coming soon")}</span>
+        </li>
+      </ul>
+    </article>
+  </div>
+
+  <section class="h-admin-section">
+    <h2>{gettext("Workspaces (%{n})", n: length(@memberships))}</h2>
+    <%= if @memberships == [] do %>
+      <.empty_state title={gettext("User has no workspace memberships")} />
+    <% else %>
+      <.table id="admin-user-workspaces" rows={@memberships}>
+        <:col :let={m} label={gettext("Name")}>{m.workspace.name}</:col>
+        <:col :let={m} label={gettext("Slug")}>
+          <span class="h-font-mono">{m.workspace.slug}</span>
+        </:col>
+        <:col :let={m} label={gettext("Role")}>{role_label(m.role)}</:col>
+      </.table>
+    <% end %>
+  </section>
+
+  <section class="h-admin-section">
+    <h2>{gettext("Audit log (%{n})", n: length(@audit_log))}</h2>
+    <%= if @audit_log == [] do %>
+      <.empty_state title={gettext("No admin actions on this user yet")} />
+    <% else %>
+      <.table id="admin-user-audit" rows={@audit_log}>
+        <:col :let={a} label={gettext("When")}>
+          {Calendar.strftime(a.occurred_at, "%Y-%m-%d %H:%M:%S UTC")}
+        </:col>
+        <:col :let={a} label={gettext("Action")}>
+          <span class="h-font-mono">{a.action}</span>
+        </:col>
+        <:col :let={a} label={gettext("Actor")}>
+          <%= if a.actor_type == "system" do %>
+            <em>{gettext("system")}</em>
+          <% else %>
+            <span class="h-font-mono">{a.actor_id}</span>
+          <% end %>
+        </:col>
+      </.table>
+    <% end %>
+  </section>
+</section>

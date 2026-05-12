@@ -6,16 +6,24 @@ defmodule Holter.System.Users do
   authorization is gated by `Holter.System.Policies.User`, not by
   Identity's per-resource policies.
 
-  In MR1, exposes a single paginated list with email-substring search
-  and onboarding-status filter. MR2 will add `get_with_workspaces!/1`
-  to back the user detail page.
+  Exposes:
+
+    * `list_users/1` — paginated cross-workspace listing with email
+      substring search and onboarding-status filter.
+    * `get_with_associations!/1` — full detail view: the user plus
+      their workspaces (with role) and recent audit log entries about
+      them. Backs the `/admin/users/:id` detail page.
   """
 
   import Ecto.Query
 
   alias Holter.Identity.Models.User
+  alias Holter.Identity.Models.WorkspaceMembership
+  alias Holter.Monitoring.Models.Workspace
   alias Holter.Pagination
   alias Holter.Repo
+  alias Holter.Repo.Tenant
+  alias Holter.System.Models.AuditLog
 
   @sortable_columns %{
     "email" => :email,
@@ -52,6 +60,37 @@ defmodule Holter.System.Users do
   end
 
   def sortable_columns, do: Map.keys(@sortable_columns)
+
+  def get_with_associations!(id) do
+    user = Repo.get!(User, id)
+    memberships = list_memberships_for(user)
+    audit_log = recent_audit_log_for(user.id)
+
+    %{user: user, memberships: memberships, audit_log: audit_log}
+  end
+
+  defp list_memberships_for(%User{} = user) do
+    Tenant.with_user!(user, fn ->
+      Repo.all(
+        from m in WorkspaceMembership,
+          join: w in Workspace,
+          on: w.id == m.workspace_id,
+          where: m.user_id == ^user.id,
+          order_by: [asc: m.inserted_at],
+          select: %{role: m.role, workspace: w}
+      )
+    end)
+  end
+
+  defp recent_audit_log_for(user_id) do
+    resource = "User:" <> user_id
+
+    AuditLog
+    |> where([a], a.resource == ^resource)
+    |> order_by([a], desc: a.occurred_at)
+    |> limit(50)
+    |> Repo.all()
+  end
 
   defp maybe_filter_by_email(query, nil), do: query
   defp maybe_filter_by_email(query, ""), do: query

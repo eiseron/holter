@@ -51,7 +51,9 @@
         sort_active={@sort_info["email"].active}
         sort_dir={@sort_info["email"].dir}
       >
-        {user.email}
+        <.link navigate={~p"/admin/users/#{user.id}"} class="h-admin-link">
+          {user.email}
+        </.link>
       </:col>
       <:col
         :let={user}
