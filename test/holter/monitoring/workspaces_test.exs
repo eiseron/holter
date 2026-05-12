@@ -4,6 +4,19 @@ defmodule Holter.Monitoring.WorkspacesTest do
   alias Holter.I18n.Locale
   alias Holter.Monitoring
 
+  describe "create_workspace/1 — atomicity" do
+    test "returns {:ok, %Workspace{}} on success so transactional setup composes" do
+      assert {:ok, %Holter.Monitoring.Models.Workspace{slug: "acme-co"}} =
+               Monitoring.create_workspace(%{name: "Acme", slug: "acme-co"})
+    end
+
+    test "rolls back returning the changeset (not :rollback) when validation fails" do
+      {:error, %Ecto.Changeset{} = changeset} = Monitoring.create_workspace(%{name: nil})
+
+      assert "can't be blank" in errors_on(changeset).name
+    end
+  end
+
   describe "create_workspace/1 — default_locale" do
     test "uses the configured Gettext default when caller omits :default_locale" do
       {:ok, workspace} = Monitoring.create_workspace(%{name: "Acme"})

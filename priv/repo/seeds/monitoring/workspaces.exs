@@ -1,8 +1,7 @@
 defmodule Holter.Seeds.Monitoring.Workspaces do
   @moduledoc false
 
-  alias Holter.Monitoring.Models.Workspace
-  alias Holter.Repo
+  alias Holter.Monitoring
 
   def create_default do
     attrs = %{
@@ -12,11 +11,7 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
       default_locale: "pt_BR"
     }
 
-    workspace =
-      %Workspace{}
-      |> Workspace.changeset(attrs)
-      |> Repo.insert!()
-
+    {:ok, workspace} = Monitoring.create_workspace(attrs)
     IO.puts("[seeds] Created default workspace: dev")
     workspace
   end
@@ -29,11 +24,7 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
       default_locale: "en"
     }
 
-    workspace =
-      %Workspace{}
-      |> Workspace.changeset(attrs)
-      |> Repo.insert!()
-
+    {:ok, workspace} = Monitoring.create_workspace(attrs)
     IO.puts("[seeds] Created secondary workspace: dev-en")
     workspace
   end

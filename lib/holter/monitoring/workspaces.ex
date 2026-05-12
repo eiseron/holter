@@ -5,9 +5,15 @@ defmodule Holter.Monitoring.Workspaces do
   alias Holter.Repo
 
   def create_workspace(attrs) do
-    %Workspace{}
-    |> Workspace.changeset(attrs)
-    |> Repo.insert()
+    Repo.transaction(fn ->
+      %Workspace{}
+      |> Workspace.changeset(attrs)
+      |> Repo.insert()
+      |> case do
+        {:ok, workspace} -> workspace
+        {:error, changeset} -> Repo.rollback(changeset)
+      end
+    end)
   end
 
   @doc """
