@@ -12,11 +12,11 @@ defmodule Holter.Monitoring.Workers.LogsPruner do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"monitor_id" => monitor_id}}) do
-    case Repo.get(Monitor, monitor_id) |> Repo.preload(:workspace) do
+    case Repo.get(Monitor, monitor_id) |> Repo.preload(workspace: :monitoring_profile) do
       nil ->
         :ok
 
-      %Monitor{workspace: %{retention_days: retention_days}} ->
+      %Monitor{workspace: %{monitoring_profile: %{retention_days: retention_days}}} ->
         deleted_count = Logs.prune_logs_chunk(monitor_id, retention_days, @chunk_size)
 
         if deleted_count == @chunk_size do

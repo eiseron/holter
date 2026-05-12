@@ -1,16 +1,34 @@
 defmodule Holter.Monitoring.Workspaces do
   @moduledoc false
 
-  alias Holter.Monitoring.Models.Workspace
+  alias Holter.Monitoring.Models.{Workspace, WorkspaceProfile}
   alias Holter.Repo
+  alias Holter.Repo.Tenant
 
+  @profile_attr_keys ~w(
+    retention_days max_monitors min_interval_seconds
+    last_check_triggered_at
+    max_triggers_per_minute max_triggers_per_hour
+    max_creates_per_minute max_creates_per_hour
+  )a
+
+  @doc """
+  Inserts a workspace and its `Monitoring.WorkspaceProfile` row in a
+  single transaction. Profile keys can be passed flat at the top level
+  (e.g. `max_monitors: 10, min_interval_seconds: 60`) — they are
+  routed to the profile changeset internally.
+
+  The profile insert is stamped with the freshly-created workspace's
+  tenant context so the RLS WITH CHECK predicate passes.
+  """
   def create_workspace(attrs) do
+    {workspace_attrs, profile_attrs} = split_attrs(attrs)
+
     Repo.transaction(fn ->
-      %Workspace{}
-      |> Workspace.changeset(attrs)
-      |> Repo.insert()
-      |> case do
-        {:ok, workspace} -> workspace
+      with {:ok, workspace} <- insert_workspace(workspace_attrs),
+           {:ok, profile} <- insert_profile(workspace, profile_attrs) do
+        %{workspace | monitoring_profile: profile}
+      else
         {:error, changeset} -> Repo.rollback(changeset)
       end
     end)
@@ -46,129 +64,64 @@ defmodule Holter.Monitoring.Workspaces do
   end
 
   def update_workspace(%Workspace{} = workspace, attrs) do
-    workspace
-    |> Workspace.changeset(attrs)
-    |> Repo.update()
-  end
+    {workspace_attrs, profile_attrs} = split_attrs(attrs)
 
-  def consume_trigger_budget(%Workspace{} = workspace) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    {short_count, short_start} =
-      resolve_window(workspace, now, %{
-        type: :trigger,
-        window: :short,
-        seconds: Workspace.trigger_short_window_seconds()
-      })
-
-    {long_count, long_start} =
-      resolve_window(workspace, now, %{
-        type: :trigger,
-        window: :long,
-        seconds: Workspace.trigger_long_window_seconds()
-      })
-
-    cond do
-      short_count >= workspace.max_triggers_per_minute ->
-        {:error, :short_budget_exhausted}
-
-      long_count >= workspace.max_triggers_per_hour ->
-        {:error, :long_budget_exhausted}
-
-      true ->
-        apply_budget_update(
-          workspace,
-          {:trigger_short_count, :trigger_short_window_start, :trigger_long_count,
-           :trigger_long_window_start},
-          %{
-            short_count: short_count + 1,
-            short_start: short_start,
-            long_count: long_count + 1,
-            long_start: long_start
-          }
-        )
-    end
-  end
-
-  def consume_create_budget(%Workspace{} = workspace) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    {short_count, short_start} =
-      resolve_window(workspace, now, %{
-        type: :create,
-        window: :short,
-        seconds: Workspace.create_short_window_seconds()
-      })
-
-    {long_count, long_start} =
-      resolve_window(workspace, now, %{
-        type: :create,
-        window: :long,
-        seconds: Workspace.create_long_window_seconds()
-      })
-
-    cond do
-      short_count >= workspace.max_creates_per_minute ->
-        {:error, :create_rate_limited}
-
-      long_count >= workspace.max_creates_per_hour ->
-        {:error, :create_rate_limited}
-
-      true ->
-        apply_budget_update(
-          workspace,
-          {:create_short_count, :create_short_window_start, :create_long_count,
-           :create_long_window_start},
-          %{
-            short_count: short_count + 1,
-            short_start: short_start,
-            long_count: long_count + 1,
-            long_start: long_start
-          }
-        )
-    end
-  end
-
-  defp resolve_window(workspace, now, opts) do
-    type = opts.type
-    window = opts.window
-    window_seconds = opts.seconds
-
-    {count, window_start} =
-      case {type, window} do
-        {:trigger, :short} ->
-          {workspace.trigger_short_count, workspace.trigger_short_window_start}
-
-        {:trigger, :long} ->
-          {workspace.trigger_long_count, workspace.trigger_long_window_start}
-
-        {:create, :short} ->
-          {workspace.create_short_count, workspace.create_short_window_start}
-
-        {:create, :long} ->
-          {workspace.create_long_count, workspace.create_long_window_start}
+    Repo.transaction(fn ->
+      with {:ok, updated} <-
+             workspace |> Workspace.changeset(workspace_attrs) |> Repo.update(),
+           {:ok, _} <- maybe_update_profile(workspace.id, profile_attrs) do
+        updated
+      else
+        {:error, changeset} -> Repo.rollback(changeset)
       end
-
-    if window_start && DateTime.diff(now, window_start) < window_seconds do
-      {count, window_start}
-    else
-      {0, now}
-    end
+    end)
   end
 
-  defp apply_budget_update(%Workspace{} = workspace, fields, budget_data) do
-    {short_count, short_start, long_count, long_start} = fields
+  defp maybe_update_profile(_workspace_id, attrs) when map_size(attrs) == 0,
+    do: {:ok, :noop}
 
-    workspace
-    |> Ecto.Changeset.cast(
-      %{
-        short_count => budget_data.short_count,
-        short_start => budget_data.short_start,
-        long_count => budget_data.long_count,
-        long_start => budget_data.long_start
-      },
-      [short_count, short_start, long_count, long_start]
-    )
-    |> Repo.update()
+  defp maybe_update_profile(workspace_id, attrs) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      WorkspaceProfile
+      |> Repo.get_by!(workspace_id: workspace_id)
+      |> WorkspaceProfile.changeset(attrs)
+      |> Repo.update()
+    end)
+  end
+
+  defp split_attrs(attrs) do
+    {profile_attrs, workspace_attrs} =
+      attrs
+      |> normalize_keys()
+      |> Map.split(@profile_attr_keys)
+
+    {workspace_attrs, profile_attrs}
+  end
+
+  defp normalize_keys(attrs) when is_map(attrs) do
+    Map.new(attrs, fn
+      {k, v} when is_binary(k) -> {safe_to_atom(k), v}
+      {k, v} -> {k, v}
+    end)
+  end
+
+  defp safe_to_atom(key) do
+    String.to_existing_atom(key)
+  rescue
+    ArgumentError -> key
+  end
+
+  defp insert_workspace(attrs) do
+    %Workspace{}
+    |> Workspace.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  defp insert_profile(%Workspace{id: workspace_id}, attrs) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      %WorkspaceProfile{}
+      |> WorkspaceProfile.changeset(Map.put(attrs, :workspace_id, workspace_id))
+      |> Repo.insert()
+    end)
   end
 end

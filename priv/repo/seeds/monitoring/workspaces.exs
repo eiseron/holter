@@ -8,7 +8,8 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
       name: "Development",
       slug: "dev",
       min_interval_seconds: 60,
-      default_locale: "pt_BR"
+      default_locale: "pt_BR",
+      max_monitors: 50
     }
 
     {:ok, workspace} = Monitoring.create_workspace(attrs)
@@ -21,7 +22,8 @@ defmodule Holter.Seeds.Monitoring.Workspaces do
       name: "Development (EN)",
       slug: "dev-en",
       min_interval_seconds: 60,
-      default_locale: "en"
+      default_locale: "en",
+      max_monitors: 50
     }
 
     {:ok, workspace} = Monitoring.create_workspace(attrs)

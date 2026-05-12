@@ -53,7 +53,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLiveTest do
 
     test "Given a workspace at quota, when mounted, then the new monitor button is disabled",
          %{conn: conn, workspace: workspace} do
-      for _ <- 1..workspace.max_monitors do
+      for _ <- 1..workspace.monitoring_profile.max_monitors do
         monitor_fixture(%{workspace_id: workspace.id})
       end
 

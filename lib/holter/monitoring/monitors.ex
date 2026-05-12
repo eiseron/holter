@@ -29,7 +29,7 @@ defmodule Holter.Monitoring.Monitors do
   import Ecto.Query
 
   alias Holter.Identity.Tenant, as: IdentityTenant
-  alias Holter.Monitoring.{Broadcaster, Incidents, Pagination, Workspaces}
+  alias Holter.Monitoring.{Broadcaster, Incidents, Pagination, Profiles}
   alias Holter.Monitoring.Models.{Incident, Monitor, Workspace}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}
   alias Holter.Repo
@@ -142,14 +142,23 @@ defmodule Holter.Monitoring.Monitors do
     do_update_monitor(monitor, attrs)
   end
 
-  def at_quota?(%{max_monitors: max, id: ws_id}, exclude_monitor_id \\ nil) do
-    do_at_quota?(max, ws_id, exclude_monitor_id)
+  def at_quota?(workspace_or_profile, exclude_monitor_id \\ nil)
+
+  def at_quota?(%Workspace{} = workspace, exclude_monitor_id) do
+    workspace
+    |> ensure_profile_loaded()
+    |> Map.fetch!(:monitoring_profile)
+    |> Profiles.at_monitor_quota?(exclude_monitor_id)
+  end
+
+  def at_quota?(%Holter.Monitoring.Models.WorkspaceProfile{} = profile, exclude_monitor_id) do
+    Profiles.at_monitor_quota?(profile, exclude_monitor_id)
   end
 
   def mark_manual_check_triggered(%Monitor{} = monitor) do
-    workspace = Repo.get!(Workspace, monitor.workspace_id)
+    profile = Profiles.get_for_workspace!(monitor.workspace_id)
 
-    with {:ok, _} <- Workspaces.consume_trigger_budget(workspace) do
+    with {:ok, _} <- Profiles.consume_trigger_budget(profile) do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
       system_update_monitor(monitor, %{last_manual_check_at: now})
     end
@@ -237,7 +246,10 @@ defmodule Holter.Monitoring.Monitors do
   end
 
   defp apply_monitor_update(monitor, attrs) do
-    workspace = Repo.get!(Workspace, monitor.workspace_id)
+    workspace =
+      Workspace
+      |> Repo.get!(monitor.workspace_id)
+      |> Repo.preload(:monitoring_profile)
 
     case monitor |> Monitor.changeset(attrs, workspace) |> Repo.update() do
       {:ok, updated} ->
@@ -287,7 +299,7 @@ defmodule Holter.Monitoring.Monitors do
        do: :ok
 
   defp check_create_rate_limit(workspace, _logical_state) do
-    case Workspaces.consume_create_budget(workspace) do
+    case Profiles.consume_create_budget(workspace.monitoring_profile) do
       {:ok, _} -> :ok
       error -> error
     end
@@ -300,7 +312,7 @@ defmodule Holter.Monitoring.Monitors do
 
   defp check_trigger_budget(monitor, workspace) do
     if monitor.logical_state == :active do
-      case Workspaces.consume_trigger_budget(workspace) do
+      case Profiles.consume_trigger_budget(workspace.monitoring_profile) do
         {:ok, _} -> {:ok, true}
         {:error, _} -> {:ok, false}
       end
@@ -312,9 +324,11 @@ defmodule Holter.Monitoring.Monitors do
   defp fetch_workspace_for_quota(nil), do: {:error, :not_found}
 
   defp fetch_workspace_for_quota(id) do
-    case Repo.get(Workspace, id) do
+    Workspace
+    |> Repo.get(id)
+    |> case do
       nil -> {:error, :not_found}
-      ws -> {:ok, ws}
+      ws -> {:ok, Repo.preload(ws, :monitoring_profile)}
     end
   end
 
@@ -358,20 +372,8 @@ defmodule Holter.Monitoring.Monitors do
     if log, do: log.status, else: :unknown
   end
 
-  defp do_at_quota?(max, ws_id, exclude_monitor_id) do
-    query =
-      Monitor
-      |> where([m], m.workspace_id == ^ws_id)
-      |> where([m], m.logical_state != :archived)
+  defp ensure_profile_loaded(%Workspace{monitoring_profile: %Ecto.Association.NotLoaded{}} = ws),
+    do: Repo.preload(ws, :monitoring_profile)
 
-    query =
-      if exclude_monitor_id do
-        where(query, [m], m.id != ^exclude_monitor_id)
-      else
-        query
-      end
-
-    count = Repo.aggregate(query, :count, :id)
-    count >= max
-  end
+  defp ensure_profile_loaded(%Workspace{} = ws), do: ws
 end

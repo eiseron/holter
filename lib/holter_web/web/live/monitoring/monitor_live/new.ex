@@ -1,20 +1,22 @@
 defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
   use HolterWeb, :monitoring_live_view
 
-  alias Holter.Monitoring
+  alias Holter.{Monitoring, Repo}
   alias Holter.Monitoring.Models.Monitor
 
   @impl true
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
+        workspace = Repo.preload(workspace, :monitoring_profile)
+
         if Monitoring.at_quota?(workspace) do
           {:ok,
            socket
            |> put_flash(
              :error,
              gettext("Monitor limit reached for this workspace (max: %{max})",
-               max: workspace.max_monitors
+               max: workspace.monitoring_profile.max_monitors
              )
            )
            |> push_navigate(to: "/")}
@@ -73,7 +75,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.New do
            socket,
            :error,
            gettext("Monitor limit reached for this workspace (max: %{max})",
-             max: socket.assigns.workspace.max_monitors
+             max: socket.assigns.workspace.monitoring_profile.max_monitors
            )
          )}
 

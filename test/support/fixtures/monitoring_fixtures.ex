@@ -47,7 +47,7 @@ defmodule Holter.MonitoringFixtures do
     {:ok, workspace} = Holter.Monitoring.create_workspace(workspace_attrs)
     grant_membership(owner, workspace)
 
-    workspace
+    Repo.preload(workspace, :monitoring_profile)
   end
 
   def monitor_fixture(attrs \\ %{}) do

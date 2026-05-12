@@ -4,7 +4,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLive do
   import HolterWeb.Components.Monitoring.DashboardHeader
   import HolterWeb.Components.Monitoring.MonitorCard
 
-  alias Holter.Monitoring
+  alias Holter.{Monitoring, Repo}
   alias HolterWeb.LiveView.PubSubSubscriptions
 
   @impl true
@@ -12,6 +12,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLive do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
         PubSubSubscriptions.subscribe_to_monitors(socket)
+        workspace = Repo.preload(workspace, :monitoring_profile)
 
         {:ok,
          socket
@@ -39,6 +40,6 @@ defmodule HolterWeb.Web.Monitoring.MonitorsLive do
 
     socket
     |> assign(:monitors, monitors)
-    |> assign(:at_quota, active_count >= workspace.max_monitors)
+    |> assign(:at_quota, active_count >= workspace.monitoring_profile.max_monitors)
   end
 end

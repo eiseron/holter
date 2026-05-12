@@ -243,7 +243,7 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLiveTest do
       monitor =
         Holter.MonitoringFixtures.monitor_fixture(
           workspace_id: workspace.id,
-          interval_seconds: workspace.min_interval_seconds
+          interval_seconds: workspace.monitoring_profile.min_interval_seconds
         )
 
       {:ok, _lv, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")

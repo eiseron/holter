@@ -3,7 +3,7 @@ defmodule Holter.Monitoring do
   The Monitoring context.
   """
 
-  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Workspaces}
+  alias Holter.Monitoring.{Incidents, Logs, Metrics, Monitors, Profiles, Workspaces}
   defdelegate list_monitors, to: Monitors
   defdelegate count_monitors(workspace_id), to: Monitors
   defdelegate at_quota?(workspace, exclude_monitor_id \\ nil), to: Monitors
@@ -53,9 +53,14 @@ defmodule Holter.Monitoring do
   defdelegate list_workspaces, to: Workspaces, as: :list_all
   defdelegate create_workspace(attrs), to: Workspaces
   defdelegate update_workspace(workspace, attrs), to: Workspaces
-  defdelegate consume_trigger_budget(workspace), to: Workspaces
   defdelegate get_workspace(id), to: Workspaces
   defdelegate get_workspace!(id), to: Workspaces
   defdelegate get_workspace_by_slug(slug), to: Workspaces
   defdelegate get_workspace_by_slug!(slug), to: Workspaces
+
+  defdelegate get_workspace_profile!(workspace_id), to: Profiles, as: :get_for_workspace!
+  defdelegate get_workspace_profile(workspace_id), to: Profiles, as: :get_for_workspace
+  defdelegate update_workspace_profile(profile, attrs), to: Profiles, as: :update_profile
+  defdelegate consume_trigger_budget(profile), to: Profiles
+  defdelegate consume_create_budget(profile), to: Profiles
 end

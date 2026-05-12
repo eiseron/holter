@@ -9,6 +9,8 @@ defmodule Holter.Seeds.Monitoring.Monitors do
   @day Time.day()
 
   def create_for(workspace) do
+    workspace = Repo.preload(workspace, :monitoring_profile)
+
     monitors = %{
       healthy_example: insert(workspace, healthy_example_attrs()),
       healthy_github: insert(workspace, healthy_github_attrs()),

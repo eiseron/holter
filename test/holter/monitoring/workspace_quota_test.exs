@@ -47,6 +47,28 @@ defmodule Holter.Monitoring.WorkspaceQuotaTest do
                  workspace_id: workspace.id
                })
     end
+
+    test "Repo.insert bypassing the coordinator is still rejected at quota" do
+      workspace = workspace_fixture(%{max_monitors: 1})
+      monitor_fixture(%{workspace_id: workspace.id})
+
+      {:error, changeset} =
+        %Monitor{}
+        |> Monitor.changeset(
+          %{
+            url: "https://example.com",
+            method: :get,
+            interval_seconds: 60,
+            timeout_seconds: 30,
+            workspace_id: workspace.id
+          },
+          workspace
+        )
+        |> Holter.Repo.insert()
+
+      {_message, opts} = changeset.errors[:workspace_id]
+      assert Keyword.get(opts, :code) == :quota_reached
+    end
   end
 
   describe "create_monitor/1 — min_interval_seconds" do

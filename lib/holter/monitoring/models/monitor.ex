@@ -125,6 +125,7 @@ defmodule Holter.Monitoring.Models.Monitor do
     |> validate_url_field()
     |> validate_http_semantics(workspace)
     |> process_virtual_fields()
+    |> enforce_quota_on_repo_write()
   end
 
   defp cast_fields(monitor, attrs) do
@@ -189,9 +190,52 @@ defmodule Holter.Monitoring.Models.Monitor do
     |> validate_keyword_count()
   end
 
+  defp enforce_quota_on_repo_write(changeset) do
+    Ecto.Changeset.prepare_changes(changeset, fn cs ->
+      cond do
+        cs.action != :insert -> cs
+        get_field(cs, :logical_state) in [:archived, "archived"] -> cs
+        true -> check_quota_against_locked_profile(cs)
+      end
+    end)
+  end
+
+  defp check_quota_against_locked_profile(cs) do
+    import Ecto.Query
+    alias Holter.Monitoring.Models.WorkspaceProfile
+
+    workspace_id = get_field(cs, :workspace_id)
+
+    profile =
+      from(p in WorkspaceProfile,
+        where: p.workspace_id == ^workspace_id,
+        lock: "FOR UPDATE"
+      )
+      |> cs.repo.one!()
+
+    count =
+      from(m in __MODULE__,
+        where: m.workspace_id == ^workspace_id and m.logical_state != :archived
+      )
+      |> cs.repo.aggregate(:count, :workspace_id)
+
+    if count >= profile.max_monitors do
+      add_error(
+        cs,
+        :workspace_id,
+        gettext("Monitor limit reached for this workspace (max: %{max})",
+          max: profile.max_monitors
+        ),
+        code: :quota_reached
+      )
+    else
+      cs
+    end
+  end
+
   defp validate_workspace_interval(changeset, nil), do: changeset
 
-  defp validate_workspace_interval(changeset, %{min_interval_seconds: min}) do
+  defp validate_workspace_interval(changeset, %{monitoring_profile: %{min_interval_seconds: min}}) do
     validate_number(changeset, :interval_seconds,
       greater_than_or_equal_to: min,
       message: "must be at least #{min}s for this workspace plan"

@@ -7,7 +7,7 @@ defmodule HolterWeb.Api.WorkspaceController do
   use HolterWeb.ApiTenancy
   use OpenApiSpex.ControllerSpecs
 
-  alias Holter.Monitoring
+  alias Holter.{Monitoring, Repo}
   alias HolterWeb.Api.WorkspaceSchemas
   alias HolterWeb.Plugs.RequireScopePlug
 
@@ -36,7 +36,7 @@ defmodule HolterWeb.Api.WorkspaceController do
 
   def show(conn, %{"workspace_slug" => workspace_slug}) do
     with {:ok, workspace} <- Monitoring.get_workspace_by_slug(workspace_slug) do
-      render(conn, :show, workspace: workspace)
+      render(conn, :show, workspace: Repo.preload(workspace, :monitoring_profile))
     end
   end
 end

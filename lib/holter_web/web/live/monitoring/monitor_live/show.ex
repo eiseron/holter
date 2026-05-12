@@ -15,7 +15,7 @@ defmodule HolterWeb.Web.Monitoring.MonitorLive.Show do
   @impl true
   def mount(_params, _session, socket) do
     monitor = socket.assigns.current_monitor
-    workspace = socket.assigns.current_workspace
+    workspace = Holter.Repo.preload(socket.assigns.current_workspace, :monitoring_profile)
     PubSubSubscriptions.subscribe_to_monitor(socket, monitor.id)
     hydrated_monitor = hydrate_virtual_array_fields(monitor)
 

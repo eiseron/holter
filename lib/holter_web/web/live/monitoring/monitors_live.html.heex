@@ -4,7 +4,11 @@
       <%= if @at_quota do %>
         <span
           class="h-btn h-btn-primary h-btn-disabled"
-          title={gettext("Monitor limit reached (%{max}/%{max})", max: @workspace.max_monitors)}
+          title={
+            gettext("Monitor limit reached (%{max}/%{max})",
+              max: @workspace.monitoring_profile.max_monitors
+            )
+          }
         >
           <.icon name="plus" />
           {gettext("New Monitor")}
