@@ -1,32 +1,35 @@
-<section class="h-auth-screen">
-  <h1>{gettext("Sign in to Holter")}</h1>
-
+<.auth_screen title={gettext("Sign in to Holter")}>
   <.form
     for={@form}
     id="login-form"
     action={~p"/identity/login"}
     method="post"
-    class="h-form-sections"
+    class="h-auth-screen-form"
   >
-    <label>
-      <span>{gettext("Email")}</span>
-      <input type="email" name="user[email]" autocomplete="email" required />
-    </label>
+    <.input
+      field={@form[:email]}
+      type="email"
+      label={gettext("Email")}
+      autocomplete="email"
+      required
+    />
 
-    <label>
-      <span>{gettext("Password")}</span>
-      <input type="password" name="user[password]" autocomplete="current-password" required />
-    </label>
+    <.input
+      field={@form[:password]}
+      type="password"
+      label={gettext("Password")}
+      autocomplete="current-password"
+      required
+    />
 
-    <button type="submit">{gettext("Sign in")}</button>
+    <.button type="submit" variant="primary">{gettext("Sign in")}</.button>
   </.form>
 
-  <p>
+  <:footer>
     <.link navigate={~p"/identity/forgot-password"}>{gettext("Forgot your password?")}</.link>
-  </p>
-
-  <p>
-    {gettext("New to Holter?")}
-    <.link navigate={~p"/identity/new"}>{gettext("Create an account")}</.link>
-  </p>
-</section>
+    <span>
+      {gettext("New to Holter?")}
+      <.link navigate={~p"/identity/new"}>{gettext("Create an account")}</.link>
+    </span>
+  </:footer>
+</.auth_screen>

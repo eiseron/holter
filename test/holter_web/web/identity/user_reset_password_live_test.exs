@@ -185,7 +185,7 @@ defmodule HolterWeb.Web.Identity.UserResetPasswordLiveTest do
         )
         |> render_submit()
 
-      assert html =~ "h-input-error"
+      assert html =~ "12 characters"
     end
 
     test "leaves the password unchanged", %{conn: conn, user: user, token: token} do

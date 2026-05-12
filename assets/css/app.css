@@ -50,5 +50,6 @@
 @import "./components/delivery/secret_card.css";
 
 @import "./components/identity/api_token_scope.css";
+@import "./components/identity/auth_screen.css";
 
 .hidden { display: none !important; }

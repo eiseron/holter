@@ -1,0 +1,82 @@
+.h-auth-screen {
+  min-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-6);
+}
+
+.h-auth-screen-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.h-auth-screen-logo {
+  display: block;
+  height: 64px;
+  width: auto;
+  margin: 0 auto;
+}
+
+.h-auth-screen-title {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.h-auth-screen-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.h-auth-screen-form .h-fieldset {
+  margin-bottom: 0;
+}
+
+.h-auth-screen-form .h-btn {
+  width: 100%;
+}
+
+.h-auth-screen-footer {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h-auth-screen-footer a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.h-auth-screen-footer a:hover {
+  text-decoration: none;
+}
+
+@media (max-width: 479px) {
+  .h-auth-screen {
+    padding: var(--space-4);
+  }
+
+  .h-auth-screen-card {
+    padding: var(--space-6);
+    border-left: 0;
+    border-right: 0;
+  }
+}

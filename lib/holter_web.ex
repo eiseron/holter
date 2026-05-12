@@ -183,6 +183,7 @@ defmodule HolterWeb do
       import HolterWeb.Components.Icon
       import HolterWeb.Components.BackLink
       import HolterWeb.Components.Pagination
+      import HolterWeb.Components.AuthScreen
       import HolterWeb.Components.EmptyState
       import HolterWeb.Components.PageContainer
 

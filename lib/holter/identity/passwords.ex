@@ -61,6 +61,7 @@ defmodule Holter.Identity.Passwords do
         cs =
           %User{}
           |> Ecto.Changeset.change()
+          |> Map.put(:params, %{"password" => password})
           |> Ecto.Changeset.add_error(:password, message)
           |> Map.put(:action, :update)
 

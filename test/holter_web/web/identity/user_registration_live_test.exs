@@ -50,14 +50,17 @@ defmodule HolterWeb.Web.Identity.UserRegistrationLiveTest do
     test "blocks submission when the terms checkbox is not accepted", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/identity/new")
 
-      params = valid_signup_form_params() |> Map.delete("terms_accepted")
+      params =
+        valid_signup_form_params(%{"email" => "no-terms@holter.test"})
+        |> Map.delete("terms_accepted")
 
       html =
         lv
         |> form("#signup-form", user: params)
         |> render_submit()
 
-      assert html =~ "h-input-error"
+      assert html =~ "blank"
+      refute_email_sent(to: "no-terms@holter.test")
     end
 
     test "shows a field-level error when the password is too weak", %{conn: conn} do
