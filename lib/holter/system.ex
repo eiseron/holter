@@ -6,7 +6,7 @@ defmodule Holter.System do
   layer (`HolterWeb.Hooks.AdminAuthHook` + Bodyguard policies).
   """
 
-  alias Holter.System.{Admins, AuditLogs}
+  alias Holter.System.{Admins, AuditLogs, Users}
 
   defdelegate admin?(user), to: Admins
   defdelegate list_admins(), to: Admins
@@ -16,4 +16,6 @@ defmodule Holter.System do
 
   defdelegate list_audit_logs(filters \\ []), to: AuditLogs
   defdelegate log_audit!(params), to: AuditLogs, as: :log!
+
+  defdelegate list_users(params \\ %{}), to: Users
 end

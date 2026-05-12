@@ -1,5 +1,9 @@
-defmodule Holter.Monitoring.Pagination do
-  @moduledoc false
+defmodule Holter.Pagination do
+  @moduledoc """
+  Shared paginate-query helpers. Domain-agnostic: any list endpoint
+  whose backing query exposes an `:id` primary key can call
+  `paginate_query/3` plus `calculate/3` to render a paged table.
+  """
 
   import Ecto.Query
   alias Holter.Repo

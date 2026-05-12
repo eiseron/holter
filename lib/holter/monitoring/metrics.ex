@@ -2,8 +2,9 @@ defmodule Holter.Monitoring.Metrics do
   @moduledoc false
 
   import Ecto.Query
-  alias Holter.Monitoring.{Broadcaster, Pagination}
+  alias Holter.Monitoring.Broadcaster
   alias Holter.Monitoring.Models.DailyMetric
+  alias Holter.Pagination
   alias Holter.Repo
 
   @sortable_columns %{

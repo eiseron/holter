@@ -1,0 +1,88 @@
+<section class="h-admin-content">
+  <header class="h-admin-content-header">
+    <h1>{gettext("Users")}</h1>
+    <p class="h-admin-lede">
+      {gettext("Cross-workspace user lookup. Total: %{n}.", n: @total)}
+    </p>
+  </header>
+
+  <.form
+    for={@form}
+    id="users-filters"
+    phx-change="filter_updated"
+    phx-submit="filter_updated"
+    class="h-form-row"
+  >
+    <div class="h-form-item">
+      <.input
+        field={@form[:email]}
+        type="text"
+        label={gettext("Search by email")}
+        placeholder={gettext("substring or domain fragment")}
+        value={@filters.email || ""}
+        phx-debounce="300"
+      />
+    </div>
+    <div class="h-form-item">
+      <.input
+        field={@form[:status]}
+        type="select"
+        label={gettext("Status")}
+        value={@filters.status || ""}
+        prompt={gettext("All statuses")}
+        options={[
+          {gettext("Pending verification"), "pending_verification"},
+          {gettext("Active"), "active"},
+          {gettext("Pending billing"), "pending_billing"},
+          {gettext("Banned"), "banned"}
+        ]}
+      />
+    </div>
+  </.form>
+
+  <%= if @users == [] do %>
+    <.empty_state title={gettext("No users match the current filters")} />
+  <% else %>
+    <.table id="admin-users-table" rows={@users}>
+      <:col
+        :let={user}
+        label={gettext("Email")}
+        sort_url={@sort_info["email"].url}
+        sort_active={@sort_info["email"].active}
+        sort_dir={@sort_info["email"].dir}
+      >
+        {user.email}
+      </:col>
+      <:col
+        :let={user}
+        label={gettext("Status")}
+        sort_url={@sort_info["status"].url}
+        sort_active={@sort_info["status"].active}
+        sort_dir={@sort_info["status"].dir}
+      >
+        <span class={"h-status-tag h-status-tag--" <> Atom.to_string(user.onboarding_status)}>
+          {status_label(user.onboarding_status)}
+        </span>
+      </:col>
+      <:col
+        :let={user}
+        label={gettext("Created at")}
+        sort_url={@sort_info["inserted_at"].url}
+        sort_active={@sort_info["inserted_at"].active}
+        sort_dir={@sort_info["inserted_at"].dir}
+      >
+        <time datetime={DateTime.to_iso8601(user.inserted_at)}>
+          {Calendar.strftime(user.inserted_at, "%Y-%m-%d %H:%M")}
+        </time>
+      </:col>
+    </.table>
+
+    <.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
+  <% end %>
+</section>

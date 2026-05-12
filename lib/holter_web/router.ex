@@ -142,6 +142,7 @@ defmodule HolterWeb.Router do
         HolterWeb.Hooks.LocaleHook
       ] do
       live "/", DashboardLive, :show
+      live "/users", UsersLive, :index
     end
   end
 

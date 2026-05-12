@@ -54,6 +54,7 @@ defmodule HolterWeb.Authorization do
   defp policy_for(%Holter.Delivery.Models.EmailChannel{}), do: D.EmailChannel
   defp policy_for(%Holter.Delivery.Models.WebhookChannel{}), do: D.WebhookChannel
   defp policy_for(%Holter.Identity.Models.ApiToken{}), do: I.ApiToken
+  defp policy_for(%Holter.Identity.Models.User{}), do: S.User
   defp policy_for(%Holter.System.Models.Admin{}), do: S.Admin
 
   defp policy_for_module(Holter.Monitoring.Models.Monitor), do: M.Monitor
@@ -61,5 +62,6 @@ defmodule HolterWeb.Authorization do
   defp policy_for_module(Holter.Delivery.Models.EmailChannel), do: D.EmailChannel
   defp policy_for_module(Holter.Delivery.Models.WebhookChannel), do: D.WebhookChannel
   defp policy_for_module(Holter.Identity.Models.ApiToken), do: I.ApiToken
+  defp policy_for_module(Holter.Identity.Models.User), do: S.User
   defp policy_for_module(Holter.System.Models.Admin), do: S.Admin
 end

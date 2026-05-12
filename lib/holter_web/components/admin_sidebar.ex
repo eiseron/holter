@@ -5,9 +5,8 @@ defmodule HolterWeb.Components.AdminSidebar do
   names) but is a plain functional component — admin navigation has no
   per-render DB counts.
 
-  In the foundation MR every navigation entry is a disabled placeholder
-  (`h-sidebar-link--disabled`). Real targets land in subsequent MRs
-  (user listing, feature flags, audit log viewer).
+  Each link becomes active as its feature MR lands. Pending features
+  render as disabled placeholders (`h-sidebar-link--disabled`).
   """
 
   use Phoenix.Component
@@ -26,10 +25,15 @@ defmodule HolterWeb.Components.AdminSidebar do
 
       <ul class="h-sidebar-nav">
         <li>
-          <span class="h-sidebar-link h-sidebar-link--disabled">
+          <.link
+            navigate={~p"/admin/users"}
+            class={[
+              "h-sidebar-link",
+              @current_view == HolterWeb.Web.Admin.UsersLive && "h-sidebar-link--active"
+            ]}
+          >
             <span class="h-sidebar-link-label">{gettext("Users")}</span>
-            <span class="h-sidebar-badge">{gettext("Soon")}</span>
-          </span>
+          </.link>
         </li>
         <li>
           <span class="h-sidebar-link h-sidebar-link--disabled">

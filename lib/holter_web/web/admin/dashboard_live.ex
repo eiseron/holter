@@ -28,10 +28,14 @@ defmodule HolterWeb.Web.Admin.DashboardLive do
       </header>
 
       <ul class="h-admin-feature-grid">
-        <li class="h-admin-feature-card h-admin-feature-card--soon">
-          <h2>{gettext("Users")}</h2>
+        <li class="h-admin-feature-card">
+          <h2>
+            <.link navigate={~p"/admin/users"}>{gettext("Users")}</.link>
+          </h2>
           <p>{gettext("Search, inspect, impersonate, ban.")}</p>
-          <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
+          <.link navigate={~p"/admin/users"} class="h-admin-feature-action">
+            {gettext("Open")}
+          </.link>
         </li>
         <li class="h-admin-feature-card h-admin-feature-card--soon">
           <h2>{gettext("Workspaces")}</h2>
