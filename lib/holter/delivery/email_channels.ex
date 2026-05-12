@@ -28,6 +28,7 @@ defmodule Holter.Delivery.EmailChannels do
   alias Holter.Delivery.Models.EmailChannel
   alias Holter.Delivery.Models.EmailChannelRecipient
   alias Holter.Delivery.Models.MonitorEmailChannel
+  alias Holter.Delivery.Profiles
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
   alias Holter.Repo
@@ -57,9 +58,13 @@ defmodule Holter.Delivery.EmailChannels do
   def get!(id), do: Repo.get!(EmailChannel, id)
 
   def create(attrs \\ %{}) do
-    %EmailChannel{}
-    |> EmailChannel.changeset(attrs)
-    |> Repo.insert()
+    changeset = EmailChannel.changeset(%EmailChannel{}, attrs)
+
+    if changeset.valid? do
+      insert_under_quota(changeset, Ecto.Changeset.get_field(changeset, :workspace_id))
+    else
+      {:error, %{changeset | action: :insert}}
+    end
   end
 
   def update(%EmailChannel{} = channel, attrs) do
@@ -319,4 +324,23 @@ defmodule Holter.Delivery.EmailChannels do
     do: {:ok, %{channel: channel, added: Enum.reverse(added)}}
 
   defp finalize_staged_changes({:error, _step, reason, _changes}), do: {:error, reason}
+
+  defp insert_under_quota(changeset, workspace_id) do
+    Repo.transaction(fn ->
+      _profile = Profiles.lock_profile_for_update!(workspace_id)
+
+      if Profiles.at_channel_quota?(workspace_id) do
+        Repo.rollback(:channel_quota_reached)
+      else
+        commit_insert(changeset)
+      end
+    end)
+  end
+
+  defp commit_insert(changeset) do
+    case Repo.insert(changeset) do
+      {:ok, channel} -> channel
+      {:error, cs} -> Repo.rollback(cs)
+    end
+  end
 end

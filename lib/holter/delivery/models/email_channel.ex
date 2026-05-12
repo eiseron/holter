@@ -33,6 +33,7 @@ defmodule Holter.Delivery.Models.EmailChannel do
     |> validate_locale()
     |> ensure_anti_phishing_code()
     |> foreign_key_constraint(:workspace_id)
+    |> enforce_channel_quota_on_repo_write()
   end
 
   def generate_anti_phishing_code do
@@ -59,6 +60,18 @@ defmodule Holter.Delivery.Models.EmailChannel do
         is_nil(value) -> []
         Locale.valid?(value) -> []
         true -> [locale: "is not a supported locale"]
+      end
+    end)
+  end
+
+  defp enforce_channel_quota_on_repo_write(changeset) do
+    alias Holter.Delivery.Models.WorkspaceProfile
+
+    Ecto.Changeset.prepare_changes(changeset, fn cs ->
+      if cs.action == :insert do
+        WorkspaceProfile.guard_channel_insert!(cs)
+      else
+        cs
       end
     end)
   end

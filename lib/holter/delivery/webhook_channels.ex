@@ -14,6 +14,7 @@ defmodule Holter.Delivery.WebhookChannels do
 
   alias Holter.Delivery.Models.MonitorWebhookChannel
   alias Holter.Delivery.Models.WebhookChannel
+  alias Holter.Delivery.Profiles
   alias Holter.Repo
 
   def list(workspace_id) do
@@ -41,9 +42,13 @@ defmodule Holter.Delivery.WebhookChannels do
   def get!(id), do: Repo.get!(WebhookChannel, id)
 
   def create(attrs \\ %{}) do
-    %WebhookChannel{}
-    |> WebhookChannel.changeset(attrs)
-    |> Repo.insert()
+    changeset = WebhookChannel.changeset(%WebhookChannel{}, attrs)
+
+    if changeset.valid? do
+      insert_under_quota(changeset, Ecto.Changeset.get_field(changeset, :workspace_id))
+    else
+      {:error, %{changeset | action: :insert}}
+    end
   end
 
   def update(%WebhookChannel{} = channel, attrs) do
@@ -128,5 +133,24 @@ defmodule Holter.Delivery.WebhookChannels do
     Enum.each(current_ids -- monitor_ids, &unlink_monitor(&1, webhook_channel_id))
 
     :ok
+  end
+
+  defp insert_under_quota(changeset, workspace_id) do
+    Repo.transaction(fn ->
+      _profile = Profiles.lock_profile_for_update!(workspace_id)
+
+      if Profiles.at_channel_quota?(workspace_id) do
+        Repo.rollback(:channel_quota_reached)
+      else
+        commit_insert(changeset)
+      end
+    end)
+  end
+
+  defp commit_insert(changeset) do
+    case Repo.insert(changeset) do
+      {:ok, channel} -> channel
+      {:error, cs} -> Repo.rollback(cs)
+    end
   end
 end

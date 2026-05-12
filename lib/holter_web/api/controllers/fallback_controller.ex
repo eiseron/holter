@@ -45,6 +45,17 @@ defmodule HolterWeb.Api.FallbackController do
     })
   end
 
+  def call(conn, {:error, :channel_quota_reached}) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+      error: %{
+        code: "channel_quota_reached",
+        message: "Channel limit reached for this workspace"
+      }
+    })
+  end
+
   def call(conn, {:error, :create_rate_limited}) do
     conn
     |> put_status(:too_many_requests)

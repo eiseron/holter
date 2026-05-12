@@ -4,7 +4,7 @@ defmodule Holter.Delivery.EmailChannelsTest do
   import Holter.MonitoringFixtures
   import Swoosh.TestAssertions
 
-  alias Holter.Delivery.EmailChannels
+  alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Delivery.Models.EmailChannel
   alias Holter.Delivery.Models.EmailChannelRecipient
   alias Holter.Repo
@@ -27,6 +27,29 @@ defmodule Holter.Delivery.EmailChannelsTest do
       ws = workspace_fixture()
       {:error, cs} = EmailChannels.create(%{workspace_id: ws.id})
       assert "can't be blank" in errors_on(cs).name
+    end
+
+    test "returns :channel_quota_reached when workspace is at quota" do
+      ws = workspace_fixture(%{max_channels: 1})
+
+      {:ok, _} = EmailChannels.create(%{workspace_id: ws.id, name: "First"})
+
+      assert {:error, :channel_quota_reached} =
+               EmailChannels.create(%{workspace_id: ws.id, name: "Second"})
+    end
+
+    test "counts webhook channels toward the email create quota (single combined cap)" do
+      ws = workspace_fixture(%{max_channels: 1})
+
+      {:ok, _} =
+        WebhookChannels.create(%{
+          workspace_id: ws.id,
+          name: "Hook",
+          url: "https://hooks.example.com/x"
+        })
+
+      assert {:error, :channel_quota_reached} =
+               EmailChannels.create(%{workspace_id: ws.id, name: "Mail"})
     end
   end
 

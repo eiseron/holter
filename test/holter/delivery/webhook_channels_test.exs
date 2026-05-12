@@ -3,8 +3,8 @@ defmodule Holter.Delivery.WebhookChannelsTest do
 
   import Holter.MonitoringFixtures
 
+  alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Delivery.Models.WebhookChannel
-  alias Holter.Delivery.WebhookChannels
 
   describe "create/1" do
     test "stores name, workspace_id and url from the attrs" do
@@ -64,6 +64,37 @@ defmodule Holter.Delivery.WebhookChannelsTest do
       ws = workspace_fixture()
       {:error, cs} = WebhookChannels.create(%{workspace_id: ws.id, name: "Hook"})
       assert "can't be blank" in errors_on(cs).url
+    end
+
+    test "returns :channel_quota_reached when workspace is at quota" do
+      ws = workspace_fixture(%{max_channels: 1})
+
+      {:ok, _} =
+        WebhookChannels.create(%{
+          workspace_id: ws.id,
+          name: "First",
+          url: "https://hooks.example.com/a"
+        })
+
+      assert {:error, :channel_quota_reached} =
+               WebhookChannels.create(%{
+                 workspace_id: ws.id,
+                 name: "Second",
+                 url: "https://hooks.example.com/b"
+               })
+    end
+
+    test "counts email channels toward the webhook create quota (single combined cap)" do
+      ws = workspace_fixture(%{max_channels: 1})
+
+      {:ok, _} = EmailChannels.create(%{workspace_id: ws.id, name: "Mail"})
+
+      assert {:error, :channel_quota_reached} =
+               WebhookChannels.create(%{
+                 workspace_id: ws.id,
+                 name: "Hook",
+                 url: "https://hooks.example.com/x"
+               })
     end
   end
 

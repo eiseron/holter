@@ -1,33 +1,40 @@
 defmodule Holter.Monitoring.Workspaces do
   @moduledoc false
 
+  alias Holter.Delivery.Models.WorkspaceProfile, as: DeliveryProfile
   alias Holter.Monitoring.Models.{Workspace, WorkspaceProfile}
   alias Holter.Repo
   alias Holter.Repo.Tenant
 
-  @profile_attr_keys ~w(
+  @monitoring_profile_attr_keys ~w(
     retention_days max_monitors min_interval_seconds
     last_check_triggered_at
     max_triggers_per_minute max_triggers_per_hour
     max_creates_per_minute max_creates_per_hour
   )a
 
-  @doc """
-  Inserts a workspace and its `Monitoring.WorkspaceProfile` row in a
-  single transaction. Profile keys can be passed flat at the top level
-  (e.g. `max_monitors: 10, min_interval_seconds: 60`) — they are
-  routed to the profile changeset internally.
+  @delivery_profile_attr_keys ~w(max_channels)a
 
-  The profile insert is stamped with the freshly-created workspace's
-  tenant context so the RLS WITH CHECK predicate passes.
+  @doc """
+  Inserts a workspace, its `Monitoring.WorkspaceProfile`, and its
+  `Delivery.WorkspaceProfile` in a single transaction. Profile keys
+  can be passed flat at the top level (e.g. `max_monitors: 10,
+  max_channels: 25`) — they are routed to the appropriate profile
+  changeset internally.
+
+  Both profile inserts are stamped with the freshly-created
+  workspace's tenant context so RLS WITH CHECK predicates pass.
   """
   def create_workspace(attrs) do
-    {workspace_attrs, profile_attrs} = split_attrs(attrs)
+    {workspace_attrs, monitoring_attrs, delivery_attrs} = split_attrs(attrs)
 
     Repo.transaction(fn ->
       with {:ok, workspace} <- insert_workspace(workspace_attrs),
-           {:ok, profile} <- insert_profile(workspace, profile_attrs) do
-        %{workspace | monitoring_profile: profile}
+           {:ok, monitoring_profile} <-
+             insert_monitoring_profile(workspace, monitoring_attrs),
+           {:ok, _delivery_profile} <-
+             insert_delivery_profile(workspace, delivery_attrs) do
+        %{workspace | monitoring_profile: monitoring_profile}
       else
         {:error, changeset} -> Repo.rollback(changeset)
       end
@@ -64,12 +71,13 @@ defmodule Holter.Monitoring.Workspaces do
   end
 
   def update_workspace(%Workspace{} = workspace, attrs) do
-    {workspace_attrs, profile_attrs} = split_attrs(attrs)
+    {workspace_attrs, monitoring_attrs, delivery_attrs} = split_attrs(attrs)
 
     Repo.transaction(fn ->
       with {:ok, updated} <-
              workspace |> Workspace.changeset(workspace_attrs) |> Repo.update(),
-           {:ok, _} <- maybe_update_profile(workspace.id, profile_attrs) do
+           {:ok, _} <- maybe_update_monitoring_profile(workspace.id, monitoring_attrs),
+           {:ok, _} <- maybe_update_delivery_profile(workspace.id, delivery_attrs) do
         updated
       else
         {:error, changeset} -> Repo.rollback(changeset)
@@ -77,25 +85,13 @@ defmodule Holter.Monitoring.Workspaces do
     end)
   end
 
-  defp maybe_update_profile(_workspace_id, attrs) when map_size(attrs) == 0,
-    do: {:ok, :noop}
-
-  defp maybe_update_profile(workspace_id, attrs) do
-    Tenant.with_workspace!(workspace_id, fn ->
-      WorkspaceProfile
-      |> Repo.get_by!(workspace_id: workspace_id)
-      |> WorkspaceProfile.changeset(attrs)
-      |> Repo.update()
-    end)
-  end
-
   defp split_attrs(attrs) do
-    {profile_attrs, workspace_attrs} =
-      attrs
-      |> normalize_keys()
-      |> Map.split(@profile_attr_keys)
+    normalized = normalize_keys(attrs)
 
-    {workspace_attrs, profile_attrs}
+    {monitoring_attrs, rest} = Map.split(normalized, @monitoring_profile_attr_keys)
+    {delivery_attrs, workspace_attrs} = Map.split(rest, @delivery_profile_attr_keys)
+
+    {workspace_attrs, monitoring_attrs, delivery_attrs}
   end
 
   defp normalize_keys(attrs) when is_map(attrs) do
@@ -117,11 +113,43 @@ defmodule Holter.Monitoring.Workspaces do
     |> Repo.insert()
   end
 
-  defp insert_profile(%Workspace{id: workspace_id}, attrs) do
+  defp insert_monitoring_profile(%Workspace{id: workspace_id}, attrs) do
     Tenant.with_workspace!(workspace_id, fn ->
       %WorkspaceProfile{}
       |> WorkspaceProfile.changeset(Map.put(attrs, :workspace_id, workspace_id))
       |> Repo.insert()
+    end)
+  end
+
+  defp insert_delivery_profile(%Workspace{id: workspace_id}, attrs) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      %DeliveryProfile{}
+      |> DeliveryProfile.changeset(Map.put(attrs, :workspace_id, workspace_id))
+      |> Repo.insert()
+    end)
+  end
+
+  defp maybe_update_monitoring_profile(_workspace_id, attrs) when map_size(attrs) == 0,
+    do: {:ok, :noop}
+
+  defp maybe_update_monitoring_profile(workspace_id, attrs) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      WorkspaceProfile
+      |> Repo.get_by!(workspace_id: workspace_id)
+      |> WorkspaceProfile.changeset(attrs)
+      |> Repo.update()
+    end)
+  end
+
+  defp maybe_update_delivery_profile(_workspace_id, attrs) when map_size(attrs) == 0,
+    do: {:ok, :noop}
+
+  defp maybe_update_delivery_profile(workspace_id, attrs) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      DeliveryProfile
+      |> Repo.get_by!(workspace_id: workspace_id)
+      |> DeliveryProfile.changeset(attrs)
+      |> Repo.update()
     end)
   end
 end

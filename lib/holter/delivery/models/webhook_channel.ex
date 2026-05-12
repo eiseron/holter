@@ -36,6 +36,7 @@ defmodule Holter.Delivery.Models.WebhookChannel do
     |> validate_locale()
     |> ensure_signing_token()
     |> foreign_key_constraint(:workspace_id)
+    |> enforce_channel_quota_on_repo_write()
   end
 
   def generate_signing_token do
@@ -82,6 +83,18 @@ defmodule Holter.Delivery.Models.WebhookChannel do
         is_nil(value) -> []
         Locale.valid?(value) -> []
         true -> [locale: "is not a supported locale"]
+      end
+    end)
+  end
+
+  defp enforce_channel_quota_on_repo_write(changeset) do
+    alias Holter.Delivery.Models.WorkspaceProfile
+
+    Ecto.Changeset.prepare_changes(changeset, fn cs ->
+      if cs.action == :insert do
+        WorkspaceProfile.guard_channel_insert!(cs)
+      else
+        cs
       end
     end)
   end
