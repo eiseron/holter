@@ -69,7 +69,14 @@ defmodule HolterWeb.Api.WebhookChannelController do
 
   operation(:create,
     summary: "Create webhook channel",
-    description: "Create a new webhook channel for the specified workspace.",
+    description: """
+    Create a new webhook channel for the specified workspace.
+
+    Returns 422 with `error.code = "channel_quota_reached"` when the
+    workspace's combined webhook + email channel count has reached
+    `max_channels`. The cap is set on `Delivery.WorkspaceProfile` and
+    is editable from the workspace settings page.
+    """,
     parameters: [
       workspace_slug: [in: :path, description: "Workspace slug", type: :string]
     ],
@@ -80,7 +87,8 @@ defmodule HolterWeb.Api.WebhookChannelController do
       created:
         {"Created channel", "application/json", WebhookChannelSchemas.webhook_channel_response()},
       unprocessable_entity:
-        {"Validation error", "application/json", WebhookChannelSchemas.error()}
+        {"Validation error or `channel_quota_reached`", "application/json",
+         WebhookChannelSchemas.error()}
     ],
     callbacks: WebhookChannelSchemas.dispatch_callback()
   )

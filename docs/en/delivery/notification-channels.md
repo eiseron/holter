@@ -7,10 +7,21 @@ description: Create and manage notification channels to receive alerts when moni
 
 A notification channel is a destination where Holter sends alerts. Each channel belongs to a workspace and can be linked to multiple monitors.
 
+## Quota and plan limits
+
+Each workspace has a `max_channels` cap covering **webhook and email channels combined** — adding a webhook counts against the same budget as adding an email. When the workspace reaches its cap:
+
+- The sidebar badge under **Channels** shows `count/max` (e.g. `2/2`) instead of a plain count.
+- The **New Channel** button on the channels list renders as a disabled control with a tooltip explaining the cap.
+- Opening **New Channel** directly redirects back to the list with a flash message.
+- Submitting a create request through the API returns **422 Unprocessable Entity** with `error.code = "channel_quota_reached"`.
+
+Workspace admins can adjust `max_channels` under **Settings → Plan limits**. To free up a slot, delete an existing channel — there is no soft-archive flow for channels today.
+
 ## Creating a Channel
 
 1. Click **Channels** in the left sidebar.
-2. Click **New Channel**.
+2. Click **New Channel** (disabled if your workspace is at quota).
 3. Fill in the fields below and click **Create Channel**.
 
 ## Fields

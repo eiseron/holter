@@ -5,6 +5,7 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
   import OpenApiSpex.TestAssertions
 
   alias Holter.Delivery.EmailChannels
+  alias Holter.Repo.Tenant
   alias HolterWeb.Api.ApiSpec
 
   setup %{conn: conn, current_user: user} do
@@ -84,6 +85,29 @@ defmodule HolterWeb.Api.EmailChannelControllerTest do
         json_post(conn, ~p"/api/v1/workspaces/#{workspace.slug}/email_channels", %{})
 
       assert json_response(conn, 422)
+    end
+
+    test "returns 422 channel_quota_reached when the workspace is at quota",
+         %{conn: conn, current_user: user} do
+      workspace = workspace_fixture(%{owner: user, max_channels: 1})
+
+      Tenant.with_workspace!(workspace.id, fn ->
+        {:ok, _} =
+          EmailChannels.create(%{
+            workspace_id: workspace.id,
+            name: "First"
+          })
+      end)
+
+      conn =
+        conn
+        |> authed_api_conn({user, workspace})
+        |> json_post(~p"/api/v1/workspaces/#{workspace.slug}/email_channels", %{
+          name: "Second"
+        })
+
+      resp = json_response(conn, 422)
+      assert resp["error"]["code"] == "channel_quota_reached"
     end
   end
 

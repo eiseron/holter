@@ -7,10 +7,21 @@ description: Crie e gerencie canais de notificação para receber alertas quando
 
 Um canal de notificação é um destino para onde o Holter envia alertas. Cada canal pertence a um workspace e pode ser vinculado a vários monitores.
 
+## Cota e limites do plano
+
+Cada workspace tem um teto `max_channels` que cobre **canais webhook e email somados** — adicionar um webhook consome o mesmo orçamento que adicionar um email. Quando o workspace atinge o teto:
+
+- O badge da seção **Canais** na barra lateral mostra `contagem/máximo` (ex.: `2/2`) em vez de apenas a contagem.
+- O botão **Novo Canal** na lista fica desabilitado com tooltip explicando o limite.
+- Acessar **Novo Canal** diretamente redireciona de volta para a lista com uma mensagem de erro.
+- Requisições de criação pela API retornam **422 Unprocessable Entity** com `error.code = "channel_quota_reached"`.
+
+Administradores do workspace podem ajustar `max_channels` em **Configurações → Limites do plano**. Para liberar uma vaga, exclua um canal existente — não há arquivamento suave para canais hoje.
+
 ## Criando um Canal
 
 1. Clique em **Canais** na barra lateral esquerda.
-2. Clique em **Novo Canal**.
+2. Clique em **Novo Canal** (desabilitado se o workspace estiver no limite).
 3. Preencha os campos abaixo e clique em **Criar Canal**.
 
 ## Campos

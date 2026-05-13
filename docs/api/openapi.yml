@@ -6596,7 +6596,15 @@ paths:
         - Email Channels
     post:
       callbacks: {}
-      description: Create a new email channel for the specified workspace. Recipients are managed on a sibling resource and carry their own per-address verification.
+      description: |
+        Create a new email channel for the specified workspace. Recipients are
+        managed on a sibling resource and carry their own per-address
+        verification.
+
+        Returns 422 with `error.code = "channel_quota_reached"` when the
+        workspace's combined webhook + email channel count has reached
+        `max_channels`. The cap is set on `Delivery.WorkspaceProfile` and
+        is editable from the workspace settings page.
       operationId: HolterWeb.Api.EmailChannelController.create
       parameters:
         - description: Workspace slug
@@ -6728,7 +6736,7 @@ paths:
                 type: object
                 x-struct:
                 x-validate:
-          description: Validation error
+          description: Validation error or `channel_quota_reached`
       summary: Create email channel
       tags:
         - Email Channels
@@ -7507,7 +7515,13 @@ paths:
                   description: Non-2xx triggers retry.
               summary: Outbound dispatch to the customer's webhook URL
               tags: []
-      description: Create a new webhook channel for the specified workspace.
+      description: |
+        Create a new webhook channel for the specified workspace.
+
+        Returns 422 with `error.code = "channel_quota_reached"` when the
+        workspace's combined webhook + email channel count has reached
+        `max_channels`. The cap is set on `Delivery.WorkspaceProfile` and
+        is editable from the workspace settings page.
       operationId: HolterWeb.Api.WebhookChannelController.create
       parameters:
         - description: Workspace slug
@@ -7651,7 +7665,7 @@ paths:
                 type: object
                 x-struct:
                 x-validate:
-          description: Validation error
+          description: Validation error or `channel_quota_reached`
       summary: Create webhook channel
       tags:
         - Webhook Channels

@@ -5,6 +5,7 @@ defmodule HolterWeb.Api.WebhookChannelControllerTest do
   import OpenApiSpex.TestAssertions
 
   alias Holter.Delivery.WebhookChannels
+  alias Holter.Repo.Tenant
   alias HolterWeb.Api.ApiSpec
 
   setup %{conn: conn, current_user: user} do
@@ -99,6 +100,31 @@ defmodule HolterWeb.Api.WebhookChannelControllerTest do
 
       resp = json_response(conn, 422)
       assert resp["error"]["code"] == "validation_failed"
+    end
+
+    test "returns 422 channel_quota_reached when the workspace is at quota",
+         %{conn: conn, current_user: user} do
+      workspace = workspace_fixture(%{owner: user, max_channels: 1})
+
+      Tenant.with_workspace!(workspace.id, fn ->
+        {:ok, _} =
+          WebhookChannels.create(%{
+            workspace_id: workspace.id,
+            name: "First",
+            url: "https://hooks.example.com/a"
+          })
+      end)
+
+      conn =
+        conn
+        |> authed_api_conn({user, workspace})
+        |> json_post(~p"/api/v1/workspaces/#{workspace.slug}/webhook_channels", %{
+          name: "Second",
+          url: "https://hooks.example.com/b"
+        })
+
+      resp = json_response(conn, 422)
+      assert resp["error"]["code"] == "channel_quota_reached"
     end
   end
 

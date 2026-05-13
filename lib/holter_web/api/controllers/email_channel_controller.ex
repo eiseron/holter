@@ -67,8 +67,16 @@ defmodule HolterWeb.Api.EmailChannelController do
 
   operation(:create,
     summary: "Create email channel",
-    description:
-      "Create a new email channel for the specified workspace. Recipients are managed on a sibling resource and carry their own per-address verification.",
+    description: """
+    Create a new email channel for the specified workspace. Recipients are
+    managed on a sibling resource and carry their own per-address
+    verification.
+
+    Returns 422 with `error.code = "channel_quota_reached"` when the
+    workspace's combined webhook + email channel count has reached
+    `max_channels`. The cap is set on `Delivery.WorkspaceProfile` and
+    is editable from the workspace settings page.
+    """,
     parameters: [
       workspace_slug: [in: :path, description: "Workspace slug", type: :string]
     ],
@@ -78,7 +86,9 @@ defmodule HolterWeb.Api.EmailChannelController do
     responses: [
       created:
         {"Created channel", "application/json", EmailChannelSchemas.email_channel_response()},
-      unprocessable_entity: {"Validation error", "application/json", EmailChannelSchemas.error()}
+      unprocessable_entity:
+        {"Validation error or `channel_quota_reached`", "application/json",
+         EmailChannelSchemas.error()}
     ]
   )
 
