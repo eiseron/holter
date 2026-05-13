@@ -37,6 +37,16 @@ variables:
   fallback_keys:
     - "${CI_COMMIT_REF_PROTECTED}-build-dev-default"
 
+.build-staging-cache: &build-staging-cache
+  key:
+    prefix: "${CI_COMMIT_REF_PROTECTED}-build-staging"
+    files:
+      - mix.lock
+  paths:
+    - _build/staging/
+  fallback_keys:
+    - "${CI_COMMIT_REF_PROTECTED}-build-staging-default"
+
 .build-test-cache: &build-test-cache
   key:
     prefix: "${CI_COMMIT_REF_PROTECTED}-build-test"
@@ -144,13 +154,14 @@ build_image:
   before_script: []
   cache:
     - *deps-cache
-    - *build-dev-cache
+    - *build-staging-cache
   variables:
-    MIX_ENV: dev
+    MIX_ENV: staging
   script:
     - mix deps.get
     - mix deps.compile
-    - mix assets.build
+    - mix compile
+    - mix assets.deploy
     - cp .docker/Dockerfile.preview Dockerfile
     - AUTH_B64=$(printf '%s:%s' "$PREVIEW_REGISTRY_USER" "$PREVIEW_REGISTRY_PASSWORD" | base64 | tr -d '\n')
     # elixir-builder ships DOCKER_CONFIG=/opt/kaniko/.docker/ (kaniko was

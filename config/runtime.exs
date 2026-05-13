@@ -22,7 +22,7 @@ end
 
 identity_pepper = System.get_env("IDENTITY_PEPPER")
 
-if config_env() == :prod and (is_nil(identity_pepper) or identity_pepper == "") do
+if config_env() in [:prod, :staging] and (is_nil(identity_pepper) or identity_pepper == "") do
   raise """
   environment variable IDENTITY_PEPPER is missing.
   Generate one with: mix phx.gen.secret 64
@@ -36,7 +36,7 @@ end
 
 delivery_alert_from_email = System.get_env("DELIVERY_ALERT_FROM_EMAIL")
 
-if config_env() == :prod and
+if config_env() in [:prod, :staging] and
      (is_nil(delivery_alert_from_email) or delivery_alert_from_email == "") do
   raise """
   environment variable DELIVERY_ALERT_FROM_EMAIL is missing.
@@ -51,7 +51,7 @@ end
 
 info_from_email = System.get_env("INFO_FROM_EMAIL")
 
-if config_env() == :prod and (is_nil(info_from_email) or info_from_email == "") do
+if config_env() in [:prod, :staging] and (is_nil(info_from_email) or info_from_email == "") do
   raise """
   environment variable INFO_FROM_EMAIL is missing.
   Set it to the address that appears in the From: header of transactional
@@ -88,7 +88,7 @@ end
 config :holter, HolterWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
-if config_env() == :prod do
+if config_env() in [:prod, :staging] do
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
