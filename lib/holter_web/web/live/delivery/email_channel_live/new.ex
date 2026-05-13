@@ -4,7 +4,8 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   import HolterWeb.Components.Delivery.EmailChannelFormFields
   import HolterWeb.Components.Delivery.MonitorChannelSelect
 
-  alias Holter.Delivery.EmailChannels
+  alias Holter.Delivery
+  alias Holter.Delivery.{EmailChannels, Profiles}
 
   alias Holter.Delivery.Emails.RecipientVerification
   alias Holter.Delivery.Models.EmailChannel
@@ -14,25 +15,8 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
   @impl true
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
-      {:ok, workspace} ->
-        changeset = EmailChannels.change(%EmailChannel{workspace_id: workspace.id})
-
-        available_monitors =
-          Monitoring.list_monitors_by_workspace(workspace.id)
-
-        {:ok,
-         socket
-         |> assign(:workspace, workspace)
-         |> assign(:page_title, gettext("New Email Channel"))
-         |> assign(:available_monitors, available_monitors)
-         |> assign(:form, to_form(changeset))
-         |> assign(:pending_recipients, [])}
-
-      {:error, :not_found} ->
-        {:ok,
-         socket
-         |> put_flash(:error, gettext("Workspace not found"))
-         |> push_navigate(to: "/")}
+      {:ok, workspace} -> mount_for_workspace(socket, workspace)
+      {:error, :not_found} -> {:ok, redirect_workspace_not_found(socket)}
     end
   end
 
@@ -100,9 +84,55 @@ defmodule HolterWeb.Web.Delivery.EmailChannelLive.New do
            gettext("You are not allowed to create channels in this workspace.")
          )}
 
+      {:error, :channel_quota_reached} ->
+        {:noreply,
+         redirect_channel_quota_reached(
+           socket,
+           socket.assigns.workspace,
+           socket.assigns.channel_max
+         )}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
+  end
+
+  defp mount_for_workspace(socket, workspace) do
+    channel_max = Profiles.get_for_workspace!(workspace.id).max_channels
+
+    if Delivery.count_channels(workspace.id) >= channel_max do
+      {:ok, redirect_channel_quota_reached(socket, workspace, channel_max)}
+    else
+      {:ok, build_new_channel_socket(socket, workspace, channel_max)}
+    end
+  end
+
+  defp build_new_channel_socket(socket, workspace, channel_max) do
+    changeset = EmailChannels.change(%EmailChannel{workspace_id: workspace.id})
+    available_monitors = Monitoring.list_monitors_by_workspace(workspace.id)
+
+    socket
+    |> assign(:workspace, workspace)
+    |> assign(:channel_max, channel_max)
+    |> assign(:page_title, gettext("New Email Channel"))
+    |> assign(:available_monitors, available_monitors)
+    |> assign(:form, to_form(changeset))
+    |> assign(:pending_recipients, [])
+  end
+
+  defp redirect_workspace_not_found(socket) do
+    socket
+    |> put_flash(:error, gettext("Workspace not found"))
+    |> push_navigate(to: "/")
+  end
+
+  defp redirect_channel_quota_reached(socket, workspace, channel_max) do
+    socket
+    |> put_flash(
+      :error,
+      gettext("Channel limit reached for this workspace (max: %{max})", max: channel_max)
+    )
+    |> push_navigate(to: ~p"/delivery/workspaces/#{workspace.slug}/channels")
   end
 
   defp info_from_address, do: Application.fetch_env!(:holter, :info_email)[:from_address]

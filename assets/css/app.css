@@ -23,6 +23,7 @@
 @import "./components/pagination.css";
 @import "./components/table.css";
 @import "./components/page_container.css";
+@import "./components/quota_gauge.css";
 @import "./components/tooltip.css";
 @import "./components/workspace_layout.css";
 @import "./components/workspace_sidebar.css";

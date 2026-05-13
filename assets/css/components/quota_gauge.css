@@ -1,0 +1,57 @@
+.h-quota-gauge-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-top: var(--space-4);
+}
+
+.h-quota-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.h-quota-gauge-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.h-quota-gauge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.h-quota-gauge-segments {
+  flex: 1;
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.h-quota-gauge-segment {
+  flex: 1;
+  height: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+}
+
+.h-quota-gauge-segment--filled {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.h-quota-gauge-fraction {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  min-width: 3.5rem;
+  text-align: right;
+}

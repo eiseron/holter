@@ -45,24 +45,23 @@ defmodule HolterWeb.Components.WorkspaceSidebarLiveRLSTest do
     %{workspace: workspace}
   end
 
-  test "sidebar renders the workspace's monitor count under RLS",
+  test "sidebar renders the monitor count/max badge when at quota under RLS",
        %{conn: conn, workspace: workspace} do
     {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
-    assert html =~ ~r{<span class="h-sidebar-badge">\s*3\s*</span>}
+    assert html =~ ~r{<span class="h-sidebar-badge">\s*3/3\s*</span>}
   end
 
-  test "sidebar renders the workspace's combined channel count under RLS",
+  test "sidebar renders the combined channel count/max badge when at quota under RLS",
        %{conn: conn, workspace: workspace} do
     {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
-    assert html =~ ~r{<span class="h-sidebar-badge">\s*2\s*</span>}
+    assert html =~ ~r{<span class="h-sidebar-badge">\s*2/2\s*</span>}
   end
 
   test "sidebar counts do not leak across workspaces", %{conn: conn, workspace: workspace} do
     {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
-    assert html =~ ~r{<span class="h-sidebar-badge">\s*3\s*</span>}
     refute html =~ "stranger.local"
   end
 end

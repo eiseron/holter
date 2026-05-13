@@ -3,18 +3,24 @@ defmodule HolterWeb.Web.Delivery.ChannelsLive do
 
   import HolterWeb.Components.Monitoring.DashboardHeader
 
-  alias Holter.Delivery.{EmailChannels, WebhookChannels}
+  alias Holter.Delivery
+  alias Holter.Delivery.{EmailChannels, Profiles, WebhookChannels}
   alias Holter.Monitoring
 
   @impl true
   def mount(%{"workspace_slug" => slug}, _session, socket) do
     case Monitoring.get_workspace_by_slug(slug) do
       {:ok, workspace} ->
+        channels = list_all_channels(workspace.id)
+        channel_max = Profiles.get_for_workspace!(workspace.id).max_channels
+
         {:ok,
          socket
          |> assign(:workspace, workspace)
          |> assign(:page_title, gettext("Notification Channels"))
-         |> assign(:channels, list_all_channels(workspace.id))}
+         |> assign(:channels, channels)
+         |> assign(:channel_max, channel_max)
+         |> assign(:at_quota, Delivery.count_channels(workspace.id) >= channel_max)}
 
       {:error, :not_found} ->
         {:ok,

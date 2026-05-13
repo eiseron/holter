@@ -51,6 +51,6 @@ defmodule HolterWeb.Web.Delivery.ChannelsLiveRLSTest do
        %{conn: conn, workspace: workspace} do
     {:ok, _view, html} = live(conn, ~p"/delivery/workspaces/#{workspace.slug}/channels")
 
-    assert html =~ ~r{<span class="h-sidebar-badge">\s*2\s*</span>}
+    assert html =~ ~r{<span class="h-sidebar-badge">\s*2/2\s*</span>}
   end
 end

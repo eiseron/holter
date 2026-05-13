@@ -75,6 +75,30 @@ defmodule HolterWeb.Web.Workspaces.ShowLiveTest do
     end
   end
 
+  describe "plan limits panel" do
+    test "renders the current max_monitors and max_channels as read-only",
+         %{conn: conn, current_workspace: workspace} do
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
+
+      refute has_element?(lv, ~s|input[name="workspace[max_monitors]"]|)
+      refute has_element?(lv, ~s|input[name="workspace[max_channels]"]|)
+    end
+
+    test "rejects out-of-band attempts to raise plan limits",
+         %{conn: conn, current_workspace: workspace} do
+      original_max = Monitoring.get_workspace_profile!(workspace.id).max_monitors
+
+      {:ok, lv, _html} = live(conn, ~p"/identity/workspaces/#{workspace.slug}")
+
+      render_submit(
+        element(lv, "#workspace-settings-form"),
+        %{"workspace" => %{"default_locale" => "en", "max_monitors" => "9999"}}
+      )
+
+      assert Monitoring.get_workspace_profile!(workspace.id).max_monitors == original_max
+    end
+  end
+
   describe "sidebar links" do
     test "marks the Workspace settings link as the active sidebar item",
          %{conn: conn, current_workspace: workspace} do

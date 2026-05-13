@@ -4,13 +4,28 @@
     subtitle={gettext("Alert delivery channels")}
   >
     <:actions>
-      <.link
-        navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels/new"}
-        class="h-btn h-btn-primary"
-      >
-        <.icon name="plus" />
-        {gettext("New Channel")}
-      </.link>
+      <%= if @at_quota do %>
+        <span
+          class="h-btn h-btn-primary h-btn-disabled"
+          title={
+            gettext("Channel limit reached (%{count}/%{max})",
+              count: @channel_max,
+              max: @channel_max
+            )
+          }
+        >
+          <.icon name="plus" />
+          {gettext("New Channel")}
+        </span>
+      <% else %>
+        <.link
+          navigate={~p"/delivery/workspaces/#{@workspace.slug}/channels/new"}
+          class="h-btn h-btn-primary"
+        >
+          <.icon name="plus" />
+          {gettext("New Channel")}
+        </.link>
+      <% end %>
     </:actions>
   </.dashboard_header>
 

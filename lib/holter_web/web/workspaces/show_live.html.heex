@@ -28,6 +28,28 @@
       </div>
     </div>
 
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Plan limits")}</h3>
+      <p class="h-help-text">
+        {gettext(
+          "Plan limits are managed by Eiseron and cannot be edited from the workspace. Contact support to change your plan."
+        )}
+      </p>
+
+      <dl class="h-quota-gauge-list">
+        <.quota_gauge
+          label={gettext("Monitors")}
+          count={@monitor_count}
+          max={@monitoring_profile.max_monitors}
+        />
+        <.quota_gauge
+          label={gettext("Notification channels")}
+          count={@channel_count}
+          max={@delivery_profile.max_channels}
+        />
+      </dl>
+    </div>
+
     <div class="h-actions-row h-justify-end">
       <.button type="submit" phx-disable-with={gettext("Saving...")} variant="primary">
         {gettext("Save")}
