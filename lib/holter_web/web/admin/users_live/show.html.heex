@@ -84,7 +84,9 @@
     <% else %>
       <.table id="admin-user-audit" rows={@audit_log}>
         <:col :let={a} label={gettext("When")}>
-          {Calendar.strftime(a.occurred_at, "%Y-%m-%d %H:%M:%S UTC")}
+          <time datetime={DateTime.to_iso8601(a.occurred_at)}>
+            {Calendar.strftime(a.occurred_at, "%Y-%m-%d %H:%M:%S UTC")}
+          </time>
         </:col>
         <:col :let={a} label={gettext("Action")}>
           <span class="h-font-mono">{a.action}</span>

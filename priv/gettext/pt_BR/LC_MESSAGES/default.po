@@ -77,7 +77,7 @@ msgstr "Não Deve Conter (Desfigurações)"
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:24
 #: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:26
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:108
-#: lib/holter_web/web/workspaces/show_live.html.heex:84
+#: lib/holter_web/web/workspaces/show_live.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Saving..."
 msgstr "Salvando..."
@@ -506,9 +506,9 @@ msgid "You have unsaved changes. Please save them before checking."
 msgstr "Você tem alterações não salvas. Por favor, salve-as antes de verificar."
 
 #: lib/holter_web/web/live/delivery/channels_live.ex:28
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:32
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:46
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:43
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:31
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:125
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:91
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:36
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:26
 #, elixir-autogen, elixir-format
@@ -755,6 +755,7 @@ msgstr "Nenhum log corresponde aos filtros atuais"
 
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:95
 #: lib/holter_web/web/admin/dashboard_live.ex:37
+#: lib/holter_web/web/admin/dashboard_live.ex:56
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:38
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:94
@@ -921,7 +922,7 @@ msgstr "Nome"
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:18
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:26
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:46
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:26
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:25
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Channel"
@@ -1392,13 +1393,13 @@ msgstr "Li e concordo com os Termos de Uso e a Política de Privacidade."
 msgid "Invalid email or password."
 msgstr "E-mail ou senha inválidos."
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:37
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:117
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Email Channel"
 msgstr "Novo Canal de E-mail"
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:35
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:84
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Webhook Channel"
@@ -1463,7 +1464,7 @@ msgstr "Verificando seu e-mail…"
 msgid "Webhook channel"
 msgstr "Canal de webhook"
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:71
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:43
 #, elixir-autogen, elixir-format
 msgid "Webhook channel created successfully"
 msgstr "Canal de webhook criado"
@@ -1667,7 +1668,7 @@ msgstr "%{verified}/%{total} verificados"
 msgid "Cannot send a test: this channel has no verified recipients. Add at least one and verify it first."
 msgstr "Não é possível enviar um teste: este canal não tem destinatários verificados. Adicione pelo menos um e verifique-o primeiro."
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:103
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:75
 #, elixir-autogen, elixir-format
 msgid "Channel created. Verification email sent to each recipient."
 msgstr "Canal criado. Email de verificação enviado para cada destinatário."
@@ -1716,7 +1717,7 @@ msgstr "Rascunho"
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:44
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:57
 #: lib/holter_web/web/identity/user_live/show.ex:19
-#: lib/holter_web/web/workspaces/show_live.ex:26
+#: lib/holter_web/web/workspaces/show_live.ex:27
 #, elixir-autogen, elixir-format
 msgid "English"
 msgstr "Inglês"
@@ -1730,7 +1731,7 @@ msgstr "Idioma"
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:43
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:56
 #: lib/holter_web/web/identity/user_live/show.ex:18
-#: lib/holter_web/web/workspaces/show_live.ex:25
+#: lib/holter_web/web/workspaces/show_live.ex:26
 #, elixir-autogen, elixir-format
 msgid "Portuguese (Brazil)"
 msgstr "Português (Brasil)"
@@ -1778,13 +1779,13 @@ msgid "Preferences"
 msgstr "Preferências"
 
 #: lib/holter_web/web/identity/user_live/show.html.heex:34
-#: lib/holter_web/web/workspaces/show_live.html.heex:85
+#: lib/holter_web/web/workspaces/show_live.html.heex:55
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Salvar"
 
 #: lib/holter_web/web/identity/user_live/show.ex:43
-#: lib/holter_web/web/workspaces/show_live.ex:69
+#: lib/holter_web/web/workspaces/show_live.ex:70
 #, elixir-autogen, elixir-format
 msgid "Saved."
 msgstr "Salvo."
@@ -1794,7 +1795,7 @@ msgstr "Salvo."
 msgid "Use workspace default"
 msgstr "Usar padrão do workspace"
 
-#: lib/holter_web/web/workspaces/show_live.ex:40
+#: lib/holter_web/web/workspaces/show_live.ex:41
 #: lib/holter_web/web/workspaces/show_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Workspace"
@@ -2153,24 +2154,24 @@ msgstr "Você tem alterações não salvas. Sair sem salvar?"
 
 #: lib/holter_web/web/admin/dashboard_live.ex:14
 #: lib/holter_web/web/admin/dashboard_live.ex:22
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Admin Panel"
 msgstr "Painel Administrativo"
 
-#: lib/holter_web/web/admin/dashboard_live.ex:52
+#: lib/holter_web/web/admin/dashboard_live.ex:54
 #, elixir-autogen, elixir-format
 msgid "Append-only history of every admin action."
 msgstr "Histórico append-only de toda ação administrativa."
 
-#: lib/holter_web/components/admin_sidebar.ex:52
-#: lib/holter_web/web/admin/dashboard_live.ex:51
+#: lib/holter_web/components/admin_sidebar.ex:58
+#: lib/holter_web/web/admin/audit_log_live.html.heex:3
+#: lib/holter_web/web/admin/dashboard_live.ex:52
 #, elixir-autogen, elixir-format
 msgid "Audit log"
 msgstr "Log de auditoria"
 
 #: lib/holter_web/web/admin/dashboard_live.ex:43
 #: lib/holter_web/web/admin/dashboard_live.ex:48
-#: lib/holter_web/web/admin/dashboard_live.ex:53
 #: lib/holter_web/web/admin/users_live/show.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:53
 #: lib/holter_web/web/admin/users_live/show.html.heex:59
@@ -2183,7 +2184,7 @@ msgstr "Em breve"
 msgid "Cross-workspace visibility for support."
 msgstr "Visibilidade entre workspaces para suporte."
 
-#: lib/holter_web/components/admin_sidebar.ex:60
+#: lib/holter_web/components/admin_sidebar.ex:65
 #, elixir-autogen, elixir-format
 msgid "Exit admin"
 msgstr "Sair do admin"
@@ -2220,13 +2221,12 @@ msgid "Search, inspect, impersonate, ban."
 msgstr "Buscar, inspecionar, personificar, banir."
 
 #: lib/holter_web/components/layouts/admin.html.heex:13
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Sign out"
 msgstr "Sair"
 
 #: lib/holter_web/components/admin_sidebar.ex:41
 #: lib/holter_web/components/admin_sidebar.ex:47
-#: lib/holter_web/components/admin_sidebar.ex:53
 #, elixir-autogen, elixir-format
 msgid "Soon"
 msgstr "Em breve"
@@ -2240,7 +2240,7 @@ msgstr "Usuários"
 
 #: lib/holter_web/components/admin_sidebar.ex:40
 #: lib/holter_web/web/admin/dashboard_live.ex:41
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Workspaces"
 msgstr "Workspaces"
 
@@ -2249,8 +2249,8 @@ msgstr "Workspaces"
 msgid "You are not allowed to create API tokens in this workspace."
 msgstr "Você não tem permissão para criar tokens de API neste workspace."
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:112
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:79
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:84
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:51
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to create channels in this workspace."
 msgstr "Você não tem permissão para criar canais neste workspace."
@@ -2309,7 +2309,7 @@ msgstr "Você não tem permissão para atualizar este canal."
 msgid "You are not allowed to update this monitor."
 msgstr "Você não tem permissão para atualizar este monitor."
 
-#: lib/holter_web/web/workspaces/show_live.ex:79
+#: lib/holter_web/web/workspaces/show_live.ex:80
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to update this workspace."
 msgstr "Você não tem permissão para atualizar este workspace."
@@ -2320,7 +2320,7 @@ msgid "Admin · Users"
 msgstr "Admin · Usuários"
 
 #: lib/holter_web/web/admin/users_live.html.heex:32
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "All statuses"
 msgstr "Todos os Status"
 
@@ -2337,19 +2337,17 @@ msgid "Channel limit reached (%{count}/%{max})"
 msgstr "Limite de canais atingido (%{count}/%{max})"
 
 #: lib/holter/delivery/models/workspace_profile.ex:63
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:19
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:26
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:120
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:23
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:87
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:39
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:133
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:99
 #, elixir-autogen, elixir-format
 msgid "Channel limit reached for this workspace (max: %{max})"
 msgstr "Limite de canais atingido neste workspace (máximo: %{max})"
 
 #: lib/holter_web/web/admin/users_live.html.heex:71
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Created at"
-msgstr "Criar conta"
+msgstr "Criado em"
 
 #: lib/holter_web/web/admin/users_live.html.heex:5
 #, elixir-autogen, elixir-format
@@ -2361,8 +2359,8 @@ msgstr "Busca de usuários entre workspaces. Total: %{n}."
 msgid "No users match the current filters"
 msgstr "Nenhum usuário corresponde aos filtros atuais"
 
-#: lib/holter_web/web/workspaces/show_live.html.heex:61
-#, elixir-autogen, elixir-format, fuzzy
+#: lib/holter_web/web/workspaces/show_live.html.heex:46
+#, elixir-autogen, elixir-format
 msgid "Notification channels"
 msgstr "Canais de Notificação"
 
@@ -2393,112 +2391,158 @@ msgstr "Buscar por email"
 msgid "substring or domain fragment"
 msgstr "substring ou fragmento de domínio"
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:20
+#: lib/holter_web/web/admin/audit_log_live.html.heex:52
 #: lib/holter_web/web/admin/users_live/show.html.heex:89
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Action"
-msgstr "Ações"
+msgstr "Ação"
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:45
 #: lib/holter_web/web/admin/users_live/show.html.heex:92
 #, elixir-autogen, elixir-format
 msgid "Actor"
-msgstr ""
+msgstr "Ator"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:41
 #, elixir-autogen, elixir-format
 msgid "Admin actions"
-msgstr ""
+msgstr "Ações administrativas"
 
 #: lib/holter_web/web/admin/users_live/show.ex:32
 #, elixir-autogen, elixir-format
 msgid "Admin · %{email}"
-msgstr ""
+msgstr "Admin · %{email}"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:81
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Audit log (%{n})"
-msgstr "Log de auditoria"
+msgstr "Log de auditoria (%{n})"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Ban user"
-msgstr ""
+msgstr "Banir usuário"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:26
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Email verified at"
-msgstr "Email verificado"
+msgstr "Email verificado em"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:51
 #, elixir-autogen, elixir-format
 msgid "Grant manual plan"
-msgstr ""
+msgstr "Conceder plano manual"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:18
 #, elixir-autogen, elixir-format
 msgid "Identity"
-msgstr ""
+msgstr "Identidade"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "Internal ID"
-msgstr ""
+msgstr "ID interno"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "Joined %{date}"
-msgstr ""
+msgstr "Entrou em %{date}"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:35
 #, elixir-autogen, elixir-format
 msgid "Locale"
-msgstr ""
+msgstr "Idioma"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "No admin actions on this user yet"
-msgstr ""
+msgstr "Nenhuma ação administrativa neste usuário ainda"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:31
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Not verified"
-msgstr "Verificado"
+msgstr "Não verificado"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:75
 #, elixir-autogen, elixir-format
 msgid "Role"
-msgstr ""
+msgstr "Papel"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:45
 #, elixir-autogen, elixir-format
 msgid "Sign in as this user"
-msgstr ""
+msgstr "Entrar como este usuário"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:72
 #, elixir-autogen, elixir-format
 msgid "Slug"
-msgstr ""
+msgstr "Slug"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:68
 #, elixir-autogen, elixir-format
 msgid "User has no workspace memberships"
-msgstr ""
+msgstr "Usuário não possui membros em workspaces"
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:42
 #: lib/holter_web/web/admin/users_live/show.html.heex:86
 #, elixir-autogen, elixir-format
 msgid "When"
-msgstr ""
+msgstr "Quando"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:66
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Workspaces (%{n})"
-msgstr "Workspaces"
+msgstr "Workspaces (%{n})"
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "default"
-msgstr ""
+msgstr "padrão"
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:94
 #, elixir-autogen, elixir-format
 msgid "system"
-msgstr ""
+msgstr "sistema"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "%{n} keys"
+msgstr "%{n} chaves"
+
+#: lib/holter_web/web/admin/audit_log_live.ex:25
+#, elixir-autogen, elixir-format
+msgid "Admin · Audit log"
+msgstr "Admin · Log de auditoria"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Append-only record of every admin action. Showing %{n} rows."
+msgstr "Registro append-only de toda ação administrativa. Mostrando %{n} linhas."
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "Diff"
+msgstr "Diff"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "No audit entries match the current filters"
+msgstr "Nenhuma entrada de auditoria corresponde aos filtros atuais"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:30
+#: lib/holter_web/web/admin/audit_log_live.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr "Recurso"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "e.g. User:abc-123"
+msgstr "ex.: User:abc-123"
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "e.g. promote_admin"
+msgstr "ex.: promote_admin"

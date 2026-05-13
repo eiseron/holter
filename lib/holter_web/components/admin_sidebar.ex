@@ -48,10 +48,15 @@ defmodule HolterWeb.Components.AdminSidebar do
           </span>
         </li>
         <li>
-          <span class="h-sidebar-link h-sidebar-link--disabled">
+          <.link
+            navigate={~p"/admin/audit-log"}
+            class={[
+              "h-sidebar-link",
+              @current_view == HolterWeb.Web.Admin.AuditLogLive && "h-sidebar-link--active"
+            ]}
+          >
             <span class="h-sidebar-link-label">{gettext("Audit log")}</span>
-            <span class="h-sidebar-badge">{gettext("Soon")}</span>
-          </span>
+          </.link>
         </li>
       </ul>
 

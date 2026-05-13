@@ -1,0 +1,72 @@
+<section class="h-admin-content">
+  <header class="h-admin-content-header">
+    <h1>{gettext("Audit log")}</h1>
+    <p class="h-admin-lede">
+      {gettext("Append-only record of every admin action. Showing %{n} rows.", n: @row_count)}
+    </p>
+  </header>
+
+  <.form
+    for={@form}
+    id="audit-log-filters"
+    phx-change="filter_updated"
+    phx-submit="filter_updated"
+    class="h-form-row"
+  >
+    <div class="h-form-item">
+      <.input
+        field={@form[:action]}
+        type="text"
+        label={gettext("Action")}
+        placeholder={gettext("e.g. promote_admin")}
+        value={@filters.action || ""}
+        phx-debounce="300"
+      />
+    </div>
+    <div class="h-form-item">
+      <.input
+        field={@form[:resource]}
+        type="text"
+        label={gettext("Resource")}
+        placeholder={gettext("e.g. User:abc-123")}
+        value={@filters.resource || ""}
+        phx-debounce="300"
+      />
+    </div>
+  </.form>
+
+  <%= if @rows == [] do %>
+    <.empty_state title={gettext("No audit entries match the current filters")} />
+  <% else %>
+    <.table id="admin-audit-log-table" rows={@rows}>
+      <:col :let={row} label={gettext("When")}>
+        <time datetime={DateTime.to_iso8601(row.occurred_at)}>
+          {Calendar.strftime(row.occurred_at, "%Y-%m-%d %H:%M:%S UTC")}
+        </time>
+      </:col>
+      <:col :let={row} label={gettext("Actor")}>
+        <%= if row.actor_type == "system" do %>
+          <em>{gettext("system")}</em>
+        <% else %>
+          <span class="h-font-mono">{row.actor_id}</span>
+        <% end %>
+      </:col>
+      <:col :let={row} label={gettext("Action")}>
+        <span class="h-font-mono">{row.action}</span>
+      </:col>
+      <:col :let={row} label={gettext("Resource")}>
+        <span class="h-font-mono">{row.resource}</span>
+      </:col>
+      <:col :let={row} label={gettext("Diff")}>
+        <%= if map_size(row.diff) > 0 do %>
+          <details class="h-admin-diff">
+            <summary>{gettext("%{n} keys", n: map_size(row.diff))}</summary>
+            <pre>{Jason.encode!(row.diff, pretty: true)}</pre>
+          </details>
+        <% else %>
+          <span class="h-admin-muted">—</span>
+        <% end %>
+      </:col>
+    </.table>
+  <% end %>
+</section>

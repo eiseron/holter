@@ -34,7 +34,7 @@ defmodule HolterWeb.GettextEnConsistencyTest do
   end
 
   defp parse_entries(content) do
-    Regex.scan(~r/^msgid "([^"]*(?:\\"[^"]*)*)"\nmsgstr "([^"]*(?:\\"[^"]*)*)"/m, content,
+    Regex.scan(~r/^msgid "((?:[^"\\]|\\.)*)"\nmsgstr "((?:[^"\\]|\\.)*)"/m, content,
       capture: :all_but_first
     )
     |> Enum.map(fn [msgid, msgstr] -> {msgid, msgstr} end)

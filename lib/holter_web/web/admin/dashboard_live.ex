@@ -47,10 +47,14 @@ defmodule HolterWeb.Web.Admin.DashboardLive do
           <p>{gettext("Global kill switch, beta overrides, canary rollout.")}</p>
           <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
         </li>
-        <li class="h-admin-feature-card h-admin-feature-card--soon">
-          <h2>{gettext("Audit log")}</h2>
+        <li class="h-admin-feature-card">
+          <h2>
+            <.link navigate={~p"/admin/audit-log"}>{gettext("Audit log")}</.link>
+          </h2>
           <p>{gettext("Append-only history of every admin action.")}</p>
-          <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
+          <.link navigate={~p"/admin/audit-log"} class="h-admin-feature-action">
+            {gettext("Open")}
+          </.link>
         </li>
       </ul>
     </section>

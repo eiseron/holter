@@ -77,7 +77,7 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:24
 #: lib/holter_web/web/live/monitoring/monitor_live/new.html.heex:26
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:108
-#: lib/holter_web/web/workspaces/show_live.html.heex:84
+#: lib/holter_web/web/workspaces/show_live.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Saving..."
 msgstr ""
@@ -506,9 +506,9 @@ msgid "You have unsaved changes. Please save them before checking."
 msgstr ""
 
 #: lib/holter_web/web/live/delivery/channels_live.ex:28
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:32
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:46
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:43
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:31
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:125
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:91
 #: lib/holter_web/web/live/monitoring/monitor_live/new.ex:36
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:26
 #, elixir-autogen, elixir-format
@@ -755,6 +755,7 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:95
 #: lib/holter_web/web/admin/dashboard_live.ex:37
+#: lib/holter_web/web/admin/dashboard_live.ex:56
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:38
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:94
@@ -921,7 +922,7 @@ msgstr ""
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:18
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:26
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:46
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:26
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:25
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Channel"
@@ -1392,13 +1393,13 @@ msgstr ""
 msgid "Invalid email or password."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:37
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:117
 #: lib/holter_web/web/live/delivery/email_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Email Channel"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:35
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:84
 #: lib/holter_web/web/live/delivery/webhook_channel_live/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "New Webhook Channel"
@@ -1463,7 +1464,7 @@ msgstr ""
 msgid "Webhook channel"
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:71
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:43
 #, elixir-autogen, elixir-format
 msgid "Webhook channel created successfully"
 msgstr ""
@@ -1667,7 +1668,7 @@ msgstr ""
 msgid "Cannot send a test: this channel has no verified recipients. Add at least one and verify it first."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:103
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:75
 #, elixir-autogen, elixir-format
 msgid "Channel created. Verification email sent to each recipient."
 msgstr ""
@@ -1716,7 +1717,7 @@ msgstr ""
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:44
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:57
 #: lib/holter_web/web/identity/user_live/show.ex:19
-#: lib/holter_web/web/workspaces/show_live.ex:26
+#: lib/holter_web/web/workspaces/show_live.ex:27
 #, elixir-autogen, elixir-format
 msgid "English"
 msgstr ""
@@ -1730,7 +1731,7 @@ msgstr ""
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:43
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:56
 #: lib/holter_web/web/identity/user_live/show.ex:18
-#: lib/holter_web/web/workspaces/show_live.ex:25
+#: lib/holter_web/web/workspaces/show_live.ex:26
 #, elixir-autogen, elixir-format
 msgid "Portuguese (Brazil)"
 msgstr ""
@@ -1778,13 +1779,13 @@ msgid "Preferences"
 msgstr ""
 
 #: lib/holter_web/web/identity/user_live/show.html.heex:34
-#: lib/holter_web/web/workspaces/show_live.html.heex:85
+#: lib/holter_web/web/workspaces/show_live.html.heex:55
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr ""
 
 #: lib/holter_web/web/identity/user_live/show.ex:43
-#: lib/holter_web/web/workspaces/show_live.ex:69
+#: lib/holter_web/web/workspaces/show_live.ex:70
 #, elixir-autogen, elixir-format
 msgid "Saved."
 msgstr ""
@@ -1794,7 +1795,7 @@ msgstr ""
 msgid "Use workspace default"
 msgstr ""
 
-#: lib/holter_web/web/workspaces/show_live.ex:40
+#: lib/holter_web/web/workspaces/show_live.ex:41
 #: lib/holter_web/web/workspaces/show_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "Workspace"
@@ -2157,20 +2158,20 @@ msgstr ""
 msgid "Admin Panel"
 msgstr ""
 
-#: lib/holter_web/web/admin/dashboard_live.ex:52
+#: lib/holter_web/web/admin/dashboard_live.ex:54
 #, elixir-autogen, elixir-format
 msgid "Append-only history of every admin action."
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:52
-#: lib/holter_web/web/admin/dashboard_live.ex:51
+#: lib/holter_web/components/admin_sidebar.ex:58
+#: lib/holter_web/web/admin/audit_log_live.html.heex:3
+#: lib/holter_web/web/admin/dashboard_live.ex:52
 #, elixir-autogen, elixir-format
 msgid "Audit log"
 msgstr ""
 
 #: lib/holter_web/web/admin/dashboard_live.ex:43
 #: lib/holter_web/web/admin/dashboard_live.ex:48
-#: lib/holter_web/web/admin/dashboard_live.ex:53
 #: lib/holter_web/web/admin/users_live/show.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:53
 #: lib/holter_web/web/admin/users_live/show.html.heex:59
@@ -2183,7 +2184,7 @@ msgstr ""
 msgid "Cross-workspace visibility for support."
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:60
+#: lib/holter_web/components/admin_sidebar.ex:65
 #, elixir-autogen, elixir-format
 msgid "Exit admin"
 msgstr ""
@@ -2226,7 +2227,6 @@ msgstr ""
 
 #: lib/holter_web/components/admin_sidebar.ex:41
 #: lib/holter_web/components/admin_sidebar.ex:47
-#: lib/holter_web/components/admin_sidebar.ex:53
 #, elixir-autogen, elixir-format
 msgid "Soon"
 msgstr ""
@@ -2249,8 +2249,8 @@ msgstr ""
 msgid "You are not allowed to create API tokens in this workspace."
 msgstr ""
 
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:112
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:79
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:84
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:51
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to create channels in this workspace."
 msgstr ""
@@ -2309,7 +2309,7 @@ msgstr ""
 msgid "You are not allowed to update this monitor."
 msgstr ""
 
-#: lib/holter_web/web/workspaces/show_live.ex:79
+#: lib/holter_web/web/workspaces/show_live.ex:80
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to update this workspace."
 msgstr ""
@@ -2337,11 +2337,9 @@ msgid "Channel limit reached (%{count}/%{max})"
 msgstr ""
 
 #: lib/holter/delivery/models/workspace_profile.ex:63
-#: lib/holter_web/web/live/delivery/channels_live/new.ex:19
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:26
-#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:120
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:23
-#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:87
+#: lib/holter_web/web/live/delivery/channels_live/new.ex:39
+#: lib/holter_web/web/live/delivery/email_channel_live/new.ex:133
+#: lib/holter_web/web/live/delivery/webhook_channel_live/new.ex:99
 #, elixir-autogen, elixir-format
 msgid "Channel limit reached for this workspace (max: %{max})"
 msgstr ""
@@ -2361,7 +2359,7 @@ msgstr ""
 msgid "No users match the current filters"
 msgstr ""
 
-#: lib/holter_web/web/workspaces/show_live.html.heex:61
+#: lib/holter_web/web/workspaces/show_live.html.heex:46
 #, elixir-autogen, elixir-format
 msgid "Notification channels"
 msgstr ""
@@ -2393,11 +2391,14 @@ msgstr ""
 msgid "substring or domain fragment"
 msgstr ""
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:20
+#: lib/holter_web/web/admin/audit_log_live.html.heex:52
 #: lib/holter_web/web/admin/users_live/show.html.heex:89
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr ""
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:45
 #: lib/holter_web/web/admin/users_live/show.html.heex:92
 #, elixir-autogen, elixir-format
 msgid "Actor"
@@ -2483,6 +2484,7 @@ msgstr ""
 msgid "User has no workspace memberships"
 msgstr ""
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:42
 #: lib/holter_web/web/admin/users_live/show.html.heex:86
 #, elixir-autogen, elixir-format
 msgid "When"
@@ -2498,7 +2500,49 @@ msgstr ""
 msgid "default"
 msgstr ""
 
+#: lib/holter_web/web/admin/audit_log_live.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:94
 #, elixir-autogen, elixir-format
 msgid "system"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "%{n} keys"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.ex:25
+#, elixir-autogen, elixir-format
+msgid "Admin · Audit log"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Append-only record of every admin action. Showing %{n} rows."
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "Diff"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "No audit entries match the current filters"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:30
+#: lib/holter_web/web/admin/audit_log_live.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "e.g. User:abc-123"
+msgstr ""
+
+#: lib/holter_web/web/admin/audit_log_live.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "e.g. promote_admin"
 msgstr ""
