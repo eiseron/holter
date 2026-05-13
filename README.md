@@ -58,7 +58,7 @@ The REST API specification is auto-generated during `mix precommit` and lives at
 
 ## License and Trademarks
 
-Holter is released under the **Functional Source License, Version 1.1, with Apache License 2.0 Future License (FSL-1.1-ALv2)**. See [LICENSE](LICENSE) for the full text and [NOTICE](NOTICE) for attribution.
+Holter is released under the **Functional Source License, Version 1.1, with Apache License 2.0 Future License (FSL-1.1-ALv2)**. See [LICENSE.md](LICENSE.md) for the full text and [NOTICE](NOTICE) for attribution.
 
 The FSL permits any **Permitted Purpose** — including self-hosting for your own use and use in connection with professional services you provide to others — and prohibits a **Competing Use**, meaning making the Software available as a commercial product or service that competes with Eiseron's offerings. Each released version converts to the Apache License, Version 2.0 two years after publication.
 

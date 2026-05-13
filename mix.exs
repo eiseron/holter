@@ -27,10 +27,10 @@ defmodule Holter.MixProject do
       licenses: ["FSL-1.1-ALv2"],
       links: %{
         "Source" => "https://github.com/eiseron/holter",
-        "License" => "https://github.com/eiseron/holter/blob/main/LICENSE",
+        "License" => "https://github.com/eiseron/holter/blob/main/LICENSE.md",
         "Trademarks" => "https://github.com/eiseron/holter/blob/main/TRADEMARKS.md"
       },
-      files: ~w(lib priv config mix.exs README.md LICENSE NOTICE TRADEMARKS.md CONTRIBUTING.md)
+      files: ~w(lib priv config mix.exs README.md LICENSE.md NOTICE TRADEMARKS.md CONTRIBUTING.md)
     ]
   end
 

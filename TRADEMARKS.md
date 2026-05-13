@@ -4,7 +4,7 @@ This document declares the trademark policy applicable to the Holter project.
 
 ## Summary
 
-The Holter source code is licensed under the **Functional Source License, Version 1.1, with Apache License 2.0 Future License (FSL-1.1-ALv2)**. See [LICENSE](LICENSE).
+The Holter source code is licensed under the **Functional Source License, Version 1.1, with Apache License 2.0 Future License (FSL-1.1-ALv2)**. See [LICENSE.md](LICENSE.md).
 
 The **FSL does not grant rights to use Eiseron's trademarks.** Trademark rights are separate from copyright and are governed by this document.
 
@@ -33,7 +33,7 @@ The FSL permits you to use, copy, modify, create derivative works, publicly perf
 - Non-commercial education and research.
 - Publishing modifications, provided you preserve all copyright and license notices and apply the same Terms and Conditions to your modifications.
 
-The FSL does **not** permit a **Competing Use** — that is, making the Software available to others in a commercial product or service that substitutes for the Software, substitutes for any other product or service Eiseron offers using the Software, or offers substantially similar functionality. See the LICENSE for the full definition.
+The FSL does **not** permit a **Competing Use** — that is, making the Software available to others in a commercial product or service that substitutes for the Software, substitutes for any other product or service Eiseron offers using the Software, or offers substantially similar functionality. See the LICENSE.md for the full definition.
 
 Each released version of the Software converts to the Apache License, Version 2.0 two years after publication.
 
