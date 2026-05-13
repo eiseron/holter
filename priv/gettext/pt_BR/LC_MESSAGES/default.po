@@ -12,6 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
 
 #: lib/holter_web/components/table.ex:57
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:58
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Ações"
@@ -911,6 +912,8 @@ msgstr "Linha do tempo de incidentes"
 
 #: lib/holter_web/components/delivery/email_channel_form_fields.ex:17
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:17
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:16
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:35
 #: lib/holter_web/web/admin/users_live/show.html.heex:71
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:52
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
@@ -2191,6 +2194,7 @@ msgstr "Sair do admin"
 
 #: lib/holter_web/components/admin_sidebar.ex:46
 #: lib/holter_web/web/admin/dashboard_live.ex:46
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Feature flags"
 msgstr "Feature flags"
@@ -2546,3 +2550,104 @@ msgstr "ex.: User:abc-123"
 #, elixir-autogen, elixir-format
 msgid "e.g. promote_admin"
 msgstr "ex.: promote_admin"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "%{n} overrides"
+msgstr "%{n} exceções"
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:18
+#, elixir-autogen, elixir-format
+msgid "Admin · Feature flags"
+msgstr "Admin · Feature flags"
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:55
+#, elixir-autogen, elixir-format
+msgid "Could not create flag."
+msgstr "Não foi possível criar a flag."
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:36
+#, elixir-autogen, elixir-format
+msgid "Could not toggle flag."
+msgstr "Não foi possível alternar a flag."
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr "Criar"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Create new flag"
+msgstr "Criar nova flag"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "Disable"
+msgstr "Desabilitar"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Disabled"
+msgstr "Desabilitada"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Enable"
+msgstr "Habilitar"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:51
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "Enabled"
+msgstr "Habilitada"
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:47
+#, elixir-autogen, elixir-format
+msgid "Flag %{name} created."
+msgstr "Flag %{name} criada."
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:32
+#, elixir-autogen, elixir-format
+msgid "Flag %{name} toggled."
+msgstr "Flag %{name} alternada."
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:59
+#, elixir-autogen, elixir-format
+msgid "Global"
+msgstr "Global"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Kill switches, beta cohorts, canary rollouts. Total: %{n}."
+msgstr "Kill switches, beta cohorts, rollouts canários. Total: %{n}."
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:61
+#, elixir-autogen, elixir-format
+msgid "List"
+msgstr "Lista"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Lowercase letters, digits and underscores. Defaults to disabled / global strategy."
+msgstr "Letras minúsculas, dígitos e underscores. Inicia como desabilitada com estratégia global."
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "No feature flags yet"
+msgstr "Nenhuma feature flag ainda"
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:60
+#, elixir-autogen, elixir-format
+msgid "Percentage"
+msgstr "Percentual"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Strategy"
+msgstr "Estratégia"
+
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "e.g. new_dashboard_v2"
+msgstr "ex.: new_dashboard_v2"

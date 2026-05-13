@@ -42,10 +42,14 @@ defmodule HolterWeb.Web.Admin.DashboardLive do
           <p>{gettext("Cross-workspace visibility for support.")}</p>
           <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
         </li>
-        <li class="h-admin-feature-card h-admin-feature-card--soon">
-          <h2>{gettext("Feature flags")}</h2>
+        <li class="h-admin-feature-card">
+          <h2>
+            <.link navigate={~p"/admin/feature-flags"}>{gettext("Feature flags")}</.link>
+          </h2>
           <p>{gettext("Global kill switch, beta overrides, canary rollout.")}</p>
-          <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
+          <.link navigate={~p"/admin/feature-flags"} class="h-admin-feature-action">
+            {gettext("Open")}
+          </.link>
         </li>
         <li class="h-admin-feature-card">
           <h2>

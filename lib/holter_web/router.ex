@@ -145,6 +145,7 @@ defmodule HolterWeb.Router do
       live "/users", UsersLive, :index
       live "/users/:id", UsersLive.Show, :show
       live "/audit-log", AuditLogLive, :index
+      live "/feature-flags", FeatureFlagsLive, :index
     end
   end
 

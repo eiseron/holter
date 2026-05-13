@@ -85,6 +85,10 @@
   min-width: 150px;
 }
 
+.h-form-item .h-fieldset {
+  margin-bottom: 0;
+}
+
 .h-form-item-fixed {
   flex: 0 0 auto;
 }

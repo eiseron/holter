@@ -18,6 +18,17 @@ config :holter, HolterWeb.Endpoint,
   pubsub_server: Holter.PubSub,
   live_view: [signing_salt: "W9N2oSh5"]
 
+config :fun_with_flags, :persistence,
+  adapter: FunWithFlags.Store.Persistent.Ecto,
+  repo: Holter.Repo,
+  ecto_table_name: "fun_with_flags_toggles",
+  ecto_primary_key_type: :binary_id
+
+config :fun_with_flags, :cache_bust_notifications,
+  enabled: true,
+  adapter: FunWithFlags.Notifications.PhoenixPubSub,
+  client: Holter.PubSub
+
 config :holter, Holter.Mailers.AlertMailer, adapter: Swoosh.Adapters.Local
 config :holter, Holter.Mailers.InfoMailer, adapter: Swoosh.Adapters.Local
 

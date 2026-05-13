@@ -1,0 +1,76 @@
+<section class="h-admin-content">
+  <header class="h-admin-content-header">
+    <h1>{gettext("Feature flags")}</h1>
+    <p class="h-admin-lede">
+      {gettext("Kill switches, beta cohorts, canary rollouts. Total: %{n}.", n: length(@flags))}
+    </p>
+  </header>
+
+  <article class="h-admin-card">
+    <h2>{gettext("Create new flag")}</h2>
+    <.form for={@form} phx-submit="create" class="h-form-row">
+      <div class="h-form-item">
+        <.input
+          field={@form[:name]}
+          type="text"
+          label={gettext("Name")}
+          placeholder={gettext("e.g. new_dashboard_v2")}
+        />
+      </div>
+      <div class="h-form-item-fixed">
+        <.button type="submit">{gettext("Create")}</.button>
+      </div>
+    </.form>
+    <p class="h-admin-action-meta">
+      {gettext(
+        "Lowercase letters, digits and underscores. Defaults to disabled / global strategy."
+      )}
+    </p>
+  </article>
+
+  <%= if @flags == [] do %>
+    <.empty_state title={gettext("No feature flags yet")} />
+  <% else %>
+    <.table id="admin-feature-flags-table" rows={@flags}>
+      <:col :let={flag} label={gettext("Name")}>
+        <span class="h-font-mono">{flag.name}</span>
+      </:col>
+      <:col :let={flag} label={gettext("Strategy")}>
+        <% {strategy, detail} = FeatureFlags.gate_summary(flag) %>
+        {strategy_label(strategy)}
+        <%= case {strategy, detail} do %>
+          <% {:percentage, pct} -> %>
+            <span class="h-admin-action-meta">{pct}%</span>
+          <% {:list, count} -> %>
+            <span class="h-admin-action-meta">
+              {gettext("%{n} overrides", n: count)}
+            </span>
+          <% _ -> %>
+        <% end %>
+      </:col>
+      <:col :let={flag} label={gettext("Enabled")}>
+        <% enabled = FeatureFlags.boolean_enabled?(flag) %>
+        <%= if enabled do %>
+          <span class="h-status-tag h-status-tag--active">{gettext("Enabled")}</span>
+        <% else %>
+          <span class="h-status-tag">{gettext("Disabled")}</span>
+        <% end %>
+      </:col>
+      <:col :let={flag} label={gettext("Actions")}>
+        <% enabled = FeatureFlags.boolean_enabled?(flag) %>
+        <button
+          type="button"
+          phx-click="toggle"
+          phx-value-name={flag.name}
+          class="h-btn h-btn-soft"
+        >
+          <%= if enabled do %>
+            {gettext("Disable")}
+          <% else %>
+            {gettext("Enable")}
+          <% end %>
+        </button>
+      </:col>
+    </.table>
+  <% end %>
+</section>

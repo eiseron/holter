@@ -56,6 +56,7 @@ defmodule HolterWeb.Authorization do
   defp policy_for(%Holter.Identity.Models.ApiToken{}), do: I.ApiToken
   defp policy_for(%Holter.Identity.Models.User{}), do: S.User
   defp policy_for(%Holter.System.Models.Admin{}), do: S.Admin
+  defp policy_for(%FunWithFlags.Flag{}), do: S.FeatureFlag
 
   defp policy_for_module(Holter.Monitoring.Models.Monitor), do: M.Monitor
   defp policy_for_module(Holter.Monitoring.Models.Workspace), do: M.Workspace
@@ -64,4 +65,5 @@ defmodule HolterWeb.Authorization do
   defp policy_for_module(Holter.Identity.Models.ApiToken), do: I.ApiToken
   defp policy_for_module(Holter.Identity.Models.User), do: S.User
   defp policy_for_module(Holter.System.Models.Admin), do: S.Admin
+  defp policy_for_module(FunWithFlags.Flag), do: S.FeatureFlag
 end

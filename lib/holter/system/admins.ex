@@ -24,6 +24,13 @@ defmodule Holter.System.Admins do
     Repo.exists?(from a in Admin, where: a.user_id == ^user_id and is_nil(a.revoked_at))
   end
 
+  def get_by_user_id(user_id) do
+    Admin
+    |> where([a], a.user_id == ^user_id and is_nil(a.revoked_at))
+    |> preload(:user)
+    |> Repo.one()
+  end
+
   def list_admins do
     Admin
     |> where([a], is_nil(a.revoked_at))

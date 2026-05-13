@@ -42,10 +42,15 @@ defmodule HolterWeb.Components.AdminSidebar do
           </span>
         </li>
         <li>
-          <span class="h-sidebar-link h-sidebar-link--disabled">
+          <.link
+            navigate={~p"/admin/feature-flags"}
+            class={[
+              "h-sidebar-link",
+              @current_view == HolterWeb.Web.Admin.FeatureFlagsLive && "h-sidebar-link--active"
+            ]}
+          >
             <span class="h-sidebar-link-label">{gettext("Feature flags")}</span>
-            <span class="h-sidebar-badge">{gettext("Soon")}</span>
-          </span>
+          </.link>
         </li>
         <li>
           <.link

@@ -64,4 +64,28 @@ defmodule Holter.SystemFixtures do
     )
     |> Repo.insert!()
   end
+
+  @doc """
+  Creates a feature flag via FunWithFlags. Defaults to a disabled global
+  flag. Override with `:enabled`, `:strategy`, `:percentage`, or
+  `:gate_values` to configure gates.
+  """
+  def feature_flag_fixture(attrs \\ %{}) do
+    name =
+      (attrs[:name] || "flag_#{:erlang.unique_integer([:positive])}")
+      |> String.to_atom()
+
+    if Map.get(attrs, :enabled, false) do
+      {:ok, _} = FunWithFlags.enable(name)
+    else
+      {:ok, _} = FunWithFlags.disable(name)
+    end
+
+    if attrs[:strategy] == "percentage" do
+      pct = (attrs[:percentage] || 0) / 100
+      {:ok, _} = FunWithFlags.enable(name, for_percentage_of: {:actors, pct})
+    end
+
+    FunWithFlags.get_flag(name)
+  end
 end
