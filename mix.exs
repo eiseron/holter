@@ -12,7 +12,25 @@ defmodule Holter.MixProject do
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
-      test_coverage: [summary: [threshold: 80]]
+      test_coverage: [summary: [threshold: 80]],
+      package: package(),
+      description: description()
+    ]
+  end
+
+  defp description do
+    "Website integrity monitoring for agencies and freelancers."
+  end
+
+  defp package do
+    [
+      licenses: ["FSL-1.1-ALv2"],
+      links: %{
+        "Source" => "https://github.com/eiseron/holter",
+        "License" => "https://github.com/eiseron/holter/blob/main/LICENSE",
+        "Trademarks" => "https://github.com/eiseron/holter/blob/main/TRADEMARKS.md"
+      },
+      files: ~w(lib priv config mix.exs README.md LICENSE NOTICE TRADEMARKS.md CONTRIBUTING.md)
     ]
   end
 
