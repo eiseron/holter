@@ -21,7 +21,7 @@ defmodule Holter.Pagination do
     total_count = Repo.one(from(q in query, select: count(q.id)))
     total_pages = ceil(total_count / page_size) |> max(1)
     current_page = (requested_page || 1) |> min(total_pages) |> max(1)
-    {total_pages, current_page}
+    {total_count, total_pages, current_page}
   end
 
   def paginate_query(query, page, page_size) do

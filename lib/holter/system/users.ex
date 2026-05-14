@@ -39,8 +39,8 @@ defmodule Holter.System.Users do
       |> maybe_filter_by_email(params[:email])
       |> maybe_filter_by_status(params[:status])
 
-    {total_pages, current_page} = Pagination.calculate(base_query, page_size, params[:page])
-    total = Repo.aggregate(base_query, :count, :id)
+    {total, total_pages, current_page} =
+      Pagination.calculate(base_query, page_size, params[:page])
 
     users =
       base_query

@@ -37,10 +37,14 @@ defmodule HolterWeb.Web.Admin.DashboardLive do
             {gettext("Open")}
           </.link>
         </li>
-        <li class="h-admin-feature-card h-admin-feature-card--soon">
-          <h2>{gettext("Workspaces")}</h2>
+        <li class="h-admin-feature-card">
+          <h2>
+            <.link navigate={~p"/admin/workspaces"}>{gettext("Workspaces")}</.link>
+          </h2>
           <p>{gettext("Cross-workspace visibility for support.")}</p>
-          <span class="h-admin-feature-status">{gettext("Coming soon")}</span>
+          <.link navigate={~p"/admin/workspaces"} class="h-admin-feature-action">
+            {gettext("Open")}
+          </.link>
         </li>
         <li class="h-admin-feature-card">
           <h2>

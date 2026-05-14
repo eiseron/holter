@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 
 #: lib/holter_web/components/table.ex:57
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:58
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr ""
@@ -756,7 +756,9 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/incident_gantt_chart.ex:95
 #: lib/holter_web/web/admin/dashboard_live.ex:37
-#: lib/holter_web/web/admin/dashboard_live.ex:56
+#: lib/holter_web/web/admin/dashboard_live.ex:46
+#: lib/holter_web/web/admin/dashboard_live.ex:55
+#: lib/holter_web/web/admin/dashboard_live.ex:64
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:30
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:38
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:94
@@ -915,6 +917,7 @@ msgstr ""
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:16
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:35
 #: lib/holter_web/web/admin/users_live/show.html.heex:72
+#: lib/holter_web/web/admin/workspaces_live.html.heex:34
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:52
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
@@ -2161,23 +2164,17 @@ msgstr ""
 msgid "Admin Panel"
 msgstr ""
 
-#: lib/holter_web/web/admin/dashboard_live.ex:54
+#: lib/holter_web/web/admin/dashboard_live.ex:62
 #, elixir-autogen, elixir-format
 msgid "Append-only history of every admin action."
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:58
+#: lib/holter_web/components/admin_sidebar.ex:68
 #: lib/holter_web/web/admin/audit_log_live.html.heex:3
-#: lib/holter_web/web/admin/dashboard_live.ex:52
+#: lib/holter_web/web/admin/dashboard_live.ex:60
 #, elixir-autogen, elixir-format
 msgid "Audit log"
 msgstr ""
-
-#: lib/holter_web/web/admin/dashboard_live.ex:43
-#: lib/holter_web/web/admin/dashboard_live.ex:48
-#: lib/holter_web/web/admin/users_live/show.html.heex:47
-#: lib/holter_web/web/admin/users_live/show.html.heex:53
-#: lib/holter_web/web/admin/users_live/show.html.heex:59
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:54
 #: lib/holter_web/web/admin/users_live/show.html.heex:60
@@ -2185,24 +2182,24 @@ msgstr ""
 msgid "Coming soon"
 msgstr ""
 
-#: lib/holter_web/web/admin/dashboard_live.ex:42
+#: lib/holter_web/web/admin/dashboard_live.ex:44
 #, elixir-autogen, elixir-format
 msgid "Cross-workspace visibility for support."
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:65
+#: lib/holter_web/components/admin_sidebar.ex:75
 #, elixir-autogen, elixir-format
 msgid "Exit admin"
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:46
-#: lib/holter_web/web/admin/dashboard_live.ex:46
+#: lib/holter_web/components/admin_sidebar.ex:57
+#: lib/holter_web/web/admin/dashboard_live.ex:51
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Feature flags"
 msgstr ""
 
-#: lib/holter_web/web/admin/dashboard_live.ex:47
+#: lib/holter_web/web/admin/dashboard_live.ex:53
 #, elixir-autogen, elixir-format
 msgid "Global kill switch, beta overrides, canary rollout."
 msgstr ""
@@ -2232,12 +2229,6 @@ msgstr ""
 msgid "Sign out"
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:41
-#: lib/holter_web/components/admin_sidebar.ex:47
-#, elixir-autogen, elixir-format
-msgid "Soon"
-msgstr ""
-
 #: lib/holter_web/components/admin_sidebar.ex:35
 #: lib/holter_web/web/admin/dashboard_live.ex:33
 #: lib/holter_web/web/admin/users_live.html.heex:3
@@ -2245,8 +2236,9 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: lib/holter_web/components/admin_sidebar.ex:40
-#: lib/holter_web/web/admin/dashboard_live.ex:41
+#: lib/holter_web/components/admin_sidebar.ex:46
+#: lib/holter_web/web/admin/dashboard_live.ex:42
+#: lib/holter_web/web/admin/workspaces_live.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "Workspaces"
 msgstr ""
@@ -2352,6 +2344,7 @@ msgid "Channel limit reached for this workspace (max: %{max})"
 msgstr ""
 
 #: lib/holter_web/web/admin/users_live.html.heex:71
+#: lib/holter_web/web/admin/workspaces_live.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "Created at"
 msgstr ""
@@ -2399,14 +2392,14 @@ msgid "substring or domain fragment"
 msgstr ""
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:20
-#: lib/holter_web/web/admin/audit_log_live.html.heex:52
-#: lib/holter_web/web/admin/users_live/show.html.heex:90
+#: lib/holter_web/web/admin/audit_log_live.html.heex:54
+#: lib/holter_web/web/admin/users_live/show.html.heex:92
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr ""
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:45
-#: lib/holter_web/web/admin/users_live/show.html.heex:93
+#: lib/holter_web/web/admin/audit_log_live.html.heex:47
+#: lib/holter_web/web/admin/users_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "Actor"
 msgstr ""
@@ -2482,6 +2475,7 @@ msgid "Sign in as this user"
 msgstr ""
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:73
+#: lib/holter_web/web/admin/workspaces_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Slug"
 msgstr ""
@@ -2507,13 +2501,13 @@ msgstr ""
 msgid "default"
 msgstr ""
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:47
-#: lib/holter_web/web/admin/users_live/show.html.heex:95
+#: lib/holter_web/web/admin/audit_log_live.html.heex:49
+#: lib/holter_web/web/admin/users_live/show.html.heex:97
 #, elixir-autogen, elixir-format
 msgid "system"
 msgstr ""
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:61
+#: lib/holter_web/web/admin/audit_log_live.html.heex:63
 #, elixir-autogen, elixir-format
 msgid "%{n} keys"
 msgstr ""
@@ -2528,7 +2522,7 @@ msgstr ""
 msgid "Append-only record of every admin action. Showing %{n} rows."
 msgstr ""
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:58
+#: lib/holter_web/web/admin/audit_log_live.html.heex:60
 #, elixir-autogen, elixir-format
 msgid "Diff"
 msgstr ""
@@ -2539,7 +2533,7 @@ msgid "No audit entries match the current filters"
 msgstr ""
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:30
-#: lib/holter_web/web/admin/audit_log_live.html.heex:55
+#: lib/holter_web/web/admin/audit_log_live.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Resource"
 msgstr ""
@@ -2559,17 +2553,17 @@ msgstr ""
 msgid "%{n} overrides"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:18
+#: lib/holter_web/web/admin/feature_flags_live.ex:23
 #, elixir-autogen, elixir-format
 msgid "Admin · Feature flags"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:55
+#: lib/holter_web/web/admin/feature_flags_live.ex:61
 #, elixir-autogen, elixir-format
 msgid "Could not create flag."
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:36
+#: lib/holter_web/web/admin/feature_flags_live.ex:41
 #, elixir-autogen, elixir-format
 msgid "Could not toggle flag."
 msgstr ""
@@ -2584,38 +2578,38 @@ msgstr ""
 msgid "Create new flag"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:66
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:65
 #, elixir-autogen, elixir-format
 msgid "Disable"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:55
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Disabled"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:68
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:67
 #, elixir-autogen, elixir-format
 msgid "Enable"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:51
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:53
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:50
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "Enabled"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:47
+#: lib/holter_web/web/admin/feature_flags_live.ex:53
 #, elixir-autogen, elixir-format
 msgid "Flag %{name} created."
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:32
+#: lib/holter_web/web/admin/feature_flags_live.ex:37
 #, elixir-autogen, elixir-format
 msgid "Flag %{name} toggled."
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:59
+#: lib/holter_web/web/admin/feature_flags_live.ex:14
 #, elixir-autogen, elixir-format
 msgid "Global"
 msgstr ""
@@ -2625,7 +2619,7 @@ msgstr ""
 msgid "Kill switches, beta cohorts, canary rollouts. Total: %{n}."
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:61
+#: lib/holter_web/web/admin/feature_flags_live.ex:16
 #, elixir-autogen, elixir-format
 msgid "List"
 msgstr ""
@@ -2640,7 +2634,7 @@ msgstr ""
 msgid "No feature flags yet"
 msgstr ""
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:60
+#: lib/holter_web/web/admin/feature_flags_live.ex:15
 #, elixir-autogen, elixir-format
 msgid "Percentage"
 msgstr ""
@@ -2655,17 +2649,17 @@ msgstr ""
 msgid "e.g. new_dashboard_v2"
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:78
+#: lib/holter_web/web/admin/impersonation_controller.ex:77
 #, elixir-autogen, elixir-format
 msgid "Admin required."
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:27
+#: lib/holter_web/web/admin/impersonation_controller.ex:26
 #, elixir-autogen, elixir-format
 msgid "Cannot impersonate yourself."
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:32
+#: lib/holter_web/web/admin/impersonation_controller.ex:31
 #, elixir-autogen, elixir-format
 msgid "Could not start impersonation."
 msgstr ""
@@ -2680,17 +2674,17 @@ msgstr ""
 msgid "Impersonating"
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:40
+#: lib/holter_web/web/admin/impersonation_controller.ex:39
 #, elixir-autogen, elixir-format
 msgid "Not impersonating."
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:22
+#: lib/holter_web/web/admin/impersonation_controller.ex:21
 #, elixir-autogen, elixir-format
 msgid "Signed in as %{email}."
 msgstr ""
 
-#: lib/holter_web/web/admin/impersonation_controller.ex:56
+#: lib/holter_web/web/admin/impersonation_controller.ex:55
 #, elixir-autogen, elixir-format
 msgid "Admin session restored. Signed out of %{email}."
 msgstr ""
@@ -2698,4 +2692,29 @@ msgstr ""
 #: lib/holter_web/components/layouts/root.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "via admin %{email}"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live.ex:20
+#, elixir-autogen, elixir-format
+msgid "Admin · Workspaces"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "Cross-workspace listing. Total: %{n}."
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "No workspaces match the current filters"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Search by name or slug"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "substring"
 msgstr ""

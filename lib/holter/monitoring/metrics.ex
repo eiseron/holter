@@ -18,7 +18,8 @@ defmodule Holter.Monitoring.Metrics do
     page_size = Pagination.resolve_page_size(filters[:page_size], default: 30)
     base_query = from(m in DailyMetric, where: m.monitor_id == ^monitor_id)
 
-    {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
+    {_total, total_pages, current_page} =
+      Pagination.calculate(base_query, page_size, filters[:page])
 
     metrics =
       base_query

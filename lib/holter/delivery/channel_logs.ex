@@ -19,7 +19,8 @@ defmodule Holter.Delivery.ChannelLogs do
     {arg_key, arg_value} = subtype_arg(ensure_subtype_loaded(channel))
     base_query = build_base_query(arg_key, arg_value, filters)
 
-    {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
+    {_total, total_pages, current_page} =
+      Pagination.calculate(base_query, page_size, filters[:page])
 
     logs =
       base_query

@@ -36,10 +36,15 @@ defmodule HolterWeb.Components.AdminSidebar do
           </.link>
         </li>
         <li>
-          <span class="h-sidebar-link h-sidebar-link--disabled">
+          <.link
+            navigate={~p"/admin/workspaces"}
+            class={[
+              "h-sidebar-link",
+              @current_view == HolterWeb.Web.Admin.WorkspacesLive && "h-sidebar-link--active"
+            ]}
+          >
             <span class="h-sidebar-link-label">{gettext("Workspaces")}</span>
-            <span class="h-sidebar-badge">{gettext("Soon")}</span>
-          </span>
+          </.link>
         </li>
         <li>
           <.link

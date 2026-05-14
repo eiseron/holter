@@ -1,0 +1,71 @@
+<section class="h-admin-content">
+  <header class="h-admin-content-header">
+    <h1>{gettext("Workspaces")}</h1>
+    <p class="h-admin-lede">
+      {gettext("Cross-workspace listing. Total: %{n}.", n: @total)}
+    </p>
+  </header>
+
+  <.form
+    for={@form}
+    id="workspaces-filters"
+    phx-change="filter_updated"
+    phx-submit="filter_updated"
+    class="h-form-row"
+  >
+    <div class="h-form-item">
+      <.input
+        field={@form[:name]}
+        type="text"
+        label={gettext("Search by name or slug")}
+        placeholder={gettext("substring")}
+        value={@filters.name || ""}
+        phx-debounce="300"
+      />
+    </div>
+  </.form>
+
+  <%= if @workspaces == [] do %>
+    <.empty_state title={gettext("No workspaces match the current filters")} />
+  <% else %>
+    <.table id="admin-workspaces-table" rows={@workspaces}>
+      <:col
+        :let={ws}
+        label={gettext("Name")}
+        sort_url={@sort_info["name"].url}
+        sort_active={@sort_info["name"].active}
+        sort_dir={@sort_info["name"].dir}
+      >
+        {ws.name}
+      </:col>
+      <:col
+        :let={ws}
+        label={gettext("Slug")}
+        sort_url={@sort_info["slug"].url}
+        sort_active={@sort_info["slug"].active}
+        sort_dir={@sort_info["slug"].dir}
+      >
+        <span class="h-font-mono">{ws.slug}</span>
+      </:col>
+      <:col
+        :let={ws}
+        label={gettext("Created at")}
+        sort_url={@sort_info["inserted_at"].url}
+        sort_active={@sort_info["inserted_at"].active}
+        sort_dir={@sort_info["inserted_at"].dir}
+      >
+        <time datetime={DateTime.to_iso8601(ws.inserted_at)}>
+          {Calendar.strftime(ws.inserted_at, "%Y-%m-%d %H:%M")}
+        </time>
+      </:col>
+    </.table>
+
+    <.pagination_nav
+      prev_page_url={@prev_page_url}
+      next_page_url={@next_page_url}
+      page_links={@page_links}
+      page_number={@page_number}
+      total_pages={@total_pages}
+    />
+  <% end %>
+</section>

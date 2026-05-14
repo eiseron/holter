@@ -19,7 +19,8 @@ defmodule Holter.Monitoring.Logs do
     page_size = Pagination.resolve_page_size(filters[:page_size])
     base_query = build_base_query(monitor.id, filters)
 
-    {total_pages, current_page} = Pagination.calculate(base_query, page_size, filters[:page])
+    {_total, total_pages, current_page} =
+      Pagination.calculate(base_query, page_size, filters[:page])
 
     logs =
       fetch_paginated_logs(base_query, current_page, %{

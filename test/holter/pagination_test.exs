@@ -36,27 +36,27 @@ defmodule Holter.PaginationTest do
     test "returns total_pages=1 and current_page=1 when table is empty" do
       monitor = monitor_fixture()
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      assert {1, 1} = Pagination.calculate(query, 10, nil)
+      assert {0, 1, 1} = Pagination.calculate(query, 10, nil)
     end
 
     test "defaults current_page to 1 when requested_page is nil" do
       monitor = monitor_fixture()
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      {_total, current} = Pagination.calculate(query, 10, nil)
+      {_count, _total, current} = Pagination.calculate(query, 10, nil)
       assert current == 1
     end
 
     test "clamps requested_page to 1 when 0 is requested" do
       monitor = monitor_fixture()
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      {_total, current} = Pagination.calculate(query, 10, 0)
+      {_count, _total, current} = Pagination.calculate(query, 10, 0)
       assert current == 1
     end
 
     test "clamps requested_page to total_pages when exceeding" do
       monitor = monitor_fixture()
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      {total, current} = Pagination.calculate(query, 10, 999)
+      {_count, total, current} = Pagination.calculate(query, 10, 999)
       assert current == total
     end
 
@@ -68,7 +68,7 @@ defmodule Holter.PaginationTest do
       end
 
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      {total, _current} = Pagination.calculate(query, 10, 1)
+      {_count, total, _current} = Pagination.calculate(query, 10, 1)
       assert total == 3
     end
 
@@ -80,7 +80,7 @@ defmodule Holter.PaginationTest do
       end
 
       query = from(l in MonitorLog, where: l.monitor_id == ^monitor.id)
-      {_total, current} = Pagination.calculate(query, 10, 2)
+      {_count, _total, current} = Pagination.calculate(query, 10, 2)
       assert current == 2
     end
   end
