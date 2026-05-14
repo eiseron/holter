@@ -95,3 +95,10 @@ config :swoosh, :api_client, false
 # this via the IDENTITY_PEPPER environment variable; runtime.exs raises if
 # it is missing in :prod.
 config :holter, :identity, pepper: "dev-pepper-not-for-prod"
+
+config :holter, Holter.Integrations.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("ARN6RIXGlp3VBPd7nFxNOLCKf2U1bDT3XvO49ACOQZA=")}
+  ]

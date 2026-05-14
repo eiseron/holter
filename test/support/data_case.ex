@@ -27,6 +27,7 @@ defmodule Holter.DataCase do
       import Ecto.Query
       import Holter.DataCase
       import Holter.IdentityFixtures
+      import Holter.IntegrationsFixtures
       import Holter.MonitoringFixtures
       import Holter.SystemFixtures
       import Mox

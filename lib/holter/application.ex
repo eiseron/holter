@@ -17,6 +17,7 @@ defmodule Holter.Application do
         Holter.Repo,
         {DNSCluster, query: Application.get_env(:holter, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: Holter.PubSub},
+        Holter.Integrations.Vault,
         {Oban, Application.fetch_env!(:holter, Oban)},
         HolterWeb.Endpoint
       ] ++ delivery_children()

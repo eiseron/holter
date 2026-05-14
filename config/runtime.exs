@@ -20,6 +20,25 @@ if System.get_env("PHX_SERVER") do
   config :holter, HolterWeb.Endpoint, server: true
 end
 
+integrations_vault_key = System.get_env("INTEGRATIONS_VAULT_KEY")
+
+if config_env() in [:prod, :staging] and
+     (is_nil(integrations_vault_key) or integrations_vault_key == "") do
+  raise """
+  environment variable INTEGRATIONS_VAULT_KEY is missing.
+  Generate one with: :crypto.strong_rand_bytes(32) |> Base.encode64() |> IO.puts()
+  This key encrypts OAuth credentials for all integrations.
+  """
+end
+
+if integrations_vault_key do
+  config :holter, Holter.Integrations.Vault,
+    ciphers: [
+      default:
+        {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: Base.decode64!(integrations_vault_key)}
+    ]
+end
+
 identity_pepper = System.get_env("IDENTITY_PEPPER")
 
 if config_env() in [:prod, :staging] and (is_nil(identity_pepper) or identity_pepper == "") do

@@ -27,6 +27,7 @@ defmodule HolterWeb.ConnCase do
       import Phoenix.ConnTest
       import HolterWeb.ConnCase
       import Holter.IdentityFixtures
+      import Holter.IntegrationsFixtures
       import Holter.MonitoringFixtures
       import Holter.SystemFixtures
     end
