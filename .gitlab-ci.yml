@@ -111,7 +111,55 @@ test:
     - until pg_isready -h postgres -U postgres -t 1; do sleep 1; done
     - PGPASSWORD=postgres psql -h postgres -U postgres -d postgres -f priv/repo/postgres-init/01_rls_roles.sql
   script:
-    - mix test.ci
+    - mix test.ci --cover
+  coverage: '/\s+(\d+\.\d+)% \| Total/'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+coverage-gate:
+  stage: test
+  needs: [test]
+  image: alpine:3.21
+  before_script:
+    - apk add --no-cache curl jq bc
+  script:
+    - |
+      current=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/jobs" \
+        | jq -r '[.[] | select(.name=="test")] | last | .coverage')
+
+      if [ "$current" = "null" ] || [ -z "$current" ]; then
+        echo "No coverage data for current pipeline — skipping"
+        exit 0
+      fi
+
+      main_pipeline=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines?ref=$CI_DEFAULT_BRANCH&status=success&per_page=1" \
+        | jq -r '.[0].id')
+
+      if [ "$main_pipeline" = "null" ] || [ -z "$main_pipeline" ]; then
+        echo "No successful main pipeline found — skipping coverage gate"
+        exit 0
+      fi
+
+      main_cov=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$main_pipeline/jobs" \
+        | jq -r '[.[] | select(.name=="test")] | last | .coverage')
+
+      if [ "$main_cov" = "null" ] || [ -z "$main_cov" ]; then
+        echo "No coverage data on main — skipping coverage gate"
+        exit 0
+      fi
+
+      echo "Coverage: current=${current}% main=${main_cov}%"
+
+      if echo "$current < $main_cov" | bc -q | grep -q 1; then
+        echo "FAILED: coverage dropped (${current}% < ${main_cov}%)"
+        exit 1
+      fi
+
+      echo "OK: coverage maintained (${current}% >= ${main_cov}%)"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
