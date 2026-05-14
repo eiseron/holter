@@ -36,7 +36,7 @@
         sort_active={@sort_info["name"].active}
         sort_dir={@sort_info["name"].dir}
       >
-        {ws.name}
+        <.link navigate={~p"/admin/workspaces/#{ws.id}"}>{ws.name}</.link>
       </:col>
       <:col
         :let={ws}

@@ -57,6 +57,7 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:37
 #: lib/holter_web/components/monitoring/monitor_snapshot.ex:19
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:114
 #, elixir-autogen, elixir-format
 msgid "Method"
 msgstr ""
@@ -101,6 +102,7 @@ msgstr ""
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:28
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:24
 #: lib/holter_web/components/monitoring/monitor_snapshot.ex:15
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:111
 #, elixir-autogen, elixir-format
 msgid "URL"
 msgstr ""
@@ -250,6 +252,8 @@ msgstr ""
 #: lib/holter_web/web/admin/users_live.ex:22
 #: lib/holter_web/web/admin/users_live.html.heex:35
 #: lib/holter_web/web/admin/users_live/show.ex:15
+#: lib/holter_web/web/admin/workspaces_live/show.ex:17
+#: lib/holter_web/web/admin/workspaces_live/show.ex:21
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:124
 #, elixir-autogen, elixir-format
 msgid "Active"
@@ -302,6 +306,7 @@ msgid "Monitor State"
 msgstr ""
 
 #: lib/holter_web/components/monitoring/monitor_form_fields.ex:239
+#: lib/holter_web/web/admin/workspaces_live/show.ex:22
 #, elixir-autogen, elixir-format
 msgid "Paused"
 msgstr ""
@@ -323,6 +328,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/users_live.html.heex:30
 #: lib/holter_web/web/admin/users_live.html.heex:60
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:91
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:33
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:77
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:33
@@ -431,6 +437,7 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:92
 #: lib/holter_web/components/monitoring/monitor_overview_chart.ex:98
+#: lib/holter_web/web/admin/workspaces_live/show.ex:28
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:41
 #, elixir-autogen, elixir-format
 msgid "Compromised"
@@ -438,6 +445,7 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:88
 #: lib/holter_web/components/monitoring/monitor_overview_chart.ex:94
+#: lib/holter_web/web/admin/workspaces_live/show.ex:27
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:40
 #, elixir-autogen, elixir-format
 msgid "Degraded"
@@ -445,12 +453,14 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:84
 #: lib/holter_web/components/monitoring/monitor_overview_chart.ex:90
+#: lib/holter_web/web/admin/workspaces_live/show.ex:26
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:39
 #, elixir-autogen, elixir-format
 msgid "Down"
 msgstr ""
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:96
+#: lib/holter_web/web/admin/workspaces_live/show.ex:29
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:42
 #, elixir-autogen, elixir-format
 msgid "Unknown"
@@ -458,6 +468,7 @@ msgstr ""
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:80
 #: lib/holter_web/components/monitoring/monitor_overview_chart.ex:86
+#: lib/holter_web/web/admin/workspaces_live/show.ex:25
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:38
 #, elixir-autogen, elixir-format
 msgid "Up"
@@ -814,6 +825,7 @@ msgstr ""
 msgid "Started At"
 msgstr ""
 
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:117
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:27
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:92
@@ -884,6 +896,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/users_live.html.heex:49
 #: lib/holter_web/web/admin/users_live/show.html.heex:20
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:87
 #: lib/holter_web/web/identity/user_forgot_password_live.html.heex:16
 #: lib/holter_web/web/identity/user_login_live.html.heex:12
 #: lib/holter_web/web/identity/user_registration_live.html.heex:6
@@ -918,6 +931,7 @@ msgstr ""
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:35
 #: lib/holter_web/web/admin/users_live/show.html.heex:72
 #: lib/holter_web/web/admin/workspaces_live.html.heex:34
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:20
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:52
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
@@ -1037,6 +1051,7 @@ msgstr ""
 #: lib/holter_web/web/admin/users_live.ex:21
 #: lib/holter_web/web/admin/users_live.html.heex:34
 #: lib/holter_web/web/admin/users_live/show.ex:14
+#: lib/holter_web/web/admin/workspaces_live/show.ex:16
 #: lib/holter_web/web/live/delivery/email_channel_live/show.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Pending verification"
@@ -1750,6 +1765,7 @@ msgstr ""
 
 #: lib/holter_web/components/user_sidebar.ex:68
 #: lib/holter_web/web/admin/users_live/show.ex:21
+#: lib/holter_web/web/admin/workspaces_live/show.ex:13
 #, elixir-autogen, elixir-format
 msgid "Admin"
 msgstr ""
@@ -1761,6 +1777,7 @@ msgstr ""
 
 #: lib/holter_web/components/user_sidebar.ex:69
 #: lib/holter_web/web/admin/users_live/show.ex:22
+#: lib/holter_web/web/admin/workspaces_live/show.ex:14
 #, elixir-autogen, elixir-format
 msgid "Member"
 msgstr ""
@@ -1775,6 +1792,7 @@ msgstr ""
 
 #: lib/holter_web/components/user_sidebar.ex:67
 #: lib/holter_web/web/admin/users_live/show.ex:20
+#: lib/holter_web/web/admin/workspaces_live/show.ex:12
 #, elixir-autogen, elixir-format
 msgid "Owner"
 msgstr ""
@@ -1801,6 +1819,7 @@ msgstr ""
 msgid "Use workspace default"
 msgstr ""
 
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:18
 #: lib/holter_web/web/workspaces/show_live.ex:41
 #: lib/holter_web/web/workspaces/show_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1952,6 +1971,7 @@ msgstr ""
 msgid "Last used"
 msgstr ""
 
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:129
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:115
 #, elixir-autogen, elixir-format
 msgid "Never"
@@ -2326,6 +2346,7 @@ msgstr ""
 #: lib/holter_web/web/admin/users_live.ex:24
 #: lib/holter_web/web/admin/users_live.html.heex:37
 #: lib/holter_web/web/admin/users_live/show.ex:17
+#: lib/holter_web/web/admin/workspaces_live/show.ex:19
 #, elixir-autogen, elixir-format
 msgid "Banned"
 msgstr ""
@@ -2345,6 +2366,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/users_live.html.heex:71
 #: lib/holter_web/web/admin/workspaces_live.html.heex:52
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Created at"
 msgstr ""
@@ -2367,6 +2389,7 @@ msgstr ""
 #: lib/holter_web/web/admin/users_live.ex:23
 #: lib/holter_web/web/admin/users_live.html.heex:36
 #: lib/holter_web/web/admin/users_live/show.ex:16
+#: lib/holter_web/web/admin/workspaces_live/show.ex:18
 #, elixir-autogen, elixir-format
 msgid "Pending billing"
 msgstr ""
@@ -2394,12 +2417,14 @@ msgstr ""
 #: lib/holter_web/web/admin/audit_log_live.html.heex:20
 #: lib/holter_web/web/admin/audit_log_live.html.heex:54
 #: lib/holter_web/web/admin/users_live/show.html.heex:92
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:147
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr ""
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:95
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:150
 #, elixir-autogen, elixir-format
 msgid "Actor"
 msgstr ""
@@ -2415,6 +2440,7 @@ msgid "Admin · %{email}"
 msgstr ""
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:82
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:137
 #, elixir-autogen, elixir-format
 msgid "Audit log (%{n})"
 msgstr ""
@@ -2440,6 +2466,7 @@ msgid "Identity"
 msgstr ""
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:23
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:26
 #, elixir-autogen, elixir-format
 msgid "Internal ID"
 msgstr ""
@@ -2465,6 +2492,7 @@ msgid "Not verified"
 msgstr ""
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:76
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr ""
@@ -2476,6 +2504,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/users_live/show.html.heex:73
 #: lib/holter_web/web/admin/workspaces_live.html.heex:43
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "Slug"
 msgstr ""
@@ -2487,6 +2516,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:42
 #: lib/holter_web/web/admin/users_live/show.html.heex:87
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:142
 #, elixir-autogen, elixir-format
 msgid "When"
 msgstr ""
@@ -2503,6 +2533,7 @@ msgstr ""
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:49
 #: lib/holter_web/web/admin/users_live/show.html.heex:97
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:152
 #, elixir-autogen, elixir-format
 msgid "system"
 msgstr ""
@@ -2714,7 +2745,112 @@ msgstr ""
 msgid "substring"
 msgstr ""
 
+#: lib/holter_web/web/admin/workspaces_live/show.ex:44
+#, elixir-autogen, elixir-format
+msgid "Admin · %{name}"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.ex:23
+#, elixir-autogen, elixir-format
+msgid "Archived"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Created %{date}"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "Default locale"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Delivery plan"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:118
+#, elixir-autogen, elixir-format
+msgid "Health"
+msgstr ""
+
 #: lib/holter_web/web/admin/feature_flags_live.ex:58
 #, elixir-autogen, elixir-format
 msgid "Invalid flag name."
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "Joined at"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:123
+#, elixir-autogen, elixir-format
+msgid "Last check"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "Log retention (days)"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "Max channels"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Max monitors"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "Max triggers/hour"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Max triggers/min"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:82
+#, elixir-autogen, elixir-format
+msgid "Members (%{n})"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Min check interval (s)"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "Monitoring plan"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:106
+#, elixir-autogen, elixir-format
+msgid "Monitors (%{n})"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:139
+#, elixir-autogen, elixir-format
+msgid "No admin actions on this workspace yet"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "Updated at"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "Workspace has no members"
+msgstr ""
+
+#: lib/holter_web/web/admin/workspaces_live/show.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "Workspace has no monitors"
 msgstr ""

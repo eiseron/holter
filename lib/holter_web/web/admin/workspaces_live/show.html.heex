@@ -1,0 +1,160 @@
+<section class="h-admin-content">
+  <.back_link navigate={~p"/admin/workspaces"} />
+
+  <header class="h-admin-content-header">
+    <h1>{@workspace.name}</h1>
+    <p class="h-admin-lede">
+      <span class="h-font-mono">{@workspace.slug}</span>
+      <span class="h-admin-meta">
+        {gettext("Created %{date}",
+          date: Calendar.strftime(@workspace.inserted_at, "%Y-%m-%d")
+        )}
+      </span>
+    </p>
+  </header>
+
+  <div class="h-admin-grid">
+    <article class="h-admin-card">
+      <h2>{gettext("Workspace")}</h2>
+      <dl class="h-admin-dl">
+        <dt>{gettext("Name")}</dt>
+        <dd>{@workspace.name}</dd>
+
+        <dt>{gettext("Slug")}</dt>
+        <dd class="h-font-mono">{@workspace.slug}</dd>
+
+        <dt>{gettext("Internal ID")}</dt>
+        <dd class="h-font-mono">{@workspace.id}</dd>
+
+        <dt>{gettext("Default locale")}</dt>
+        <dd>{@workspace.default_locale}</dd>
+
+        <dt>{gettext("Created at")}</dt>
+        <dd>
+          <time datetime={DateTime.to_iso8601(@workspace.inserted_at)}>
+            {Calendar.strftime(@workspace.inserted_at, "%Y-%m-%d %H:%M UTC")}
+          </time>
+        </dd>
+
+        <dt>{gettext("Updated at")}</dt>
+        <dd>
+          <time datetime={DateTime.to_iso8601(@workspace.updated_at)}>
+            {Calendar.strftime(@workspace.updated_at, "%Y-%m-%d %H:%M UTC")}
+          </time>
+        </dd>
+      </dl>
+    </article>
+
+    <%= if @monitoring_profile do %>
+      <article class="h-admin-card">
+        <h2>{gettext("Monitoring plan")}</h2>
+        <dl class="h-admin-dl">
+          <dt>{gettext("Max monitors")}</dt>
+          <dd>{@monitoring_profile.max_monitors}</dd>
+
+          <dt>{gettext("Min check interval (s)")}</dt>
+          <dd>{@monitoring_profile.min_interval_seconds}</dd>
+
+          <dt>{gettext("Log retention (days)")}</dt>
+          <dd>{@monitoring_profile.retention_days}</dd>
+
+          <dt>{gettext("Max triggers/min")}</dt>
+          <dd>{@monitoring_profile.max_triggers_per_minute}</dd>
+
+          <dt>{gettext("Max triggers/hour")}</dt>
+          <dd>{@monitoring_profile.max_triggers_per_hour}</dd>
+        </dl>
+      </article>
+    <% end %>
+
+    <%= if @delivery_profile do %>
+      <article class="h-admin-card">
+        <h2>{gettext("Delivery plan")}</h2>
+        <dl class="h-admin-dl">
+          <dt>{gettext("Max channels")}</dt>
+          <dd>{@delivery_profile.max_channels}</dd>
+        </dl>
+      </article>
+    <% end %>
+  </div>
+
+  <section class="h-admin-section">
+    <h2>{gettext("Members (%{n})", n: length(@members))}</h2>
+    <%= if @members == [] do %>
+      <.empty_state title={gettext("Workspace has no members")} />
+    <% else %>
+      <.table id="admin-workspace-members" rows={@members}>
+        <:col :let={m} label={gettext("Email")}>
+          <.link navigate={~p"/admin/users/#{m.user_id}"}>{m.user_email}</.link>
+        </:col>
+        <:col :let={m} label={gettext("Role")}>{role_label(m.role)}</:col>
+        <:col :let={m} label={gettext("Status")}>
+          <span class={"h-status-tag h-status-tag--" <> Atom.to_string(m.user_status)}>
+            {user_status_label(m.user_status)}
+          </span>
+        </:col>
+        <:col :let={m} label={gettext("Joined at")}>
+          <time datetime={DateTime.to_iso8601(m.joined_at)}>
+            {Calendar.strftime(m.joined_at, "%Y-%m-%d %H:%M")}
+          </time>
+        </:col>
+      </.table>
+    <% end %>
+  </section>
+
+  <section class="h-admin-section">
+    <h2>{gettext("Monitors (%{n})", n: length(@monitors))}</h2>
+    <%= if @monitors == [] do %>
+      <.empty_state title={gettext("Workspace has no monitors")} />
+    <% else %>
+      <.table id="admin-workspace-monitors" rows={@monitors}>
+        <:col :let={m} label={gettext("URL")}>
+          <span class="h-font-mono">{m.url}</span>
+        </:col>
+        <:col :let={m} label={gettext("Method")}>
+          <span class="h-font-mono">{String.upcase(Atom.to_string(m.method))}</span>
+        </:col>
+        <:col :let={m} label={gettext("State")}>{monitor_state_label(m.logical_state)}</:col>
+        <:col :let={m} label={gettext("Health")}>
+          <span class={"h-status-tag h-status-tag--" <> Atom.to_string(m.health_status)}>
+            {health_label(m.health_status)}
+          </span>
+        </:col>
+        <:col :let={m} label={gettext("Last check")}>
+          <%= if m.last_checked_at do %>
+            <time datetime={DateTime.to_iso8601(m.last_checked_at)}>
+              {Calendar.strftime(m.last_checked_at, "%Y-%m-%d %H:%M")}
+            </time>
+          <% else %>
+            <span class="h-admin-muted">{gettext("Never")}</span>
+          <% end %>
+        </:col>
+      </.table>
+    <% end %>
+  </section>
+
+  <section class="h-admin-section">
+    <h2>{gettext("Audit log (%{n})", n: length(@audit_log))}</h2>
+    <%= if @audit_log == [] do %>
+      <.empty_state title={gettext("No admin actions on this workspace yet")} />
+    <% else %>
+      <.table id="admin-workspace-audit" rows={@audit_log}>
+        <:col :let={a} label={gettext("When")}>
+          <time datetime={DateTime.to_iso8601(a.occurred_at)}>
+            {Calendar.strftime(a.occurred_at, "%Y-%m-%d %H:%M:%S UTC")}
+          </time>
+        </:col>
+        <:col :let={a} label={gettext("Action")}>
+          <span class="h-font-mono">{a.action}</span>
+        </:col>
+        <:col :let={a} label={gettext("Actor")}>
+          <%= if a.actor_type == "system" do %>
+            <em>{gettext("system")}</em>
+          <% else %>
+            <span class="h-font-mono">{a.actor_id}</span>
+          <% end %>
+        </:col>
+      </.table>
+    <% end %>
+  </section>
+</section>

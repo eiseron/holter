@@ -32,6 +32,10 @@ defmodule Holter.System do
 
   defdelegate list_workspaces(params \\ %{}), to: Workspaces
 
+  defdelegate get_workspace_with_associations!(id),
+    to: Workspaces,
+    as: :get_with_associations!
+
   defdelegate start_impersonation(actor_admin, target), to: Impersonations, as: :start
 
   defdelegate stop_impersonation(target, actor_user, target_plaintext),
