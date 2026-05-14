@@ -66,6 +66,22 @@ defmodule Holter.System.FeatureFlagsTest do
       admin = admin_fixture()
       assert {:error, :invalid_name} = FeatureFlags.create_flag(%{name: "UPPER"}, admin)
     end
+
+    test "rejects names longer than 64 characters" do
+      admin = admin_fixture()
+      long_name = String.duplicate("a", 65)
+      assert {:error, :invalid_name} = FeatureFlags.create_flag(%{name: long_name}, admin)
+    end
+
+    test "rejects creation when flag limit is reached" do
+      admin = admin_fixture()
+      Application.put_env(:holter, :max_feature_flags, 0)
+
+      assert {:error, :flag_limit_reached} =
+               FeatureFlags.create_flag(%{name: "over_limit"}, admin)
+    after
+      Application.delete_env(:holter, :max_feature_flags)
+    end
   end
 
   describe "set_enabled/3" do

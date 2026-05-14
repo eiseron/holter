@@ -62,9 +62,9 @@ function hasDirtyForm() {
 
 function appConfig() {
   const el = document.getElementById("app-config")
-  if (!el) return {}
+  if (!el || !el.dataset.config) return {}
   try {
-    return JSON.parse(el.textContent)
+    return JSON.parse(el.dataset.config)
   } catch {
     return {}
   }

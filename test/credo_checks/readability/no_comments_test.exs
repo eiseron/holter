@@ -74,6 +74,18 @@ defmodule Holter.Credo.Check.Readability.NoCommentsTest do
     assert length(issues) == 1
   end
 
+  test "it allows sobelow_skip annotations" do
+    source_file =
+      ("defmodule Test do\n  " <>
+         @c <>
+         " sobelow_skip [\"DOS.StringToAtom\"]\n  def create_flag(attrs), do: String.to_atom(attrs[:name])\nend")
+      |> SourceFile.parse("test.ex")
+
+    issues = NoComments.run(source_file)
+
+    assert Enum.empty?(issues)
+  end
+
   test "it allows divider lines" do
     source_file =
       ("defmodule Test do\n  " <> @c <> " ---\n  def run, do: :ok\nend")

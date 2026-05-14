@@ -2693,12 +2693,12 @@ msgstr "Cannot impersonate yourself."
 msgid "Could not start impersonation."
 msgstr "Could not start impersonation."
 
-#: lib/holter_web/components/layouts/root.html.heex:36
+#: lib/holter_web/components/layouts/root.html.heex:34
 #, elixir-autogen, elixir-format
 msgid "Exit"
 msgstr "Exit"
 
-#: lib/holter_web/components/layouts/root.html.heex:27
+#: lib/holter_web/components/layouts/root.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "Impersonating"
 msgstr "Impersonating"

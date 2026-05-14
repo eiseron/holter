@@ -8,13 +8,10 @@ defmodule HolterWeb.Layouts do
   embed_templates "layouts/*"
 
   def app_config_json do
-    %{
+    Jason.encode!(%{
       i18n: %{
         unsaved_confirm: gettext("You have unsaved changes. Leave without saving?")
       }
-    }
-    |> Jason.encode!()
-    |> String.replace("</", "<\\/")
-    |> Phoenix.HTML.raw()
+    })
   end
 end

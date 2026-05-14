@@ -28,12 +28,13 @@ defmodule HolterWeb.Web.UnsavedChangesTest do
     } do
       {:ok, _view, html} = live(conn, ~p"/monitoring/monitor/#{monitor.id}")
 
-      [{"script", _attrs, [body]}] =
+      [{"meta", attrs, _}] =
         html
         |> Floki.parse_document!()
-        |> Floki.find(~s|script#app-config[type="application/json"]|)
+        |> Floki.find(~s|meta#app-config|)
 
-      assert Jason.decode!(body)["i18n"]["unsaved_confirm"] =~ "unsaved changes"
+      data_config = Enum.find_value(attrs, fn {k, v} -> if k == "data-config", do: v end)
+      assert Jason.decode!(data_config)["i18n"]["unsaved_confirm"] =~ "unsaved changes"
     end
   end
 

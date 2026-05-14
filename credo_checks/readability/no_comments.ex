@@ -45,8 +45,13 @@ defmodule Holter.Credo.Check.Readability.NoComments do
       not String.starts_with?(line, "##") and
       not String.starts_with?(line, "#!") and
       not String.starts_with?(line, "#[") and
+      not tool_annotation?(line) and
       String.length(line) > 1 and
       not Regex.match?(~r/^#\s*-+$/, line)
+  end
+
+  defp tool_annotation?(line) do
+    Regex.match?(~r/^#\s*sobelow_skip\b/, line)
   end
 
   defp format_issue(issue_meta, line_no, line) do

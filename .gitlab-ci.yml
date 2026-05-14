@@ -80,6 +80,7 @@ lint:
     - mix compile --warnings-as-errors
     - mix credo --strict
     - mix deps.audit
+    - mix sobelow --exit --ignore DOS.BinToAtom
     - mix gettext.extract --merge --check-up-to-date
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

@@ -9,6 +9,9 @@ defmodule Holter.System.FeatureFlags do
   alias Holter.System.AuditLogs
   alias Holter.System.Models.Admin
 
+  @default_max_flags 100
+  @max_flag_name_length 64
+
   def list_flags do
     {:ok, flags} = FunWithFlags.all_flags()
     Enum.sort_by(flags, & &1.name)
@@ -39,7 +42,7 @@ defmodule Holter.System.FeatureFlags do
     now = DateTime.utc_now()
 
     with :ok <- validate_flag_name(name_str) do
-      name = String.to_atom(name_str)
+      name = :erlang.binary_to_atom(name_str, :utf8)
       Repo.transaction(fn -> commit_create(name, actor_user, now) end)
     end
   end
@@ -120,10 +123,18 @@ defmodule Holter.System.FeatureFlags do
   end
 
   defp validate_flag_name(name_str) when is_binary(name_str) do
-    if Regex.match?(~r/^[a-z][a-z0-9_]*$/, name_str) do
-      :ok
-    else
-      {:error, :invalid_name}
+    cond do
+      not Regex.match?(~r/^[a-z][a-z0-9_]*$/, name_str) -> {:error, :invalid_name}
+      String.length(name_str) > @max_flag_name_length -> {:error, :invalid_name}
+      flag_count() >= max_flags() -> {:error, :flag_limit_reached}
+      true -> :ok
     end
+  end
+
+  defp max_flags, do: Application.get_env(:holter, :max_feature_flags, @default_max_flags)
+
+  defp flag_count do
+    {:ok, names} = FunWithFlags.all_flag_names()
+    length(names)
   end
 end
