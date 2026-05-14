@@ -60,6 +60,26 @@ defmodule HolterWeb.Web.Admin.UsersLive.ShowTest do
       assert html =~ workspace.slug
     end
 
+    test "links each workspace name to /admin/workspaces/:id", %{conn: conn} do
+      %{user: target, workspace: workspace} = verified_user_fixture()
+      {:ok, _view, html} = live(conn, ~p"/admin/users/#{target.id}")
+      assert html =~ ~s|href="/admin/workspaces/#{workspace.id}"|
+    end
+
+    test "renders audit actor as link when an admin row exists", %{conn: conn} do
+      %{user: target} = verified_user_fixture()
+      actor = user_fixture()
+
+      audit_log_fixture(%{
+        resource: "User:" <> target.id,
+        actor_id: actor.id,
+        actor_type: "admin"
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/admin/users/#{target.id}")
+      assert html =~ ~s|href="/admin/users/#{actor.id}"|
+    end
+
     test "renders the audit log section heading", %{conn: conn} do
       %{user: target} = verified_user_fixture()
       {:ok, _view, html} = live(conn, ~p"/admin/users/#{target.id}")

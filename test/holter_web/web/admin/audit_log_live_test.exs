@@ -77,6 +77,34 @@ defmodule HolterWeb.Web.Admin.AuditLogLiveTest do
       assert html =~ "key"
     end
 
+    test "links User:<uuid> resources to /admin/users/:id", %{conn: conn} do
+      uuid = Ecto.UUID.generate()
+      audit_log_fixture(%{action: "act_user_link", resource: "User:" <> uuid})
+      {:ok, _view, html} = live(conn, ~p"/admin/audit-log")
+      assert html =~ ~s|href="/admin/users/#{uuid}"|
+    end
+
+    test "links Workspace:<uuid> resources to /admin/workspaces/:id", %{conn: conn} do
+      uuid = Ecto.UUID.generate()
+      audit_log_fixture(%{action: "act_ws_link", resource: "Workspace:" <> uuid})
+      {:ok, _view, html} = live(conn, ~p"/admin/audit-log")
+      assert html =~ ~s|href="/admin/workspaces/#{uuid}"|
+    end
+
+    test "links admin actor to /admin/users/:id", %{conn: conn} do
+      actor = user_fixture()
+
+      audit_log_fixture(%{
+        action: "act_actor_link",
+        actor_id: actor.id,
+        actor_type: "admin",
+        resource: "User:1"
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/admin/audit-log")
+      assert html =~ ~s|href="/admin/users/#{actor.id}"|
+    end
+
     test "renders an em-dash for an empty diff", %{conn: conn} do
       audit_log_fixture(%{action: "empty_diff_action", resource: "User:1", diff: %{}})
       {:ok, _view, html} = live(conn, ~p"/admin/audit-log")

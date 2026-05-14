@@ -197,6 +197,7 @@ defmodule HolterWeb do
       import HolterWeb.Components.AuthScreen
       import HolterWeb.Components.EmptyState
       import HolterWeb.Components.PageContainer
+      import HolterWeb.Components.AdminAudit
 
       use Gettext, backend: HolterWeb.Gettext
 

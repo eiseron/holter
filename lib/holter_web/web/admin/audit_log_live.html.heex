@@ -45,17 +45,13 @@
         </time>
       </:col>
       <:col :let={row} label={gettext("Actor")}>
-        <%= if row.actor_type == "system" do %>
-          <em>{gettext("system")}</em>
-        <% else %>
-          <span class="h-font-mono">{row.actor_id}</span>
-        <% end %>
+        <.audit_actor actor_id={row.actor_id} actor_type={row.actor_type} />
       </:col>
       <:col :let={row} label={gettext("Action")}>
         <span class="h-font-mono">{row.action}</span>
       </:col>
       <:col :let={row} label={gettext("Resource")}>
-        <span class="h-font-mono">{row.resource}</span>
+        <.audit_resource value={row.resource} />
       </:col>
       <:col :let={row} label={gettext("Diff")}>
         <%= if map_size(row.diff) > 0 do %>

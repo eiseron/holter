@@ -69,7 +69,9 @@
       <.empty_state title={gettext("User has no workspace memberships")} />
     <% else %>
       <.table id="admin-user-workspaces" rows={@memberships}>
-        <:col :let={m} label={gettext("Name")}>{m.workspace.name}</:col>
+        <:col :let={m} label={gettext("Name")}>
+          <.link navigate={~p"/admin/workspaces/#{m.workspace.id}"}>{m.workspace.name}</.link>
+        </:col>
         <:col :let={m} label={gettext("Slug")}>
           <span class="h-font-mono">{m.workspace.slug}</span>
         </:col>
@@ -93,11 +95,7 @@
           <span class="h-font-mono">{a.action}</span>
         </:col>
         <:col :let={a} label={gettext("Actor")}>
-          <%= if a.actor_type == "system" do %>
-            <em>{gettext("system")}</em>
-          <% else %>
-            <span class="h-font-mono">{a.actor_id}</span>
-          <% end %>
+          <.audit_actor actor_id={a.actor_id} actor_type={a.actor_type} />
         </:col>
       </.table>
     <% end %>

@@ -2415,15 +2415,15 @@ msgid "substring or domain fragment"
 msgstr "substring ou fragmento de domínio"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:20
-#: lib/holter_web/web/admin/audit_log_live.html.heex:54
-#: lib/holter_web/web/admin/users_live/show.html.heex:92
+#: lib/holter_web/web/admin/audit_log_live.html.heex:50
+#: lib/holter_web/web/admin/users_live/show.html.heex:94
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:147
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr "Ação"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:47
-#: lib/holter_web/web/admin/users_live/show.html.heex:95
+#: lib/holter_web/web/admin/users_live/show.html.heex:97
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:150
 #, elixir-autogen, elixir-format
 msgid "Actor"
@@ -2439,7 +2439,7 @@ msgstr "Ações administrativas"
 msgid "Admin · %{email}"
 msgstr "Admin · %{email}"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:82
+#: lib/holter_web/web/admin/users_live/show.html.heex:84
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:137
 #, elixir-autogen, elixir-format
 msgid "Audit log (%{n})"
@@ -2481,7 +2481,7 @@ msgstr "Entrou em %{date}"
 msgid "Locale"
 msgstr "Idioma"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:84
+#: lib/holter_web/web/admin/users_live/show.html.heex:86
 #, elixir-autogen, elixir-format
 msgid "No admin actions on this user yet"
 msgstr "Nenhuma ação administrativa neste usuário ainda"
@@ -2491,7 +2491,7 @@ msgstr "Nenhuma ação administrativa neste usuário ainda"
 msgid "Not verified"
 msgstr "Não verificado"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:76
+#: lib/holter_web/web/admin/users_live/show.html.heex:78
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "Role"
@@ -2502,7 +2502,7 @@ msgstr "Papel"
 msgid "Sign in as this user"
 msgstr "Entrar como este usuário"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:73
+#: lib/holter_web/web/admin/users_live/show.html.heex:75
 #: lib/holter_web/web/admin/workspaces_live.html.heex:43
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:23
 #, elixir-autogen, elixir-format
@@ -2515,7 +2515,7 @@ msgid "User has no workspace memberships"
 msgstr "Usuário não possui membros em workspaces"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:42
-#: lib/holter_web/web/admin/users_live/show.html.heex:87
+#: lib/holter_web/web/admin/users_live/show.html.heex:89
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:142
 #, elixir-autogen, elixir-format
 msgid "When"
@@ -2531,14 +2531,12 @@ msgstr "Workspaces (%{n})"
 msgid "default"
 msgstr "padrão"
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:49
-#: lib/holter_web/web/admin/users_live/show.html.heex:97
-#: lib/holter_web/web/admin/workspaces_live/show.html.heex:152
+#: lib/holter_web/components/admin_audit.ex:40
 #, elixir-autogen, elixir-format
 msgid "system"
 msgstr "sistema"
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:63
+#: lib/holter_web/web/admin/audit_log_live.html.heex:59
 #, elixir-autogen, elixir-format
 msgid "%{n} keys"
 msgstr "%{n} chaves"
@@ -2553,7 +2551,7 @@ msgstr "Admin · Log de auditoria"
 msgid "Append-only record of every admin action. Showing %{n} rows."
 msgstr "Registro append-only de toda ação administrativa. Mostrando %{n} linhas."
 
-#: lib/holter_web/web/admin/audit_log_live.html.heex:60
+#: lib/holter_web/web/admin/audit_log_live.html.heex:56
 #, elixir-autogen, elixir-format
 msgid "Diff"
 msgstr "Diff"
@@ -2564,7 +2562,7 @@ msgid "No audit entries match the current filters"
 msgstr "Nenhuma entrada de auditoria corresponde aos filtros atuais"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:30
-#: lib/holter_web/web/admin/audit_log_live.html.heex:57
+#: lib/holter_web/web/admin/audit_log_live.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Resource"
 msgstr "Recurso"

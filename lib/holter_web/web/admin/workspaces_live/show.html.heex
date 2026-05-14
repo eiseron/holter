@@ -148,11 +148,7 @@
           <span class="h-font-mono">{a.action}</span>
         </:col>
         <:col :let={a} label={gettext("Actor")}>
-          <%= if a.actor_type == "system" do %>
-            <em>{gettext("system")}</em>
-          <% else %>
-            <span class="h-font-mono">{a.actor_id}</span>
-          <% end %>
+          <.audit_actor actor_id={a.actor_id} actor_type={a.actor_type} />
         </:col>
       </.table>
     <% end %>
