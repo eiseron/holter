@@ -32,25 +32,6 @@ defmodule Holter.System.Policies.FeatureFlagTest do
     end
   end
 
-  describe ":create" do
-    test "allows an active admin with module subject" do
-      admin = admin_fixture()
-      assert :ok = Policies.FeatureFlag.authorize(:create, admin.user, FunWithFlags.Flag)
-    end
-
-    test "allows an active admin with nil subject" do
-      admin = admin_fixture()
-      assert :ok = Policies.FeatureFlag.authorize(:create, admin.user, nil)
-    end
-
-    test "denies a non-admin actor" do
-      actor = user_fixture()
-
-      assert {:error, :unauthorized} =
-               Policies.FeatureFlag.authorize(:create, actor, FunWithFlags.Flag)
-    end
-  end
-
   describe ":update" do
     test "allows an active admin to update a flag" do
       admin = admin_fixture()
@@ -77,6 +58,13 @@ defmodule Holter.System.Policies.FeatureFlagTest do
       admin = admin_fixture()
       flag = %FunWithFlags.Flag{name: :test, gates: []}
       assert {:error, :unauthorized} = Policies.FeatureFlag.authorize(:delete, admin.user, flag)
+    end
+  end
+
+  describe "invalid subject" do
+    test "denies admin when subject is not a FunWithFlags.Flag" do
+      admin = admin_fixture()
+      assert {:error, :unauthorized} = Policies.FeatureFlag.authorize(:read, admin.user, :invalid)
     end
   end
 

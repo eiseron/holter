@@ -23,12 +23,12 @@ defmodule Holter.System do
 
   defdelegate list_feature_flags(), to: FeatureFlags, as: :list_flags
   defdelegate get_feature_flag!(name), to: FeatureFlags, as: :get_flag!
-  defdelegate create_feature_flag(attrs, actor_admin), to: FeatureFlags, as: :create_flag
   defdelegate feature_enabled?(name, subject), to: FeatureFlags, as: :enabled?
+  defdelegate known_feature_flags(), to: FeatureFlags, as: :known_flags
 
-  defdelegate set_feature_flag_enabled(flag, enabled, actor_admin),
+  defdelegate toggle_feature_flag(flag, enabled, actor_admin),
     to: FeatureFlags,
-    as: :set_enabled
+    as: :toggle
 
   defdelegate list_workspaces(params \\ %{}), to: Workspaces
 

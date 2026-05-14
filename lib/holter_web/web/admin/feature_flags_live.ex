@@ -1,7 +1,8 @@
 defmodule HolterWeb.Web.Admin.FeatureFlagsLive do
   @moduledoc """
-  Feature flags admin (BDDs 67-69). Lists every flag with its current
-  gate summary and toggles its boolean gate. Backed by FunWithFlags.
+  Feature flags admin (BDDs 67-69). Lists every known flag with its
+  current gate summary and toggles its boolean gate. Flag names are
+  compile-time atoms declared in FeatureFlags.known_flags/0.
   """
 
   use HolterWeb, :admin_live_view
@@ -20,18 +21,17 @@ defmodule HolterWeb.Web.Admin.FeatureFlagsLive do
     {:ok,
      socket
      |> assign(:page_title, gettext("Admin · Feature flags"))
-     |> assign(:form, to_form(%{}, as: "flag"))
      |> assign_flags()}
   end
 
   @impl true
   def handle_event("toggle", %{"name" => name}, socket) do
     actor = current_admin!(socket)
-    flag = System.get_feature_flag!(String.to_existing_atom(name))
+    flag = FeatureFlags.get_flag!(name)
     currently_enabled = FeatureFlags.boolean_enabled?(flag)
 
     with :ok <- authorize(socket.assigns.current_user, :update, flag),
-         {:ok, _updated} <- System.set_feature_flag_enabled(flag, !currently_enabled, actor) do
+         {:ok, _updated} <- System.toggle_feature_flag(flag, !currently_enabled, actor) do
       {:noreply,
        socket
        |> put_flash(:info, gettext("Flag %{name} toggled.", name: name))
@@ -39,26 +39,6 @@ defmodule HolterWeb.Web.Admin.FeatureFlagsLive do
     else
       {:error, _} ->
         {:noreply, put_flash(socket, :error, gettext("Could not toggle flag."))}
-    end
-  end
-
-  @impl true
-  def handle_event("create", %{"flag" => %{"name" => name}}, socket) do
-    actor = current_admin!(socket)
-
-    with :ok <- authorize(socket.assigns.current_user, :create, {FunWithFlags.Flag, nil}),
-         {:ok, _flag} <- System.create_feature_flag(%{name: name}, actor) do
-      {:noreply,
-       socket
-       |> put_flash(:info, gettext("Flag %{name} created.", name: name))
-       |> assign(:form, to_form(%{}, as: "flag"))
-       |> assign_flags()}
-    else
-      {:error, :invalid_name} ->
-        {:noreply, put_flash(socket, :error, gettext("Invalid flag name."))}
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Could not create flag."))}
     end
   end
 

@@ -1,7 +1,9 @@
 defmodule Holter.System.FeatureFlags do
   @moduledoc """
-  Coordinator for feature flags, backed by FunWithFlags. Every mutation
-  emits an audit log entry inside a Repo.transaction.
+  Coordinator for feature flags, backed by FunWithFlags. Flag names are
+  compile-time atoms declared in @known_flags — adding a flag requires a
+  code change (PR review, deploy). Toggling on/off is runtime via admin UI
+  (no deploy, no downtime). Every mutation emits an audit log entry.
   """
 
   alias Holter.Identity.Models.User
@@ -9,72 +11,58 @@ defmodule Holter.System.FeatureFlags do
   alias Holter.System.AuditLogs
   alias Holter.System.Models.Admin
 
-  @default_max_flags 100
-  @max_flag_name_length 64
+  @known_flags [
+    :maintenance_mode
+  ]
+
+  def known_flags, do: @known_flags
 
   def list_flags do
-    {:ok, flags} = FunWithFlags.all_flags()
-    Enum.sort_by(flags, & &1.name)
+    Enum.map(@known_flags, &get_or_init_flag/1)
+    |> Enum.sort_by(& &1.name)
   end
 
-  def get_flag!(name) when is_atom(name) do
-    case FunWithFlags.get_flag(name) do
-      %FunWithFlags.Flag{} = flag -> flag
-      nil -> raise "Flag #{name} not found"
-    end
+  def get_flag!(name) when is_atom(name) and name in @known_flags do
+    get_or_init_flag(name)
   end
 
-  def get_flag!(name) when is_binary(name), do: get_flag!(String.to_existing_atom(name))
+  def get_flag!(name) when is_binary(name) do
+    get_flag!(to_known_atom!(name))
+  end
 
-  def enabled?(name, subject) when is_atom(name) do
+  def enabled?(name, subject) when is_atom(name) and name in @known_flags do
     FunWithFlags.enabled?(name, for: subject)
   end
 
   def enabled?(name, subject) when is_binary(name) do
-    FunWithFlags.enabled?(String.to_existing_atom(name), for: subject)
+    enabled?(to_known_atom!(name), subject)
   rescue
     ArgumentError -> false
   end
 
-  def create_flag(attrs, %Admin{} = actor_admin) do
-    actor_user = Repo.get!(User, actor_admin.user_id)
-    name_str = attrs[:name] || attrs["name"]
-    now = DateTime.utc_now()
-
-    with :ok <- validate_flag_name(name_str) do
-      name = :erlang.binary_to_atom(name_str, :utf8)
-      Repo.transaction(fn -> commit_create(name, actor_user, now) end)
-    end
-  end
-
-  def set_enabled(%FunWithFlags.Flag{name: name}, enabled, %Admin{} = actor_admin) do
+  def toggle(%FunWithFlags.Flag{name: name}, enabled, %Admin{} = actor_admin)
+      when name in @known_flags do
     actor_user = Repo.get!(User, actor_admin.user_id)
     now = DateTime.utc_now()
 
     Repo.transaction(fn ->
-      result =
+      {:ok, _} =
         if enabled,
           do: FunWithFlags.enable(name),
           else: FunWithFlags.disable(name)
 
-      case result do
-        {:ok, _} ->
-          AuditLogs.log!(
-            %{
-              actor_user: actor_user,
-              actor_type: "admin",
-              resource: "FeatureFlag:#{name}",
-              action: "toggle_feature_flag",
-              diff: %{"from" => !enabled, "to" => enabled}
-            },
-            now
-          )
+      AuditLogs.log!(
+        %{
+          actor_user: actor_user,
+          actor_type: "admin",
+          resource: "FeatureFlag:#{name}",
+          action: "toggle_feature_flag",
+          diff: %{"from" => !enabled, "to" => enabled}
+        },
+        now
+      )
 
-          get_flag!(name)
-
-        {:error, reason} ->
-          Repo.rollback(reason)
-      end
+      get_or_init_flag(name)
     end)
   end
 
@@ -101,40 +89,20 @@ defmodule Holter.System.FeatureFlags do
     end
   end
 
-  defp commit_create(name, actor_user, now) do
-    case FunWithFlags.disable(name) do
-      {:ok, _} ->
-        AuditLogs.log!(
-          %{
-            actor_user: actor_user,
-            actor_type: "admin",
-            resource: "FeatureFlag:#{name}",
-            action: "create_feature_flag",
-            diff: %{"name" => to_string(name)}
-          },
-          now
-        )
-
-        get_flag!(name)
-
-      {:error, reason} ->
-        Repo.rollback(reason)
+  defp get_or_init_flag(name) when is_atom(name) do
+    case FunWithFlags.get_flag(name) do
+      %FunWithFlags.Flag{} = flag -> flag
+      nil -> %FunWithFlags.Flag{name: name, gates: []}
     end
   end
 
-  defp validate_flag_name(name_str) when is_binary(name_str) do
-    cond do
-      not Regex.match?(~r/^[a-z][a-z0-9_]*$/, name_str) -> {:error, :invalid_name}
-      String.length(name_str) > @max_flag_name_length -> {:error, :invalid_name}
-      flag_count() >= max_flags() -> {:error, :flag_limit_reached}
-      true -> :ok
+  defp to_known_atom!(name_str) when is_binary(name_str) do
+    flag_name = String.to_existing_atom(name_str)
+
+    if flag_name in @known_flags do
+      flag_name
+    else
+      raise ArgumentError, "unknown feature flag: #{name_str}"
     end
-  end
-
-  defp max_flags, do: Application.get_env(:holter, :max_feature_flags, @default_max_flags)
-
-  defp flag_count do
-    {:ok, names} = FunWithFlags.all_flag_names()
-    length(names)
   end
 end

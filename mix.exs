@@ -128,7 +128,7 @@ defmodule Holter.MixProject do
         "deps.unlock --unused",
         "format",
         "deps.audit",
-        "sobelow --exit --ignore DOS.BinToAtom",
+        "sobelow --exit",
         "credo --strict",
         "gettext.extract --merge",
         "gen.api.docs",

@@ -1,6 +1,7 @@
 defmodule Holter.System.FeatureFlagsTest do
   use Holter.DataCase, async: false
 
+  alias Holter.System
   alias Holter.System.FeatureFlags
   alias Holter.System.Models.AuditLog
 
@@ -11,161 +12,154 @@ defmodule Holter.System.FeatureFlagsTest do
     end)
   end
 
+  describe "known_flags/0" do
+    test "returns a list" do
+      assert is_list(FeatureFlags.known_flags())
+    end
+
+    test "every entry is an atom" do
+      assert Enum.all?(FeatureFlags.known_flags(), &is_atom/1)
+    end
+
+    test "includes :maintenance_mode" do
+      assert :maintenance_mode in FeatureFlags.known_flags()
+    end
+  end
+
   describe "list_flags/0" do
-    test "includes created flags" do
-      feature_flag_fixture(%{name: "listed_flag"})
-      names = FeatureFlags.list_flags() |> Enum.map(& &1.name)
-      assert :listed_flag in names
+    test "returns all known flags" do
+      flags = FeatureFlags.list_flags()
+      names = Enum.map(flags, & &1.name)
+      assert :maintenance_mode in names
     end
 
     test "returns flags in alphabetical order" do
-      feature_flag_fixture(%{name: "zz_last"})
-      feature_flag_fixture(%{name: "aa_first"})
-
-      names = FeatureFlags.list_flags() |> Enum.map(& &1.name)
+      flags = FeatureFlags.list_flags()
+      names = Enum.map(flags, & &1.name)
       assert names == Enum.sort(names)
+    end
+
+    test "returns uninitialized flags as disabled" do
+      flags = FeatureFlags.list_flags()
+      flag = Enum.find(flags, &(&1.name == :maintenance_mode))
+      refute FeatureFlags.boolean_enabled?(flag)
     end
   end
 
   describe "get_flag!/1" do
-    test "returns a flag by atom name" do
-      feature_flag_fixture(%{name: "my_test_flag"})
-      flag = FeatureFlags.get_flag!(:my_test_flag)
-      assert flag.name == :my_test_flag
+    test "returns a known flag by atom" do
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
+      assert flag.name == :maintenance_mode
     end
 
-    test "returns a flag by string name" do
-      feature_flag_fixture(%{name: "my_string_flag"})
-      flag = FeatureFlags.get_flag!("my_string_flag")
-      assert flag.name == :my_string_flag
+    test "returns a known flag by string" do
+      flag = FeatureFlags.get_flag!("maintenance_mode")
+      assert flag.name == :maintenance_mode
     end
 
     test "raises on unknown flag" do
-      assert_raise RuntimeError, fn ->
-        FeatureFlags.get_flag!(:nonexistent_flag_xyz)
+      assert_raise ArgumentError, fn ->
+        FeatureFlags.get_flag!("not_a_known_flag")
       end
     end
   end
 
-  describe "create_flag/2" do
-    test "creates a disabled flag" do
-      admin = admin_fixture()
-      {:ok, flag} = FeatureFlags.create_flag(%{name: "new_flag"}, admin)
-      assert flag.name == :new_flag
-      refute FeatureFlags.boolean_enabled?(flag)
-    end
-
-    test "emits an audit log entry" do
-      admin = admin_fixture()
-      {:ok, _flag} = FeatureFlags.create_flag(%{name: "audited_flag"}, admin)
-      [audit] = Repo.all(AuditLog)
-      assert audit.action == "create_feature_flag"
-    end
-
-    test "rejects invalid names" do
-      admin = admin_fixture()
-      assert {:error, :invalid_name} = FeatureFlags.create_flag(%{name: "UPPER"}, admin)
-    end
-
-    test "rejects names longer than 64 characters" do
-      admin = admin_fixture()
-      long_name = String.duplicate("a", 65)
-      assert {:error, :invalid_name} = FeatureFlags.create_flag(%{name: long_name}, admin)
-    end
-
-    test "rejects creation when flag limit is reached" do
-      admin = admin_fixture()
-      Application.put_env(:holter, :max_feature_flags, 0)
-
-      assert {:error, :flag_limit_reached} =
-               FeatureFlags.create_flag(%{name: "over_limit"}, admin)
-    after
-      Application.delete_env(:holter, :max_feature_flags)
-    end
-  end
-
-  describe "set_enabled/3" do
+  describe "toggle/3" do
     test "enables a flag" do
       admin = admin_fixture()
-      flag = feature_flag_fixture(%{name: "toggle_me"})
-      {:ok, updated} = FeatureFlags.set_enabled(flag, true, admin)
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
+      {:ok, updated} = FeatureFlags.toggle(flag, true, admin)
       assert FeatureFlags.boolean_enabled?(updated)
     end
 
     test "disables a flag" do
       admin = admin_fixture()
-      flag = feature_flag_fixture(%{name: "disable_me", enabled: true})
-      {:ok, updated} = FeatureFlags.set_enabled(flag, false, admin)
+      FunWithFlags.enable(:maintenance_mode)
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
+      {:ok, updated} = FeatureFlags.toggle(flag, false, admin)
       refute FeatureFlags.boolean_enabled?(updated)
     end
 
     test "emits a toggle audit log entry" do
       admin = admin_fixture()
-      flag = feature_flag_fixture(%{name: "audit_toggle"})
-      {:ok, _} = FeatureFlags.set_enabled(flag, true, admin)
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
+      {:ok, _} = FeatureFlags.toggle(flag, true, admin)
       audits = Repo.all(AuditLog)
       assert Enum.any?(audits, &(&1.action == "toggle_feature_flag"))
     end
   end
 
   describe "enabled?/2" do
-    test "returns false for a disabled flag" do
-      feature_flag_fixture(%{name: "disabled_check"})
+    test "returns false for a disabled known flag" do
       user = user_fixture()
-      refute FeatureFlags.enabled?(:disabled_check, user)
+      refute FeatureFlags.enabled?(:maintenance_mode, user)
     end
 
-    test "returns true for an enabled flag" do
-      feature_flag_fixture(%{name: "enabled_check", enabled: true})
+    test "returns true for an enabled known flag" do
+      FunWithFlags.enable(:maintenance_mode)
       user = user_fixture()
-      assert FeatureFlags.enabled?(:enabled_check, user)
+      assert FeatureFlags.enabled?(:maintenance_mode, user)
     end
 
-    test "returns false for a nonexistent flag" do
+    test "returns false for an unknown flag name string" do
       user = user_fixture()
       refute FeatureFlags.enabled?("nonexistent_flag_abc", user)
     end
   end
 
+  describe "gate_summary/1" do
+    test "returns :global when only boolean gate exists" do
+      flag = %FunWithFlags.Flag{name: :maintenance_mode, gates: []}
+      assert {:global, nil} = FeatureFlags.gate_summary(flag)
+    end
+
+    test "returns :percentage when percentage_of_actors gate exists" do
+      gate = %FunWithFlags.Gate{type: :percentage_of_actors, for: 0.5, enabled: true}
+      flag = %FunWithFlags.Flag{name: :maintenance_mode, gates: [gate]}
+      assert {:percentage, 50} = FeatureFlags.gate_summary(flag)
+    end
+
+    test "returns :list with actor count when actor gates exist" do
+      gate1 = %FunWithFlags.Gate{type: :actor, for: "user:1", enabled: true}
+      gate2 = %FunWithFlags.Gate{type: :actor, for: "user:2", enabled: true}
+      flag = %FunWithFlags.Flag{name: :maintenance_mode, gates: [gate1, gate2]}
+      assert {:list, 2} = FeatureFlags.gate_summary(flag)
+    end
+  end
+
+  describe "get_flag!/1 with existing non-flag atom" do
+    test "raises on atom that exists but is not a known flag" do
+      assert_raise ArgumentError, fn ->
+        FeatureFlags.get_flag!("true")
+      end
+    end
+  end
+
+  describe "System context delegates" do
+    test "known_feature_flags/0 delegates to FeatureFlags" do
+      assert System.known_feature_flags() == FeatureFlags.known_flags()
+    end
+
+    test "get_feature_flag!/1 delegates to FeatureFlags" do
+      assert System.get_feature_flag!(:maintenance_mode).name == :maintenance_mode
+    end
+
+    test "feature_enabled?/2 delegates to FeatureFlags" do
+      user = user_fixture()
+      refute System.feature_enabled?(:maintenance_mode, user)
+    end
+  end
+
   describe "boolean_enabled?/1" do
     test "returns true when boolean gate is enabled" do
-      flag = feature_flag_fixture(%{name: "bool_on", enabled: true})
+      FunWithFlags.enable(:maintenance_mode)
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
       assert FeatureFlags.boolean_enabled?(flag)
     end
 
     test "returns false when boolean gate is disabled" do
-      flag = feature_flag_fixture(%{name: "bool_off"})
+      flag = FeatureFlags.get_flag!(:maintenance_mode)
       refute FeatureFlags.boolean_enabled?(flag)
-    end
-  end
-
-  describe "gate_summary/1" do
-    test "returns :global for a flag with only boolean gate" do
-      flag = feature_flag_fixture(%{name: "global_flag"})
-      assert {:global, nil} = FeatureFlags.gate_summary(flag)
-    end
-
-    test "returns :percentage with value for percentage gate" do
-      flag =
-        feature_flag_fixture(%{name: "pct_flag", strategy: "percentage", percentage: 42})
-
-      assert {:percentage, 42} = FeatureFlags.gate_summary(flag)
-    end
-  end
-
-  describe "percentage determinism" do
-    test "same subject always gets the same decision" do
-      feature_flag_fixture(%{
-        name: "pct_stable",
-        strategy: "percentage",
-        percentage: 50,
-        enabled: true
-      })
-
-      user = user_fixture()
-      a = FeatureFlags.enabled?(:pct_stable, user)
-      b = FeatureFlags.enabled?(:pct_stable, user)
-      assert a == b
     end
   end
 end

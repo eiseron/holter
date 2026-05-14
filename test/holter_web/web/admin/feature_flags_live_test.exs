@@ -5,6 +5,9 @@ defmodule HolterWeb.Web.Admin.FeatureFlagsLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias Holter.System.Models.Admin
+  alias HolterWeb.Web.Admin.FeatureFlagsLive
+
   setup do
     on_exit(fn ->
       {:ok, flags} = FunWithFlags.all_flags()
@@ -38,58 +41,60 @@ defmodule HolterWeb.Web.Admin.FeatureFlagsLiveTest do
       assert html =~ "Feature flags"
     end
 
-    test "renders empty state when no flags exist", %{conn: conn} do
+    test "lists all known flags", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/admin/feature-flags")
-      assert html =~ "No feature flags yet"
+      assert html =~ "maintenance_mode"
     end
 
-    test "lists existing flags", %{conn: conn} do
-      feature_flag_fixture(%{name: "test_flag_alpha"})
-      {:ok, _view, html} = live(conn, ~p"/admin/feature-flags")
-      assert html =~ "test_flag_alpha"
-    end
-
-    test "shows strategy label for a global flag", %{conn: conn} do
-      feature_flag_fixture(%{name: "global_flag"})
+    test "shows strategy label for a known flag", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/admin/feature-flags")
       assert html =~ "Global"
     end
 
-    test "shows percentage value for a percentage flag", %{conn: conn} do
-      feature_flag_fixture(%{name: "pct_flag", strategy: "percentage", percentage: 42})
+    test "strategy_label returns empty string for unknown strategy" do
+      assert FeatureFlagsLive.strategy_label(:unknown) == ""
+    end
+
+    test "shows percentage strategy label when flag has percentage gate", %{conn: conn} do
+      FunWithFlags.enable(:maintenance_mode, for_percentage_of: {:actors, 0.5})
       {:ok, _view, html} = live(conn, ~p"/admin/feature-flags")
-      assert html =~ "42%"
+      assert html =~ "Percentage"
+    end
+
+    test "shows list strategy label when flag has actor gates", %{
+      conn: conn,
+      admin_user: admin_user
+    } do
+      FunWithFlags.enable(:maintenance_mode, for_actor: admin_user)
+      {:ok, _view, html} = live(conn, ~p"/admin/feature-flags")
+      assert html =~ "1 overrides"
     end
 
     test "toggling a flag updates the UI", %{conn: conn} do
-      feature_flag_fixture(%{name: "toggle_me", enabled: false})
       {:ok, view, _html} = live(conn, ~p"/admin/feature-flags")
 
-      html = view |> element("button[phx-value-name='toggle_me']") |> render_click()
-      assert html =~ "Flag toggle_me toggled."
+      html = view |> element("button[phx-value-name='maintenance_mode']") |> render_click()
+      assert html =~ "Flag maintenance_mode toggled."
     end
 
-    test "creating a flag adds it to the list", %{conn: conn} do
+    test "shows error flash when revoked admin tries to toggle", %{
+      conn: conn,
+      admin_user: admin_user
+    } do
       {:ok, view, _html} = live(conn, ~p"/admin/feature-flags")
 
-      html =
-        view
-        |> form("form", flag: %{name: "brand_new_flag"})
-        |> render_submit()
+      admin = Holter.System.get_admin_by_user_id(admin_user.id)
+      anchor = admin_fixture()
 
-      assert html =~ "Flag brand_new_flag created."
-      assert html =~ "brand_new_flag"
-    end
+      admin
+      |> Admin.revocation_changeset(%{
+        revoked_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        revoked_by_admin_id: anchor.id
+      })
+      |> Holter.Repo.update!()
 
-    test "creating a flag with invalid name shows error", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/admin/feature-flags")
-
-      html =
-        view
-        |> form("form", flag: %{name: "UPPER-CASE!"})
-        |> render_submit()
-
-      assert html =~ "Invalid flag name"
+      html = view |> element("button[phx-value-name='maintenance_mode']") |> render_click()
+      assert html =~ "Could not toggle flag"
     end
   end
 end
