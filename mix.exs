@@ -126,6 +126,7 @@ defmodule Holter.MixProject do
         "format",
         "deps.audit",
         "credo --strict",
+        "gettext.extract --merge",
         "gen.api.docs",
         "test --cover"
       ],

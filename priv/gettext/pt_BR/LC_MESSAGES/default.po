@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
 
 #: lib/holter_web/components/table.ex:57
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:57
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:59
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Ações"
@@ -2548,12 +2548,12 @@ msgstr "ex.: User:abc-123"
 msgid "e.g. promote_admin"
 msgstr "ex.: promote_admin"
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:45
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:46
 #, elixir-autogen, elixir-format
 msgid "%{n} overrides"
 msgstr "%{n} exceções"
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:23
+#: lib/holter_web/web/admin/feature_flags_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Admin · Feature flags"
 msgstr "Admin · Feature flags"
@@ -2578,23 +2578,23 @@ msgstr "Criar"
 msgid "Create new flag"
 msgstr "Criar nova flag"
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:65
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:68
 #, elixir-autogen, elixir-format
 msgid "Disable"
 msgstr "Desabilitar"
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:54
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:56
 #, elixir-autogen, elixir-format
 msgid "Disabled"
 msgstr "Desabilitada"
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:67
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:70
 #, elixir-autogen, elixir-format
 msgid "Enable"
 msgstr "Habilitar"
 
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:50
-#: lib/holter_web/web/admin/feature_flags_live.html.heex:52
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:51
+#: lib/holter_web/web/admin/feature_flags_live.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Enabled"
 msgstr "Habilitada"
@@ -2609,7 +2609,7 @@ msgstr "Flag %{name} criada."
 msgid "Flag %{name} toggled."
 msgstr "Flag %{name} alternada."
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:14
+#: lib/holter_web/web/admin/feature_flags_live.ex:13
 #, elixir-autogen, elixir-format
 msgid "Global"
 msgstr "Global"
@@ -2619,7 +2619,7 @@ msgstr "Global"
 msgid "Kill switches, beta cohorts, canary rollouts. Total: %{n}."
 msgstr "Kill switches, beta cohorts, rollouts canários. Total: %{n}."
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:16
+#: lib/holter_web/web/admin/feature_flags_live.ex:15
 #, elixir-autogen, elixir-format
 msgid "List"
 msgstr "Lista"
@@ -2634,7 +2634,7 @@ msgstr "Letras minúsculas, dígitos e underscores. Inicia como desabilitada com
 msgid "No feature flags yet"
 msgstr "Nenhuma feature flag ainda"
 
-#: lib/holter_web/web/admin/feature_flags_live.ex:15
+#: lib/holter_web/web/admin/feature_flags_live.ex:14
 #, elixir-autogen, elixir-format
 msgid "Percentage"
 msgstr "Percentual"
@@ -2664,7 +2664,7 @@ msgstr "Não é possível personificar a si mesmo."
 msgid "Could not start impersonation."
 msgstr "Não foi possível iniciar a personificação."
 
-#: lib/holter_web/components/layouts/root.html.heex:38
+#: lib/holter_web/components/layouts/root.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "Exit"
 msgstr "Sair"
@@ -2688,11 +2688,6 @@ msgstr "Autenticado como %{email}."
 #, elixir-autogen, elixir-format
 msgid "Admin session restored. Signed out of %{email}."
 msgstr "Sessão de admin restaurada. Saiu de %{email}."
-
-#: lib/holter_web/components/layouts/root.html.heex:31
-#, elixir-autogen, elixir-format
-msgid "via admin %{email}"
-msgstr "via admin %{email}"
 
 #: lib/holter_web/web/admin/workspaces_live.ex:20
 #, elixir-autogen, elixir-format
@@ -2718,3 +2713,8 @@ msgstr "Buscar por nome ou slug"
 #, elixir-autogen, elixir-format
 msgid "substring"
 msgstr "trecho"
+
+#: lib/holter_web/web/admin/feature_flags_live.ex:58
+#, elixir-autogen, elixir-format
+msgid "Invalid flag name."
+msgstr "Nome de flag inválido."
