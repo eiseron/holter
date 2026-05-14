@@ -13,6 +13,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 variables:
   GIT_DEPTH: "1"
@@ -69,6 +70,7 @@ default:
 
 lint:
   stage: lint
+  timeout: 5 minutes
   needs: []
   cache:
     - *deps-cache
@@ -84,6 +86,7 @@ lint:
 
 test:
   stage: test
+  timeout: 10 minutes
   needs: []
   image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
   cache:
@@ -120,6 +123,7 @@ test:
 
 coverage-gate:
   stage: test
+  timeout: 2 minutes
   needs: [test]
   image: alpine:3.21
   before_script:
@@ -166,6 +170,7 @@ coverage-gate:
 
 mutation:
   stage: test
+  timeout: 4 hours
   needs: [test]
   image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
   cache:
@@ -196,10 +201,10 @@ mutation:
   script:
     - mix ecto.create --quiet
     - mix ecto.migrate --quiet
-    - mix muex --fail-at 50 --optimize
+    - mix muex --fail-at 50
   allow_failure: true
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 # Build the per-MR preview image and push to holter's own container
 # registry under /preview. The image becomes the deployment artifact
@@ -224,6 +229,7 @@ mutation:
 # under runner cache AND kaniko's build/push without a stage split.
 build_image:
   stage: build
+  timeout: 15 minutes
   needs: []
   # Preview infrastructure is convenience for reviewers — a flaky preview
   # must never block a merge or a release. lint+test still gate the MR.
@@ -287,6 +293,7 @@ build_image:
 
 deploy_review:
   stage: review
+  timeout: 2 minutes
   needs: ["build_image"]
   allow_failure: true
   rules:
@@ -317,6 +324,7 @@ deploy_review:
 
 deploy_main:
   stage: review
+  timeout: 2 minutes
   needs: ["build_image"]
   allow_failure: true
   rules:
@@ -344,6 +352,7 @@ deploy_main:
 
 stop_review:
   stage: review
+  timeout: 2 minutes
   needs: []
   allow_failure: true
   rules:
@@ -373,6 +382,7 @@ stop_review:
 
 sync-github:
   stage: sync
+  timeout: 2 minutes
   image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
@@ -386,6 +396,7 @@ sync-github:
 
 publish-docs:
   stage: publish
+  timeout: 2 minutes
   image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
