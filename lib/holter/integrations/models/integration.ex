@@ -18,6 +18,7 @@ defmodule Holter.Integrations.Models.Integration do
   @settings_max_bytes 4096
 
   schema "integrations" do
+    field :name, :string
     field :provider, Ecto.Enum, values: @providers
     field :status, Ecto.Enum, values: @statuses, default: :active
     field :credentials_encrypted, Holter.Integrations.EncryptedMap
@@ -40,6 +41,7 @@ defmodule Holter.Integrations.Models.Integration do
     |> cast(attrs, [
       :workspace_id,
       :provider,
+      :name,
       :status,
       :credentials_encrypted,
       :settings,
@@ -48,12 +50,13 @@ defmodule Holter.Integrations.Models.Integration do
       :last_error_at,
       :last_error_reason
     ])
-    |> validate_required([:workspace_id, :provider])
+    |> validate_required([:workspace_id, :provider, :name])
+    |> validate_length(:name, min: 1, max: 255)
     |> validate_settings_size()
     |> foreign_key_constraint(:workspace_id)
-    |> unique_constraint([:workspace_id, :provider],
-      name: :integrations_workspace_id_provider_index,
-      message: "provider already connected for this workspace"
+    |> unique_constraint([:workspace_id, :provider, :name],
+      name: :integrations_workspace_id_provider_name_index,
+      message: "an integration with this name already exists for this provider"
     )
   end
 

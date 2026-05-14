@@ -11,6 +11,7 @@ defmodule Holter.Integrations.Models.IntegrationTest do
       attrs = %{
         workspace_id: ws.id,
         provider: :google_ads,
+        name: "Google Ads — Main Account",
         subscribed_events: ["incident_opened"]
       }
 
@@ -19,14 +20,20 @@ defmodule Holter.Integrations.Models.IntegrationTest do
     end
 
     test "requires workspace_id" do
-      cs = Integration.changeset(%Integration{}, %{provider: :slack})
+      cs = Integration.changeset(%Integration{}, %{provider: :slack, name: "Slack"})
       assert "can't be blank" in errors_on(cs).workspace_id
     end
 
     test "requires provider" do
       ws = workspace_fixture()
-      cs = Integration.changeset(%Integration{}, %{workspace_id: ws.id})
+      cs = Integration.changeset(%Integration{}, %{workspace_id: ws.id, name: "My Integration"})
       assert "can't be blank" in errors_on(cs).provider
+    end
+
+    test "requires name" do
+      ws = workspace_fixture()
+      cs = Integration.changeset(%Integration{}, %{workspace_id: ws.id, provider: :slack})
+      assert "can't be blank" in errors_on(cs).name
     end
 
     test "rejects an unknown provider" do
@@ -35,7 +42,8 @@ defmodule Holter.Integrations.Models.IntegrationTest do
       cs =
         Integration.changeset(%Integration{}, %{
           workspace_id: ws.id,
-          provider: :unknown_provider
+          provider: :unknown_provider,
+          name: "Unknown"
         })
 
       assert "is invalid" in errors_on(cs).provider
@@ -49,6 +57,7 @@ defmodule Holter.Integrations.Models.IntegrationTest do
         Integration.changeset(%Integration{}, %{
           workspace_id: ws.id,
           provider: :slack,
+          name: "Slack",
           settings: %{"key" => big_value}
         })
 
@@ -62,44 +71,67 @@ defmodule Holter.Integrations.Models.IntegrationTest do
         Integration.changeset(%Integration{}, %{
           workspace_id: ws.id,
           provider: :slack,
+          name: "Slack",
           settings: %{"key" => {1, 2, 3}}
         })
 
       assert "must be a JSON-serializable map" in errors_on(cs).settings
     end
 
-    test "enforces unique (workspace_id, provider) constraint" do
+    test "enforces unique (workspace_id, provider, name) constraint" do
       ws = workspace_fixture()
 
       {:ok, _} =
         IntegrationsContext.create(%{
           workspace_id: ws.id,
-          provider: :google_ads
+          provider: :google_ads,
+          name: "Google Ads — Main"
         })
 
       {:error, cs} =
         IntegrationsContext.create(%{
           workspace_id: ws.id,
-          provider: :google_ads
+          provider: :google_ads,
+          name: "Google Ads — Main"
         })
 
-      assert "provider already connected for this workspace" in errors_on(cs).workspace_id
+      assert "an integration with this name already exists for this provider" in errors_on(cs).workspace_id
     end
 
-    test "allows same provider in different workspaces" do
+    test "allows multiple integrations with the same provider when names differ" do
+      ws = workspace_fixture()
+
+      {:ok, _} =
+        IntegrationsContext.create(%{
+          workspace_id: ws.id,
+          provider: :google_ads,
+          name: "Google Ads — Account A"
+        })
+
+      assert {:ok, _} =
+               IntegrationsContext.create(%{
+                 workspace_id: ws.id,
+                 provider: :google_ads,
+                 name: "Google Ads — Account B"
+               })
+    end
+
+    test "allows same provider and name in different workspaces" do
       ws1 = workspace_fixture()
       ws2 = workspace_fixture()
 
       {:ok, _} =
         IntegrationsContext.create(%{
           workspace_id: ws1.id,
-          provider: :google_ads
+          provider: :google_ads,
+          name: "Google Ads — Main"
         })
 
       assert {:ok, _} =
                IntegrationsContext.create(%{
                  workspace_id: ws2.id,
-                 provider: :google_ads
+                 provider: :google_ads,
+                 name: "Google Ads — Main"
                })
     end
   end

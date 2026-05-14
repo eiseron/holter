@@ -23,6 +23,7 @@ defmodule Holter.IntegrationsFixtures do
       Enum.into(base_attrs, %{
         workspace_id: workspace_id,
         provider: :google_ads,
+        name: "Google Ads #{System.unique_integer([:positive])}",
         status: :active,
         credentials_encrypted: %{
           "access_token" => "test_access_token",

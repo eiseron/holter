@@ -11,11 +11,13 @@ defmodule Holter.Integrations.IntegrationsContextTest do
       assert {:ok,
               %Integration{
                 provider: :google_ads,
+                name: "Google Ads Main",
                 status: :active
               }} =
                IntegrationsContext.create(%{
                  workspace_id: ws.id,
-                 provider: :google_ads
+                 provider: :google_ads,
+                 name: "Google Ads Main"
                })
     end
 
@@ -38,6 +40,7 @@ defmodule Holter.Integrations.IntegrationsContextTest do
         IntegrationsContext.create(%{
           workspace_id: ws.id,
           provider: :slack,
+          name: "Slack",
           credentials_encrypted: credentials
         })
 

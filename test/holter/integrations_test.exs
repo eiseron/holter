@@ -49,8 +49,12 @@ defmodule Holter.IntegrationsTest do
     test "creates an integration and returns {:ok, integration}" do
       ws = workspace_fixture()
 
-      assert {:ok, %Integration{provider: :slack}} =
-               Integrations.create_integration(%{workspace_id: ws.id, provider: :slack})
+      assert {:ok, %Integration{provider: :slack, name: "Slack"}} =
+               Integrations.create_integration(%{
+                 workspace_id: ws.id,
+                 provider: :slack,
+                 name: "Slack"
+               })
     end
   end
 

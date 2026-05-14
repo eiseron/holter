@@ -11,6 +11,7 @@ defmodule Holter.Seeds.Integrations.Integrations do
       IntegrationsContext.create(%{
         workspace_id: workspace.id,
         provider: :google_ads,
+        name: "Google Ads — Main Account",
         status: :active,
         credentials_encrypted: %{
           "access_token" => "seed_google_access_token",
@@ -25,6 +26,7 @@ defmodule Holter.Seeds.Integrations.Integrations do
       IntegrationsContext.create(%{
         workspace_id: workspace.id,
         provider: :meta_ads,
+        name: "Meta Ads — Main Account",
         status: :active,
         credentials_encrypted: %{
           "access_token" => "seed_meta_access_token",
