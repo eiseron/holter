@@ -23,6 +23,7 @@ if Repo.aggregate(Workspace, :count) == 0 do
   Incidents.create_for(monitors)
   DailyMetrics.create_for(monitors)
   user = Users.create_dev([workspace, secondary])
+  Users.create_extra([workspace])
   ApiTokens.create_dev(user, workspace)
   WebhookChannels.create_for(workspace, monitors)
   EmailChannels.create_for(workspace, monitors)

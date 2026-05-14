@@ -6,7 +6,7 @@ defmodule Holter.System do
   (`HolterWeb.Hooks.AdminAuthHook` + Bodyguard policies).
   """
 
-  alias Holter.System.{Admins, AuditLogs, FeatureFlags, Users}
+  alias Holter.System.{Admins, AuditLogs, FeatureFlags, Impersonations, Users}
 
   defdelegate admin?(user), to: Admins
   defdelegate get_admin_by_user_id(user_id), to: Admins, as: :get_by_user_id
@@ -29,4 +29,10 @@ defmodule Holter.System do
   defdelegate set_feature_flag_enabled(flag, enabled, actor_admin),
     to: FeatureFlags,
     as: :set_enabled
+
+  defdelegate start_impersonation(actor_admin, target), to: Impersonations, as: :start
+
+  defdelegate stop_impersonation(target, actor_user, target_plaintext),
+    to: Impersonations,
+    as: :stop
 end

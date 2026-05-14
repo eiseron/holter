@@ -45,6 +45,27 @@ defmodule Holter.System.Policies.UserTest do
     end
   end
 
+  describe ":impersonate" do
+    test "allows an admin to impersonate another user" do
+      admin = admin_fixture()
+      target = user_fixture()
+      assert :ok = Policies.User.authorize(:impersonate, admin.user, target)
+    end
+
+    test "denies a non-admin actor" do
+      actor = user_fixture()
+      target = user_fixture()
+      assert {:error, :unauthorized} = Policies.User.authorize(:impersonate, actor, target)
+    end
+
+    test "denies self-impersonation" do
+      admin = admin_fixture()
+
+      assert {:error, :cannot_impersonate_self} =
+               Policies.User.authorize(:impersonate, admin.user, admin.user)
+    end
+  end
+
   describe ":system bypass" do
     test "allows the system actor for any action" do
       target = user_fixture()

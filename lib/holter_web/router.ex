@@ -6,6 +6,7 @@ defmodule HolterWeb.Router do
     plug :fetch_session
     plug HolterWeb.Plugs.SessionMetadataPlug
     plug HolterWeb.Plugs.LocalePlug
+    plug HolterWeb.Plugs.ImpersonationPlug
     plug :fetch_live_flash
     plug :put_root_layout, html: {HolterWeb.Layouts, :root}
     plug :protect_from_forgery
@@ -135,6 +136,9 @@ defmodule HolterWeb.Router do
 
   scope "/admin", HolterWeb.Web.Admin do
     pipe_through :browser
+
+    post "/users/:user_id/impersonation", ImpersonationController, :create
+    delete "/impersonation", ImpersonationController, :delete
 
     live_session :authenticated_admin,
       on_mount: [

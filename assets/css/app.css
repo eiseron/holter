@@ -29,6 +29,7 @@
 @import "./components/workspace_sidebar.css";
 @import "./components/admin_layout.css";
 @import "./components/admin_dashboard.css";
+@import "./components/impersonation_banner.css";
 
 @import "./components/monitoring/dashboard_header.css";
 @import "./components/monitoring/monitor_subnav.css";

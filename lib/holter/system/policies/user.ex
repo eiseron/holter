@@ -24,6 +24,14 @@ defmodule Holter.System.Policies.User do
       else: {:error, :unauthorized}
   end
 
+  def authorize(:impersonate, %User{} = actor, %User{} = target) do
+    cond do
+      not Admins.admin?(actor) -> {:error, :unauthorized}
+      actor.id == target.id -> {:error, :cannot_impersonate_self}
+      true -> :ok
+    end
+  end
+
   def authorize(_action, _user, _subject), do: {:error, :unauthorized}
 
   defp admin_subject?(User), do: true

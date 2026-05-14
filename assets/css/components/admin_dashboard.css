@@ -141,6 +141,14 @@
   gap: var(--space-1);
 }
 
+.h-admin-actions form {
+  display: flex;
+}
+
+.h-admin-actions form .h-btn {
+  flex: 1;
+}
+
 .h-admin-action-meta {
   font-size: var(--text-xs);
   opacity: 0.55;

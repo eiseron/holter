@@ -41,10 +41,11 @@
       <h2>{gettext("Admin actions")}</h2>
       <ul class="h-admin-actions">
         <li>
-          <button type="button" class="h-btn h-btn-soft" disabled>
-            {gettext("Sign in as this user")}
-          </button>
-          <span class="h-admin-action-meta">{gettext("Coming soon")}</span>
+          <.form for={%{}} action={~p"/admin/users/#{@user.id}/impersonation"} method="post">
+            <.button type="submit" class="h-btn h-btn-soft">
+              {gettext("Sign in as this user")}
+            </.button>
+          </.form>
         </li>
         <li>
           <button type="button" class="h-btn h-btn-soft" disabled>

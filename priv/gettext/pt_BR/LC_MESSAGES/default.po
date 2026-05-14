@@ -914,7 +914,7 @@ msgstr "Linha do tempo de incidentes"
 #: lib/holter_web/components/delivery/webhook_channel_form_fields.ex:17
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:16
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:35
-#: lib/holter_web/web/admin/users_live/show.html.heex:71
+#: lib/holter_web/web/admin/users_live/show.html.heex:72
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:52
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:50
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:101
@@ -2178,6 +2178,9 @@ msgstr "Log de auditoria"
 #: lib/holter_web/web/admin/users_live/show.html.heex:47
 #: lib/holter_web/web/admin/users_live/show.html.heex:53
 #: lib/holter_web/web/admin/users_live/show.html.heex:59
+
+#: lib/holter_web/web/admin/users_live/show.html.heex:54
+#: lib/holter_web/web/admin/users_live/show.html.heex:60
 #, elixir-autogen, elixir-format
 msgid "Coming soon"
 msgstr "Em breve"
@@ -2397,13 +2400,13 @@ msgstr "substring ou fragmento de domínio"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:20
 #: lib/holter_web/web/admin/audit_log_live.html.heex:52
-#: lib/holter_web/web/admin/users_live/show.html.heex:89
+#: lib/holter_web/web/admin/users_live/show.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr "Ação"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:45
-#: lib/holter_web/web/admin/users_live/show.html.heex:92
+#: lib/holter_web/web/admin/users_live/show.html.heex:93
 #, elixir-autogen, elixir-format
 msgid "Actor"
 msgstr "Ator"
@@ -2418,12 +2421,12 @@ msgstr "Ações administrativas"
 msgid "Admin · %{email}"
 msgstr "Admin · %{email}"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:81
+#: lib/holter_web/web/admin/users_live/show.html.heex:82
 #, elixir-autogen, elixir-format
 msgid "Audit log (%{n})"
 msgstr "Log de auditoria (%{n})"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:57
+#: lib/holter_web/web/admin/users_live/show.html.heex:58
 #, elixir-autogen, elixir-format
 msgid "Ban user"
 msgstr "Banir usuário"
@@ -2433,7 +2436,7 @@ msgstr "Banir usuário"
 msgid "Email verified at"
 msgstr "Email verificado em"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:51
+#: lib/holter_web/web/admin/users_live/show.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "Grant manual plan"
 msgstr "Conceder plano manual"
@@ -2458,7 +2461,7 @@ msgstr "Entrou em %{date}"
 msgid "Locale"
 msgstr "Idioma"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:83
+#: lib/holter_web/web/admin/users_live/show.html.heex:84
 #, elixir-autogen, elixir-format
 msgid "No admin actions on this user yet"
 msgstr "Nenhuma ação administrativa neste usuário ainda"
@@ -2468,33 +2471,33 @@ msgstr "Nenhuma ação administrativa neste usuário ainda"
 msgid "Not verified"
 msgstr "Não verificado"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:75
+#: lib/holter_web/web/admin/users_live/show.html.heex:76
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr "Papel"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:45
+#: lib/holter_web/web/admin/users_live/show.html.heex:46
 #, elixir-autogen, elixir-format
 msgid "Sign in as this user"
 msgstr "Entrar como este usuário"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:72
+#: lib/holter_web/web/admin/users_live/show.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Slug"
 msgstr "Slug"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:68
+#: lib/holter_web/web/admin/users_live/show.html.heex:69
 #, elixir-autogen, elixir-format
 msgid "User has no workspace memberships"
 msgstr "Usuário não possui membros em workspaces"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:42
-#: lib/holter_web/web/admin/users_live/show.html.heex:86
+#: lib/holter_web/web/admin/users_live/show.html.heex:87
 #, elixir-autogen, elixir-format
 msgid "When"
 msgstr "Quando"
 
-#: lib/holter_web/web/admin/users_live/show.html.heex:66
+#: lib/holter_web/web/admin/users_live/show.html.heex:67
 #, elixir-autogen, elixir-format
 msgid "Workspaces (%{n})"
 msgstr "Workspaces (%{n})"
@@ -2505,7 +2508,7 @@ msgid "default"
 msgstr "padrão"
 
 #: lib/holter_web/web/admin/audit_log_live.html.heex:47
-#: lib/holter_web/web/admin/users_live/show.html.heex:94
+#: lib/holter_web/web/admin/users_live/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "system"
 msgstr "sistema"
@@ -2651,3 +2654,48 @@ msgstr "Estratégia"
 #, elixir-autogen, elixir-format
 msgid "e.g. new_dashboard_v2"
 msgstr "ex.: new_dashboard_v2"
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:78
+#, elixir-autogen, elixir-format
+msgid "Admin required."
+msgstr "Acesso administrativo necessário."
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:27
+#, elixir-autogen, elixir-format
+msgid "Cannot impersonate yourself."
+msgstr "Não é possível personificar a si mesmo."
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:32
+#, elixir-autogen, elixir-format
+msgid "Could not start impersonation."
+msgstr "Não foi possível iniciar a personificação."
+
+#: lib/holter_web/components/layouts/root.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Exit"
+msgstr "Sair"
+
+#: lib/holter_web/components/layouts/root.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Impersonating"
+msgstr "Personificando"
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:40
+#, elixir-autogen, elixir-format
+msgid "Not impersonating."
+msgstr "Não está personificando."
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:22
+#, elixir-autogen, elixir-format
+msgid "Signed in as %{email}."
+msgstr "Autenticado como %{email}."
+
+#: lib/holter_web/web/admin/impersonation_controller.ex:56
+#, elixir-autogen, elixir-format
+msgid "Admin session restored. Signed out of %{email}."
+msgstr "Sessão de admin restaurada. Saiu de %{email}."
+
+#: lib/holter_web/components/layouts/root.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "via admin %{email}"
+msgstr "via admin %{email}"

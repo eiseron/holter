@@ -22,6 +22,21 @@
     </script>
   </head>
   <body>
+    <%= if assigns[:impersonator_email] do %>
+      <div class="h-impersonation-pill" role="status">
+        <span class="h-impersonation-pill-label">{gettext("Impersonating")}</span>
+        <span class="h-impersonation-pill-actor" title={@impersonator_email}>
+          {@impersonator_email}
+        </span>
+        <.link
+          href={~p"/admin/impersonation"}
+          method="delete"
+          class="h-impersonation-pill-exit"
+        >
+          {gettext("Exit")}
+        </.link>
+      </div>
+    <% end %>
     {@inner_content}
   </body>
 </html>
