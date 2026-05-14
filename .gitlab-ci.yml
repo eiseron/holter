@@ -164,6 +164,43 @@ coverage-gate:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
+mutation:
+  stage: test
+  needs: [test]
+  image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
+  cache:
+    - *deps-cache
+    - *build-test-cache
+  services:
+    - name: postgres:16-alpine
+      alias: postgres
+      command:
+        - "-c"
+        - "fsync=off"
+        - "-c"
+        - "synchronous_commit=off"
+        - "-c"
+        - "full_page_writes=off"
+  variables:
+    MIX_ENV: test
+    DB_HOST: postgres
+    DB_USER: postgres
+    DB_PASS: postgres
+    DB_NAME: holter
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  before_script:
+    - mix deps.get
+    - until pg_isready -h postgres -U postgres -t 1; do sleep 1; done
+    - PGPASSWORD=postgres psql -h postgres -U postgres -d postgres -f priv/repo/postgres-init/01_rls_roles.sql
+  script:
+    - mix ecto.create --quiet
+    - mix ecto.migrate --quiet
+    - mix muex --fail-at 50 --optimize
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # Build the per-MR preview image and push to holter's own container
 # registry under /preview. The image becomes the deployment artifact
 # pulled by holter-ops's preview job.
