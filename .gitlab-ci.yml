@@ -85,6 +85,19 @@ lint:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
+security:
+  stage: lint
+  timeout: 5 minutes
+  needs: []
+  cache:
+    - *deps-cache
+    - *build-dev-cache
+  script:
+    - mix deps.audit
+    - mix sobelow --exit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
 test:
   stage: test
   timeout: 10 minutes
@@ -119,6 +132,8 @@ test:
     - mix test.ci --cover
   coverage: '/\s+(\d+\.\d+)% \| Total/'
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
@@ -172,7 +187,7 @@ coverage-gate:
 mutation:
   stage: test
   timeout: 4 hours
-  needs: [test]
+  needs: []
   image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
   cache:
     - *deps-cache
@@ -202,8 +217,24 @@ mutation:
   script:
     - mix ecto.create --quiet
     - mix ecto.migrate --quiet
-    - mix muex --fail-at 50
-  allow_failure: true
+    - mix muex --fail-at 50 --timeout 30000 --format json
+  after_script:
+    - |
+      if [ ! -f muex-report.json ]; then exit 0; fi
+      python3 - <<'PY'
+      import json
+      d = json.load(open("muex-report.json"))
+      for label, key in [("SURVIVED", "survived"), ("TIMED OUT", "timeout")]:
+          items = [m for m in d["mutations"] if m["result"] == key]
+          print(f"\n=== {label} MUTATIONS ({len(items)}) ===")
+          for m in items:
+              print(f"  {m['file']}:{m['line']} — {m['mutator']}: {m['description']}")
+      PY
+  artifacts:
+    when: always
+    paths:
+      - muex-report.json
+    expire_in: 2 weeks
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
 
@@ -239,6 +270,8 @@ build_image:
     # Bootstrap guard: skip on MRs opened before holter-ops Terraform has
     # provisioned the registry deploy-token CI vars (PREVIEW_REGISTRY_*).
     - if: $PREVIEW_REGISTRY_PASSWORD == null || $PREVIEW_REGISTRY_PASSWORD == ""
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -333,6 +366,8 @@ deploy_main:
       when: never
     - if: $PREVIEW_DEPLOYER_TRIGGER_TOKEN == null || $PREVIEW_DEPLOYER_TRIGGER_TOKEN == ""
       when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   <<: *preview_trigger
   script:
@@ -392,6 +427,8 @@ sync-github:
     - git remote add github "https://x-access-token:${GITHUB_TOKEN}@github.com/eiseron/holter.git"
     - git push github HEAD:main --tags
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
 
