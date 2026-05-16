@@ -217,23 +217,47 @@ mutation:
   script:
     - mix ecto.create --quiet
     - mix ecto.migrate --quiet
-    - mix muex --fail-at 50 --timeout 30000 --format json
+    # muex --format json prints JSON to stdout (no --output flag); capture
+    # with tee + pipefail so the file lands on disk AND the exit code of
+    # mix muex (which fails the build below threshold) is preserved.
+    - set -o pipefail && mix muex --fail-at 50 --timeout 60000 --format json | tee muex-stdout.log
   after_script:
     - |
-      if [ ! -f muex-report.json ]; then exit 0; fi
+      if [ ! -f muex-stdout.log ]; then exit 0; fi
+      # Extract the JSON object (starts at the first line that is just `{`).
+      # File-analyzer prints "✓ path (score: N)" lines unconditionally before
+      # the JSON, so we can't redirect stdout directly to the report file.
+      sed -n '/^{$/,$p' muex-stdout.log > muex-report.json
+      if [ ! -s muex-report.json ]; then exit 0; fi
       python3 - <<'PY'
       import json
       d = json.load(open("muex-report.json"))
+      s = d.get("summary", {})
+      print("\n=== MUTATION TESTING RESULTS ===")
+      print(f"  Total:     {s.get('total', 0)}")
+      print(f"  Killed:    {s.get('killed', 0)} (caught by tests)")
+      print(f"  Survived:  {s.get('survived', 0)} (not caught — weak tests)")
+      print(f"  Timeout:   {s.get('timeout', 0)}")
+      print(f"  Invalid:   {s.get('invalid', 0)} (compilation errors)")
+      low = s.get('mutation_score_low', 0)
+      high = s.get('mutation_score_high', 0)
+      score = f"{low}%" if low == high else f"{low}%..{high}%"
+      print(f"  Score:     {score}")
+      mutations = d.get("mutations", [])
       for label, key in [("SURVIVED", "survived"), ("TIMED OUT", "timeout")]:
-          items = [m for m in d["mutations"] if m["result"] == key]
+          items = [m for m in mutations if m.get("status") == key]
           print(f"\n=== {label} MUTATIONS ({len(items)}) ===")
           for m in items:
-              print(f"  {m['file']}:{m['line']} — {m['mutator']}: {m['description']}")
+              loc = m.get("location", {})
+              dur = m.get("duration_ms", 0)
+              print(f"  {loc.get('file')}:{loc.get('line')} — {m.get('mutator')}: {m.get('description')} ({dur}ms)")
       PY
   artifacts:
     when: always
+    expose_as: "Mutation Report"
     paths:
       - muex-report.json
+      - muex-stdout.log
     expire_in: 2 weeks
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
