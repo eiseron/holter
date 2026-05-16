@@ -20,7 +20,7 @@ defmodule Holter.Application do
         Holter.Integrations.Vault,
         {Oban, Application.fetch_env!(:holter, Oban)},
         HolterWeb.Endpoint
-      ] ++ delivery_children()
+      ] ++ delivery_children() ++ integrations_children()
 
     opts = [strategy: :one_for_one, name: Holter.Supervisor]
     Supervisor.start_link(children, opts)
@@ -35,6 +35,14 @@ defmodule Holter.Application do
   defp delivery_children do
     if Application.get_env(:holter, :start_delivery_event_consumer, true) do
       [Holter.Delivery.EventConsumer]
+    else
+      []
+    end
+  end
+
+  defp integrations_children do
+    if Application.get_env(:holter, :start_integrations_event_consumer, true) do
+      [Holter.Integrations.EventConsumer]
     else
       []
     end

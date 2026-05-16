@@ -105,6 +105,8 @@ config :holter, Oban,
         Holter.Monitoring.Workers.DailyMetricsAggregator}
      ]}
   ],
-  queues: [dispatchers: 1, checks: 50, metrics: 5, notifications: 10]
+  queues: [dispatchers: 1, checks: 50, metrics: 5, notifications: 10, integrations: 10]
+
+config :holter, :integrations_http_client, Holter.Integrations.HttpClient.HTTP
 
 import_config "#{config_env()}.exs"

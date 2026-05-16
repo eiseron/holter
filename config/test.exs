@@ -62,6 +62,7 @@ config :holter, delivery_http_client: Holter.Delivery.HttpClientMock
 config :holter, network_resolver: Holter.Network.ResolverMock
 config :holter, start_delivery_event_consumer: false
 config :holter, start_integrations_event_consumer: false
+config :holter, :integrations_http_client, Holter.Integrations.HttpClientMock
 
 config :holter, Holter.Integrations.Vault,
   ciphers: [

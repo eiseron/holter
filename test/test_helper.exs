@@ -1,5 +1,7 @@
 Mox.defmock(Holter.Monitoring.MonitorClientMock, for: Holter.Monitoring.MonitorClient)
 Mox.defmock(Holter.Delivery.HttpClientMock, for: Holter.Delivery.HttpClient)
+Mox.defmock(Holter.Integrations.HttpClientMock, for: Holter.Integrations.HttpClient)
+Mox.defmock(Holter.Integrations.ProviderMock, for: Holter.Integrations.Provider)
 Mox.defmock(Holter.Network.ResolverMock, for: Holter.Network.Resolver)
 
 {:ok, _} = Holter.Test.DummyService.start_link([])
