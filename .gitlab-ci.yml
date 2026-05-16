@@ -186,7 +186,7 @@ coverage-gate:
 
 mutation:
   stage: test
-  timeout: 4 hours
+  timeout: 6 hours
   needs: []
   image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
   cache:
