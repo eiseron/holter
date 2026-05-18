@@ -228,30 +228,11 @@ mutation:
       # File-analyzer prints "✓ path (score: N)" lines unconditionally before
       # the JSON, so we can't redirect stdout directly to the report file.
       sed -n '/^{$/,$p' muex-stdout.log > muex-report.json
-      if [ ! -s muex-report.json ]; then exit 0; fi
-      python3 - <<'PY'
-      import json
-      d = json.load(open("muex-report.json"))
-      s = d.get("summary", {})
-      print("\n=== MUTATION TESTING RESULTS ===")
-      print(f"  Total:     {s.get('total', 0)}")
-      print(f"  Killed:    {s.get('killed', 0)} (caught by tests)")
-      print(f"  Survived:  {s.get('survived', 0)} (not caught — weak tests)")
-      print(f"  Timeout:   {s.get('timeout', 0)}")
-      print(f"  Invalid:   {s.get('invalid', 0)} (compilation errors)")
-      low = s.get('mutation_score_low', 0)
-      high = s.get('mutation_score_high', 0)
-      score = f"{low}%" if low == high else f"{low}%..{high}%"
-      print(f"  Score:     {score}")
-      mutations = d.get("mutations", [])
-      for label, key in [("SURVIVED", "survived"), ("TIMED OUT", "timeout")]:
-          items = [m for m in mutations if m.get("status") == key]
-          print(f"\n=== {label} MUTATIONS ({len(items)}) ===")
-          for m in items:
-              loc = m.get("location", {})
-              dur = m.get("duration_ms", 0)
-              print(f"  {loc.get('file')}:{loc.get('line')} — {m.get('mutator')}: {m.get('description')} ({dur}ms)")
-      PY
+    # Pretty-print summary + survived/timeout details from muex-report.json.
+    # Uses Elixir + Jason (already in deps) since python3 is not in the
+    # elixir-builder image. mix run picks up the project's compiled state
+    # from the script step above, so no extra compile cost.
+    - mix run --no-start scripts/ci/mutation_summary.exs
   artifacts:
     when: always
     expose_as: "Mutation Report"
