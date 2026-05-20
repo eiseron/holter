@@ -217,10 +217,10 @@ mutation:
   script:
     - mix ecto.create --quiet
     - mix ecto.migrate --quiet
-    # muex --format json prints JSON to stdout (no --output flag); capture
-    # with tee + pipefail so the file lands on disk AND the exit code of
-    # mix muex (which fails the build below threshold) is preserved.
-    - set -o pipefail && mix muex --fail-at 50 --timeout 60000 --format json | tee muex-stdout.log
+    # muex --format json prints JSON (~260 KB) to stdout. Redirect to file
+    # so the live log stays clean; the summary block in after_script reads
+    # back from muex-report.json.
+    - mix muex --fail-at 50 --timeout 60000 --format json > muex-stdout.log
   after_script:
     - |
       if [ ! -f muex-stdout.log ]; then exit 0; fi
