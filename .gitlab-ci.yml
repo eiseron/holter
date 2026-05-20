@@ -146,6 +146,8 @@ coverage-gate:
     - apk add --no-cache curl jq bc
   script:
     - |
+      target_branch="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+
       current=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/jobs" \
         | jq -r '[.[] | select(.name=="test")] | last | .coverage')
@@ -155,32 +157,32 @@ coverage-gate:
         exit 0
       fi
 
-      main_pipeline=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines?ref=$CI_DEFAULT_BRANCH&status=success&per_page=1" \
+      target_pipeline=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines?ref=${target_branch}&status=success&per_page=1" \
         | jq -r '.[0].id')
 
-      if [ "$main_pipeline" = "null" ] || [ -z "$main_pipeline" ]; then
-        echo "No successful main pipeline found — skipping coverage gate"
+      if [ "$target_pipeline" = "null" ] || [ -z "$target_pipeline" ]; then
+        echo "No successful pipeline found on target branch (${target_branch}) — skipping coverage gate"
         exit 0
       fi
 
-      main_cov=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$main_pipeline/jobs" \
+      target_cov=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$target_pipeline/jobs" \
         | jq -r '[.[] | select(.name=="test")] | last | .coverage')
 
-      if [ "$main_cov" = "null" ] || [ -z "$main_cov" ]; then
-        echo "No coverage data on main — skipping coverage gate"
+      if [ "$target_cov" = "null" ] || [ -z "$target_cov" ]; then
+        echo "No coverage data on target branch (${target_branch}) — skipping coverage gate"
         exit 0
       fi
 
-      echo "Coverage: current=${current}% main=${main_cov}%"
+      echo "Coverage: current=${current}% target(${target_branch})=${target_cov}%"
 
-      if echo "$current < $main_cov" | bc -q | grep -q 1; then
-        echo "FAILED: coverage dropped (${current}% < ${main_cov}%)"
+      if echo "$current < $target_cov" | bc -q | grep -q 1; then
+        echo "FAILED: coverage dropped (${current}% < ${target_cov}% on ${target_branch})"
         exit 1
       fi
 
-      echo "OK: coverage maintained (${current}% >= ${main_cov}%)"
+      echo "OK: coverage maintained (${current}% >= ${target_cov}% on ${target_branch})"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
