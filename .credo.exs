@@ -44,10 +44,9 @@
       # If you create your own checks, you must specify the source files for
       # them here, so they can be loaded by Credo before running the analysis.
       requires: [
-        "credo_checks/readability/no_comments.ex",
-        "credo_checks/testing/one_assert_per_test.ex",
-        "credo_checks/refactor/strict_function_arity.ex",
-        "credo_checks/design/no_side_effects_in_transformer.ex",
+        # Eiseron.Credo.* checks are auto-loaded via the :eiseron_credo_checks dep.
+        # Holter-specific checks (Holter.Credo.*) remain local until follow-up #12
+        # parameterizes them and moves them into the shared package.
         "credo_checks/design/require_bodyguard_permit.ex",
         "credo_checks/design/rls_policy_required.ex"
       ],
@@ -76,9 +75,9 @@
       checks: %{
         enabled: [
           # Custom Eiseron Checks
-          {Holter.Credo.Check.Readability.NoComments, []},
-          {Holter.Credo.Check.Testing.OneAssertPerTest, []},
-          {Holter.Credo.Check.Design.NoSideEffectsInTransformer, []},
+          {Eiseron.Credo.Check.Readability.NoComments, []},
+          {Eiseron.Credo.Check.Testing.OneAssertPerTest, []},
+          {Eiseron.Credo.Check.Design.NoSideEffectsInTransformer, []},
           {Holter.Credo.Check.Design.RequireBodyguardPermit, []},
           {Holter.Credo.Check.Design.RLSPolicyRequired, []},
 
@@ -131,7 +130,7 @@
           {Credo.Check.Refactor.CyclomaticComplexity, []},
           {Credo.Check.Refactor.FilterCount, []},
           {Credo.Check.Refactor.FilterFilter, []},
-          {Holter.Credo.Check.Refactor.StrictFunctionArity, [max_arity: 3]},
+          {Eiseron.Credo.Check.Refactor.StrictFunctionArity, [max_arity: 3]},
           {Credo.Check.Refactor.LongQuoteBlocks, []},
           {Credo.Check.Refactor.MapJoin, []},
           {Credo.Check.Refactor.MatchInCondition, []},
