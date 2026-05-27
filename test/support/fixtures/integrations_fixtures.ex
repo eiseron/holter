@@ -3,6 +3,7 @@ defmodule Holter.IntegrationsFixtures do
   Test helpers for creating Integration and IntegrationEvent entities.
   """
 
+  alias Holter.Integrations.IntegrationBindingsContext
   alias Holter.Integrations.IntegrationEventsContext
   alias Holter.Integrations.IntegrationsContext
 
@@ -73,6 +74,51 @@ defmodule Holter.IntegrationsFixtures do
       })
 
     IntegrationEventsContext.log_event!(attrs)
+  end
+
+  def integration_binding_fixture(attrs \\ %{}) do
+    attrs = Map.new(attrs)
+
+    integration_id =
+      cond do
+        id = attrs[:integration_id] -> id
+        id = attrs["integration_id"] -> id
+        ig = attrs[:integration] -> ig.id
+        true -> raise ArgumentError, "binding fixture requires :integration_id or :integration"
+      end
+
+    monitor_id =
+      cond do
+        id = attrs[:monitor_id] -> id
+        id = attrs["monitor_id"] -> id
+        m = attrs[:monitor] -> m.id
+        true -> raise ArgumentError, "binding fixture requires :monitor_id or :monitor"
+      end
+
+    base =
+      Map.drop(attrs, [
+        :integration_id,
+        "integration_id",
+        :integration,
+        "integration",
+        :monitor_id,
+        "monitor_id",
+        :monitor,
+        "monitor"
+      ])
+
+    full =
+      Enum.into(base, %{
+        integration_id: integration_id,
+        monitor_id: monitor_id,
+        event_type: "incident_opened",
+        action: "pause_campaign",
+        target_id: "gads-#{System.unique_integer([:positive])}",
+        target_label: nil
+      })
+
+    {:ok, binding} = IntegrationBindingsContext.create(full)
+    binding
   end
 
   defp workspace_id_from_fixtures do

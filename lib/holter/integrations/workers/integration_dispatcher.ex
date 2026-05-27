@@ -25,8 +25,15 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
 
       {:ok, provider_mod} ->
         monitor_id = args["monitor_id"]
+        targets = args["targets"] || []
         incident_stub = %{id: incident_id, monitor_id: monitor_id}
-        payload = PayloadBuilder.build_dispatch_payload(integration, event, incident_stub)
+
+        payload =
+          PayloadBuilder.build_dispatch_payload(integration, event, %{
+            incident: incident_stub,
+            targets: targets
+          })
+
         run_dispatch(provider_mod, %{integration: integration, event: event, payload: payload})
     end
   end
