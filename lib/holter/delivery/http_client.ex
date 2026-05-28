@@ -12,7 +12,7 @@ defmodule Holter.Delivery.HttpClient do
     @moduledoc false
     @behaviour Holter.Delivery.HttpClient
 
-    alias Holter.Network.Guard
+    alias Eiseron.Network.Guard
 
     require Logger
 

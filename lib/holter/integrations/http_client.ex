@@ -18,7 +18,7 @@ defmodule Holter.Integrations.HttpClient do
     @moduledoc false
     @behaviour Holter.Integrations.HttpClient
 
-    alias Holter.Network.Guard
+    alias Eiseron.Network.Guard
 
     require Logger
 

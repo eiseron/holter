@@ -7,13 +7,13 @@ defmodule Holter.Identity.Users do
   the clock and configuration reads.
   """
 
-  alias Holter.I18n.Locale
-  alias Holter.Identity.EmailNormalizer
+  alias Eiseron.I18n.Locale
+  alias Eiseron.Identity.EmailNormalizer
+  alias Eiseron.Identity.Password
   alias Holter.Identity.Emails.RegistrationVerification
   alias Holter.Identity.Memberships
   alias Holter.Identity.Models.Token
   alias Holter.Identity.Models.User
-  alias Holter.Identity.Password
   alias Holter.Identity.Tokens
   alias Holter.Mailers.InfoMailer
   alias Holter.Monitoring
@@ -77,17 +77,34 @@ defmodule Holter.Identity.Users do
       :ok ->
         :ok
 
-      {:error, message} ->
+      {:error, reason} ->
+        {msg, opts} = password_strength_message(reason)
+
         cs =
           %User{}
           |> Ecto.Changeset.change()
           |> Map.put(:params, %{"password" => password})
-          |> Ecto.Changeset.add_error(:password, message)
+          |> Ecto.Changeset.add_error(:password, msg, opts)
           |> Map.put(:action, :insert)
 
         {:error, cs}
     end
   end
+
+  defp password_strength_message(:too_short),
+    do: {"must be at least %{min} characters", [min: Password.min_length()]}
+
+  defp password_strength_message(:missing_lowercase),
+    do: {"must contain a lowercase letter", []}
+
+  defp password_strength_message(:missing_uppercase),
+    do: {"must contain an uppercase letter", []}
+
+  defp password_strength_message(:missing_digit),
+    do: {"must contain a digit", []}
+
+  defp password_strength_message(:not_a_string),
+    do: {"must be a string", []}
 
   defp build_user_attrs(attrs, hashed_password) do
     attrs

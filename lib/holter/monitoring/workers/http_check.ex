@@ -7,10 +7,10 @@ defmodule Holter.Monitoring.Workers.HTTPCheck do
     max_attempts: 3,
     unique: [period: 60, states: [:available, :scheduled, :executing]]
 
+  alias Eiseron.Network.Guard
   alias Holter.Monitoring
   alias Holter.Monitoring.Engine
   alias Holter.Monitoring.MonitorClient.HTTP
-  alias Holter.Network.Guard
 
   @max_timeout_seconds 30
 

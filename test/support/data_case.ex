@@ -37,7 +37,7 @@ defmodule Holter.DataCase do
   setup tags do
     Holter.DataCase.setup_sandbox(tags)
     Mox.verify_on_exit!()
-    Mox.stub_with(Holter.Network.ResolverMock, Holter.Test.StubResolver)
+    Mox.stub_with(Eiseron.Network.ResolverMock, Holter.Test.StubResolver)
     :ok
   end
 

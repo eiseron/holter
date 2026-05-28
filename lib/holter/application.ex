@@ -3,7 +3,7 @@ defmodule Holter.Application do
 
   use Application
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
   alias Holter.Observability.ObanHandler
 
   @impl true

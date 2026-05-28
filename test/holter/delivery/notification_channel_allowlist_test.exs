@@ -4,15 +4,15 @@ defmodule Holter.Delivery.NotificationChannelAllowlistTest do
   alias Holter.Delivery.Models.WebhookChannel
 
   setup do
-    previous = Application.get_env(:holter, :network, [])
+    previous = Application.get_env(:eiseron_core, :network, [])
 
     Application.put_env(
-      :holter,
+      :eiseron_core,
       :network,
       Keyword.put(previous, :trusted_hosts, ["localhost"])
     )
 
-    on_exit(fn -> Application.put_env(:holter, :network, previous) end)
+    on_exit(fn -> Application.put_env(:eiseron_core, :network, previous) end)
   end
 
   defp webhook_changeset(url) do

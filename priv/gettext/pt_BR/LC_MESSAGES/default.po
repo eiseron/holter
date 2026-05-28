@@ -1529,35 +1529,10 @@ msgstr "Seu e-mail foi verificado. Você já pode fazer login."
 msgid "e.g. On-call rotation"
 msgstr "ex. Plantão"
 
-#: lib/holter/identity/password.ex:40
-#, elixir-autogen, elixir-format
-msgid "must be a string"
-msgstr "deve ser uma string"
-
 #: lib/holter/identity/models/user.ex:44
 #, elixir-autogen, elixir-format
 msgid "must be a valid email address"
 msgstr "deve ser um endereço de e-mail válido"
-
-#: lib/holter/identity/password.ex:48
-#, elixir-autogen, elixir-format
-msgid "must be at least %{min} characters"
-msgstr "deve ter pelo menos %{min} caracteres"
-
-#: lib/holter/identity/password.ex:52
-#, elixir-autogen, elixir-format
-msgid "must contain a digit"
-msgstr "deve conter um dígito"
-
-#: lib/holter/identity/password.ex:50
-#, elixir-autogen, elixir-format
-msgid "must contain a lowercase letter"
-msgstr "deve conter uma letra minúscula"
-
-#: lib/holter/identity/password.ex:51
-#, elixir-autogen, elixir-format
-msgid "must contain an uppercase letter"
-msgstr "deve conter uma letra maiúscula"
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:16
 #, elixir-autogen, elixir-format

@@ -6,9 +6,9 @@ defmodule HolterWeb.Web.Identity.UserResetPasswordLiveTest do
   import Phoenix.LiveViewTest
   import Swoosh.TestAssertions
 
+  alias Eiseron.Identity.Password
   alias Holter.Identity
   alias Holter.Identity.Models.User
-  alias Holter.Identity.Password
   alias Holter.Identity.Tokens
   alias Holter.Repo
 

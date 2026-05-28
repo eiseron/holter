@@ -1,7 +1,7 @@
 defmodule Holter.Identity.PasswordTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Identity.Password
+  alias Eiseron.Identity.Password
 
   @pepper "test-pepper"
   @other_pepper "different-pepper"
@@ -45,27 +45,23 @@ defmodule Holter.Identity.PasswordTest do
     end
 
     test "rejects passwords below the minimum length" do
-      assert {:error, "must be at least 12 characters"} =
-               Password.validate_strength("Short-1A")
+      assert {:error, :too_short} = Password.validate_strength("Short-1A")
     end
 
     test "rejects passwords with no lowercase letter" do
-      assert {:error, "must contain a lowercase letter"} =
-               Password.validate_strength("ALLCAPS-12345!")
+      assert {:error, :missing_lowercase} = Password.validate_strength("ALLCAPS-12345!")
     end
 
     test "rejects passwords with no uppercase letter" do
-      assert {:error, "must contain an uppercase letter"} =
-               Password.validate_strength("alllower-12345!")
+      assert {:error, :missing_uppercase} = Password.validate_strength("alllower-12345!")
     end
 
     test "rejects passwords with no digit" do
-      assert {:error, "must contain a digit"} =
-               Password.validate_strength("NoDigitsHere!")
+      assert {:error, :missing_digit} = Password.validate_strength("NoDigitsHere!")
     end
 
     test "rejects non-string inputs" do
-      assert {:error, "must be a string"} = Password.validate_strength(nil)
+      assert {:error, :not_a_string} = Password.validate_strength(nil)
     end
   end
 end

@@ -3,10 +3,10 @@ defmodule Holter.IdentityFixtures do
   Test helpers for building entities in the `Holter.Identity` domain.
   """
 
+  alias Eiseron.Identity.Scopes
   alias Holter.Identity
   alias Holter.Identity.ApiTokens
   alias Holter.Identity.Models.User
-  alias Holter.Identity.Scopes
   alias Holter.Identity.Tokens
   alias Holter.Monitoring.Models.Workspace
   alias Holter.MonitoringFixtures

@@ -17,7 +17,7 @@ defmodule Holter.Repo.Tenant do
   `with_workspace/2` per row.
   """
 
-  alias Holter.Identity.Tenant
+  alias Eiseron.Identity.Tenant
   alias Holter.Repo
 
   @spec with_workspace(term(), (-> result)) :: result when result: term()

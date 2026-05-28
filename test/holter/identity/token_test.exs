@@ -130,6 +130,15 @@ defmodule Holter.Identity.TokenTest do
     end
   end
 
+  describe "Inspect redaction" do
+    test "hashed_value is omitted from inspect output" do
+      token = %Token{hashed_value: <<1, 2, 3>>}
+
+      refute inspect(token) =~ "hashed_value"
+      refute inspect(token) =~ Base.encode16(<<1, 2, 3>>)
+    end
+  end
+
   describe "consume_changeset/2" do
     test "stamps used_at to the supplied moment, preventing replay" do
       user = user_fixture()

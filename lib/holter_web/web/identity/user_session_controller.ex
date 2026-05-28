@@ -1,7 +1,7 @@
 defmodule HolterWeb.Web.Identity.UserSessionController do
   use HolterWeb, :controller
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
   alias Holter.Identity
 
   def create(conn, %{"user" => params}) do

@@ -24,7 +24,7 @@ defmodule HolterWeb.Hooks.LocaleHook do
   import Phoenix.Component, only: [assign: 3]
   import Phoenix.LiveView, only: [attach_hook: 4, push_navigate: 2]
 
-  alias Holter.I18n.{Locale, Resolver}
+  alias Eiseron.I18n.{Locale, Resolver}
 
   def on_mount(_arg, params, session, socket) do
     locale =

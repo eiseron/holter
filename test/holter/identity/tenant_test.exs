@@ -1,7 +1,7 @@
 defmodule Holter.Identity.TenantTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Identity.Tenant
+  alias Eiseron.Identity.Tenant
 
   describe "workspace_session_var/0" do
     test "returns the postgres setting key used by workspace-keyed RLS policies" do

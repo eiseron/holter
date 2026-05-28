@@ -59,7 +59,7 @@ config :holter, :sql_sandbox, true
 config :holter, http_receive_timeout: 500
 config :holter, monitor_client: Holter.Monitoring.MonitorClientMock
 config :holter, delivery_http_client: Holter.Delivery.HttpClientMock
-config :holter, network_resolver: Holter.Network.ResolverMock
+config :eiseron_core, network_resolver: Eiseron.Network.ResolverMock
 config :holter, start_delivery_event_consumer: false
 config :holter, start_integrations_event_consumer: false
 config :holter, :integrations_http_client, Holter.Integrations.HttpClientMock
@@ -71,4 +71,6 @@ config :holter, Holter.Integrations.Vault,
        tag: "AES.GCM.V1", key: Base.decode64!("ARN6RIXGlp3VBPd7nFxNOLCKf2U1bDT3XvO49ACOQZA=")}
   ]
 
-config :holter, Holter.I18n.Locale, default_locale: "en"
+config :eiseron_core, Eiseron.I18n.Locale,
+  gettext_backend: HolterWeb.Gettext,
+  default_locale: "en"

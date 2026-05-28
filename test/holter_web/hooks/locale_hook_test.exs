@@ -3,7 +3,7 @@ defmodule HolterWeb.Hooks.LocaleHookTest do
 
   import Phoenix.LiveViewTest
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
 
   setup do
     on_exit(fn -> Gettext.put_locale(HolterWeb.Gettext, "en") end)

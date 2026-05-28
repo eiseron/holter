@@ -3,7 +3,7 @@ defmodule Holter.Identity.Models.ApiToken do
 
   import Ecto.Changeset
 
-  alias Holter.Identity.Scopes
+  alias Eiseron.Identity.Scopes
 
   @rand_size 32
   @plaintext_prefix "hk_"

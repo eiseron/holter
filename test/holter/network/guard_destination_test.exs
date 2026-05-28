@@ -1,15 +1,15 @@
-defmodule Holter.Network.GuardDestinationTest do
+defmodule Eiseron.Network.GuardDestinationTest do
   use ExUnit.Case, async: false
 
   import Mox
 
-  alias Holter.Network.Guard
-  alias Holter.Network.ResolverMock
+  alias Eiseron.Network.Guard
+  alias Eiseron.Network.ResolverMock
 
   setup :verify_on_exit!
 
   setup do
-    on_exit(fn -> Application.put_env(:holter, :network, []) end)
+    on_exit(fn -> Application.put_env(:eiseron_core, :network, []) end)
     :ok
   end
 
@@ -82,7 +82,7 @@ defmodule Holter.Network.GuardDestinationTest do
 
   describe "validate_destination/1 — trusted hosts allowlist" do
     test "allows a private resolved IP when the IP is in the allowlist" do
-      Application.put_env(:holter, :network, trusted_hosts: ["10.0.0.1"])
+      Application.put_env(:eiseron_core, :network, trusted_hosts: ["10.0.0.1"])
 
       expect(ResolverMock, :getaddrs, fn _, :inet -> {:ok, [{10, 0, 0, 1}]} end)
 
@@ -91,7 +91,7 @@ defmodule Holter.Network.GuardDestinationTest do
     end
 
     test "falls back to the original host when DNS fails for an allowlisted host" do
-      Application.put_env(:holter, :network, trusted_hosts: ["internal.local"])
+      Application.put_env(:eiseron_core, :network, trusted_hosts: ["internal.local"])
 
       expect(ResolverMock, :getaddrs, fn _, :inet -> {:error, :nxdomain} end)
 
@@ -107,7 +107,7 @@ defmodule Holter.Network.GuardDestinationTest do
     end
 
     test "allowlist does not bypass static URL rejections" do
-      Application.put_env(:holter, :network, trusted_hosts: ["internal.local"])
+      Application.put_env(:eiseron_core, :network, trusted_hosts: ["internal.local"])
 
       assert Guard.validate_destination("ftp://internal.local/hook") == {:error, :invalid_scheme}
     end

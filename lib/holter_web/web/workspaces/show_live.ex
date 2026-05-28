@@ -15,8 +15,8 @@ defmodule HolterWeb.Web.Workspaces.ShowLive do
   import Ecto.Query
   import HolterWeb.Components.QuotaGauge
 
+  alias Eiseron.I18n.Locale
   alias Holter.Delivery
-  alias Holter.I18n.Locale
   alias Holter.Monitoring
   alias Holter.Monitoring.Models.Monitor
   alias Holter.Repo

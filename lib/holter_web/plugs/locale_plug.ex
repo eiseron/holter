@@ -22,7 +22,7 @@ defmodule HolterWeb.Plugs.LocalePlug do
 
   @behaviour Plug
 
-  alias Holter.I18n.{Locale, Resolver}
+  alias Eiseron.I18n.{Locale, Resolver}
 
   @impl true
   def init(opts), do: opts

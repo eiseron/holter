@@ -4,7 +4,7 @@ defmodule Holter.Monitoring.Models.Monitor do
 
   import Ecto.Changeset
 
-  alias Holter.Network.Guard, as: NetworkGuard
+  alias Eiseron.Network.Guard, as: NetworkGuard
 
   @manual_check_cooldown 60
   @http_methods [:get, :post, :head, :put, :patch, :delete, :options]

@@ -19,7 +19,7 @@ defmodule Holter.Monitoring.MonitorSsrfTest do
     end)
   end
 
-  describe "monitor URL — gaps closed by Holter.Network.Guard unification" do
+  describe "monitor URL — gaps closed by Eiseron.Network.Guard unification" do
     test "rejects IPv4-mapped IPv6 ::ffff:127.0.0.1" do
       assert ssrf_error?(monitor_changeset("http://[::ffff:127.0.0.1]/probe"))
     end

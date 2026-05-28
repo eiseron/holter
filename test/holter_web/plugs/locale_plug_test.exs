@@ -3,7 +3,7 @@ defmodule HolterWeb.Plugs.LocalePlugTest do
 
   @moduletag :guest
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
   alias HolterWeb.Plugs.LocalePlug
 
   defp build_request(query \\ "", opts \\ []) do

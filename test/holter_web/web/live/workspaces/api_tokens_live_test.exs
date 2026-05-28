@@ -3,9 +3,9 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias Eiseron.Identity.Scopes
   alias Holter.Identity.ApiTokens
   alias Holter.Identity.Models.WorkspaceMembership
-  alias Holter.Identity.Scopes
   alias Holter.Repo
 
   setup do

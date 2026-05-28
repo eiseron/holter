@@ -16,7 +16,7 @@ defmodule HolterWeb.Plugs.RequireScopePlug do
 
   import Plug.Conn
 
-  alias Holter.Identity.Scopes
+  alias Eiseron.Identity.Scopes
 
   def init(scope) when is_binary(scope) do
     if Scopes.valid?(scope) do
@@ -24,7 +24,7 @@ defmodule HolterWeb.Plugs.RequireScopePlug do
     else
       raise ArgumentError,
             "RequireScopePlug: #{inspect(scope)} is not a known scope. " <>
-              "Add it to Holter.Identity.Scopes or fix the typo."
+              "Add it to Eiseron.Identity.Scopes or fix the typo."
     end
   end
 

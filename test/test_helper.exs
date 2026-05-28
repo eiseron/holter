@@ -2,7 +2,7 @@ Mox.defmock(Holter.Monitoring.MonitorClientMock, for: Holter.Monitoring.MonitorC
 Mox.defmock(Holter.Delivery.HttpClientMock, for: Holter.Delivery.HttpClient)
 Mox.defmock(Holter.Integrations.HttpClientMock, for: Holter.Integrations.HttpClient)
 Mox.defmock(Holter.Integrations.ProviderMock, for: Holter.Integrations.Provider)
-Mox.defmock(Holter.Network.ResolverMock, for: Holter.Network.Resolver)
+Mox.defmock(Eiseron.Network.ResolverMock, for: Eiseron.Network.Resolver)
 
 {:ok, _} = Holter.Test.DummyService.start_link([])
 {:ok, _} = Bandit.start_link(plug: Holter.Test.DummyService, port: 4001)

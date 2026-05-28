@@ -3,10 +3,13 @@ import Config
 config :holter,
   ecto_repos: [Holter.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true],
-  monitor_client: Holter.Monitoring.MonitorClient.HTTP,
-  network_resolver: Holter.Network.Resolver.Erlang
+  monitor_client: Holter.Monitoring.MonitorClient.HTTP
 
-config :holter, Holter.I18n.Locale, default_locale: "pt_BR"
+config :eiseron_core, network_resolver: Eiseron.Network.Resolver.Erlang
+
+config :eiseron_core, Eiseron.I18n.Locale,
+  gettext_backend: HolterWeb.Gettext,
+  default_locale: "pt_BR"
 
 config :holter, HolterWeb.Endpoint,
   url: [host: "localhost"],

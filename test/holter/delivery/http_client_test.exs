@@ -4,9 +4,9 @@ defmodule Holter.Delivery.HttpClientTest do
   import ExUnit.CaptureLog
   import Mox
 
+  alias Eiseron.Network.ResolverMock
   alias Holter.Delivery.HttpClient
   alias Holter.Delivery.HttpClient.HTTP
-  alias Holter.Network.ResolverMock
   alias Holter.Test.DummyService
 
   @port Application.compile_env(:holter, :dummy_port, 4001)
@@ -16,12 +16,12 @@ defmodule Holter.Delivery.HttpClientTest do
 
   setup do
     DummyService.reset()
-    Application.put_env(:holter, :network, trusted_hosts: ["localhost", "127.0.0.1"])
+    Application.put_env(:eiseron_core, :network, trusted_hosts: ["localhost", "127.0.0.1"])
     stub_with(ResolverMock, Holter.Test.StubResolver)
 
     on_exit(fn ->
       DummyService.reset()
-      Application.put_env(:holter, :network, [])
+      Application.put_env(:eiseron_core, :network, [])
     end)
 
     :ok

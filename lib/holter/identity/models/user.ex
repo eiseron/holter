@@ -3,8 +3,8 @@ defmodule Holter.Identity.Models.User do
   use Gettext, backend: HolterWeb.Gettext
   import Ecto.Changeset
 
-  alias Holter.I18n.Locale
-  alias Holter.Identity.EmailNormalizer
+  alias Eiseron.I18n.Locale
+  alias Eiseron.Identity.EmailNormalizer
 
   @onboarding_statuses [:pending_verification, :active, :pending_billing, :banned]
   @email_format ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/

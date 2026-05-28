@@ -4,7 +4,7 @@ defmodule Holter.Monitoring.Models.Workspace do
 
   import Ecto.Changeset
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

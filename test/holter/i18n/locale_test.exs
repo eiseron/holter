@@ -1,7 +1,7 @@
-defmodule Holter.I18n.LocaleTest do
+defmodule Eiseron.I18n.LocaleTest do
   use ExUnit.Case, async: true
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
 
   describe "supported/0" do
     test "returns the canonical Gettext-formatted locale strings" do
@@ -12,7 +12,7 @@ defmodule Holter.I18n.LocaleTest do
   describe "default/0" do
     test "returns the configured application default locale" do
       configured =
-        Application.get_env(:holter, Locale, [])
+        Application.get_env(:eiseron_core, Locale, [])
         |> Keyword.fetch!(:default_locale)
 
       assert Locale.default() == configured

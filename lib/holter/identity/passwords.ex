@@ -4,7 +4,7 @@ defmodule Holter.Identity.Passwords do
 
   Owns DB writes, the clock, and mailer side effects. Pure work — strength
   validation, hashing, email composition — happens in sibling modules
-  (`Holter.Identity.Password`, `Holter.Identity.Emails.*`).
+  (`Eiseron.Identity.Password`, `Holter.Identity.Emails.*`).
 
   Anti-enumeration posture: `request_reset/1` always returns `:ok` and
   produces the same shape of response whether the email exists or not.
@@ -12,12 +12,12 @@ defmodule Holter.Identity.Passwords do
   guarantee — but the user-visible response carries no signal.
   """
 
-  alias Holter.Identity.EmailNormalizer
+  alias Eiseron.Identity.EmailNormalizer
+  alias Eiseron.Identity.Password
   alias Holter.Identity.Emails.PasswordChanged
   alias Holter.Identity.Emails.PasswordResetRequest
   alias Holter.Identity.Models.Token
   alias Holter.Identity.Models.User
-  alias Holter.Identity.Password
   alias Holter.Identity.Tokens
   alias Holter.Mailers.InfoMailer
   alias Holter.Repo
@@ -57,17 +57,34 @@ defmodule Holter.Identity.Passwords do
       :ok ->
         :ok
 
-      {:error, message} ->
+      {:error, reason} ->
+        {msg, opts} = password_strength_message(reason)
+
         cs =
           %User{}
           |> Ecto.Changeset.change()
           |> Map.put(:params, %{"password" => password})
-          |> Ecto.Changeset.add_error(:password, message)
+          |> Ecto.Changeset.add_error(:password, msg, opts)
           |> Map.put(:action, :update)
 
         {:error, cs}
     end
   end
+
+  defp password_strength_message(:too_short),
+    do: {"must be at least %{min} characters", [min: Password.min_length()]}
+
+  defp password_strength_message(:missing_lowercase),
+    do: {"must contain a lowercase letter", []}
+
+  defp password_strength_message(:missing_uppercase),
+    do: {"must contain an uppercase letter", []}
+
+  defp password_strength_message(:missing_digit),
+    do: {"must contain a digit", []}
+
+  defp password_strength_message(:not_a_string),
+    do: {"must be a string", []}
 
   defp run_reset_transaction(plaintext_token, hashed_password) do
     Repo.transaction(fn ->

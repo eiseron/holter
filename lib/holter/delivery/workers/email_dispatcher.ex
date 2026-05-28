@@ -7,9 +7,9 @@ defmodule Holter.Delivery.Workers.EmailDispatcher do
 
   alias Holter.Delivery.EmailChannels
 
+  alias Eiseron.I18n.Locale
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Delivery.Models.EmailChannel
-  alias Holter.I18n.Locale
   alias Holter.Mailers.AlertMailer
   alias Holter.Monitoring
 

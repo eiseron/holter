@@ -28,7 +28,7 @@ defmodule Holter.Monitoring.Monitors do
 
   import Ecto.Query
 
-  alias Holter.Identity.Tenant, as: IdentityTenant
+  alias Eiseron.Identity.Tenant, as: IdentityTenant
   alias Holter.Monitoring.{Broadcaster, Incidents, Profiles}
   alias Holter.Monitoring.Models.{Incident, Monitor, Workspace}
   alias Holter.Monitoring.Workers.{HTTPCheck, SSLCheck}

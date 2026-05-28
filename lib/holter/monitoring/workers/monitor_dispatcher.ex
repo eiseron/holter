@@ -4,9 +4,9 @@ defmodule Holter.Monitoring.Workers.MonitorDispatcher do
   """
   use Oban.Worker, queue: :dispatchers, max_attempts: 1
 
+  alias Eiseron.Network.Guard, as: NetworkGuard
   alias Holter.Monitoring
   alias Holter.Monitoring.Workers.{DomainCheck, HTTPCheck, SSLCheck}
-  alias Holter.Network.Guard, as: NetworkGuard
   alias Holter.Repo.Tenant
 
   @domain_check_interval_seconds 24 * 60 * 60

@@ -1,7 +1,7 @@
-defmodule Holter.I18n.ResolverTest do
+defmodule Eiseron.I18n.ResolverTest do
   use ExUnit.Case, async: true
 
-  alias Holter.I18n.Resolver
+  alias Eiseron.I18n.Resolver
 
   defp inputs(overrides \\ %{}) do
     Map.merge(

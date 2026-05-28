@@ -1529,34 +1529,9 @@ msgstr ""
 msgid "e.g. On-call rotation"
 msgstr ""
 
-#: lib/holter/identity/password.ex:40
-#, elixir-autogen, elixir-format
-msgid "must be a string"
-msgstr ""
-
 #: lib/holter/identity/models/user.ex:44
 #, elixir-autogen, elixir-format
 msgid "must be a valid email address"
-msgstr ""
-
-#: lib/holter/identity/password.ex:48
-#, elixir-autogen, elixir-format
-msgid "must be at least %{min} characters"
-msgstr ""
-
-#: lib/holter/identity/password.ex:52
-#, elixir-autogen, elixir-format
-msgid "must contain a digit"
-msgstr ""
-
-#: lib/holter/identity/password.ex:50
-#, elixir-autogen, elixir-format
-msgid "must contain a lowercase letter"
-msgstr ""
-
-#: lib/holter/identity/password.ex:51
-#, elixir-autogen, elixir-format
-msgid "must contain an uppercase letter"
 msgstr ""
 
 #: lib/holter_web/web/live/delivery/channels_live/new.html.heex:16

@@ -3,10 +3,10 @@ defmodule Holter.Delivery.Workers.WebhookDispatcher do
 
   use Holter.Monitoring.Workers.WorkspaceScopedWorker, queue: :notifications, max_attempts: 20
 
+  alias Eiseron.I18n.Locale
   alias Holter.Delivery.Engine.{ChannelFormatter, PayloadBuilder}
   alias Holter.Delivery.{HttpClient, WebhookChannels, WebhookSignature}
   alias Holter.Delivery.Models.WebhookChannel
-  alias Holter.I18n.Locale
   alias Holter.Monitoring
 
   @impl Oban.Worker

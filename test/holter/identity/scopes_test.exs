@@ -1,7 +1,7 @@
-defmodule Holter.Identity.ScopesTest do
+defmodule Eiseron.Identity.ScopesTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Identity.Scopes
+  alias Eiseron.Identity.Scopes
 
   describe "all/0" do
     test "advertises read:workspaces" do

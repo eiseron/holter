@@ -10,19 +10,19 @@ defmodule Holter.Monitoring.RedirectIntegrationTest do
 
   setup do
     old_client = Application.get_env(:holter, :monitor_client)
-    old_network = Application.get_env(:holter, :network, [])
+    old_network = Application.get_env(:eiseron_core, :network, [])
 
     Application.put_env(:holter, :monitor_client, Holter.Monitoring.MonitorClient.HTTP)
 
     Application.put_env(
-      :holter,
+      :eiseron_core,
       :network,
       Keyword.put(old_network, :trusted_hosts, ["localhost", "127.0.0.1"])
     )
 
     on_exit(fn ->
       Application.put_env(:holter, :monitor_client, old_client)
-      Application.put_env(:holter, :network, old_network)
+      Application.put_env(:eiseron_core, :network, old_network)
     end)
 
     DummyService.reset()

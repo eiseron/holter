@@ -121,6 +121,15 @@ defmodule Holter.Identity.ApiTokenTest do
     end
   end
 
+  describe "Inspect redaction" do
+    test "hashed_value is omitted from inspect output" do
+      token = %ApiToken{hashed_value: <<1, 2, 3>>}
+
+      refute inspect(token) =~ "hashed_value"
+      refute inspect(token) =~ Base.encode16(<<1, 2, 3>>)
+    end
+  end
+
   defp valid_attrs do
     %{
       user_id: Ecto.UUID.generate(),

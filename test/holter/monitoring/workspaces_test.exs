@@ -1,7 +1,7 @@
 defmodule Holter.Monitoring.WorkspacesTest do
   use Holter.DataCase, async: true
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
   alias Holter.Monitoring
 
   describe "create_workspace/1 — atomicity" do

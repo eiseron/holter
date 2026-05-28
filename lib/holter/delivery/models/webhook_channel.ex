@@ -4,8 +4,8 @@ defmodule Holter.Delivery.Models.WebhookChannel do
 
   import Ecto.Changeset
 
-  alias Holter.I18n.Locale
-  alias Holter.Network.Guard
+  alias Eiseron.I18n.Locale
+  alias Eiseron.Network.Guard
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

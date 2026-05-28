@@ -37,7 +37,7 @@ defmodule HolterWeb.ConnCase do
     alias Phoenix.Ecto.SQL.Sandbox, as: SqlSandbox
 
     pid = Holter.DataCase.setup_sandbox(tags)
-    Mox.stub_with(Holter.Network.ResolverMock, Holter.Test.StubResolver)
+    Mox.stub_with(Eiseron.Network.ResolverMock, Holter.Test.StubResolver)
     metadata = SqlSandbox.metadata_for(Holter.Repo, pid)
     encoded = SqlSandbox.encode_metadata(metadata)
 
@@ -79,8 +79,8 @@ defmodule HolterWeb.ConnCase do
   scope-restricted tokens.
   """
   def authed_api_conn(conn, {user, workspace}, opts \\ []) do
+    alias Eiseron.Identity.Scopes
     alias Holter.Identity.ApiTokens
-    alias Holter.Identity.Scopes
 
     scopes = Keyword.get(opts, :scopes, Scopes.all())
     name = Keyword.get(opts, :name, "test-#{System.unique_integer([:positive])}")

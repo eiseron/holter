@@ -1,7 +1,7 @@
-defmodule Holter.Network.GuardTest do
+defmodule Eiseron.Network.GuardTest do
   use ExUnit.Case, async: false
 
-  alias Holter.Network.Guard
+  alias Eiseron.Network.Guard
 
   describe "restricted_url?/1 — string-level rejections" do
     test "rejects URL with embedded space" do
@@ -369,15 +369,15 @@ defmodule Holter.Network.GuardTest do
 
   describe "trusted hosts allowlist" do
     setup do
-      previous = Application.get_env(:holter, :network, [])
+      previous = Application.get_env(:eiseron_core, :network, [])
 
       Application.put_env(
-        :holter,
+        :eiseron_core,
         :network,
         Keyword.put(previous, :trusted_hosts, ["localhost", "127.0.0.1"])
       )
 
-      on_exit(fn -> Application.put_env(:holter, :network, previous) end)
+      on_exit(fn -> Application.put_env(:eiseron_core, :network, previous) end)
     end
 
     test "restricted_host? returns false for allowlisted localhost" do

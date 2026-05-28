@@ -10,7 +10,7 @@ defmodule HolterWeb.Web.Identity.UserLive.Show do
 
   use HolterWeb, :user_live_view
 
-  alias Holter.I18n.Locale
+  alias Eiseron.I18n.Locale
   alias Holter.Identity
 
   def locale_options do

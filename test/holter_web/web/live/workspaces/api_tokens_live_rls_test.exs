@@ -19,8 +19,8 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLiveRLSTest do
 
   import Phoenix.LiveViewTest
 
+  alias Eiseron.Identity.Scopes
   alias Holter.Identity.ApiTokens
-  alias Holter.Identity.Scopes
 
   setup %{current_user: user, current_workspace: workspace} do
     {:ok, existing, _plaintext} =

@@ -13,10 +13,10 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
   import ExUnit.CaptureLog
   import Mox
 
+  alias Eiseron.Network.ResolverMock
   alias Holter.Delivery.HttpClient.HTTP, as: RealHttpClient
   alias Holter.Delivery.WebhookChannels
   alias Holter.Delivery.Workers.WebhookDispatcher
-  alias Holter.Network.ResolverMock
   alias Holter.Test.DummyService
 
   setup :verify_on_exit!
@@ -29,7 +29,7 @@ defmodule Holter.Delivery.WebhookDispatchRebindingTest do
     on_exit(fn ->
       Application.put_env(:holter, :delivery_http_client, original_client)
       DummyService.reset()
-      Application.put_env(:holter, :network, [])
+      Application.put_env(:eiseron_core, :network, [])
     end)
 
     ws = workspace_fixture()

@@ -1,7 +1,7 @@
-defmodule Holter.Identity.EmailNormalizerTest do
+defmodule Eiseron.Identity.EmailNormalizerTest do
   use ExUnit.Case, async: true
 
-  alias Holter.Identity.EmailNormalizer
+  alias Eiseron.Identity.EmailNormalizer
 
   describe "normalize/1" do
     test "lowercases mixed-case input" do
