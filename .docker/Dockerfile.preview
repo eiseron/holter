@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/eiseron/holter/public-image-bases/elixir-tools:latest
+FROM registry.gitlab.com/eiseron/stack/public-image-bases/elixir-tools:latest
 
 WORKDIR /usr/src/holter
 

@@ -1,4 +1,4 @@
-image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:latest
+image: registry.gitlab.com/eiseron/stack/public-image-bases/elixir-builder:latest
 
 stages:
   - lint
@@ -102,7 +102,7 @@ test:
   stage: test
   timeout: 10 minutes
   needs: []
-  image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
+  image: registry.gitlab.com/eiseron/stack/public-image-bases/elixir-builder:7bb66957
   cache:
     - *deps-cache
     - *build-test-cache
@@ -190,7 +190,7 @@ mutation:
   stage: test
   timeout: 6 hours
   needs: []
-  image: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:7bb66957
+  image: registry.gitlab.com/eiseron/stack/public-image-bases/elixir-builder:7bb66957
   cache:
     - *deps-cache
     - *build-test-cache
@@ -283,7 +283,7 @@ build_image:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   image:
-    name: registry.gitlab.com/eiseron/holter/public-image-bases/elixir-builder:latest
+    name: registry.gitlab.com/eiseron/stack/public-image-bases/elixir-builder:latest
   before_script: []
   cache:
     - *deps-cache
@@ -329,7 +329,7 @@ build_image:
   # alpine-deploy from public-image-bases bundles bash, curl, jq, openssh-client,
   # openssl, rsync, git — the trigger jobs only need curl + jq, but reusing the
   # group's shared image saves the inline apk install on every MR push.
-  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
+  image: registry.gitlab.com/eiseron/stack/public-image-bases/alpine-deploy:latest
   before_script: []
 
 deploy_review:
@@ -426,7 +426,7 @@ stop_review:
 sync-github:
   stage: sync
   timeout: 2 minutes
-  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
+  image: registry.gitlab.com/eiseron/stack/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
   before_script: []
@@ -442,7 +442,7 @@ sync-github:
 publish-docs:
   stage: publish
   timeout: 2 minutes
-  image: registry.gitlab.com/eiseron/holter/public-image-bases/alpine-deploy:latest
+  image: registry.gitlab.com/eiseron/stack/public-image-bases/alpine-deploy:latest
   variables:
     GIT_DEPTH: "0"
   before_script: []
