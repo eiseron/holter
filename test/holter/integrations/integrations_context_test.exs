@@ -67,6 +67,34 @@ defmodule Holter.Integrations.IntegrationsContextTest do
     end
   end
 
+  describe "get_by_workspace_and_provider/2" do
+    test "returns {:ok, integration} for a connected provider in the workspace" do
+      ws = workspace_fixture()
+      integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
+      expected_id = integration.id
+
+      assert {:ok, %Integration{id: ^expected_id, provider: :google_ads}} =
+               IntegrationsContext.get_by_workspace_and_provider(ws.id, :google_ads)
+    end
+
+    test "returns {:error, :not_found} when the workspace has no such provider" do
+      ws = workspace_fixture()
+      _other = integration_fixture(workspace_id: ws.id, provider: :slack)
+
+      assert {:error, :not_found} =
+               IntegrationsContext.get_by_workspace_and_provider(ws.id, :google_ads)
+    end
+
+    test "does not cross workspace boundaries" do
+      ws_a = workspace_fixture()
+      ws_b = workspace_fixture()
+      _integration_a = integration_fixture(workspace_id: ws_a.id, provider: :google_ads)
+
+      assert {:error, :not_found} =
+               IntegrationsContext.get_by_workspace_and_provider(ws_b.id, :google_ads)
+    end
+  end
+
   describe "list/1" do
     test "returns all integrations for the workspace" do
       ws = workspace_fixture()

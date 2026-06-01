@@ -47,6 +47,13 @@ defmodule Holter.Integrations.IntegrationsContext do
     |> Repo.all()
   end
 
+  def get_by_workspace_and_provider(workspace_id, provider) do
+    case Repo.get_by(Integration, workspace_id: workspace_id, provider: provider) do
+      nil -> {:error, :not_found}
+      integration -> {:ok, integration}
+    end
+  end
+
   def create(attrs \\ %{}) do
     %Integration{}
     |> Integration.changeset(attrs)

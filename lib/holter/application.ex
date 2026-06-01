@@ -41,10 +41,15 @@ defmodule Holter.Application do
   end
 
   defp integrations_children do
-    if Application.get_env(:holter, :start_integrations_event_consumer, true) do
-      [Holter.Integrations.EventConsumer]
-    else
-      []
-    end
+    rate_limiter = [{Holter.Integrations.RateLimiter, clean_period: :timer.minutes(10)}]
+
+    event_consumer =
+      if Application.get_env(:holter, :start_integrations_event_consumer, true) do
+        [Holter.Integrations.EventConsumer]
+      else
+        []
+      end
+
+    rate_limiter ++ event_consumer
   end
 end

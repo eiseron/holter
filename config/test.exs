@@ -64,6 +64,12 @@ config :holter, start_delivery_event_consumer: false
 config :holter, start_integrations_event_consumer: false
 config :holter, :integrations_http_client, Holter.Integrations.HttpClientMock
 
+config :holter, :integration_rate_limits, %{
+  google_ads: {:timer.hours(24), 1_000_000},
+  meta_ads: {:timer.hours(1), 1_000_000},
+  slack: {:timer.minutes(1), 1_000_000}
+}
+
 config :holter, Holter.Integrations.Vault,
   ciphers: [
     default:
