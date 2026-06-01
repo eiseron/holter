@@ -48,4 +48,9 @@ defmodule Holter.Integrations.Provider do
   @callback revoke(credentials()) :: :ok | {:error, term()}
   @callback supported_actions() :: [action()]
   @callback supported_events() :: [event()]
+  @callback validate_webhook_signature(raw_body :: binary(), headers :: map(), secret :: binary()) ::
+              :ok | {:error, :invalid_signature | :timestamp_expired}
+  @callback handle_inbound_webhook(integration :: term(), params :: map()) ::
+              :ok | {:error, term()}
+  @optional_callbacks validate_webhook_signature: 3, handle_inbound_webhook: 2
 end

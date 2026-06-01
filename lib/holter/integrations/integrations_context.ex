@@ -48,7 +48,14 @@ defmodule Holter.Integrations.IntegrationsContext do
   end
 
   def get_by_workspace_and_provider(workspace_id, provider) do
-    case Repo.get_by(Integration, workspace_id: workspace_id, provider: provider) do
+    Integration
+    |> where(
+      [i],
+      i.workspace_id == ^workspace_id and i.provider == ^provider and i.status == :active
+    )
+    |> limit(1)
+    |> Repo.one()
+    |> case do
       nil -> {:error, :not_found}
       integration -> {:ok, integration}
     end

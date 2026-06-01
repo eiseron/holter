@@ -264,9 +264,7 @@ defmodule HolterWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, html: {HolterWeb.Layouts, :root}
     plug :protect_from_forgery
-
     plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
-
     plug HolterWeb.Plugs.FetchCurrentUserPlug
   end
 
@@ -274,11 +272,21 @@ defmodule HolterWeb.Router do
     plug HolterWeb.Plugs.IntegrationOAuthPlug
   end
 
+  pipeline :integration_webhook_signature do
+    plug HolterWeb.Plugs.IntegrationWebhookSignaturePlug
+  end
+
   scope "/integrations/workspaces/:workspace_slug", HolterWeb.Web.Integrations do
     pipe_through :browser_authenticated
 
     get "/:provider/connect", IntegrationOAuthController, :connect
     delete "/:id", IntegrationOAuthController, :disconnect
+  end
+
+  scope "/integrations/workspaces/:workspace_slug", HolterWeb.Web.Integrations do
+    pipe_through [:api_public, :integration_webhook_signature]
+
+    post "/:provider/webhook", IntegrationWebhookController, :receive
   end
 
   scope "/integrations", HolterWeb.Web.Integrations do
