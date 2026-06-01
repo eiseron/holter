@@ -1,6 +1,8 @@
 defmodule HolterWeb.Router do
   use HolterWeb, :router
 
+  @content_security_policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -11,10 +13,7 @@ defmodule HolterWeb.Router do
     plug :put_root_layout, html: {HolterWeb.Layouts, :root}
     plug :protect_from_forgery
 
-    plug :put_secure_browser_headers, %{
-      "content-security-policy" =>
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'"
-    }
+    plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
   end
 
   pipeline :browser_api do
@@ -255,6 +254,37 @@ defmodule HolterWeb.Router do
       ] do
       live "/logs/:log_id", MonitorLive.LogDetail, :show
     end
+  end
+
+  pipeline :browser_authenticated do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug HolterWeb.Plugs.SessionMetadataPlug
+    plug HolterWeb.Plugs.LocalePlug
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {HolterWeb.Layouts, :root}
+    plug :protect_from_forgery
+
+    plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
+
+    plug HolterWeb.Plugs.FetchCurrentUserPlug
+  end
+
+  pipeline :integration_oauth_callback do
+    plug HolterWeb.Plugs.IntegrationOAuthPlug
+  end
+
+  scope "/integrations/workspaces/:workspace_slug", HolterWeb.Web.Integrations do
+    pipe_through :browser_authenticated
+
+    get "/:provider/connect", IntegrationOAuthController, :connect
+    delete "/:id", IntegrationOAuthController, :disconnect
+  end
+
+  scope "/integrations", HolterWeb.Web.Integrations do
+    pipe_through [:browser_authenticated, :integration_oauth_callback]
+
+    get "/:provider/callback", IntegrationOAuthController, :callback
   end
 
   if Application.compile_env(:holter, :dev_routes) do

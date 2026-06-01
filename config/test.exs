@@ -74,3 +74,5 @@ config :holter, Holter.Integrations.Vault,
 config :eiseron_core, Eiseron.I18n.Locale,
   gettext_backend: HolterWeb.Gettext,
   default_locale: "en"
+
+config :holter, :integration_providers, %{}

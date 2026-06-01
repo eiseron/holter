@@ -2786,3 +2786,28 @@ msgstr "Workspace has no members"
 #, elixir-autogen, elixir-format
 msgid "Workspace has no monitors"
 msgstr "Workspace has no monitors"
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:103
+#, elixir-autogen, elixir-format
+msgid "Could not disconnect integration."
+msgstr ""
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:74
+#, elixir-autogen, elixir-format
+msgid "Failed to connect integration. Please try again."
+msgstr ""
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:69
+#, elixir-autogen, elixir-format
+msgid "Integration connected successfully."
+msgstr ""
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:90
+#, elixir-autogen, elixir-format
+msgid "Integration disconnected."
+msgstr ""
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:97
+#, elixir-autogen, elixir-format
+msgid "You do not have permission to disconnect this integration."
+msgstr ""

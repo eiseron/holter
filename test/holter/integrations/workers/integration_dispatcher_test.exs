@@ -1,5 +1,5 @@
 defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
-  use Holter.DataCase, async: true
+  use Holter.DataCase, async: false
   use Oban.Testing, repo: Holter.Repo
 
   import Mox

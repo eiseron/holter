@@ -19,6 +19,7 @@ defmodule Holter.Integrations do
 
   defdelegate get_integration(id), to: IntegrationsContext, as: :get
   defdelegate get_integration!(id), to: IntegrationsContext, as: :get!
+
   defdelegate create_integration(attrs), to: IntegrationsContext, as: :create
   defdelegate update_integration(integration, attrs), to: IntegrationsContext, as: :update
 

@@ -6,6 +6,19 @@ defmodule Holter.Integrations.Provider do
   Register new providers in `providers/0` as implementations land.
   """
 
+  alias Holter.Integrations.Models.Integration
+
+  @doc "Safely casts a string to a known provider atom. Returns error for unknown providers."
+  @spec cast_provider(binary()) :: {:ok, atom()} | {:error, :unknown_provider}
+  def cast_provider(provider_str) when is_binary(provider_str) do
+    known = Integration.providers()
+
+    case Enum.find(known, &(Atom.to_string(&1) == provider_str)) do
+      nil -> {:error, :unknown_provider}
+      provider -> {:ok, provider}
+    end
+  end
+
   @doc "Resolves the module that implements the Provider behaviour for a given provider atom."
   @spec provider_module(atom()) :: {:ok, module()} | {:error, :not_implemented}
   def provider_module(provider) when is_atom(provider) do

@@ -107,3 +107,8 @@ msgstr ""
 
 msgid "must be equal to %{number}"
 msgstr ""
+
+#: lib/holter_web/plugs/fetch_current_user_plug.ex:25
+#, elixir-autogen, elixir-format
+msgid "You must be logged in."
+msgstr ""

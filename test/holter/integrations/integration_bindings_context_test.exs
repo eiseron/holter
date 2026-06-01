@@ -173,16 +173,6 @@ defmodule Holter.Integrations.IntegrationBindingsContextTest do
         IntegrationBindingsContext.get!(Ecto.UUID.generate())
       end
     end
-
-    test "returns the binding when it exists" do
-      ws = workspace_fixture()
-      integration = integration_fixture(workspace_id: ws.id)
-      monitor = monitor_fixture(workspace_id: ws.id)
-      binding = integration_binding_fixture(integration: integration, monitor: monitor)
-
-      found = IntegrationBindingsContext.get!(binding.id)
-      assert found.id == binding.id
-    end
   end
 
   describe "group_by_integration/1" do

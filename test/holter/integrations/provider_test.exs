@@ -3,6 +3,20 @@ defmodule Holter.Integrations.ProviderTest do
 
   alias Holter.Integrations.Provider
 
+  describe "cast_provider/1" do
+    test "returns {:ok, atom} for a known provider string" do
+      assert {:ok, :google_ads} = Provider.cast_provider("google_ads")
+    end
+
+    test "returns {:error, :unknown_provider} for an unknown string" do
+      assert {:error, :unknown_provider} = Provider.cast_provider("not_a_provider")
+    end
+
+    test "returns {:error, :unknown_provider} for an empty string" do
+      assert {:error, :unknown_provider} = Provider.cast_provider("")
+    end
+  end
+
   describe "provider_module/1" do
     test "returns {:error, :not_implemented} for unregistered providers" do
       assert {:error, :not_implemented} = Provider.provider_module(:unknown_provider)

@@ -100,3 +100,8 @@ msgstr "deve ser maior ou igual a %{number}"
 
 msgid "must be equal to %{number}"
 msgstr "deve ser igual a %{number}"
+
+#: lib/holter_web/plugs/fetch_current_user_plug.ex:25
+#, elixir-autogen, elixir-format
+msgid "You must be logged in."
+msgstr "Você precisa estar autenticado."
