@@ -22,6 +22,7 @@ services:
       DB_PASS: holter_admin
       SENTRY_DSN: "http://public@sentry-mock:8080/1"
       GOOGLE_ADS_REDIRECT_URI: "http://localhost:4000/integrations/google_ads/callback"
+      META_ADS_REDIRECT_URI: "http://localhost:4000/integrations/meta_ads/callback"
     depends_on:
       db:
         condition: service_healthy

@@ -73,6 +73,8 @@ config :holter, :integration_rate_limits, %{
 config :holter, :google_ads,
   redirect_uri: "http://localhost:4000/integrations/google_ads/callback"
 
+config :holter, :meta_ads, redirect_uri: "http://localhost:4000/integrations/meta_ads/callback"
+
 config :holter, Holter.Integrations.Vault,
   ciphers: [
     default:

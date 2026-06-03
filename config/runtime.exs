@@ -235,6 +235,30 @@ if google_ads_client_id do
     developer_token: google_ads_developer_token
 end
 
+meta_ads_app_id = System.get_env("META_ADS_APP_ID")
+meta_ads_app_secret = System.get_env("META_ADS_APP_SECRET")
+meta_ads_redirect_uri = System.get_env("META_ADS_REDIRECT_URI")
+
+meta_ads_vars = [meta_ads_app_id, meta_ads_app_secret, meta_ads_redirect_uri]
+
+if config_env() in [:prod, :staging] and Enum.any?(meta_ads_vars) and
+     not Enum.all?(meta_ads_vars) do
+  raise """
+  Partial Meta Ads configuration detected — all or none must be set.
+  Required: META_ADS_APP_ID, META_ADS_APP_SECRET, META_ADS_REDIRECT_URI
+  """
+end
+
+if meta_ads_redirect_uri do
+  config :holter, :meta_ads, redirect_uri: meta_ads_redirect_uri
+end
+
+if meta_ads_app_id do
+  config :holter, :meta_ads,
+    app_id: meta_ads_app_id,
+    app_secret: meta_ads_app_secret
+end
+
 if System.get_env("SENTRY_DSN") do
   config :sentry,
     dsn: System.get_env("SENTRY_DSN"),
