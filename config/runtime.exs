@@ -203,6 +203,38 @@ if config_env() in [:prod, :staging] do
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
 
+google_ads_client_id = System.get_env("GOOGLE_ADS_CLIENT_ID")
+google_ads_client_secret = System.get_env("GOOGLE_ADS_CLIENT_SECRET")
+google_ads_developer_token = System.get_env("GOOGLE_ADS_DEVELOPER_TOKEN")
+google_ads_redirect_uri = System.get_env("GOOGLE_ADS_REDIRECT_URI")
+
+google_ads_vars = [
+  google_ads_client_id,
+  google_ads_client_secret,
+  google_ads_developer_token,
+  google_ads_redirect_uri
+]
+
+if config_env() in [:prod, :staging] and Enum.any?(google_ads_vars) and
+     not Enum.all?(google_ads_vars) do
+  raise """
+  Partial Google Ads configuration detected — all or none must be set.
+  Required: GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET,
+            GOOGLE_ADS_DEVELOPER_TOKEN, GOOGLE_ADS_REDIRECT_URI
+  """
+end
+
+if google_ads_redirect_uri do
+  config :holter, :google_ads, redirect_uri: google_ads_redirect_uri
+end
+
+if google_ads_client_id do
+  config :holter, :google_ads,
+    client_id: google_ads_client_id,
+    client_secret: google_ads_client_secret,
+    developer_token: google_ads_developer_token
+end
+
 if System.get_env("SENTRY_DSN") do
   config :sentry,
     dsn: System.get_env("SENTRY_DSN"),

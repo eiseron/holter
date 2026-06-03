@@ -112,6 +112,8 @@ config :holter, Oban,
 
 config :holter, :integrations_http_client, Holter.Integrations.HttpClient.HTTP
 
+config :holter, :integration_providers, %{google_ads: Holter.Integrations.Google.Ads}
+
 config :holter, :integration_rate_limits, %{
   google_ads: {:timer.hours(24), 15_000},
   meta_ads: {:timer.hours(1), 200},

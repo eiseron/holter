@@ -13,7 +13,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
     Provider
   }
 
-  alias Holter.Integrations.Engine.{ErrorHandler, PayloadBuilder}
+  alias Holter.Integrations.Engine.{ActionRunner, ErrorHandler, PayloadBuilder}
   alias Holter.Integrations.RateLimiter
 
   @impl Oban.Worker
@@ -72,7 +72,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
          now
        ) do
     started_at = System.monotonic_time(:millisecond)
-    result = provider_mod.dispatch(integration, event, payload)
+    result = ActionRunner.run(provider_mod, integration, payload)
     duration_ms = System.monotonic_time(:millisecond) - started_at
 
     case result do

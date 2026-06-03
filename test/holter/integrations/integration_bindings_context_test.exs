@@ -149,13 +149,14 @@ defmodule Holter.Integrations.IntegrationBindingsContextTest do
   end
 
   describe "get/1" do
-    test "returns an ok tuple when the id is valid" do
+    test "returns the binding when the id is valid" do
       ws = workspace_fixture()
       integration = integration_fixture(workspace_id: ws.id)
       monitor = monitor_fixture(workspace_id: ws.id)
       binding = integration_binding_fixture(integration: integration, monitor: monitor)
+      binding_id = binding.id
 
-      assert {:ok, _found} = IntegrationBindingsContext.get(binding.id)
+      assert {:ok, %{id: ^binding_id}} = IntegrationBindingsContext.get(binding.id)
     end
 
     test "returns :not_found when the id is unknown" do

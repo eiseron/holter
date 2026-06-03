@@ -3,41 +3,41 @@ defmodule Holter.Integrations.Engine.ErrorClassifierTest do
 
   alias Holter.Integrations.Engine.ErrorClassifier
 
-  describe "classify_error/2" do
+  describe "classify_error/1" do
     test "classifies HTTP 401 as :token_expired" do
-      assert :token_expired = ErrorClassifier.classify_error(:google_ads, {:status, 401, %{}})
+      assert :token_expired = ErrorClassifier.classify_error({:status, 401, %{}})
     end
 
     test "classifies HTTP 403 as :revoked" do
-      assert :revoked = ErrorClassifier.classify_error(:google_ads, {:status, 403, %{}})
+      assert :revoked = ErrorClassifier.classify_error({:status, 403, %{}})
     end
 
     test "classifies HTTP 429 as :rate_limited" do
-      assert :rate_limited = ErrorClassifier.classify_error(:google_ads, {:status, 429, %{}})
+      assert :rate_limited = ErrorClassifier.classify_error({:status, 429, %{}})
     end
 
     test "classifies HTTP 500 as :provider_down" do
-      assert :provider_down = ErrorClassifier.classify_error(:google_ads, {:status, 500, %{}})
+      assert :provider_down = ErrorClassifier.classify_error({:status, 500, %{}})
     end
 
     test "classifies HTTP 503 as :provider_down" do
-      assert :provider_down = ErrorClassifier.classify_error(:google_ads, {:status, 503, %{}})
+      assert :provider_down = ErrorClassifier.classify_error({:status, 503, %{}})
     end
 
     test "classifies :unauthorized atom as :token_expired" do
-      assert :token_expired = ErrorClassifier.classify_error(:slack, :unauthorized)
+      assert :token_expired = ErrorClassifier.classify_error(:unauthorized)
     end
 
     test "classifies :revoked atom as :revoked" do
-      assert :revoked = ErrorClassifier.classify_error(:slack, :revoked)
+      assert :revoked = ErrorClassifier.classify_error(:revoked)
     end
 
     test "classifies :rate_limited atom as :rate_limited" do
-      assert :rate_limited = ErrorClassifier.classify_error(:meta_ads, :rate_limited)
+      assert :rate_limited = ErrorClassifier.classify_error(:rate_limited)
     end
 
     test "classifies unknown errors as :invalid_payload" do
-      assert :invalid_payload = ErrorClassifier.classify_error(:slack, {:unknown, "reason"})
+      assert :invalid_payload = ErrorClassifier.classify_error({:unknown, "reason"})
     end
   end
 
@@ -116,9 +116,9 @@ defmodule Holter.Integrations.Engine.ErrorClassifierTest do
     end
   end
 
-  describe "classify_error/2 with atom reasons" do
+  describe "classify_error/1 with atom reasons" do
     test "maps :provider_down atom to :provider_down class" do
-      assert :provider_down = ErrorClassifier.classify_error(:google_ads, :provider_down)
+      assert :provider_down = ErrorClassifier.classify_error(:provider_down)
     end
   end
 end

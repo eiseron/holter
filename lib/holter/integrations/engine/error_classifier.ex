@@ -1,16 +1,16 @@
 defmodule Holter.Integrations.Engine.ErrorClassifier do
   @moduledoc false
 
-  @spec classify_error(atom(), term()) :: error_class()
-  def classify_error(_provider, {:status, 401, _}), do: :token_expired
-  def classify_error(_provider, {:status, 403, _}), do: :revoked
-  def classify_error(_provider, {:status, 429, _}), do: :rate_limited
-  def classify_error(_provider, {:status, status, _}) when status in 500..599, do: :provider_down
-  def classify_error(_provider, :unauthorized), do: :token_expired
-  def classify_error(_provider, :revoked), do: :revoked
-  def classify_error(_provider, :rate_limited), do: :rate_limited
-  def classify_error(_provider, :provider_down), do: :provider_down
-  def classify_error(_provider, _reason), do: :invalid_payload
+  @spec classify_error(term()) :: error_class()
+  def classify_error({:status, 401, _}), do: :token_expired
+  def classify_error({:status, 403, _}), do: :revoked
+  def classify_error({:status, 429, _}), do: :rate_limited
+  def classify_error({:status, status, _}) when status in 500..599, do: :provider_down
+  def classify_error(:unauthorized), do: :token_expired
+  def classify_error(:revoked), do: :revoked
+  def classify_error(:rate_limited), do: :rate_limited
+  def classify_error(:provider_down), do: :provider_down
+  def classify_error(_reason), do: :invalid_payload
 
   @spec build_error_update_attrs(error_class(), %{reason: term(), now: DateTime.t()}) :: map()
   def build_error_update_attrs(:revoked, %{now: now}) do

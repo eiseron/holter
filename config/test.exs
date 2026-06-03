@@ -70,6 +70,9 @@ config :holter, :integration_rate_limits, %{
   slack: {:timer.minutes(1), 1_000_000}
 }
 
+config :holter, :google_ads,
+  redirect_uri: "http://localhost:4000/integrations/google_ads/callback"
+
 config :holter, Holter.Integrations.Vault,
   ciphers: [
     default:

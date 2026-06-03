@@ -2,11 +2,15 @@ defmodule Holter.Integrations.Provider do
   @moduledoc """
   Behaviour all integration provider modules must implement.
 
-  Each provider implements OAuth, dispatch, and lifecycle callbacks.
-  Register new providers in `providers/0` as implementations land.
+  Each provider implements OAuth, action encoding, and lifecycle
+  callbacks. `encode/3` is a clause per supported action that turns a
+  resolved target into a `Request`; the `ActionRunner` runs it and skips
+  unsupported actions. Register new providers in `providers/0` as
+  implementations land.
   """
 
   alias Holter.Integrations.Models.Integration
+  alias Holter.Integrations.Request
 
   @doc "Safely casts a string to a known provider atom. Returns error for unknown providers."
   @spec cast_provider(binary()) :: {:ok, atom()} | {:error, :unknown_provider}
@@ -35,7 +39,6 @@ defmodule Holter.Integrations.Provider do
   @type credentials :: map()
   @type event :: String.t()
   @type action :: atom()
-  @type dispatch_result :: :ok | {:error, term()}
 
   @callback display_name() :: String.t()
   @callback oauth_url(workspace_id :: binary(), state :: binary()) ::
@@ -43,8 +46,8 @@ defmodule Holter.Integrations.Provider do
   @callback handle_callback(params :: map(), state :: binary()) ::
               {:ok, credentials()} | {:error, term()}
   @callback refresh(credentials()) :: {:ok, credentials()} | {:error, term()}
-  @callback dispatch(integration :: term(), event :: event(), payload :: map()) ::
-              dispatch_result()
+  @callback encode(action :: String.t(), target :: map(), integration :: term()) ::
+              {:ok, Request.t()} | :unsupported | {:error, term()}
   @callback revoke(credentials()) :: :ok | {:error, term()}
   @callback supported_actions() :: [action()]
   @callback supported_events() :: [event()]

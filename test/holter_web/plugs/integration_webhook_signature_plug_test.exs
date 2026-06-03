@@ -11,7 +11,7 @@ defmodule HolterWeb.Plugs.IntegrationWebhookSignaturePlugTest do
     def oauth_url(_workspace_id, _state), do: {:ok, "https://example.com"}
     def handle_callback(_params, _state), do: {:ok, %{}}
     def refresh(_credentials), do: {:ok, %{}}
-    def dispatch(_integration, _event, _payload), do: :ok
+    def encode(_action, _target, _integration), do: :unsupported
     def revoke(_credentials), do: :ok
     def supported_actions, do: []
     def supported_events, do: []
@@ -25,7 +25,7 @@ defmodule HolterWeb.Plugs.IntegrationWebhookSignaturePlugTest do
     def oauth_url(_w, _s), do: {:ok, ""}
     def handle_callback(_p, _s), do: {:ok, %{}}
     def refresh(_c), do: {:ok, %{}}
-    def dispatch(_i, _e, _p), do: :ok
+    def encode(_action, _target, _integration), do: :unsupported
     def revoke(_c), do: :ok
     def supported_actions, do: []
     def supported_events, do: []
@@ -40,7 +40,7 @@ defmodule HolterWeb.Plugs.IntegrationWebhookSignaturePlugTest do
     def oauth_url(_w, _s), do: {:ok, ""}
     def handle_callback(_p, _s), do: {:ok, %{}}
     def refresh(_c), do: {:ok, %{}}
-    def dispatch(_i, _e, _p), do: :ok
+    def encode(_action, _target, _integration), do: :unsupported
     def revoke(_c), do: :ok
     def supported_actions, do: []
     def supported_events, do: []
@@ -55,7 +55,7 @@ defmodule HolterWeb.Plugs.IntegrationWebhookSignaturePlugTest do
     def oauth_url(_w, _s), do: {:ok, ""}
     def handle_callback(_p, _s), do: {:ok, %{}}
     def refresh(_c), do: {:ok, %{}}
-    def dispatch(_i, _e, _p), do: :ok
+    def encode(_action, _target, _integration), do: :unsupported
     def revoke(_c), do: :ok
     def supported_actions, do: []
     def supported_events, do: []

@@ -11,7 +11,7 @@ defmodule Holter.Integrations.Engine.ErrorHandler do
   @spec handle(term(), term(), %{now: DateTime.t(), duration_ms: non_neg_integer()}) ::
           {:error, binary()} | {:discard, binary()} | {:snooze, non_neg_integer()}
   def handle(integration, error, %{now: now, duration_ms: duration_ms}) do
-    error_class = ErrorClassifier.classify_error(integration.provider, error)
+    error_class = ErrorClassifier.classify_error(error)
 
     update_attrs =
       ErrorClassifier.build_error_update_attrs(error_class, %{reason: error, now: now})

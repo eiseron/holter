@@ -67,10 +67,6 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
 
       stub(Holter.Integrations.ProviderMock, :refresh, fn creds -> {:ok, creds} end)
 
-      expect(Holter.Integrations.ProviderMock, :dispatch, fn _integration, _event, _payload ->
-        :ok
-      end)
-
       ws = workspace_fixture()
 
       future =
@@ -104,7 +100,9 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
 
       stub(Holter.Integrations.ProviderMock, :refresh, fn creds -> {:ok, creds} end)
 
-      expect(Holter.Integrations.ProviderMock, :dispatch, fn _integration, _event, _payload ->
+      expect(Holter.Integrations.ProviderMock, :encode, fn "pause_campaign",
+                                                           _target,
+                                                           _integration ->
         {:error, :rate_limited}
       end)
 
@@ -128,7 +126,8 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
           "integration_id" => integration.id,
           "workspace_id" => ws.id,
           "event" => "incident_opened",
-          "incident_id" => Ecto.UUID.generate()
+          "incident_id" => Ecto.UUID.generate(),
+          "targets" => [%{"action" => "pause_campaign", "id" => "camp-1"}]
         })
 
       assert {:snooze, 60} = result
@@ -137,7 +136,6 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
     test "logs a success IntegrationEvent after dispatch" do
       Application.put_env(:holter, :integration_providers, %{google_ads: ProviderMock})
       stub(ProviderMock, :refresh, fn creds -> {:ok, creds} end)
-      stub(ProviderMock, :dispatch, fn _integration, _event, _payload -> :ok end)
 
       ws = workspace_fixture()
       integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
@@ -156,7 +154,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
              )
     end
 
-    test "includes monitor_id in incident stub passed to dispatch" do
+    test "records the incident monitor_id in the redacted payload of the logged event" do
       Application.put_env(:holter, :integration_providers, %{google_ads: ProviderMock})
       stub(ProviderMock, :refresh, fn creds -> {:ok, creds} end)
 
@@ -165,11 +163,6 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
       incident_id = Ecto.UUID.generate()
       monitor_id = Ecto.UUID.generate()
 
-      expect(ProviderMock, :dispatch, fn _integration, _event, payload ->
-        assert payload.monitor_id == monitor_id
-        :ok
-      end)
-
       perform_job(IntegrationDispatcher, %{
         "integration_id" => integration.id,
         "workspace_id" => ws.id,
@@ -177,12 +170,19 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
         "incident_id" => incident_id,
         "monitor_id" => monitor_id
       })
+
+      event = Repo.get_by!(IntegrationEvent, integration_id: integration.id, status: :success)
+
+      assert event.payload_redacted["monitor_id"] == monitor_id
     end
 
     test "logs a failed IntegrationEvent when dispatch returns error" do
       Application.put_env(:holter, :integration_providers, %{google_ads: ProviderMock})
       stub(ProviderMock, :refresh, fn creds -> {:ok, creds} end)
-      stub(ProviderMock, :dispatch, fn _integration, _event, _payload -> {:error, :timeout} end)
+
+      expect(ProviderMock, :encode, fn "pause_campaign", _target, _integration ->
+        {:error, :timeout}
+      end)
 
       ws = workspace_fixture()
       integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
@@ -192,7 +192,8 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcherTest do
         "integration_id" => integration.id,
         "workspace_id" => ws.id,
         "event" => "incident_opened",
-        "incident_id" => incident_id
+        "incident_id" => incident_id,
+        "targets" => [%{"action" => "pause_campaign", "id" => "camp-1"}]
       })
 
       assert Repo.exists?(
