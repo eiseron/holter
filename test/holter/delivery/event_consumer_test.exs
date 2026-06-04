@@ -83,4 +83,20 @@ defmodule Holter.Delivery.EventConsumerTest do
       assert_enqueued(worker: WebhookDispatcher, args: %{"event" => "up"})
     end
   end
+
+  describe "unrelated messages" do
+    test "are ignored without enqueuing a job or crashing the consumer" do
+      pid = Process.whereis(Holter.Delivery.EventConsumer)
+
+      Phoenix.PubSub.broadcast(
+        Holter.PubSub,
+        "monitoring:incidents",
+        {:something_else, %{}}
+      )
+
+      Process.sleep(50)
+
+      assert Process.alive?(pid)
+    end
+  end
 end

@@ -34,7 +34,7 @@ defmodule Holter.Delivery.EngineTest do
     channel
   end
 
-  describe "dispatch_incident/3" do
+  describe "dispatch_incident/2" do
     test "enqueues WebhookDispatcher job for a webhook channel" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
@@ -42,7 +42,7 @@ defmodule Holter.Delivery.EngineTest do
       channel = webhook_channel_fixture(ws.id)
       WebhookChannels.link_monitor(monitor.id, channel.id)
 
-      Engine.dispatch_incident(monitor.id, incident.id, :down)
+      Engine.dispatch_incident(incident, :down)
 
       assert_enqueued(
         worker: WebhookDispatcher,
@@ -57,7 +57,7 @@ defmodule Holter.Delivery.EngineTest do
       channel = email_channel_fixture(ws.id)
       EmailChannels.link_monitor(monitor.id, channel.id)
 
-      Engine.dispatch_incident(monitor.id, incident.id, :down)
+      Engine.dispatch_incident(incident, :down)
 
       assert_enqueued(
         worker: EmailDispatcher,
@@ -74,7 +74,7 @@ defmodule Holter.Delivery.EngineTest do
       WebhookChannels.link_monitor(monitor.id, webhook.id)
       EmailChannels.link_monitor(monitor.id, email.id)
 
-      Engine.dispatch_incident(monitor.id, incident.id, :down)
+      Engine.dispatch_incident(incident, :down)
 
       assert length(all_enqueued(queue: :notifications)) == 2
     end
@@ -84,7 +84,7 @@ defmodule Holter.Delivery.EngineTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       incident = incident_fixture(monitor_id: monitor.id)
 
-      Engine.dispatch_incident(monitor.id, incident.id, :down)
+      Engine.dispatch_incident(incident, :down)
 
       assert all_enqueued(queue: :notifications) == []
     end
@@ -96,7 +96,7 @@ defmodule Holter.Delivery.EngineTest do
       monitor_id = monitor.id
       incident_id = incident.id
 
-      Engine.dispatch_incident(monitor.id, incident.id, :down)
+      Engine.dispatch_incident(incident, :down)
 
       assert_receive {:notification_dispatched,
                       %{monitor_id: ^monitor_id, incident_id: ^incident_id, event: :down}}
@@ -109,9 +109,15 @@ defmodule Holter.Delivery.EngineTest do
       channel = webhook_channel_fixture(ws.id)
       WebhookChannels.link_monitor(monitor.id, channel.id)
 
-      Engine.dispatch_incident(monitor.id, incident.id, :up)
+      Engine.dispatch_incident(incident, :up)
 
       assert_enqueued(worker: WebhookDispatcher, args: %{"event" => "up"})
+    end
+
+    test "logs and skips when the incident carries no workspace_id" do
+      incident = %{id: Ecto.UUID.generate(), monitor_id: Ecto.UUID.generate()}
+
+      assert :ok = Engine.dispatch_incident(incident, :down)
     end
   end
 

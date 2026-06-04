@@ -15,12 +15,12 @@ defmodule Holter.Delivery.EventConsumer do
 
   @impl GenServer
   def handle_info({:incident_opened, incident}, state) do
-    Engine.dispatch_incident(incident.monitor_id, incident.id, :down)
+    Engine.dispatch_incident(incident, :down)
     {:noreply, state}
   end
 
   def handle_info({:incident_resolved, incident}, state) do
-    Engine.dispatch_incident(incident.monitor_id, incident.id, :up)
+    Engine.dispatch_incident(incident, :up)
     {:noreply, state}
   end
 

@@ -5,37 +5,27 @@ defmodule Holter.Delivery.Engine do
 
   alias Holter.Delivery.Models.{EmailChannel, WebhookChannel}
   alias Holter.Delivery.Workers.{EmailDispatcher, WebhookDispatcher}
+  alias Holter.Repo.Tenant
+
+  require Logger
 
   @test_dispatch_cooldown 60
 
   def test_dispatch_cooldown, do: @test_dispatch_cooldown
 
-  def dispatch_incident(monitor_id, incident_id, event) when event in [:down, :up] do
-    ctx = %{
-      "monitor_id" => monitor_id,
-      "incident_id" => incident_id,
-      "event" => Atom.to_string(event)
-    }
-
-    Enum.each(WebhookChannels.list_for_monitor(monitor_id), fn channel ->
-      args =
-        ctx
-        |> Map.put("webhook_channel_id", channel.id)
-        |> Map.put("workspace_id", channel.workspace_id)
-
-      Oban.insert(WebhookDispatcher.new(args))
+  def dispatch_incident(%{workspace_id: workspace_id} = incident, event)
+      when event in [:down, :up] and is_binary(workspace_id) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      do_dispatch_incident(incident, event, workspace_id)
     end)
+  end
 
-    Enum.each(EmailChannels.list_for_monitor(monitor_id), fn channel ->
-      args =
-        ctx
-        |> Map.put("email_channel_id", channel.id)
-        |> Map.put("workspace_id", channel.workspace_id)
+  def dispatch_incident(incident, event) when event in [:down, :up] do
+    Logger.warning(
+      "delivery: incident #{inspect(Map.get(incident, :id))} missing workspace_id; skipping dispatch"
+    )
 
-      Oban.insert(EmailDispatcher.new(args))
-    end)
-
-    Broadcaster.broadcast_notification_dispatched(monitor_id, incident_id, event)
+    :ok
   end
 
   def dispatch_test_webhook(webhook_channel_id) when is_binary(webhook_channel_id) do
@@ -89,6 +79,25 @@ defmodule Holter.Delivery.Engine do
       Broadcaster.broadcast_test_dispatched(channel.id)
       result
     end
+  end
+
+  defp do_dispatch_incident(incident, event, workspace_id) do
+    ctx = %{
+      "monitor_id" => incident.monitor_id,
+      "incident_id" => incident.id,
+      "workspace_id" => workspace_id,
+      "event" => Atom.to_string(event)
+    }
+
+    Enum.each(WebhookChannels.list_for_monitor(incident.monitor_id), fn channel ->
+      Oban.insert(WebhookDispatcher.new(Map.put(ctx, "webhook_channel_id", channel.id)))
+    end)
+
+    Enum.each(EmailChannels.list_for_monitor(incident.monitor_id), fn channel ->
+      Oban.insert(EmailDispatcher.new(Map.put(ctx, "email_channel_id", channel.id)))
+    end)
+
+    Broadcaster.broadcast_notification_dispatched(incident.monitor_id, incident.id, event)
   end
 
   defp check_cooldown(nil, _now), do: :ok
