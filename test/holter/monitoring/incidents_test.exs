@@ -275,6 +275,27 @@ defmodule Holter.Monitoring.IncidentsTest do
     test "returns error on invalid attrs" do
       assert {:error, %Ecto.Changeset{}} = Incidents.create_incident(%{})
     end
+
+    test "returns a struct carrying the workspace_id when given in attrs", %{monitor: monitor} do
+      {:ok, incident} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{workspace_id: monitor.workspace_id})
+        )
+
+      assert incident.workspace_id == monitor.workspace_id
+    end
+
+    test "broadcasts incident_opened carrying the workspace_id", %{monitor: monitor} do
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+
+      {:ok, _incident} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{workspace_id: monitor.workspace_id})
+        )
+
+      assert_receive {:incident_opened, broadcast}
+      assert broadcast.workspace_id == monitor.workspace_id
+    end
   end
 
   describe "list_incidents/1" do
@@ -421,6 +442,22 @@ defmodule Holter.Monitoring.IncidentsTest do
 
       assert_receive {:incident_resolved, _}
       refute_receive {:incident_resolved, _}, 100
+    end
+
+    test "broadcasts incident_resolved carrying the workspace_id", %{monitor: monitor} do
+      {:ok, incident} =
+        Incidents.create_incident(
+          incident_attrs(monitor.id, %{workspace_id: monitor.workspace_id})
+        )
+
+      Phoenix.PubSub.subscribe(Holter.PubSub, "monitoring:incidents")
+      resolved_at = DateTime.add(incident.started_at, 300, :second)
+
+      {:ok, resolved} = Incidents.resolve_incident(incident, resolved_at)
+
+      assert resolved.workspace_id == monitor.workspace_id
+      assert_receive {:incident_resolved, broadcast}
+      assert broadcast.workspace_id == monitor.workspace_id
     end
   end
 

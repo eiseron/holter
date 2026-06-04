@@ -135,16 +135,17 @@ defmodule Holter.MonitoringFixtures do
     attrs = Map.new(attrs)
     {owner, attrs} = Map.pop(attrs, :owner, Process.get(:current_test_user))
 
-    monitor_id =
+    monitor =
       cond do
-        id = attrs[:monitor_id] -> id
-        monitor = attrs[:monitor] -> monitor.id
-        true -> monitor_fixture(owner: owner).id
+        attrs[:monitor] -> attrs[:monitor]
+        id = attrs[:monitor_id] -> Holter.Monitoring.get_monitor!(id)
+        true -> monitor_fixture(owner: owner)
       end
 
     attrs =
       %{
-        monitor_id: monitor_id,
+        monitor_id: monitor.id,
+        workspace_id: monitor.workspace_id,
         type: :downtime,
         started_at: DateTime.utc_now(),
         monitor_snapshot: %{"url" => "https://example.com"}

@@ -39,8 +39,11 @@ defmodule Holter.Monitoring.Engine.IncidentManager do
 
   def resolve_if_open(monitor, type, now) do
     case Monitoring.get_open_incident(monitor.id, type) do
-      nil -> :ok
-      incident -> Monitoring.resolve_incident(incident, now)
+      nil ->
+        :ok
+
+      incident ->
+        Monitoring.resolve_incident(%{incident | workspace_id: monitor.workspace_id}, now)
     end
   end
 
@@ -55,6 +58,7 @@ defmodule Holter.Monitoring.Engine.IncidentManager do
     result =
       Monitoring.create_incident(%{
         monitor_id: monitor.id,
+        workspace_id: monitor.workspace_id,
         type: type,
         started_at: metadata.now,
         root_cause: metadata.error_msg,

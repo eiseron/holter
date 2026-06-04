@@ -13,6 +13,7 @@ defmodule Holter.Monitoring.Models.Incident do
     field :duration_seconds, :integer
     field :root_cause, :string
     field :monitor_snapshot, :map
+    field :workspace_id, :binary_id, virtual: true
 
     belongs_to :monitor, Holter.Monitoring.Models.Monitor
 
@@ -31,7 +32,8 @@ defmodule Holter.Monitoring.Models.Incident do
       :resolved_at,
       :duration_seconds,
       :root_cause,
-      :monitor_snapshot
+      :monitor_snapshot,
+      :workspace_id
     ])
     |> validate_required([:monitor_id, :type, :started_at])
     |> unique_constraint([:monitor_id, :type],
