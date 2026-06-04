@@ -13,6 +13,7 @@ defmodule Holter.Integrations do
   alias Holter.Integrations.Models.IntegrationEvent
 
   defdelegate list_integrations(workspace_id), to: IntegrationsContext, as: :list
+  defdelegate count_integrations(workspace_id), to: IntegrationsContext, as: :count
 
   defdelegate get_integration(id), to: IntegrationsContext, as: :get
   defdelegate get_integration!(id), to: IntegrationsContext, as: :get!

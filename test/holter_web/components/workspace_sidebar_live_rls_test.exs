@@ -36,6 +36,9 @@ defmodule HolterWeb.Components.WorkspaceSidebarLiveRLSTest do
     {:ok, _} =
       EmailChannels.create(%{workspace_id: workspace.id, name: "Email"})
 
+    integration_fixture(%{workspace_id: workspace.id, provider: :google_ads})
+    integration_fixture(%{workspace_id: workspace.id, provider: :meta_ads})
+
     stranger = user_fixture()
     stranger_workspace = workspace_fixture(%{owner: stranger})
     monitor_fixture(%{workspace_id: stranger_workspace.id, url: "https://stranger.local"})
@@ -57,6 +60,13 @@ defmodule HolterWeb.Components.WorkspaceSidebarLiveRLSTest do
     {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
 
     assert html =~ ~r{<span class="h-sidebar-badge">\s*2/2\s*</span>}
+  end
+
+  test "sidebar renders the integration count badge under RLS",
+       %{conn: conn, workspace: workspace} do
+    {:ok, _view, html} = live(conn, ~p"/monitoring/workspaces/#{workspace.slug}/monitors")
+
+    assert html =~ ~r{<span class="h-sidebar-badge">\s*2\s*</span>}
   end
 
   test "sidebar counts do not leak across workspaces", %{conn: conn, workspace: workspace} do

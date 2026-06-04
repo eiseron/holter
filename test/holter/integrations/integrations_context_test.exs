@@ -122,6 +122,30 @@ defmodule Holter.Integrations.IntegrationsContextTest do
     end
   end
 
+  describe "count/1" do
+    test "returns the number of integrations for the workspace" do
+      ws = workspace_fixture()
+      _google = integration_fixture(workspace_id: ws.id, provider: :google_ads)
+      _slack = integration_fixture(workspace_id: ws.id, provider: :slack)
+
+      assert IntegrationsContext.count(ws.id) == 2
+    end
+
+    test "returns zero when the workspace has no integrations" do
+      ws = workspace_fixture()
+
+      assert IntegrationsContext.count(ws.id) == 0
+    end
+
+    test "does not count integrations from other workspaces" do
+      ws1 = workspace_fixture()
+      ws2 = workspace_fixture()
+      _ig = integration_fixture(workspace_id: ws1.id)
+
+      assert IntegrationsContext.count(ws2.id) == 0
+    end
+  end
+
   describe "update_status/2" do
     test "updates status and error metadata" do
       ws = workspace_fixture()

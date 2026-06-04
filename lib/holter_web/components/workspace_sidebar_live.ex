@@ -4,6 +4,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
 
   alias Holter.Delivery
   alias Holter.Delivery.Profiles, as: DeliveryProfiles
+  alias Holter.Integrations
   alias Holter.Monitoring
   alias Holter.Monitoring.Profiles, as: MonitoringProfiles
   alias Holter.Repo.Tenant
@@ -13,13 +14,14 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
     %{workspace: workspace, current_view: current_view} = assigns
     current_user = assigns[:current_user]
 
-    {monitor_count, monitor_max, channel_count, channel_max} =
+    {monitor_count, monitor_max, channel_count, channel_max, integration_count} =
       Tenant.with_workspace!(workspace.id, fn ->
         {
           Monitoring.count_monitors(workspace.id),
           MonitoringProfiles.get_for_workspace!(workspace.id).max_monitors,
           Delivery.count_channels(workspace.id),
-          DeliveryProfiles.get_for_workspace!(workspace.id).max_channels
+          DeliveryProfiles.get_for_workspace!(workspace.id).max_channels,
+          Integrations.count_integrations(workspace.id)
         }
       end)
 
@@ -31,6 +33,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
      |> assign(:monitor_max, monitor_max)
      |> assign(:channel_count, channel_count)
      |> assign(:channel_max, channel_max)
+     |> assign(:integration_count, integration_count)
      |> assign(:current_user, current_user)
      |> assign(:current_workspace_membership, assigns[:current_workspace_membership])}
   end
@@ -77,6 +80,7 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
             ]}
           >
             <span class="h-sidebar-link-label">{gettext("Integrations")}</span>
+            <span class="h-sidebar-badge">{@integration_count}</span>
           </.link>
         </li>
         <li :if={admin?(@current_workspace_membership)}>

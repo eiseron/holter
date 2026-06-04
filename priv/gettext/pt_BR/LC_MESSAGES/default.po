@@ -1011,7 +1011,7 @@ msgstr "Selecione quais monitores irão disparar notificações por este canal."
 msgid "Edit"
 msgstr "Editar"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:55
+#: lib/holter_web/components/workspace_sidebar_live.ex:58
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:20
 #: lib/holter_web/web/live/monitoring/monitors_live.html.heex:2
 #: lib/holter_web/web/workspaces/show_live.html.heex:41
@@ -1105,7 +1105,7 @@ msgstr "Seu endereço de email foi verificado. Você receberá notificações po
 msgid "e.g. Production Alerts"
 msgstr "ex.: Alertas de Produção"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:67
+#: lib/holter_web/components/workspace_sidebar_live.ex:70
 #: lib/holter_web/web/live/integrations/catalog_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -1770,7 +1770,7 @@ msgid "Member"
 msgstr "Membro"
 
 #: lib/holter_web/components/user_sidebar.ex:57
-#: lib/holter_web/components/workspace_sidebar_live.ex:114
+#: lib/holter_web/components/workspace_sidebar_live.ex:118
 #: lib/holter_web/web/identity/user_live/show.ex:30
 #: lib/holter_web/web/identity/user_live/show.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1813,7 +1813,7 @@ msgstr "Usar padrão do workspace"
 msgid "Workspace"
 msgstr "Workspace"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:90
+#: lib/holter_web/components/workspace_sidebar_live.ex:94
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Configurações"
@@ -1926,7 +1926,7 @@ msgstr "Código de verificação: %{code}"
 msgid "unknown"
 msgstr "desconhecido"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:101
+#: lib/holter_web/components/workspace_sidebar_live.ex:105
 #: lib/holter_web/web/workspaces/api_tokens_live.ex:66
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -2735,7 +2735,7 @@ msgstr "Desconectar"
 msgid "Events will appear here once this integration dispatches actions."
 msgstr "Os eventos aparecerão aqui quando esta integração disparar ações."
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:79
+#: lib/holter_web/components/workspace_sidebar_live.ex:82
 #: lib/holter_web/web/live/integrations/index_live.ex:19
 #: lib/holter_web/web/live/integrations/index_live.html.heex:2
 #, elixir-autogen, elixir-format

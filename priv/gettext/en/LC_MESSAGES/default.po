@@ -1011,7 +1011,7 @@ msgstr "Select which monitors will trigger notifications through this channel."
 msgid "Edit"
 msgstr "Edit"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:55
+#: lib/holter_web/components/workspace_sidebar_live.ex:58
 #: lib/holter_web/web/live/monitoring/monitors_live.ex:20
 #: lib/holter_web/web/live/monitoring/monitors_live.html.heex:2
 #: lib/holter_web/web/workspaces/show_live.html.heex:41
@@ -1105,7 +1105,7 @@ msgstr "Your email address has been verified. You will now receive notifications
 msgid "e.g. Production Alerts"
 msgstr "e.g. Production Alerts"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:67
+#: lib/holter_web/components/workspace_sidebar_live.ex:70
 #: lib/holter_web/web/live/integrations/catalog_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -1770,7 +1770,7 @@ msgid "Member"
 msgstr "Member"
 
 #: lib/holter_web/components/user_sidebar.ex:57
-#: lib/holter_web/components/workspace_sidebar_live.ex:114
+#: lib/holter_web/components/workspace_sidebar_live.ex:118
 #: lib/holter_web/web/identity/user_live/show.ex:30
 #: lib/holter_web/web/identity/user_live/show.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1813,7 +1813,7 @@ msgstr "Use workspace default"
 msgid "Workspace"
 msgstr "Workspace"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:90
+#: lib/holter_web/components/workspace_sidebar_live.ex:94
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Settings"
@@ -1926,7 +1926,7 @@ msgstr "Verification code: %{code}"
 msgid "unknown"
 msgstr "unknown"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:101
+#: lib/holter_web/components/workspace_sidebar_live.ex:105
 #: lib/holter_web/web/workspaces/api_tokens_live.ex:66
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -2735,7 +2735,7 @@ msgstr "Disconnect"
 msgid "Events will appear here once this integration dispatches actions."
 msgstr "Events will appear here once this integration dispatches actions."
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:79
+#: lib/holter_web/components/workspace_sidebar_live.ex:82
 #: lib/holter_web/web/live/integrations/index_live.ex:19
 #: lib/holter_web/web/live/integrations/index_live.html.heex:2
 #, elixir-autogen, elixir-format

@@ -22,6 +22,12 @@ defmodule Holter.Integrations.IntegrationsContext do
     |> Repo.all()
   end
 
+  def count(workspace_id) do
+    Integration
+    |> where([i], i.workspace_id == ^workspace_id)
+    |> Repo.aggregate(:count)
+  end
+
   def get(id) do
     with {:ok, _} <- Ecto.UUID.cast(id),
          %Integration{} = integration <- Repo.get(Integration, id) do
