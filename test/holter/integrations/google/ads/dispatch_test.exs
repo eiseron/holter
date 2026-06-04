@@ -61,7 +61,7 @@ defmodule Holter.Integrations.Google.Ads.DispatchTest do
       run(integration, payload_with(["camp-111"]))
 
       assert_received {:captured_url,
-                       "https://googleads.googleapis.com/v17/customers/1234567890/campaigns:mutate"}
+                       "https://googleads.googleapis.com/v24/customers/1234567890/campaigns:mutate"}
     end
 
     test "returns rate_limited error when API responds with 429" do
@@ -96,6 +96,17 @@ defmodule Holter.Integrations.Google.Ads.DispatchTest do
       integration = integration_with()
 
       assert :ok = run(integration, %{targets: []})
+    end
+
+    test "returns {:http_error, 403, body} and halts on a permission-denied response" do
+      integration = integration_with()
+
+      expect(Holter.Integrations.HttpClientMock, :post, 1, fn _url, _body, _headers ->
+        {:ok, GoogleAdsApiFixtures.forbidden_response()}
+      end)
+
+      assert {:error, {:http_error, 403, %{"error" => %{"status" => "PERMISSION_DENIED"}}}} =
+               run(integration, payload_with(["camp-111", "camp-222"]))
     end
 
     test "returns {:http_error, status, body} and halts on a non-2xx/non-429 response" do

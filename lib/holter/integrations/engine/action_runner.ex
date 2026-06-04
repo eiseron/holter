@@ -29,7 +29,7 @@ defmodule Holter.Integrations.Engine.ActionRunner do
   defp run_target(_provider_mod, _integration, _target), do: {:cont, :ok}
 
   defp execute(%Request{url: url, headers: headers, body: body}) do
-    case HttpClient.impl().post(url, Jason.encode!(body), headers) do
+    case HttpClient.impl().post(url, encode_body(body, headers), headers) do
       {:ok, %{status: status}} when status in 200..299 ->
         {:cont, :ok}
 
@@ -48,4 +48,19 @@ defmodule Holter.Integrations.Engine.ActionRunner do
     do: Map.get(payload, "targets") || Map.get(payload, :targets) || []
 
   defp extract_targets(_payload), do: []
+
+  defp encode_body(body, headers) do
+    headers
+    |> content_type()
+    |> encode_for(body)
+  end
+
+  defp encode_for("application/x-www-form-urlencoded" <> _rest, body), do: URI.encode_query(body)
+  defp encode_for(_content_type, body), do: Jason.encode!(body)
+
+  defp content_type(headers) do
+    Enum.find_value(headers, "application/json", fn {key, value} ->
+      String.downcase(key) == "content-type" && value
+    end)
+  end
 end

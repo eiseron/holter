@@ -81,7 +81,7 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
 
       run(integration, payload(campaigns: ["100000000000111"]))
 
-      assert_received {:captured_url, "https://graph.facebook.com/v21.0/100000000000111"}
+      assert_received {:captured_url, "https://graph.facebook.com/v25.0/100000000000111"}
     end
 
     test "targets the ad set URL for each ad_set target" do
@@ -95,7 +95,7 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
 
       run(integration, payload(ad_sets: ["100000000000333"]))
 
-      assert_received {:captured_url, "https://graph.facebook.com/v21.0/100000000000333"}
+      assert_received {:captured_url, "https://graph.facebook.com/v25.0/100000000000333"}
     end
 
     test "returns rate_limited error when API responds with 429 on campaign" do
@@ -106,6 +106,17 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
       end)
 
       assert {:error, :rate_limited} = run(integration, payload(campaigns: ["100000000000001"]))
+    end
+
+    test "returns {:http_error, 403, body} and halts on a permission-denied response" do
+      integration = integration_with()
+
+      expect(Holter.Integrations.HttpClientMock, :post, fn _url, _body, _headers ->
+        {:ok, MetaAdsApiFixtures.forbidden_response()}
+      end)
+
+      assert {:error, {:http_error, 403, %{"error" => %{"code" => 200}}}} =
+               run(integration, payload(campaigns: ["100000000000001"]))
     end
 
     test "sends access_token in the request body" do
@@ -120,7 +131,7 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
       test_pid = self()
 
       stub(Holter.Integrations.HttpClientMock, :post, fn _url, body, _headers ->
-        decoded = Jason.decode!(body)
+        decoded = URI.decode_query(body)
         send(test_pid, {:access_token, decoded["access_token"]})
         {:ok, MetaAdsApiFixtures.success_response()}
       end)
@@ -153,7 +164,7 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
         payload(campaigns: ["100000000000111"], campaign_action: "resume_campaign")
       )
 
-      assert_received {:captured_url, "https://graph.facebook.com/v21.0/100000000000111"}
+      assert_received {:captured_url, "https://graph.facebook.com/v25.0/100000000000111"}
     end
 
     test "resumes ad sets from payload targets" do
@@ -167,7 +178,7 @@ defmodule Holter.Integrations.Meta.Ads.DispatchTest do
 
       run(integration, payload(ad_sets: ["100000000000333"], ad_set_action: "resume_ad_set"))
 
-      assert_received {:captured_url, "https://graph.facebook.com/v21.0/100000000000333"}
+      assert_received {:captured_url, "https://graph.facebook.com/v25.0/100000000000333"}
     end
 
     test "returns :ok and makes no HTTP calls when payload has no targets" do

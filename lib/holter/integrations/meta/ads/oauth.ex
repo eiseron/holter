@@ -4,10 +4,6 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
   alias Holter.Integrations.Engine.CredentialManager
   alias Holter.Integrations.HttpClient
 
-  @auth_url "https://www.facebook.com/v21.0/dialog/oauth"
-  @token_url "https://graph.facebook.com/v21.0/oauth/access_token"
-  @exchange_url "https://graph.facebook.com/oauth/access_token"
-  @revoke_url "https://graph.facebook.com/me/permissions"
   @scopes ["ads_management", "ads_read"]
 
   def authorization_url(state) do
@@ -24,7 +20,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
         "state" => state
       })
 
-    {:ok, "#{@auth_url}?#{params}"}
+    {:ok, "#{auth_url()}?#{params}"}
   end
 
   def exchange_code(%{"code" => code} = _params, _state) do
@@ -41,7 +37,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
         "redirect_uri" => redirect_uri
       })
 
-    case HttpClient.impl().get("#{@token_url}?#{short_lived_params}", []) do
+    case HttpClient.impl().get("#{token_url()}?#{short_lived_params}", []) do
       {:ok, %{status: 200, body: short_lived_body}} ->
         short_lived_token = Map.get(short_lived_body, "access_token", "")
         exchange_for_long_lived(short_lived_token, app_id, app_secret)
@@ -70,7 +66,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
         "fb_exchange_token" => access_token
       })
 
-    case HttpClient.impl().get("#{@exchange_url}?#{exchange_params}", []) do
+    case HttpClient.impl().get("#{exchange_url()}?#{exchange_params}", []) do
       {:ok, %{status: 200, body: token_body}} ->
         now = DateTime.utc_now()
 
@@ -95,7 +91,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
     body = URI.encode_query(%{"access_token" => access_token})
     headers = [{"content-type", "application/x-www-form-urlencoded"}]
 
-    case HttpClient.impl().post(@revoke_url, body, headers) do
+    case HttpClient.impl().post(revoke_url(), body, headers) do
       {:ok, %{status: status}} when status in 200..299 -> :ok
       {:ok, %{status: status}} -> {:error, {:revoke_failed, status}}
       {:error, reason} -> {:error, {:revoke_failed, reason}}
@@ -111,7 +107,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
         "fb_exchange_token" => short_lived_token
       })
 
-    case HttpClient.impl().get("#{@exchange_url}?#{exchange_params}", []) do
+    case HttpClient.impl().get("#{exchange_url()}?#{exchange_params}", []) do
       {:ok, %{status: 200, body: long_lived_body}} ->
         now = DateTime.utc_now()
         credentials = CredentialManager.build_refreshed_credentials(%{}, long_lived_body, now)
@@ -123,5 +119,16 @@ defmodule Holter.Integrations.Meta.Ads.OAuth do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  defp auth_url, do: "https://www.facebook.com/#{api_version()}/dialog/oauth"
+  defp token_url, do: "https://graph.facebook.com/#{api_version()}/oauth/access_token"
+  defp exchange_url, do: "https://graph.facebook.com/#{api_version()}/oauth/access_token"
+  defp revoke_url, do: "https://graph.facebook.com/#{api_version()}/me/permissions"
+
+  defp api_version do
+    :holter
+    |> Application.get_env(:meta_ads, [])
+    |> Keyword.get(:api_version, "v25.0")
   end
 end

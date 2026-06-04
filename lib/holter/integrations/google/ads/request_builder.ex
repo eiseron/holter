@@ -7,7 +7,6 @@ defmodule Holter.Integrations.Google.Ads.RequestBuilder do
   mutate body. Only the target status varies between pause and resume.
   """
 
-  @base_api_url "https://googleads.googleapis.com/v17/customers"
   @customer_id_format ~r/^\d{10}$/
 
   @spec build(String.t(), String.t(), term()) ::
@@ -46,7 +45,13 @@ defmodule Holter.Integrations.Google.Ads.RequestBuilder do
   end
 
   defp build_api_url(customer_id) do
-    "#{@base_api_url}/#{customer_id}/campaigns:mutate"
+    "https://googleads.googleapis.com/#{api_version()}/customers/#{customer_id}/campaigns:mutate"
+  end
+
+  defp api_version do
+    :holter
+    |> Application.get_env(:google_ads, [])
+    |> Keyword.get(:api_version, "v24")
   end
 
   defp request_headers(integration, manager_id) do

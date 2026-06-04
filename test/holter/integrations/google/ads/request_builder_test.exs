@@ -1,5 +1,5 @@
 defmodule Holter.Integrations.Google.Ads.RequestBuilderTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Holter.Integrations.Google.Ads.RequestBuilder
 
@@ -39,12 +39,12 @@ defmodule Holter.Integrations.Google.Ads.RequestBuilderTest do
   end
 
   describe "build/3 — request shape" do
-    test "targets the campaign mutate URL for the customer id" do
+    test "targets the campaign mutate URL for the customer id on the configured api version" do
       {:ok, request} =
         RequestBuilder.build("camp-1", "PAUSED", integration(%{"customer_id" => "1234567890"}))
 
       assert request.url ==
-               "https://googleads.googleapis.com/v17/customers/1234567890/campaigns:mutate"
+               "https://googleads.googleapis.com/v24/customers/1234567890/campaigns:mutate"
     end
 
     test "carries the given status into the mutate body" do
@@ -63,6 +63,25 @@ defmodule Holter.Integrations.Google.Ads.RequestBuilderTest do
         )
 
       assert {"login-customer-id", "9876543210"} in request.headers
+    end
+  end
+
+  describe "build/3 — configurable api version" do
+    setup do
+      original = Application.get_env(:holter, :google_ads, [])
+      on_exit(fn -> Application.put_env(:holter, :google_ads, original) end)
+      :ok
+    end
+
+    test "uses the api version from config in the mutate URL" do
+      config = Application.get_env(:holter, :google_ads, [])
+      Application.put_env(:holter, :google_ads, Keyword.put(config, :api_version, "v25"))
+
+      {:ok, request} =
+        RequestBuilder.build("camp-1", "PAUSED", integration(%{"customer_id" => "1234567890"}))
+
+      assert request.url ==
+               "https://googleads.googleapis.com/v25/customers/1234567890/campaigns:mutate"
     end
   end
 end

@@ -74,4 +74,54 @@ defmodule Holter.Integrations.Engine.ActionRunnerTest do
       assert {:error, :timeout} = ActionRunner.run(ProviderMock, %{}, payload)
     end
   end
+
+  describe "run/3 — body serialization" do
+    test "form-urlencodes the body when the request declares a form content type" do
+      request = %Request{
+        method: :post,
+        url: "https://provider.test/mutate",
+        headers: [{"content-type", "application/x-www-form-urlencoded"}],
+        body: %{"status" => "PAUSED", "access_token" => "tok"}
+      }
+
+      expect(ProviderMock, :encode, fn _action, _target, _integration -> {:ok, request} end)
+
+      test_pid = self()
+
+      expect(Holter.Integrations.HttpClientMock, :post, fn _url, body, _headers ->
+        send(test_pid, {:decoded, URI.decode_query(body)})
+        {:ok, %{status: 200, body: %{}}}
+      end)
+
+      ActionRunner.run(ProviderMock, %{}, %{
+        targets: [%{"action" => "pause_campaign", "id" => "1"}]
+      })
+
+      assert_received {:decoded, %{"status" => "PAUSED", "access_token" => "tok"}}
+    end
+
+    test "json-encodes the body by default when no form content type is declared" do
+      request = %Request{
+        method: :post,
+        url: "https://provider.test/mutate",
+        headers: [{"content-type", "application/json"}],
+        body: %{"operations" => []}
+      }
+
+      expect(ProviderMock, :encode, fn _action, _target, _integration -> {:ok, request} end)
+
+      test_pid = self()
+
+      expect(Holter.Integrations.HttpClientMock, :post, fn _url, body, _headers ->
+        send(test_pid, {:decoded, Jason.decode!(body)})
+        {:ok, %{status: 200, body: %{}}}
+      end)
+
+      ActionRunner.run(ProviderMock, %{}, %{
+        targets: [%{"action" => "pause_campaign", "id" => "1"}]
+      })
+
+      assert_received {:decoded, %{"operations" => []}}
+    end
+  end
 end

@@ -118,6 +118,9 @@ config :holter, :integration_providers, %{
   meta_ads: Holter.Integrations.Meta.Ads
 }
 
+config :holter, :google_ads, api_version: "v24"
+config :holter, :meta_ads, api_version: "v25.0"
+
 config :holter, :integration_rate_limits, %{
   google_ads: {:timer.hours(24), 15_000},
   meta_ads: {:timer.hours(1), 200},

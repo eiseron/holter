@@ -24,7 +24,7 @@ defmodule Holter.Integrations.Meta.Ads.OAuthTest do
     test "URL targets the Meta OAuth endpoint" do
       {:ok, url} = OAuth.authorization_url("state-abc")
 
-      assert String.starts_with?(url, "https://www.facebook.com/v21.0/dialog/oauth")
+      assert String.starts_with?(url, "https://www.facebook.com/v25.0/dialog/oauth")
     end
 
     test "URL includes ads_management scope" do

@@ -7,7 +7,6 @@ defmodule Holter.Integrations.Meta.Ads.RequestBuilder do
   object-id validation (the path-injection guard), URL, and body.
   """
 
-  @base_api_url "https://graph.facebook.com/v21.0"
   @object_id_format ~r/^\d+$/
 
   @spec build(String.t(), String.t(), term()) ::
@@ -21,7 +20,7 @@ defmodule Holter.Integrations.Meta.Ads.RequestBuilder do
          %Holter.Integrations.Request{
            method: :post,
            url: build_api_url(object_id),
-           headers: [{"content-type", "application/json"}],
+           headers: [{"content-type", "application/x-www-form-urlencoded"}],
            body: build_status_body(object_id, access_token, status)
          }}
 
@@ -39,7 +38,13 @@ defmodule Holter.Integrations.Meta.Ads.RequestBuilder do
   end
 
   defp build_api_url(object_id) do
-    "#{@base_api_url}/#{object_id}"
+    "https://graph.facebook.com/#{api_version()}/#{object_id}"
+  end
+
+  defp api_version do
+    :holter
+    |> Application.get_env(:meta_ads, [])
+    |> Keyword.get(:api_version, "v25.0")
   end
 
   defp parse_object_id(object_id) when is_binary(object_id) do

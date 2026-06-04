@@ -224,6 +224,10 @@ if config_env() in [:prod, :staging] and Enum.any?(google_ads_vars) and
   """
 end
 
+if google_ads_api_version = System.get_env("GOOGLE_ADS_API_VERSION") do
+  config :holter, :google_ads, api_version: google_ads_api_version
+end
+
 if google_ads_redirect_uri do
   config :holter, :google_ads, redirect_uri: google_ads_redirect_uri
 end
@@ -247,6 +251,10 @@ if config_env() in [:prod, :staging] and Enum.any?(meta_ads_vars) and
   Partial Meta Ads configuration detected — all or none must be set.
   Required: META_ADS_APP_ID, META_ADS_APP_SECRET, META_ADS_REDIRECT_URI
   """
+end
+
+if meta_ads_api_version = System.get_env("META_ADS_API_VERSION") do
+  config :holter, :meta_ads, api_version: meta_ads_api_version
 end
 
 if meta_ads_redirect_uri do
