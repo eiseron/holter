@@ -2776,8 +2776,8 @@ msgstr ""
 msgid "Status Page"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:68
-#: lib/holter_web/web/live/integrations/show_live.ex:94
+#: lib/holter_web/web/live/integrations/show_live.ex:71
+#: lib/holter_web/web/live/integrations/show_live.ex:99
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to update this integration."
 msgstr ""
@@ -2822,7 +2822,7 @@ msgstr ""
 msgid "Delivery plan"
 msgstr ""
 
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:74
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:75
 #, elixir-autogen, elixir-format
 msgid "Failed to connect integration. Please try again."
 msgstr ""
@@ -2832,7 +2832,7 @@ msgstr ""
 msgid "Health"
 msgstr ""
 
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:69
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:70
 #, elixir-autogen, elixir-format
 msgid "Integration connected successfully."
 msgstr ""
@@ -2922,7 +2922,7 @@ msgstr ""
 msgid "You do not have permission to disconnect this integration."
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:135
+#: lib/holter_web/web/live/integrations/show_live.ex:140
 #, elixir-autogen, elixir-format
 msgid "(removed monitor)"
 msgstr ""
@@ -2950,12 +2950,12 @@ msgstr ""
 msgid "Connect a third-party service to automate incident workflows"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:71
+#: lib/holter_web/web/live/integrations/show_live.ex:74
 #, elixir-autogen, elixir-format
 msgid "Could not add rule. Check the fields."
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:99
+#: lib/holter_web/web/live/integrations/show_live.ex:104
 #, elixir-autogen, elixir-format
 msgid "Could not remove rule."
 msgstr ""
@@ -2991,12 +2991,12 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:63
+#: lib/holter_web/web/live/integrations/show_live.ex:66
 #, elixir-autogen, elixir-format
 msgid "Rule added"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:88
+#: lib/holter_web/web/live/integrations/show_live.ex:93
 #, elixir-autogen, elixir-format
 msgid "Rule removed"
 msgstr ""
@@ -3068,22 +3068,22 @@ msgstr ""
 msgid "This provider does not yet support automated actions."
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:13
+#: lib/holter_web/web/live/integrations/show_live.ex:14
 #, elixir-autogen, elixir-format
 msgid "When an incident is opened"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:14
+#: lib/holter_web/web/live/integrations/show_live.ex:15
 #, elixir-autogen, elixir-format
 msgid "When an incident is resolved"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:15
+#: lib/holter_web/web/live/integrations/show_live.ex:16
 #, elixir-autogen, elixir-format
 msgid "When the monitor is paused"
 msgstr ""
 
-#: lib/holter_web/web/live/integrations/show_live.ex:16
+#: lib/holter_web/web/live/integrations/show_live.ex:17
 #, elixir-autogen, elixir-format
 msgid "When the monitor is resumed"
 msgstr ""

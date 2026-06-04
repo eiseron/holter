@@ -126,7 +126,7 @@ defmodule Holter.Integrations.Policies.IntegrationTest do
     attrs =
       Enum.into(attrs, %{
         provider: :google_ads,
-        name: "Policy Test Integration",
+        name: "Policy Test #{System.unique_integer([:positive])}",
         status: :active
       })
 

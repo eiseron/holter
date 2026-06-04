@@ -4,6 +4,7 @@ defmodule HolterWeb.Web.Integrations.ShowLive do
   import HolterWeb.Components.Integrations.IntegrationStatusBadge
   import HolterWeb.Components.Integrations.IntegrationSubnav
 
+  alias Holter.Integrations.AuditLogger
   alias Holter.Integrations.IntegrationRulesContext
   alias Holter.Integrations.Models.IntegrationRule
   alias Holter.Integrations.Provider
@@ -50,12 +51,14 @@ defmodule HolterWeb.Web.Integrations.ShowLive do
   @impl true
   def handle_event("create_rule", %{"rule" => params}, socket) do
     integration = socket.assigns.integration
+    workspace = socket.assigns.workspace
     actor = socket.assigns.current_user
 
     attrs = Map.put(params, "integration_id", integration.id)
 
     with :ok <- authorize(actor, :update, integration),
-         {:ok, _rule} <- IntegrationRulesContext.create(attrs) do
+         {:ok, rule} <- IntegrationRulesContext.create(attrs) do
+      AuditLogger.log_rule_created(actor.id, workspace.id, rule)
       rules = IntegrationRulesContext.list_for_integration(integration.id)
 
       {:noreply,
@@ -75,12 +78,14 @@ defmodule HolterWeb.Web.Integrations.ShowLive do
   @impl true
   def handle_event("delete_rule", %{"id" => id}, socket) do
     integration = socket.assigns.integration
+    workspace = socket.assigns.workspace
     actor = socket.assigns.current_user
 
     with :ok <- authorize(actor, :update, integration),
          {:ok, rule} <- IntegrationRulesContext.get(id),
          :ok <- check_rule_belongs_to_integration(rule, integration),
          {:ok, _} <- IntegrationRulesContext.delete(rule) do
+      AuditLogger.log_rule_deleted(actor.id, workspace.id, rule)
       rules = IntegrationRulesContext.list_for_integration(integration.id)
 
       {:noreply,

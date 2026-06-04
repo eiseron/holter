@@ -2,10 +2,17 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
   use HolterWeb.ConnCase, async: false
 
   import Mox
+  import Ecto.Query, only: [from: 2]
 
   alias Holter.Integrations
+  alias Holter.Integrations.Models.IntegrationAuditLog
+  alias Holter.Repo
 
   setup :verify_on_exit!
+
+  defp audit_entries(action) do
+    Repo.all(from a in IntegrationAuditLog, where: a.action == ^action)
+  end
 
   setup do
     on_exit(fn -> Application.put_env(:holter, :integration_providers, %{}) end)
@@ -161,6 +168,46 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
     end
   end
 
+  describe "GET /integrations/:provider/callback — audit logging" do
+    test "creates an integrations.connected audit entry on successful callback", %{
+      conn: conn,
+      current_workspace: ws,
+      current_user: user
+    } do
+      Application.put_env(:holter, :integration_providers, %{
+        slack: Holter.Integrations.ProviderMock
+      })
+
+      expect(Holter.Integrations.ProviderMock, :handle_callback, fn _params, _state ->
+        {:ok, %{"access_token" => "tok123"}}
+      end)
+
+      state = build_state_token(ws.id, "slack")
+      get(conn, ~p"/integrations/slack/callback?code=auth_code&state=#{state}")
+
+      [entry] = audit_entries("integrations.connected")
+      assert entry.actor_id == user.id
+    end
+
+    test "does not create an audit entry when callback fails", %{
+      conn: conn,
+      current_workspace: ws
+    } do
+      Application.put_env(:holter, :integration_providers, %{
+        slack: Holter.Integrations.ProviderMock
+      })
+
+      expect(Holter.Integrations.ProviderMock, :handle_callback, fn _params, _state ->
+        {:error, :invalid_code}
+      end)
+
+      state = build_state_token(ws.id, "slack")
+      get(conn, ~p"/integrations/slack/callback?code=bad_code&state=#{state}")
+
+      assert audit_entries("integrations.connected") == []
+    end
+  end
+
   describe "DELETE /integrations/workspaces/:workspace_slug/:id" do
     test "disconnects and redirects to workspace settings", %{conn: conn, current_workspace: ws} do
       integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
@@ -170,6 +217,19 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
       assert redirected_to(conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "disconnected"
       assert {:error, :not_found} = Integrations.get_integration(integration.id)
+    end
+
+    test "creates an integrations.disconnected audit entry on successful disconnect", %{
+      conn: conn,
+      current_workspace: ws,
+      current_user: user
+    } do
+      integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
+
+      delete(conn, ~p"/integrations/workspaces/#{ws.slug}/#{integration.id}")
+
+      [entry] = audit_entries("integrations.disconnected")
+      assert entry.actor_id == user.id
     end
 
     test "redirects with error flash when integration belongs to different workspace", %{

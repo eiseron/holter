@@ -173,6 +173,16 @@ defmodule Holter.Integrations.IntegrationRulesContextTest do
         IntegrationRulesContext.get!(Ecto.UUID.generate())
       end
     end
+
+    test "returns the rule when it exists" do
+      ws = workspace_fixture()
+      integration = integration_fixture(workspace_id: ws.id)
+      monitor = monitor_fixture(workspace_id: ws.id)
+      rule = integration_rule_fixture(integration: integration, monitor: monitor)
+
+      found = IntegrationRulesContext.get!(rule.id)
+      assert found.id == rule.id
+    end
   end
 
   describe "group_by_integration/1" do

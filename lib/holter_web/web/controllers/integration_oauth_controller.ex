@@ -7,8 +7,9 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
 
   import HolterWeb.Authorization, only: [authorize: 3]
 
-  alias Holter.Integrations.{OAuth, Provider}
+  alias Holter.Integrations.{AuditLogger, OAuth, Provider}
   alias Holter.Monitoring
+  alias Holter.Repo
 
   plug HolterWeb.Plugs.AssignIntegrationWorkspace
 
@@ -60,10 +61,10 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
 
     with {:ok, credentials} <- provider_mod.handle_callback(%{"code" => code}, state_token),
          {:ok, _integration} <-
-           OAuth.exchange_and_persist(
+           connect_and_audit(
              workspace_id,
-             %{provider: provider, name: name},
-             credentials
+             %{provider: provider, name: name, credentials: credentials},
+             conn.assigns.current_user.id
            ) do
       conn
       |> put_flash(:info, gettext("Integration connected successfully."))
@@ -84,8 +85,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
          :ok <- authorize(user, :update, workspace),
          {:ok, integration} <- Holter.Integrations.get_integration(id),
          :ok <- verify_workspace_match(integration, workspace),
-         :ok <- revoke_credentials(integration),
-         {:ok, _} <- Holter.Integrations.delete_integration(integration) do
+         {:ok, _} <- disconnect_and_audit(integration, user.id, workspace) do
       conn
       |> put_flash(:info, gettext("Integration disconnected."))
       |> redirect(to: ~p"/integrations/workspaces/#{slug}")
@@ -103,6 +103,36 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
         |> put_flash(:error, gettext("Could not disconnect integration."))
         |> redirect(to: ~p"/integrations/workspaces/#{slug}")
     end
+  end
+
+  defp connect_and_audit(workspace_id, %{credentials: credentials} = attrs, actor_id) do
+    integration_attrs = Map.delete(attrs, :credentials)
+
+    Repo.transaction(fn ->
+      case OAuth.exchange_and_persist(workspace_id, integration_attrs, credentials) do
+        {:ok, integration} ->
+          AuditLogger.log_connected(actor_id, workspace_id, integration_attrs.provider)
+          integration
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
+  end
+
+  defp disconnect_and_audit(integration, actor_id, workspace) do
+    revoke_credentials(integration)
+
+    Repo.transaction(fn ->
+      case Holter.Integrations.delete_integration(integration) do
+        {:ok, _} ->
+          AuditLogger.log_disconnected(actor_id, workspace.id, integration.provider)
+          :ok
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
   end
 
   defp revoke_credentials(integration) do

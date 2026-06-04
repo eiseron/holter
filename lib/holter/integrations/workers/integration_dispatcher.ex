@@ -6,6 +6,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
     max_attempts: 5
 
   alias Holter.Integrations.{
+    AuditLogger,
     Broadcaster,
     IntegrationEventsContext,
     IntegrationsContext,
@@ -21,6 +22,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
         args:
           %{
             "integration_id" => integration_id,
+            "workspace_id" => _workspace_id,
             "event" => _event,
             "incident_id" => _incident_id
           } = args
@@ -47,6 +49,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
         {:snooze, 60}
 
       {:error, :reauth_required} ->
+        AuditLogger.log_reauth_failed(args["workspace_id"], integration.provider)
         {:discard, "integration #{integration.id} requires reauth"}
 
       {:error, reason} ->
@@ -63,12 +66,21 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
         targets: args["targets"] || []
       })
 
-    run_dispatch(provider_mod, %{integration: integration, event: event, payload: payload}, now)
+    run_dispatch(
+      provider_mod,
+      %{
+        integration: integration,
+        workspace_id: args["workspace_id"],
+        event: event,
+        payload: payload
+      },
+      now
+    )
   end
 
   defp run_dispatch(
          provider_mod,
-         %{integration: integration, event: event, payload: payload},
+         %{integration: integration, workspace_id: workspace_id, event: event, payload: payload},
          now
        ) do
     started_at = System.monotonic_time(:millisecond)
@@ -83,6 +95,7 @@ defmodule Holter.Integrations.Workers.IntegrationDispatcher do
           now
         )
 
+        AuditLogger.log_action_dispatched(workspace_id, integration.provider, event)
         Broadcaster.broadcast_integration_dispatched(integration.id, event, :ok)
         :ok
 
