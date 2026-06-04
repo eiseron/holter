@@ -21,3 +21,4 @@ New to Holter? Start here:
 | [Monitoring](monitoring/index.md) | Continuous URL checks, uptime history, incident alerts, and technical logs |
 | [Delivery](delivery/index.md) | Notification channels for receiving alerts when monitors go down or recover |
 | [Settings](settings/index.md) | User and workspace configuration, including API tokens |
+| [Integrations](integrations/index.md) | Connect third-party providers and automate actions during incidents |

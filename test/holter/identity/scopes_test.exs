@@ -1,7 +1,7 @@
-defmodule Eiseron.Identity.ScopesTest do
+defmodule Holter.Identity.ScopesTest do
   use ExUnit.Case, async: true
 
-  alias Eiseron.Identity.Scopes
+  alias Holter.Identity.Scopes
 
   describe "all/0" do
     test "advertises read:workspaces" do
@@ -14,6 +14,14 @@ defmodule Eiseron.Identity.ScopesTest do
 
     test "advertises ping:channels" do
       assert "ping:channels" in Scopes.all()
+    end
+
+    test "advertises read:integrations" do
+      assert "read:integrations" in Scopes.all()
+    end
+
+    test "advertises write:integrations" do
+      assert "write:integrations" in Scopes.all()
     end
 
     test "every scope follows the <verb>:<plural-resource> shape" do

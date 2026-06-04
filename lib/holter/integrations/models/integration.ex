@@ -58,6 +58,26 @@ defmodule Holter.Integrations.Models.Integration do
     )
   end
 
+  @doc """
+  Changeset for the public API update surface. Only `name` and `settings`
+  are mutable; `provider`, `status`, `credentials_encrypted` and
+  `workspace_id` are intentionally not cast so a request body cannot
+  rewrite credentials, force a status, or move the integration to another
+  workspace (mass-assignment defense that does not rely on the OpenApiSpex
+  layer rejecting extra keys).
+  """
+  def update_changeset(integration, attrs) do
+    integration
+    |> cast(attrs, [:name, :settings])
+    |> validate_required([:name])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_settings_size()
+    |> unique_constraint([:workspace_id, :provider, :name],
+      name: :integrations_workspace_id_provider_name_index,
+      message: "an integration with this name already exists for this provider"
+    )
+  end
+
   def status_changeset(integration, attrs) do
     integration
     |> cast(attrs, [:status, :last_sync_at, :last_error_at, :last_error_reason])

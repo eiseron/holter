@@ -25,7 +25,9 @@
     <% else %>
       <.table id="activity-table" rows={@activity}>
         <:col :let={event} label={gettext("Action")}>
-          <span data-role="event-action">{event.action}</span>
+          <span data-role="event-action">
+            {Provider.format_action_label(@integration.provider, event.action)}
+          </span>
         </:col>
         <:col :let={event} label={gettext("Direction")}>
           <span data-role="event-direction">{event_direction_label(event.direction)}</span>

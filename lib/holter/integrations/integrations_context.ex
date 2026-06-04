@@ -61,7 +61,7 @@ defmodule Holter.Integrations.IntegrationsContext do
 
   def update(%Integration{} = integration, attrs) do
     integration
-    |> Integration.changeset(attrs)
+    |> Integration.update_changeset(attrs)
     |> Repo.update()
   end
 

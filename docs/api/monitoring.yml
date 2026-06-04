@@ -2,16 +2,255 @@
 components:
   responses: {}
   schemas:
-    DailyMetric:
-      additionalProperties: false
-      description: Aggregated daily uptime and performance metrics for a monitor.
+    IntegrationResponse:
+      description: Single integration response.
       properties:
-        avg_latency_ms:
+        data:
+          additionalProperties: false
+          description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_error_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_error_reason:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_sync_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            provider:
+              description: Provider key (e.g. google_ads, meta_ads, slack).
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            status:
+              enum:
+                - active
+                - reauth_required
+                - rate_limited
+                - disabled
+                - provider_down
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - provider
+            - name
+            - status
+            - settings
+            - inserted_at
+            - updated_at
+          title: Integration
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationResponse
+      type: object
+      x-struct:
+      x-validate:
+    Incident:
+      additionalProperties: false
+      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+      properties:
+        duration_seconds:
+          nullable: true
           type: integer
           x-struct:
           x-validate:
-        date:
-          format: date
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        resolved_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        root_cause:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        started_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        type:
+          enum:
+            - downtime
+            - defacement
+            - ssl_expiry
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - type
+        - started_at
+      title: Incident
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating a webhook channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        url:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+      title: WebhookChannelUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    WorkspaceResponse:
+      additionalProperties: false
+      description: Response containing a single workspace.
+      properties:
+        data:
+          additionalProperties: false
+          description: A workspace that groups monitors together.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            max_monitors:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            min_interval_seconds:
+              minimum: 10
+              type: integer
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            retention_days:
+              minimum: 1
+              type: integer
+              x-struct:
+              x-validate:
+            slug:
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - name
+            - slug
+            - retention_days
+            - max_monitors
+            - min_interval_seconds
+          title: Workspace
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WorkspaceResponse
+      type: object
+      x-struct:
+      x-validate:
+    MonitorLog:
+      additionalProperties: false
+      description: A single check result for a monitor.
+      properties:
+        checked_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        error_message:
+          nullable: true
           type: string
           x-struct:
           x-validate:
@@ -25,7 +264,87 @@ components:
           type: string
           x-struct:
           x-validate:
-        total_downtime_minutes:
+        last_redirect_url:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        latency_ms:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        monitor_snapshot:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        redirect_count:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        redirect_list:
+          items:
+            additionalProperties: false
+            properties:
+              ip:
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              url:
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - url
+              - ip
+            type: object
+            x-struct:
+            x-validate:
+          nullable: true
+          type: array
+          x-struct:
+          x-validate:
+        region:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        response_ip:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        response_snippet:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        status_code:
+          nullable: true
           type: integer
           x-struct:
           x-validate:
@@ -34,17 +353,280 @@ components:
           type: string
           x-struct:
           x-validate:
-        uptime_percent:
-          type: number
+      required:
+        - id
+        - status
+        - checked_at
+      title: MonitorLog
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEvent:
+      additionalProperties: false
+      description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+      properties:
+        action:
+          type: string
+          x-struct:
+          x-validate:
+        direction:
+          enum:
+            - outbound
+            - inbound
+          type: string
+          x-struct:
+          x-validate:
+        duration_ms:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        integration_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        occurred_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        payload_redacted:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - success
+            - failed
+            - rate_limited
+            - retried
+          type: string
+          x-struct:
+          x-validate:
+        target:
+          nullable: true
+          type: string
           x-struct:
           x-validate:
       required:
         - id
-        - date
-        - uptime_percent
-        - avg_latency_ms
-        - total_downtime_minutes
-      title: DailyMetric
+        - integration_id
+        - direction
+        - action
+        - status
+        - occurred_at
+        - inserted_at
+      title: IntegrationEvent
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelList:
+      description: List of email channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+            properties:
+              anti_phishing_code:
+                description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - settings
+              - anti_phishing_code
+              - last_test_dispatched_at
+              - inserted_at
+              - updated_at
+            title: EmailChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelList
+      type: object
+      x-struct:
+      x-validate:
+    MonitorUpdateRequest:
+      description: Parameters for updating a monitor. All fields are optional.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      title: MonitorUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating a webhook channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        url:
+          maxLength: 2048
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - name
+        - url
+      title: WebhookChannelCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      title: IntegrationUpdateRequest
       type: object
       x-struct:
       x-validate:
@@ -131,32 +713,31 @@ components:
       type: object
       x-struct:
       x-validate:
-    DeliveryLog:
+    IntegrationRule:
       additionalProperties: false
-      description: A delivery job log entry for a notification channel.
+      description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
       properties:
-        attempted_at:
-          format: date-time
-          nullable: true
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
           type: string
           x-struct:
           x-validate:
-        errors:
-          items:
-            nullable: true
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        event:
-          nullable: true
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
           type: string
           x-struct:
           x-validate:
         id:
-          type: integer
+          format: uuid
+          type: string
           x-struct:
           x-validate:
         inserted_at:
@@ -164,23 +745,400 @@ components:
           type: string
           x-struct:
           x-validate:
-        status:
-          enum:
-            - success
-            - failed
+        integration_id:
+          format: uuid
           type: string
           x-struct:
           x-validate:
-        worker:
+        monitor_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        target_type:
+          enum:
+            - campaign
+            - ad_set
+            - channel
+            - component
+            - project
+            - ticket
+            - page
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
           type: string
           x-struct:
           x-validate:
       required:
         - id
-        - status
-        - worker
+        - integration_id
+        - monitor_id
+        - event_type
+        - action
+        - target_type
+        - target_id
         - inserted_at
-      title: DeliveryLog
+        - updated_at
+      title: IntegrationRule
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEventList:
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+            properties:
+              action:
+                type: string
+                x-struct:
+                x-validate:
+              direction:
+                enum:
+                  - outbound
+                  - inbound
+                type: string
+                x-struct:
+                x-validate:
+              duration_ms:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              integration_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              occurred_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              payload_redacted:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - success
+                  - failed
+                  - rate_limited
+                  - retried
+                type: string
+                x-struct:
+                x-validate:
+              target:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - integration_id
+              - direction
+              - action
+              - status
+              - occurred_at
+              - inserted_at
+            title: IntegrationEvent
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total_pages:
+              type: integer
+              x-struct:
+              x-validate:
+          required:
+            - page
+            - page_size
+            - total_pages
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+        - meta
+      title: IntegrationEventList
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelResponse:
+      description: Single webhook channel response.
+      properties:
+        data:
+          additionalProperties: false
+          description: A webhook delivery channel.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            signing_token:
+              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            url:
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - url
+            - settings
+            - signing_token
+            - last_test_dispatched_at
+            - inserted_at
+            - updated_at
+          title: WebhookChannel
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WebhookChannelResponse
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationList:
+      description: List of integrations.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+            properties:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_error_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_error_reason:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_sync_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              provider:
+                description: Provider key (e.g. google_ads, meta_ads, slack).
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - active
+                  - reauth_required
+                  - rate_limited
+                  - disabled
+                  - provider_down
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - provider
+              - name
+              - status
+              - settings
+              - inserted_at
+              - updated_at
+            title: Integration
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationList
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEventResponse:
+      properties:
+        data:
+          additionalProperties: false
+          description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+          properties:
+            action:
+              type: string
+              x-struct:
+              x-validate:
+            direction:
+              enum:
+                - outbound
+                - inbound
+              type: string
+              x-struct:
+              x-validate:
+            duration_ms:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            integration_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            occurred_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            payload_redacted:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            status:
+              enum:
+                - success
+                - failed
+                - rate_limited
+                - retried
+              type: string
+              x-struct:
+              x-validate:
+            target:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - integration_id
+            - direction
+            - action
+            - status
+            - occurred_at
+            - inserted_at
+          title: IntegrationEvent
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationEventResponse
       type: object
       x-struct:
       x-validate:
@@ -267,96 +1225,22 @@ components:
       type: object
       x-struct:
       x-validate:
-    EmailChannel:
+    MonitorLogList:
       additionalProperties: false
-      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
-      properties:
-        anti_phishing_code:
-          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_test_dispatched_at:
-          description: Timestamp of the most recent test ping. Used for cooldown gating.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        workspace_id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - workspace_id
-        - name
-        - settings
-        - anti_phishing_code
-        - last_test_dispatched_at
-        - inserted_at
-        - updated_at
-      title: EmailChannel
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelCreateRequest:
-      additionalProperties: false
-      description: Parameters for creating an email channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - name
-      title: EmailChannelCreateRequest
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelList:
-      description: List of email channels.
+      description: A paginated list of monitor log entries.
       properties:
         data:
           items:
             additionalProperties: false
-            description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+            description: A single check result for a monitor.
             properties:
-              anti_phishing_code:
-                description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+              checked_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              error_message:
+                nullable: true
                 type: string
                 x-struct:
                 x-validate:
@@ -370,20 +1254,88 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              last_test_dispatched_at:
-                description: Timestamp of the most recent test ping. Used for cooldown gating.
-                format: date-time
+              last_redirect_url:
                 nullable: true
                 type: string
                 x-struct:
                 x-validate:
-              name:
+              latency_ms:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              monitor_snapshot:
+                additionalProperties: true
+                nullable: true
+                type: object
+                x-struct:
+                x-validate:
+              redirect_count:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              redirect_list:
+                items:
+                  additionalProperties: false
+                  properties:
+                    ip:
+                      type: string
+                      x-struct:
+                      x-validate:
+                    status_code:
+                      nullable: true
+                      type: integer
+                      x-struct:
+                      x-validate:
+                    url:
+                      type: string
+                      x-struct:
+                      x-validate:
+                  required:
+                    - url
+                    - ip
+                  type: object
+                  x-struct:
+                  x-validate:
+                nullable: true
+                type: array
+                x-struct:
+                x-validate:
+              region:
+                nullable: true
                 type: string
                 x-struct:
                 x-validate:
-              settings:
+              response_headers:
                 additionalProperties: true
+                nullable: true
                 type: object
+                x-struct:
+                x-validate:
+              response_ip:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              response_snippet:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - up
+                  - down
+                  - degraded
+                  - compromised
+                  - unknown
+                type: string
+                x-struct:
+                x-validate:
+              status_code:
+                nullable: true
+                type: integer
                 x-struct:
                 x-validate:
               updated_at:
@@ -391,21 +1343,159 @@ components:
                 type: string
                 x-struct:
                 x-validate:
-              workspace_id:
+            required:
+              - id
+              - status
+              - checked_at
+            title: MonitorLog
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total_pages:
+              type: integer
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: MonitorLogList
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating a rule.
+      properties:
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
+          type: string
+          x-struct:
+          x-validate:
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          maxLength: 255
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      title: IntegrationRuleUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleList:
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+            properties:
+              action:
+                enum:
+                  - pause_campaign
+                  - resume_campaign
+                  - pause_ad_set
+                  - resume_ad_set
+                type: string
+                x-struct:
+                x-validate:
+              event_type:
+                enum:
+                  - incident_opened
+                  - incident_resolved
+                  - monitor_paused
+                  - monitor_resumed
+                type: string
+                x-struct:
+                x-validate:
+              id:
                 format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              integration_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              monitor_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              target_id:
+                type: string
+                x-struct:
+                x-validate:
+              target_label:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              target_type:
+                enum:
+                  - campaign
+                  - ad_set
+                  - channel
+                  - component
+                  - project
+                  - ticket
+                  - page
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
                 type: string
                 x-struct:
                 x-validate:
             required:
               - id
-              - workspace_id
-              - name
-              - settings
-              - anti_phishing_code
-              - last_test_dispatched_at
+              - integration_id
+              - monitor_id
+              - event_type
+              - action
+              - target_type
+              - target_id
               - inserted_at
               - updated_at
-            title: EmailChannel
+            title: IntegrationRule
             type: object
             x-struct:
             x-validate:
@@ -414,175 +1504,7 @@ components:
           x-validate:
       required:
         - data
-      title: EmailChannelList
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelResponse:
-      description: Single email channel response.
-      properties:
-        data:
-          additionalProperties: false
-          description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
-          properties:
-            anti_phishing_code:
-              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
-              type: string
-              x-struct:
-              x-validate:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            last_test_dispatched_at:
-              description: Timestamp of the most recent test ping. Used for cooldown gating.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            workspace_id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - workspace_id
-            - name
-            - settings
-            - anti_phishing_code
-            - last_test_dispatched_at
-            - inserted_at
-            - updated_at
-          title: EmailChannel
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: EmailChannelResponse
-      type: object
-      x-struct:
-      x-validate:
-    EmailChannelUpdateRequest:
-      additionalProperties: false
-      description: Parameters for updating an email channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-      title: EmailChannelUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    Error:
-      properties:
-        error:
-          properties:
-            code:
-              type: string
-              x-struct:
-              x-validate:
-            message:
-              type: string
-              x-struct:
-              x-validate:
-          type: object
-          x-struct:
-          x-validate:
-      title: Error
-      type: object
-      x-struct:
-      x-validate:
-    Incident:
-      additionalProperties: false
-      description: A detected downtime, defacement, or SSL expiry incident for a monitor.
-      properties:
-        duration_seconds:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        monitor_snapshot:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        resolved_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        root_cause:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        started_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        type:
-          enum:
-            - downtime
-            - defacement
-            - ssl_expiry
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - type
-        - started_at
-      title: Incident
+      title: IntegrationRuleList
       type: object
       x-struct:
       x-validate:
@@ -682,331 +1604,6 @@ components:
         - data
         - meta
       title: IncidentList
-      type: object
-      x-struct:
-      x-validate:
-    IncidentResponse:
-      additionalProperties: false
-      description: Response body for a single incident.
-      properties:
-        data:
-          additionalProperties: false
-          description: A detected downtime, defacement, or SSL expiry incident for a monitor.
-          properties:
-            duration_seconds:
-              nullable: true
-              type: integer
-              x-struct:
-              x-validate:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            monitor_snapshot:
-              additionalProperties: true
-              nullable: true
-              type: object
-              x-struct:
-              x-validate:
-            resolved_at:
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            root_cause:
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            started_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            type:
-              enum:
-                - downtime
-                - defacement
-                - ssl_expiry
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - type
-            - started_at
-          title: Incident
-          type: object
-          x-struct:
-          x-validate:
-      title: IncidentResponse
-      type: object
-      x-struct:
-      x-validate:
-    Monitor:
-      additionalProperties: false
-      description: A monitoring target for HTTP/HTTPS/SSL checks.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        domain_expires_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        headers:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        health_status:
-          enum:
-            - up
-            - down
-            - degraded
-            - compromised
-            - unknown
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        keyword_negative:
-          items:
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        keyword_positive:
-          items:
-            type: string
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        last_checked_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        last_domain_check_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        last_success_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        logical_state:
-          enum:
-            - active
-            - paused
-            - archived
-          type: string
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - head
-            - put
-            - patch
-            - delete
-            - options
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          description: Raw string of headers
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          description: Comma-separated negative keywords
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          description: Comma-separated positive keywords
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_expires_at:
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - url
-        - method
-        - interval_seconds
-        - timeout_seconds
-      title: Monitor
-      type: object
-      x-struct:
-      x-validate:
-    MonitorCreateRequest:
-      description: Parameters for creating a monitor. url, method and interval_seconds are required.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - put
-            - patch
-            - delete
-            - options
-            - head
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - url
-        - method
-        - interval_seconds
-      title: MonitorCreateRequest
       type: object
       x-struct:
       x-validate:
@@ -1213,278 +1810,6 @@ components:
       type: object
       x-struct:
       x-validate:
-    MonitorLog:
-      additionalProperties: false
-      description: A single check result for a monitor.
-      properties:
-        checked_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        error_message:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_redirect_url:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        latency_ms:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        monitor_snapshot:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        redirect_count:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        redirect_list:
-          items:
-            additionalProperties: false
-            properties:
-              ip:
-                type: string
-                x-struct:
-                x-validate:
-              status_code:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              url:
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - url
-              - ip
-            type: object
-            x-struct:
-            x-validate:
-          nullable: true
-          type: array
-          x-struct:
-          x-validate:
-        region:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        response_headers:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        response_ip:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        response_snippet:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        status:
-          enum:
-            - up
-            - down
-            - degraded
-            - compromised
-            - unknown
-          type: string
-          x-struct:
-          x-validate:
-        status_code:
-          nullable: true
-          type: integer
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - status
-        - checked_at
-      title: MonitorLog
-      type: object
-      x-struct:
-      x-validate:
-    MonitorLogList:
-      additionalProperties: false
-      description: A paginated list of monitor log entries.
-      properties:
-        data:
-          items:
-            additionalProperties: false
-            description: A single check result for a monitor.
-            properties:
-              checked_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              error_message:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-              inserted_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              last_redirect_url:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              latency_ms:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              monitor_snapshot:
-                additionalProperties: true
-                nullable: true
-                type: object
-                x-struct:
-                x-validate:
-              redirect_count:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              redirect_list:
-                items:
-                  additionalProperties: false
-                  properties:
-                    ip:
-                      type: string
-                      x-struct:
-                      x-validate:
-                    status_code:
-                      nullable: true
-                      type: integer
-                      x-struct:
-                      x-validate:
-                    url:
-                      type: string
-                      x-struct:
-                      x-validate:
-                  required:
-                    - url
-                    - ip
-                  type: object
-                  x-struct:
-                  x-validate:
-                nullable: true
-                type: array
-                x-struct:
-                x-validate:
-              region:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              response_headers:
-                additionalProperties: true
-                nullable: true
-                type: object
-                x-struct:
-                x-validate:
-              response_ip:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              response_snippet:
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              status:
-                enum:
-                  - up
-                  - down
-                  - degraded
-                  - compromised
-                  - unknown
-                type: string
-                x-struct:
-                x-validate:
-              status_code:
-                nullable: true
-                type: integer
-                x-struct:
-                x-validate:
-              updated_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - id
-              - status
-              - checked_at
-            title: MonitorLog
-            type: object
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-        meta:
-          additionalProperties: false
-          properties:
-            page:
-              type: integer
-              x-struct:
-              x-validate:
-            page_size:
-              type: integer
-              x-struct:
-              x-validate:
-            total_pages:
-              type: integer
-              x-struct:
-              x-validate:
-          type: object
-          x-struct:
-          x-validate:
-      title: MonitorLogList
-      type: object
-      x-struct:
-      x-validate:
     MonitorLogResponse:
       additionalProperties: false
       description: Response containing a single monitor log entry.
@@ -1613,6 +1938,1024 @@ components:
       required:
         - data
       title: MonitorLogResponse
+      type: object
+      x-struct:
+      x-validate:
+    DailyMetric:
+      additionalProperties: false
+      description: Aggregated daily uptime and performance metrics for a monitor.
+      properties:
+        avg_latency_ms:
+          type: integer
+          x-struct:
+          x-validate:
+        date:
+          format: date
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        total_downtime_minutes:
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        uptime_percent:
+          type: number
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - date
+        - uptime_percent
+        - avg_latency_ms
+        - total_downtime_minutes
+      title: DailyMetric
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannelList:
+      description: List of webhook channels.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A webhook delivery channel.
+            properties:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_test_dispatched_at:
+                description: Timestamp of the most recent test ping. Used for cooldown gating.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              signing_token:
+                description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              url:
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - name
+              - url
+              - settings
+              - signing_token
+              - last_test_dispatched_at
+              - inserted_at
+              - updated_at
+            title: WebhookChannel
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: WebhookChannelList
+      type: object
+      x-struct:
+      x-validate:
+    Workspace:
+      additionalProperties: false
+      description: A workspace that groups monitors together.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        max_monitors:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        min_interval_seconds:
+          minimum: 10
+          type: integer
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        retention_days:
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        slug:
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - name
+        - slug
+        - retention_days
+        - max_monitors
+        - min_interval_seconds
+      title: Workspace
+      type: object
+      x-struct:
+      x-validate:
+    IncidentResponse:
+      additionalProperties: false
+      description: Response body for a single incident.
+      properties:
+        data:
+          additionalProperties: false
+          description: A detected downtime, defacement, or SSL expiry incident for a monitor.
+          properties:
+            duration_seconds:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            monitor_snapshot:
+              additionalProperties: true
+              nullable: true
+              type: object
+              x-struct:
+              x-validate:
+            resolved_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            root_cause:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            started_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            type:
+              enum:
+                - downtime
+                - defacement
+                - ssl_expiry
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - type
+            - started_at
+          title: Incident
+          type: object
+          x-struct:
+          x-validate:
+      title: IncidentResponse
+      type: object
+      x-struct:
+      x-validate:
+    WebhookChannel:
+      additionalProperties: false
+      description: A webhook delivery channel.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        signing_token:
+          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - name
+        - url
+        - settings
+        - signing_token
+        - last_test_dispatched_at
+        - inserted_at
+        - updated_at
+      title: WebhookChannel
+      type: object
+      x-struct:
+      x-validate:
+    MonitorCreateRequest:
+      description: Parameters for creating a monitor. url, method and interval_seconds are required.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - put
+            - patch
+            - delete
+            - options
+            - head
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - url
+        - method
+        - interval_seconds
+      title: MonitorCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    Monitor:
+      additionalProperties: false
+      description: A monitoring target for HTTP/HTTPS/SSL checks.
+      properties:
+        body:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        domain_check_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        domain_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        follow_redirects:
+          default: true
+          type: boolean
+          x-struct:
+          x-validate:
+        headers:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+        health_status:
+          enum:
+            - up
+            - down
+            - degraded
+            - compromised
+            - unknown
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        interval_seconds:
+          maximum: 86400
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        keyword_negative:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        keyword_positive:
+          items:
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        last_checked_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_domain_check_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_success_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        logical_state:
+          enum:
+            - active
+            - paused
+            - archived
+          type: string
+          x-struct:
+          x-validate:
+        max_redirects:
+          default: 5
+          maximum: 20
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        method:
+          enum:
+            - get
+            - post
+            - head
+            - put
+            - patch
+            - delete
+            - options
+          type: string
+          x-struct:
+          x-validate:
+        raw_headers:
+          description: Raw string of headers
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_negative:
+          description: Comma-separated negative keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        raw_keyword_positive:
+          description: Comma-separated positive keywords
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_expires_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        ssl_ignore:
+          default: false
+          type: boolean
+          x-struct:
+          x-validate:
+        timeout_seconds:
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        url:
+          format: uri
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - url
+        - method
+        - interval_seconds
+        - timeout_seconds
+      title: Monitor
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating a rule under an integration.
+      properties:
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
+          type: string
+          x-struct:
+          x-validate:
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
+          type: string
+          x-struct:
+          x-validate:
+        monitor_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          maxLength: 255
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - monitor_id
+        - event_type
+        - action
+        - target_id
+      title: IntegrationRuleCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannel:
+      additionalProperties: false
+      description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+      properties:
+        anti_phishing_code:
+          description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_test_dispatched_at:
+          description: Timestamp of the most recent test ping. Used for cooldown gating.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - name
+        - settings
+        - anti_phishing_code
+        - last_test_dispatched_at
+        - inserted_at
+        - updated_at
+      title: EmailChannel
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating an email channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      title: EmailChannelUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    Error:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+              x-struct:
+              x-validate:
+            message:
+              type: string
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: Error
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating an email channel.
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - name
+      title: EmailChannelCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    DeliveryLog:
+      additionalProperties: false
+      description: A delivery job log entry for a notification channel.
+      properties:
+        attempted_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        errors:
+          items:
+            nullable: true
+            type: string
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        event:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          type: integer
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - success
+            - failed
+          type: string
+          x-struct:
+          x-validate:
+        worker:
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - status
+        - worker
+        - inserted_at
+      title: DeliveryLog
+      type: object
+      x-struct:
+      x-validate:
+    Integration:
+      additionalProperties: false
+      description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_error_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_error_reason:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_sync_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        provider:
+          description: Provider key (e.g. google_ads, meta_ads, slack).
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - active
+            - reauth_required
+            - rate_limited
+            - disabled
+            - provider_down
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - provider
+        - name
+        - status
+        - settings
+        - inserted_at
+        - updated_at
+      title: Integration
+      type: object
+      x-struct:
+      x-validate:
+    EmailChannelResponse:
+      description: Single email channel response.
+      properties:
+        data:
+          additionalProperties: false
+          description: An email delivery channel. Recipients live on a sibling resource and carry their own per-address verification.
+          properties:
+            anti_phishing_code:
+              description: Visual anti-phishing code printed in every email. Rotate via PUT /api/v1/email_channels/:id/anti_phishing_code.
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_test_dispatched_at:
+              description: Timestamp of the most recent test ping. Used for cooldown gating.
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - name
+            - settings
+            - anti_phishing_code
+            - last_test_dispatched_at
+            - inserted_at
+            - updated_at
+          title: EmailChannel
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: EmailChannelResponse
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleResponse:
+      properties:
+        data:
+          additionalProperties: false
+          description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+          properties:
+            action:
+              enum:
+                - pause_campaign
+                - resume_campaign
+                - pause_ad_set
+                - resume_ad_set
+              type: string
+              x-struct:
+              x-validate:
+            event_type:
+              enum:
+                - incident_opened
+                - incident_resolved
+                - monitor_paused
+                - monitor_resumed
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            integration_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            monitor_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            target_id:
+              type: string
+              x-struct:
+              x-validate:
+            target_label:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            target_type:
+              enum:
+                - campaign
+                - ad_set
+                - channel
+                - component
+                - project
+                - ticket
+                - page
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - integration_id
+            - monitor_id
+            - event_type
+            - action
+            - target_type
+            - target_id
+            - inserted_at
+            - updated_at
+          title: IntegrationRule
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationRuleResponse
       type: object
       x-struct:
       x-validate:
@@ -1796,466 +3139,6 @@ components:
       required:
         - data
       title: MonitorResponse
-      type: object
-      x-struct:
-      x-validate:
-    MonitorUpdateRequest:
-      description: Parameters for updating a monitor. All fields are optional.
-      properties:
-        body:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        domain_check_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        follow_redirects:
-          default: true
-          type: boolean
-          x-struct:
-          x-validate:
-        interval_seconds:
-          maximum: 86400
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        max_redirects:
-          default: 5
-          maximum: 20
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        method:
-          enum:
-            - get
-            - post
-            - put
-            - patch
-            - delete
-            - options
-            - head
-          type: string
-          x-struct:
-          x-validate:
-        raw_headers:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_negative:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        raw_keyword_positive:
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        ssl_ignore:
-          default: false
-          type: boolean
-          x-struct:
-          x-validate:
-        timeout_seconds:
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        url:
-          format: uri
-          type: string
-          x-struct:
-          x-validate:
-      title: MonitorUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannel:
-      additionalProperties: false
-      description: A webhook delivery channel.
-      properties:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        last_test_dispatched_at:
-          description: Timestamp of the most recent test ping. Used for cooldown gating.
-          format: date-time
-          nullable: true
-          type: string
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          type: object
-          x-struct:
-          x-validate:
-        signing_token:
-          description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        url:
-          type: string
-          x-struct:
-          x-validate:
-        workspace_id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - workspace_id
-        - name
-        - url
-        - settings
-        - signing_token
-        - last_test_dispatched_at
-        - inserted_at
-        - updated_at
-      title: WebhookChannel
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelCreateRequest:
-      additionalProperties: false
-      description: Parameters for creating a webhook channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        url:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - name
-        - url
-      title: WebhookChannelCreateRequest
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelList:
-      description: List of webhook channels.
-      properties:
-        data:
-          items:
-            additionalProperties: false
-            description: A webhook delivery channel.
-            properties:
-              id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-              inserted_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              last_test_dispatched_at:
-                description: Timestamp of the most recent test ping. Used for cooldown gating.
-                format: date-time
-                nullable: true
-                type: string
-                x-struct:
-                x-validate:
-              name:
-                type: string
-                x-struct:
-                x-validate:
-              settings:
-                additionalProperties: true
-                type: object
-                x-struct:
-                x-validate:
-              signing_token:
-                description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-                type: string
-                x-struct:
-                x-validate:
-              updated_at:
-                format: date-time
-                type: string
-                x-struct:
-                x-validate:
-              url:
-                type: string
-                x-struct:
-                x-validate:
-              workspace_id:
-                format: uuid
-                type: string
-                x-struct:
-                x-validate:
-            required:
-              - id
-              - workspace_id
-              - name
-              - url
-              - settings
-              - signing_token
-              - last_test_dispatched_at
-              - inserted_at
-              - updated_at
-            title: WebhookChannel
-            type: object
-            x-struct:
-            x-validate:
-          type: array
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WebhookChannelList
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelResponse:
-      description: Single webhook channel response.
-      properties:
-        data:
-          additionalProperties: false
-          description: A webhook delivery channel.
-          properties:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            last_test_dispatched_at:
-              description: Timestamp of the most recent test ping. Used for cooldown gating.
-              format: date-time
-              nullable: true
-              type: string
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            settings:
-              additionalProperties: true
-              type: object
-              x-struct:
-              x-validate:
-            signing_token:
-              description: HMAC-SHA256 signing key. Sensitive — keep private. Rotate via PUT /api/v1/webhook_channels/:id/signing_token.
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            url:
-              type: string
-              x-struct:
-              x-validate:
-            workspace_id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - workspace_id
-            - name
-            - url
-            - settings
-            - signing_token
-            - last_test_dispatched_at
-            - inserted_at
-            - updated_at
-          title: WebhookChannel
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WebhookChannelResponse
-      type: object
-      x-struct:
-      x-validate:
-    WebhookChannelUpdateRequest:
-      additionalProperties: false
-      description: Parameters for updating a webhook channel.
-      properties:
-        name:
-          maxLength: 255
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-        settings:
-          additionalProperties: true
-          nullable: true
-          type: object
-          x-struct:
-          x-validate:
-        url:
-          maxLength: 2048
-          minLength: 1
-          type: string
-          x-struct:
-          x-validate:
-      title: WebhookChannelUpdateRequest
-      type: object
-      x-struct:
-      x-validate:
-    Workspace:
-      additionalProperties: false
-      description: A workspace that groups monitors together.
-      properties:
-        id:
-          format: uuid
-          type: string
-          x-struct:
-          x-validate:
-        inserted_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-        max_monitors:
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        min_interval_seconds:
-          minimum: 10
-          type: integer
-          x-struct:
-          x-validate:
-        name:
-          type: string
-          x-struct:
-          x-validate:
-        retention_days:
-          minimum: 1
-          type: integer
-          x-struct:
-          x-validate:
-        slug:
-          type: string
-          x-struct:
-          x-validate:
-        updated_at:
-          format: date-time
-          type: string
-          x-struct:
-          x-validate:
-      required:
-        - id
-        - name
-        - slug
-        - retention_days
-        - max_monitors
-        - min_interval_seconds
-      title: Workspace
-      type: object
-      x-struct:
-      x-validate:
-    WorkspaceResponse:
-      additionalProperties: false
-      description: Response containing a single workspace.
-      properties:
-        data:
-          additionalProperties: false
-          description: A workspace that groups monitors together.
-          properties:
-            id:
-              format: uuid
-              type: string
-              x-struct:
-              x-validate:
-            inserted_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-            max_monitors:
-              minimum: 1
-              type: integer
-              x-struct:
-              x-validate:
-            min_interval_seconds:
-              minimum: 10
-              type: integer
-              x-struct:
-              x-validate:
-            name:
-              type: string
-              x-struct:
-              x-validate:
-            retention_days:
-              minimum: 1
-              type: integer
-              x-struct:
-              x-validate:
-            slug:
-              type: string
-              x-struct:
-              x-validate:
-            updated_at:
-              format: date-time
-              type: string
-              x-struct:
-              x-validate:
-          required:
-            - id
-            - name
-            - slug
-            - retention_days
-            - max_monitors
-            - min_interval_seconds
-          title: Workspace
-          type: object
-          x-struct:
-          x-validate:
-      required:
-        - data
-      title: WorkspaceResponse
       type: object
       x-struct:
       x-validate:
@@ -3267,6 +4150,1189 @@ paths:
       summary: Get incident details
       tags:
         - Incidents
+  /api/v1/integration_events/{id}:
+    get:
+      callbacks: {}
+      description: Fetch a single integration event by its UUID.
+      operationId: HolterWeb.Api.IntegrationEventController.show
+      parameters:
+        - description: Event UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+                    properties:
+                      action:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      direction:
+                        enum:
+                          - outbound
+                          - inbound
+                        type: string
+                        x-struct:
+                        x-validate:
+                      duration_ms:
+                        nullable: true
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      occurred_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      payload_redacted:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - success
+                          - failed
+                          - rate_limited
+                          - retried
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - direction
+                      - action
+                      - status
+                      - occurred_at
+                      - inserted_at
+                    title: IntegrationEvent
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationEventResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Event
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Event not found
+      summary: Get integration event
+      tags:
+        - Integration Events
+  /api/v1/integrations/{id}:
+    delete:
+      callbacks: {}
+      description: Revoke the provider OAuth credentials and delete the integration record. Mirrors the in-app disconnect flow.
+      operationId: HolterWeb.Api.IntegrationController.delete
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Disconnected successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: Disconnect integration
+      tags:
+        - Integrations
+    get:
+      callbacks: {}
+      description: Fetch a single integration by its UUID.
+      operationId: HolterWeb.Api.IntegrationController.show
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: Get integration
+      tags:
+        - Integrations
+    patch:
+      callbacks: {}
+      description: Update a connected integration. Only `name` and `settings` are mutable; status and credentials flow through internal logic.
+      operationId: HolterWeb.Api.IntegrationController.update (2)
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: IntegrationUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update integration
+      tags:
+        - Integrations
+    put:
+      callbacks: {}
+      description: Update a connected integration. Only `name` and `settings` are mutable; status and credentials flow through internal logic.
+      operationId: HolterWeb.Api.IntegrationController.update
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: IntegrationUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update integration
+      tags:
+        - Integrations
+  /api/v1/integrations/{integration_id}/events:
+    get:
+      callbacks: {}
+      description: List dispatch/webhook events for an integration with pagination. Defaults to 25 per page.
+      operationId: HolterWeb.Api.IntegrationEventController.index
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page (max 100)
+          in: query
+          name: per_page
+          required: false
+          schema:
+            default: 25
+            type: integer
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+                      properties:
+                        action:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        direction:
+                          enum:
+                            - outbound
+                            - inbound
+                          type: string
+                          x-struct:
+                          x-validate:
+                        duration_ms:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        integration_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        occurred_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        payload_redacted:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - success
+                            - failed
+                            - rate_limited
+                            - retried
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - integration_id
+                        - direction
+                        - action
+                        - status
+                        - occurred_at
+                        - inserted_at
+                      title: IntegrationEvent
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total_pages:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    required:
+                      - page
+                      - page_size
+                      - total_pages
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                  - meta
+                title: IntegrationEventList
+                type: object
+                x-struct:
+                x-validate:
+          description: Event list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: List integration events
+      tags:
+        - Integration Events
+  /api/v1/integrations/{integration_id}/rules:
+    get:
+      callbacks: {}
+      description: List all rules attached to the given integration.
+      operationId: HolterWeb.Api.IntegrationRuleController.index
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                      properties:
+                        action:
+                          enum:
+                            - pause_campaign
+                            - resume_campaign
+                            - pause_ad_set
+                            - resume_ad_set
+                          type: string
+                          x-struct:
+                          x-validate:
+                        event_type:
+                          enum:
+                            - incident_opened
+                            - incident_resolved
+                            - monitor_paused
+                            - monitor_resumed
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        integration_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        monitor_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_id:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_label:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_type:
+                          enum:
+                            - campaign
+                            - ad_set
+                            - channel
+                            - component
+                            - project
+                            - ticket
+                            - page
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - integration_id
+                        - monitor_id
+                        - event_type
+                        - action
+                        - target_type
+                        - target_id
+                        - inserted_at
+                        - updated_at
+                      title: IntegrationRule
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleList
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: List rules for an integration
+      tags:
+        - Integration Rules
+    post:
+      callbacks: {}
+      description: Attach a new rule to an integration.
+      operationId: HolterWeb.Api.IntegrationRuleController.create
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for creating a rule under an integration.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                monitor_id:
+                  format: uuid
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              required:
+                - monitor_id
+                - event_type
+                - action
+                - target_id
+              title: IntegrationRuleCreateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Rule parameters
+        required: false
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Created rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Create rule under an integration
+      tags:
+        - Integration Rules
   /api/v1/monitors/{id}:
     delete:
       callbacks: {}
@@ -5134,6 +7200,589 @@ paths:
       summary: Get monitor log
       tags:
         - Logs
+  /api/v1/rules/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently delete a rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.delete
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Deleted successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+      summary: Delete rule
+      tags:
+        - Integration Rules
+    get:
+      callbacks: {}
+      description: Fetch a single rule by its UUID.
+      operationId: HolterWeb.Api.IntegrationRuleController.show
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+      summary: Get rule
+      tags:
+        - Integration Rules
+    patch:
+      callbacks: {}
+      description: Update an existing rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.update (2)
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a rule.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: IntegrationRuleUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update rule
+      tags:
+        - Integration Rules
+    put:
+      callbacks: {}
+      description: Update an existing rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.update
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a rule.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: IntegrationRuleUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update rule
+      tags:
+        - Integration Rules
   /api/v1/webhook_channels/{id}:
     delete:
       callbacks: {}
@@ -6452,6 +9101,142 @@ paths:
       summary: Create email channel
       tags:
         - Email Channels
+  /api/v1/workspaces/{workspace_slug}/integrations:
+    get:
+      callbacks: {}
+      description: List all integrations connected for a workspace.
+      operationId: HolterWeb.Api.IntegrationController.index
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: List of integrations.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                      properties:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_error_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_error_reason:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_sync_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        name:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        provider:
+                          description: Provider key (e.g. google_ads, meta_ads, slack).
+                          type: string
+                          x-struct:
+                          x-validate:
+                        settings:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - active
+                            - reauth_required
+                            - rate_limited
+                            - disabled
+                            - provider_down
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        workspace_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - workspace_id
+                        - provider
+                        - name
+                        - status
+                        - settings
+                        - inserted_at
+                        - updated_at
+                      title: Integration
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationList
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: List integrations
+      tags:
+        - Integrations
   /api/v1/workspaces/{workspace_slug}/monitors:
     get:
       callbacks: {}

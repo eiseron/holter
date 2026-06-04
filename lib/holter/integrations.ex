@@ -7,6 +7,7 @@ defmodule Holter.Integrations do
   """
 
   alias Holter.Integrations.IntegrationEventsContext
+  alias Holter.Integrations.IntegrationRulesContext
   alias Holter.Integrations.IntegrationsContext
   alias Holter.Integrations.Models.Integration
   alias Holter.Integrations.Models.IntegrationEvent
@@ -39,6 +40,25 @@ defmodule Holter.Integrations do
   defdelegate list_integration_events(integration_id, opts \\ []),
     to: IntegrationEventsContext,
     as: :list_events
+
+  defdelegate list_integration_events_page(integration_id, filters \\ %{}),
+    to: IntegrationEventsContext,
+    as: :list_events_page
+
+  defdelegate get_integration_event(id), to: IntegrationEventsContext, as: :get_event
+
+  defdelegate list_rules_for_integration(integration_id),
+    to: IntegrationRulesContext,
+    as: :list_for_integration
+
+  defdelegate get_integration_rule(id), to: IntegrationRulesContext, as: :get
+  defdelegate create_integration_rule(attrs), to: IntegrationRulesContext, as: :create
+
+  defdelegate update_integration_rule(rule, attrs),
+    to: IntegrationRulesContext,
+    as: :update
+
+  defdelegate delete_integration_rule(rule), to: IntegrationRulesContext, as: :delete
 
   def integration_providers, do: Integration.providers()
   def integration_statuses, do: Integration.statuses()

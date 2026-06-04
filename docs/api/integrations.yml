@@ -1,0 +1,2830 @@
+---
+components:
+  responses: {}
+  schemas:
+    Error:
+      properties:
+        error:
+          properties:
+            code:
+              type: string
+              x-struct:
+              x-validate:
+            message:
+              type: string
+              x-struct:
+              x-validate:
+          type: object
+          x-struct:
+          x-validate:
+      title: Error
+      type: object
+      x-struct:
+      x-validate:
+    Integration:
+      additionalProperties: false
+      description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+      properties:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        last_error_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_error_reason:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        last_sync_at:
+          format: date-time
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        name:
+          type: string
+          x-struct:
+          x-validate:
+        provider:
+          description: Provider key (e.g. google_ads, meta_ads, slack).
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - active
+            - reauth_required
+            - rate_limited
+            - disabled
+            - provider_down
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        workspace_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - workspace_id
+        - provider
+        - name
+        - status
+        - settings
+        - inserted_at
+        - updated_at
+      title: Integration
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEvent:
+      additionalProperties: false
+      description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+      properties:
+        action:
+          type: string
+          x-struct:
+          x-validate:
+        direction:
+          enum:
+            - outbound
+            - inbound
+          type: string
+          x-struct:
+          x-validate:
+        duration_ms:
+          nullable: true
+          type: integer
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        integration_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        occurred_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        payload_redacted:
+          additionalProperties: true
+          type: object
+          x-struct:
+          x-validate:
+        status:
+          enum:
+            - success
+            - failed
+            - rate_limited
+            - retried
+          type: string
+          x-struct:
+          x-validate:
+        target:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - integration_id
+        - direction
+        - action
+        - status
+        - occurred_at
+        - inserted_at
+      title: IntegrationEvent
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEventList:
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+            properties:
+              action:
+                type: string
+                x-struct:
+                x-validate:
+              direction:
+                enum:
+                  - outbound
+                  - inbound
+                type: string
+                x-struct:
+                x-validate:
+              duration_ms:
+                nullable: true
+                type: integer
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              integration_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              occurred_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              payload_redacted:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - success
+                  - failed
+                  - rate_limited
+                  - retried
+                type: string
+                x-struct:
+                x-validate:
+              target:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - integration_id
+              - direction
+              - action
+              - status
+              - occurred_at
+              - inserted_at
+            title: IntegrationEvent
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+        meta:
+          properties:
+            page:
+              type: integer
+              x-struct:
+              x-validate:
+            page_size:
+              type: integer
+              x-struct:
+              x-validate:
+            total_pages:
+              type: integer
+              x-struct:
+              x-validate:
+          required:
+            - page
+            - page_size
+            - total_pages
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+        - meta
+      title: IntegrationEventList
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationEventResponse:
+      properties:
+        data:
+          additionalProperties: false
+          description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+          properties:
+            action:
+              type: string
+              x-struct:
+              x-validate:
+            direction:
+              enum:
+                - outbound
+                - inbound
+              type: string
+              x-struct:
+              x-validate:
+            duration_ms:
+              nullable: true
+              type: integer
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            integration_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            occurred_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            payload_redacted:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            status:
+              enum:
+                - success
+                - failed
+                - rate_limited
+                - retried
+              type: string
+              x-struct:
+              x-validate:
+            target:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - integration_id
+            - direction
+            - action
+            - status
+            - occurred_at
+            - inserted_at
+          title: IntegrationEvent
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationEventResponse
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationList:
+      description: List of integrations.
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+            properties:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              last_error_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_error_reason:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              last_sync_at:
+                format: date-time
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              name:
+                type: string
+                x-struct:
+                x-validate:
+              provider:
+                description: Provider key (e.g. google_ads, meta_ads, slack).
+                type: string
+                x-struct:
+                x-validate:
+              settings:
+                additionalProperties: true
+                type: object
+                x-struct:
+                x-validate:
+              status:
+                enum:
+                  - active
+                  - reauth_required
+                  - rate_limited
+                  - disabled
+                  - provider_down
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              workspace_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - workspace_id
+              - provider
+              - name
+              - status
+              - settings
+              - inserted_at
+              - updated_at
+            title: Integration
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationList
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationResponse:
+      description: Single integration response.
+      properties:
+        data:
+          additionalProperties: false
+          description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+          properties:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            last_error_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_error_reason:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            last_sync_at:
+              format: date-time
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            name:
+              type: string
+              x-struct:
+              x-validate:
+            provider:
+              description: Provider key (e.g. google_ads, meta_ads, slack).
+              type: string
+              x-struct:
+              x-validate:
+            settings:
+              additionalProperties: true
+              type: object
+              x-struct:
+              x-validate:
+            status:
+              enum:
+                - active
+                - reauth_required
+                - rate_limited
+                - disabled
+                - provider_down
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            workspace_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - workspace_id
+            - provider
+            - name
+            - status
+            - settings
+            - inserted_at
+            - updated_at
+          title: Integration
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationResponse
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRule:
+      additionalProperties: false
+      description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+      properties:
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
+          type: string
+          x-struct:
+          x-validate:
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
+          type: string
+          x-struct:
+          x-validate:
+        id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        inserted_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+        integration_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        monitor_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+        target_type:
+          enum:
+            - campaign
+            - ad_set
+            - channel
+            - component
+            - project
+            - ticket
+            - page
+          type: string
+          x-struct:
+          x-validate:
+        updated_at:
+          format: date-time
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - id
+        - integration_id
+        - monitor_id
+        - event_type
+        - action
+        - target_type
+        - target_id
+        - inserted_at
+        - updated_at
+      title: IntegrationRule
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleCreateRequest:
+      additionalProperties: false
+      description: Parameters for creating a rule under an integration.
+      properties:
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
+          type: string
+          x-struct:
+          x-validate:
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
+          type: string
+          x-struct:
+          x-validate:
+        monitor_id:
+          format: uuid
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          maxLength: 255
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      required:
+        - monitor_id
+        - event_type
+        - action
+        - target_id
+      title: IntegrationRuleCreateRequest
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleList:
+      properties:
+        data:
+          items:
+            additionalProperties: false
+            description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+            properties:
+              action:
+                enum:
+                  - pause_campaign
+                  - resume_campaign
+                  - pause_ad_set
+                  - resume_ad_set
+                type: string
+                x-struct:
+                x-validate:
+              event_type:
+                enum:
+                  - incident_opened
+                  - incident_resolved
+                  - monitor_paused
+                  - monitor_resumed
+                type: string
+                x-struct:
+                x-validate:
+              id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+              integration_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              monitor_id:
+                format: uuid
+                type: string
+                x-struct:
+                x-validate:
+              target_id:
+                type: string
+                x-struct:
+                x-validate:
+              target_label:
+                nullable: true
+                type: string
+                x-struct:
+                x-validate:
+              target_type:
+                enum:
+                  - campaign
+                  - ad_set
+                  - channel
+                  - component
+                  - project
+                  - ticket
+                  - page
+                type: string
+                x-struct:
+                x-validate:
+              updated_at:
+                format: date-time
+                type: string
+                x-struct:
+                x-validate:
+            required:
+              - id
+              - integration_id
+              - monitor_id
+              - event_type
+              - action
+              - target_type
+              - target_id
+              - inserted_at
+              - updated_at
+            title: IntegrationRule
+            type: object
+            x-struct:
+            x-validate:
+          type: array
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationRuleList
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleResponse:
+      properties:
+        data:
+          additionalProperties: false
+          description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+          properties:
+            action:
+              enum:
+                - pause_campaign
+                - resume_campaign
+                - pause_ad_set
+                - resume_ad_set
+              type: string
+              x-struct:
+              x-validate:
+            event_type:
+              enum:
+                - incident_opened
+                - incident_resolved
+                - monitor_paused
+                - monitor_resumed
+              type: string
+              x-struct:
+              x-validate:
+            id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            inserted_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+            integration_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            monitor_id:
+              format: uuid
+              type: string
+              x-struct:
+              x-validate:
+            target_id:
+              type: string
+              x-struct:
+              x-validate:
+            target_label:
+              nullable: true
+              type: string
+              x-struct:
+              x-validate:
+            target_type:
+              enum:
+                - campaign
+                - ad_set
+                - channel
+                - component
+                - project
+                - ticket
+                - page
+              type: string
+              x-struct:
+              x-validate:
+            updated_at:
+              format: date-time
+              type: string
+              x-struct:
+              x-validate:
+          required:
+            - id
+            - integration_id
+            - monitor_id
+            - event_type
+            - action
+            - target_type
+            - target_id
+            - inserted_at
+            - updated_at
+          title: IntegrationRule
+          type: object
+          x-struct:
+          x-validate:
+      required:
+        - data
+      title: IntegrationRuleResponse
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationRuleUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating a rule.
+      properties:
+        action:
+          enum:
+            - pause_campaign
+            - resume_campaign
+            - pause_ad_set
+            - resume_ad_set
+          type: string
+          x-struct:
+          x-validate:
+        event_type:
+          enum:
+            - incident_opened
+            - incident_resolved
+            - monitor_paused
+            - monitor_resumed
+          type: string
+          x-struct:
+          x-validate:
+        target_id:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        target_label:
+          maxLength: 255
+          nullable: true
+          type: string
+          x-struct:
+          x-validate:
+      title: IntegrationRuleUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+    IntegrationUpdateRequest:
+      additionalProperties: false
+      description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+      properties:
+        name:
+          maxLength: 255
+          minLength: 1
+          type: string
+          x-struct:
+          x-validate:
+        settings:
+          additionalProperties: true
+          nullable: true
+          type: object
+          x-struct:
+          x-validate:
+      title: IntegrationUpdateRequest
+      type: object
+      x-struct:
+      x-validate:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: Holter API token (hk_...)
+      description: |
+        Workspace-scoped API token issued via `/identity/settings/api-tokens`.
+        Send as `Authorization: Bearer hk_...`. Each token carries one or
+        more scopes (e.g. `read:monitors`, `write:monitors`); endpoints
+        document the scope they require in their 403 response body.
+      scheme: bearer
+      type: http
+info:
+  description: 'API for third-party integrations: connected providers, bindings, and event audit log.'
+  title: Holter Integrations API
+  version: 1.0.0
+openapi: 3.0.0
+paths:
+  /api/v1/integration_events/{id}:
+    get:
+      callbacks: {}
+      description: Fetch a single integration event by its UUID.
+      operationId: HolterWeb.Api.IntegrationEventController.show
+      parameters:
+        - description: Event UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+                    properties:
+                      action:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      direction:
+                        enum:
+                          - outbound
+                          - inbound
+                        type: string
+                        x-struct:
+                        x-validate:
+                      duration_ms:
+                        nullable: true
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      occurred_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      payload_redacted:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - success
+                          - failed
+                          - rate_limited
+                          - retried
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - direction
+                      - action
+                      - status
+                      - occurred_at
+                      - inserted_at
+                    title: IntegrationEvent
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationEventResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Event
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Event not found
+      summary: Get integration event
+      tags:
+        - Integration Events
+  /api/v1/integrations/{id}:
+    delete:
+      callbacks: {}
+      description: Revoke the provider OAuth credentials and delete the integration record. Mirrors the in-app disconnect flow.
+      operationId: HolterWeb.Api.IntegrationController.delete
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Disconnected successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: Disconnect integration
+      tags:
+        - Integrations
+    get:
+      callbacks: {}
+      description: Fetch a single integration by its UUID.
+      operationId: HolterWeb.Api.IntegrationController.show
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: Get integration
+      tags:
+        - Integrations
+    patch:
+      callbacks: {}
+      description: Update a connected integration. Only `name` and `settings` are mutable; status and credentials flow through internal logic.
+      operationId: HolterWeb.Api.IntegrationController.update (2)
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: IntegrationUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update integration
+      tags:
+        - Integrations
+    put:
+      callbacks: {}
+      description: Update a connected integration. Only `name` and `settings` are mutable; status and credentials flow through internal logic.
+      operationId: HolterWeb.Api.IntegrationController.update
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating an integration. Only `name` and `settings` are user-mutable; status and credentials flow through internal logic (OAuth, dispatcher feedback).
+              properties:
+                name:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                settings:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                  x-struct:
+                  x-validate:
+              title: IntegrationUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Single integration response.
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                    properties:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_error_reason:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      last_sync_at:
+                        format: date-time
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      name:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      provider:
+                        description: Provider key (e.g. google_ads, meta_ads, slack).
+                        type: string
+                        x-struct:
+                        x-validate:
+                      settings:
+                        additionalProperties: true
+                        type: object
+                        x-struct:
+                        x-validate:
+                      status:
+                        enum:
+                          - active
+                          - reauth_required
+                          - rate_limited
+                          - disabled
+                          - provider_down
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      workspace_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - workspace_id
+                      - provider
+                      - name
+                      - status
+                      - settings
+                      - inserted_at
+                      - updated_at
+                    title: Integration
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated integration
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update integration
+      tags:
+        - Integrations
+  /api/v1/integrations/{integration_id}/events:
+    get:
+      callbacks: {}
+      description: List dispatch/webhook events for an integration with pagination. Defaults to 25 per page.
+      operationId: HolterWeb.Api.IntegrationEventController.index
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+        - description: Page number
+          in: query
+          name: page
+          required: false
+          schema:
+            default: 1
+            type: integer
+            x-struct:
+            x-validate:
+        - description: Items per page (max 100)
+          in: query
+          name: per_page
+          required: false
+          schema:
+            default: 25
+            type: integer
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: Append-only record of an integration dispatch or webhook receipt. Payload is redacted before storage.
+                      properties:
+                        action:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        direction:
+                          enum:
+                            - outbound
+                            - inbound
+                          type: string
+                          x-struct:
+                          x-validate:
+                        duration_ms:
+                          nullable: true
+                          type: integer
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        integration_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        occurred_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        payload_redacted:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - success
+                            - failed
+                            - rate_limited
+                            - retried
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - integration_id
+                        - direction
+                        - action
+                        - status
+                        - occurred_at
+                        - inserted_at
+                      title: IntegrationEvent
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                  meta:
+                    properties:
+                      page:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      page_size:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                      total_pages:
+                        type: integer
+                        x-struct:
+                        x-validate:
+                    required:
+                      - page
+                      - page_size
+                      - total_pages
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                  - meta
+                title: IntegrationEventList
+                type: object
+                x-struct:
+                x-validate:
+          description: Event list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: List integration events
+      tags:
+        - Integration Events
+  /api/v1/integrations/{integration_id}/rules:
+    get:
+      callbacks: {}
+      description: List all rules attached to the given integration.
+      operationId: HolterWeb.Api.IntegrationRuleController.index
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                      properties:
+                        action:
+                          enum:
+                            - pause_campaign
+                            - resume_campaign
+                            - pause_ad_set
+                            - resume_ad_set
+                          type: string
+                          x-struct:
+                          x-validate:
+                        event_type:
+                          enum:
+                            - incident_opened
+                            - incident_resolved
+                            - monitor_paused
+                            - monitor_resumed
+                          type: string
+                          x-struct:
+                          x-validate:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        integration_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        monitor_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_id:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_label:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        target_type:
+                          enum:
+                            - campaign
+                            - ad_set
+                            - channel
+                            - component
+                            - project
+                            - ticket
+                            - page
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - integration_id
+                        - monitor_id
+                        - event_type
+                        - action
+                        - target_type
+                        - target_id
+                        - inserted_at
+                        - updated_at
+                      title: IntegrationRule
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleList
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+      summary: List rules for an integration
+      tags:
+        - Integration Rules
+    post:
+      callbacks: {}
+      description: Attach a new rule to an integration.
+      operationId: HolterWeb.Api.IntegrationRuleController.create
+      parameters:
+        - description: Integration UUID
+          in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for creating a rule under an integration.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                monitor_id:
+                  format: uuid
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              required:
+                - monitor_id
+                - event_type
+                - action
+                - target_id
+              title: IntegrationRuleCreateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Rule parameters
+        required: false
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Created rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Create rule under an integration
+      tags:
+        - Integration Rules
+  /api/v1/rules/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently delete a rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.delete
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '204':
+          content:
+            application/json: {}
+          description: Deleted successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+      summary: Delete rule
+      tags:
+        - Integration Rules
+    get:
+      callbacks: {}
+      description: Fetch a single rule by its UUID.
+      operationId: HolterWeb.Api.IntegrationRuleController.show
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+      summary: Get rule
+      tags:
+        - Integration Rules
+    patch:
+      callbacks: {}
+      description: Update an existing rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.update (2)
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a rule.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: IntegrationRuleUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update rule
+      tags:
+        - Integration Rules
+    put:
+      callbacks: {}
+      description: Update an existing rule.
+      operationId: HolterWeb.Api.IntegrationRuleController.update
+      parameters:
+        - description: Rule UUID
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct:
+            x-validate:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              description: Parameters for updating a rule.
+              properties:
+                action:
+                  enum:
+                    - pause_campaign
+                    - resume_campaign
+                    - pause_ad_set
+                    - resume_ad_set
+                  type: string
+                  x-struct:
+                  x-validate:
+                event_type:
+                  enum:
+                    - incident_opened
+                    - incident_resolved
+                    - monitor_paused
+                    - monitor_resumed
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_id:
+                  maxLength: 255
+                  minLength: 1
+                  type: string
+                  x-struct:
+                  x-validate:
+                target_label:
+                  maxLength: 255
+                  nullable: true
+                  type: string
+                  x-struct:
+                  x-validate:
+              title: IntegrationRuleUpdateRequest
+              type: object
+              x-struct:
+              x-validate:
+        description: Update parameters
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    additionalProperties: false
+                    description: Binds an Integration to a Monitor + event + external target. Without a rule, an Integration is connected but inert.
+                    properties:
+                      action:
+                        enum:
+                          - pause_campaign
+                          - resume_campaign
+                          - pause_ad_set
+                          - resume_ad_set
+                        type: string
+                        x-struct:
+                        x-validate:
+                      event_type:
+                        enum:
+                          - incident_opened
+                          - incident_resolved
+                          - monitor_paused
+                          - monitor_resumed
+                        type: string
+                        x-struct:
+                        x-validate:
+                      id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      inserted_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                      integration_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      monitor_id:
+                        format: uuid
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_id:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_label:
+                        nullable: true
+                        type: string
+                        x-struct:
+                        x-validate:
+                      target_type:
+                        enum:
+                          - campaign
+                          - ad_set
+                          - channel
+                          - component
+                          - project
+                          - ticket
+                          - page
+                        type: string
+                        x-struct:
+                        x-validate:
+                      updated_at:
+                        format: date-time
+                        type: string
+                        x-struct:
+                        x-validate:
+                    required:
+                      - id
+                      - integration_id
+                      - monitor_id
+                      - event_type
+                      - action
+                      - target_type
+                      - target_id
+                      - inserted_at
+                      - updated_at
+                    title: IntegrationRule
+                    type: object
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationRuleResponse
+                type: object
+                x-struct:
+                x-validate:
+          description: Updated rule
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Rule not found
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Validation error
+      summary: Update rule
+      tags:
+        - Integration Rules
+  /api/v1/workspaces/{workspace_slug}/integrations:
+    get:
+      callbacks: {}
+      description: List all integrations connected for a workspace.
+      operationId: HolterWeb.Api.IntegrationController.index
+      parameters:
+        - description: Workspace slug
+          in: path
+          name: workspace_slug
+          required: true
+          schema:
+            type: string
+            x-struct:
+            x-validate:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: List of integrations.
+                properties:
+                  data:
+                    items:
+                      additionalProperties: false
+                      description: A workspace-scoped third-party integration (provider OAuth connection). Status and credentials are managed by internal flows; only `name` and `settings` are user-editable from the API.
+                      properties:
+                        id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                        inserted_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_error_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_error_reason:
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        last_sync_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct:
+                          x-validate:
+                        name:
+                          type: string
+                          x-struct:
+                          x-validate:
+                        provider:
+                          description: Provider key (e.g. google_ads, meta_ads, slack).
+                          type: string
+                          x-struct:
+                          x-validate:
+                        settings:
+                          additionalProperties: true
+                          type: object
+                          x-struct:
+                          x-validate:
+                        status:
+                          enum:
+                            - active
+                            - reauth_required
+                            - rate_limited
+                            - disabled
+                            - provider_down
+                          type: string
+                          x-struct:
+                          x-validate:
+                        updated_at:
+                          format: date-time
+                          type: string
+                          x-struct:
+                          x-validate:
+                        workspace_id:
+                          format: uuid
+                          type: string
+                          x-struct:
+                          x-validate:
+                      required:
+                        - id
+                        - workspace_id
+                        - provider
+                        - name
+                        - status
+                        - settings
+                        - inserted_at
+                        - updated_at
+                      title: Integration
+                      type: object
+                      x-struct:
+                      x-validate:
+                    type: array
+                    x-struct:
+                    x-validate:
+                required:
+                  - data
+                title: IntegrationList
+                type: object
+                x-struct:
+                x-validate:
+          description: Integration list
+        '404':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    properties:
+                      code:
+                        type: string
+                        x-struct:
+                        x-validate:
+                      message:
+                        type: string
+                        x-struct:
+                        x-validate:
+                    type: object
+                    x-struct:
+                    x-validate:
+                title: Error
+                type: object
+                x-struct:
+                x-validate:
+          description: Workspace not found
+      summary: List integrations
+      tags:
+        - Integrations
+security:
+  - bearerAuth: []
+servers:
+  - url: /
+    variables: {}
+tags: []

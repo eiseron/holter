@@ -79,8 +79,7 @@ defmodule HolterWeb.ConnCase do
   scope-restricted tokens.
   """
   def authed_api_conn(conn, {user, workspace}, opts \\ []) do
-    alias Eiseron.Identity.Scopes
-    alias Holter.Identity.ApiTokens
+    alias Holter.Identity.{ApiTokens, Scopes}
 
     scopes = Keyword.get(opts, :scopes, Scopes.all())
     name = Keyword.get(opts, :name, "test-#{System.unique_integer([:positive])}")

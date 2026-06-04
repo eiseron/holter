@@ -50,6 +50,32 @@ defmodule Holter.Integrations.IntegrationEventsContext do
     {total_pages, current_page}
   end
 
+  def list_events_page(integration_id, filters \\ %{}) do
+    page_size = Pagination.resolve_page_size(filters[:page_size], default: 25)
+    requested_page = filters[:page]
+
+    {total_pages, current_page} =
+      events_page_info(integration_id, page_size, requested_page)
+
+    events = list_events_paginated(integration_id, current_page, page_size)
+
+    %{
+      events: events,
+      page_number: current_page,
+      total_pages: total_pages,
+      page_size: page_size
+    }
+  end
+
+  def get_event(id) do
+    with {:ok, _} <- Ecto.UUID.cast(id),
+         %IntegrationEvent{} = event <- Repo.get(IntegrationEvent, id) do
+      {:ok, event}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
   defp filter_by_status(query, nil), do: query
   defp filter_by_status(query, status), do: where(query, [e], e.status == ^status)
 

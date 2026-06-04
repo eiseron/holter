@@ -335,7 +335,7 @@ msgstr "Executar Agora"
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:77
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:33
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:77
-#: lib/holter_web/web/live/integrations/logs_live.html.heex:33
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:19
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:86
@@ -737,7 +737,7 @@ msgstr "Todos os Tipos"
 msgid "Defacement"
 msgstr "Desfiguração"
 
-#: lib/holter_web/web/live/integrations/logs_live.html.heex:38
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:40
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:57
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:101
 #, elixir-autogen, elixir-format
@@ -1927,7 +1927,7 @@ msgid "unknown"
 msgstr "desconhecido"
 
 #: lib/holter_web/components/workspace_sidebar_live.ex:101
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:58
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:66
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
 #, elixir-autogen, elixir-format
 msgid "API tokens"
@@ -1964,7 +1964,7 @@ msgstr "Último uso"
 msgid "Never"
 msgstr "Nunca"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:96
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:104
 #, elixir-autogen, elixir-format
 msgid "Only workspace owners can create API tokens."
 msgstr "Apenas proprietários do workspace podem criar tokens da API."
@@ -2010,17 +2010,17 @@ msgstr "ex.: CI / dashboard apenas leitura"
 msgid "Generating..."
 msgstr "Gerando..."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:26
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:28
 #, elixir-autogen, elixir-format
 msgid "Create, update and delete monitors."
 msgstr "Criar, atualizar e excluir monitores."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:41
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:43
 #, elixir-autogen, elixir-format
 msgid "Create, update and delete notification channels (and rotate their secrets)."
 msgstr "Criar, atualizar e excluir canais de notificação (e rotacionar seus segredos)."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:23
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:25
 #, elixir-autogen, elixir-format
 msgid "List monitors and read their current status."
 msgstr "Listar monitores e ler seu status atual."
@@ -2035,37 +2035,37 @@ msgstr "Gerenciar monitores"
 msgid "Manage notification channels"
 msgstr "Gerenciar canais de notificação"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:47
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:49
 #, elixir-autogen, elixir-format
 msgid "Read channel delivery history."
 msgstr "Ler histórico de entregas dos canais."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:32
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:34
 #, elixir-autogen, elixir-format
 msgid "Read daily uptime metrics."
 msgstr "Ler métricas diárias de uptime."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:35
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:37
 #, elixir-autogen, elixir-format
 msgid "Read incidents and their timeline."
 msgstr "Ler incidentes e sua linha do tempo."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:29
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:31
 #, elixir-autogen, elixir-format
 msgid "Read raw monitor check logs."
 msgstr "Ler logs brutos de verificação dos monitores."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:38
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:40
 #, elixir-autogen, elixir-format
 msgid "Read webhook and email channel configuration."
 msgstr "Ler configuração dos canais webhook e e-mail."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:20
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Read workspace metadata."
 msgstr "Ler metadados do workspace."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:44
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:46
 #, elixir-autogen, elixir-format
 msgid "Send test deliveries to webhook and email channels."
 msgstr "Enviar entregas de teste para canais webhook e e-mail."
@@ -2250,7 +2250,7 @@ msgstr "Usuários"
 msgid "Workspaces"
 msgstr "Workspaces"
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:85
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:93
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to create API tokens in this workspace."
 msgstr "Você não tem permissão para criar tokens de API neste workspace."
@@ -2282,7 +2282,7 @@ msgstr "Você não tem permissão para excluir este monitor."
 msgid "You are not allowed to manage this channel."
 msgstr "Você não tem permissão para gerenciar este canal."
 
-#: lib/holter_web/web/workspaces/api_tokens_live.ex:120
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:128
 #, elixir-autogen, elixir-format
 msgid "You are not allowed to revoke this token."
 msgstr "Você não tem permissão para revogar este token."
@@ -2720,7 +2720,7 @@ msgstr "Conectar"
 msgid "Connected"
 msgstr "Conectado"
 
-#: lib/holter_web/web/live/integrations/logs_live.html.heex:30
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Direction"
 msgstr "Direção"
@@ -2747,7 +2747,7 @@ msgstr "Integrações"
 msgid "Issue Tracking"
 msgstr "Rastreamento de problemas"
 
-#: lib/holter_web/web/live/integrations/logs_live.html.heex:41
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Occurred at"
 msgstr "Ocorreu em"
@@ -3167,3 +3167,43 @@ msgstr "Saída"
 #, elixir-autogen, elixir-format
 msgid "Retried"
 msgstr "Repetido"
+
+#: lib/holter/integrations/provider.ex:21
+#, elixir-autogen, elixir-format
+msgid "Dispatch error"
+msgstr "Erro no disparo"
+
+#: lib/holter/integrations/provider.ex:18
+#, elixir-autogen, elixir-format
+msgid "Incident opened"
+msgstr "Incidente aberto"
+
+#: lib/holter/integrations/provider.ex:19
+#, elixir-autogen, elixir-format
+msgid "Incident resolved"
+msgstr "Incidente resolvido"
+
+#: lib/holter/integrations/provider.ex:20
+#, elixir-autogen, elixir-format
+msgid "Webhook received"
+msgstr "Webhook recebido"
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:55
+#, elixir-autogen, elixir-format
+msgid "Connect, configure and disconnect integrations."
+msgstr "Conectar, configurar e desconectar integrações."
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:52
+#, elixir-autogen, elixir-format
+msgid "List integrations and read their events."
+msgstr "Listar integrações e ler seus eventos."
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:19
+#, elixir-autogen, elixir-format
+msgid "Manage integrations"
+msgstr "Gerenciar integrações"
+
+#: lib/holter_web/web/workspaces/api_tokens_live.ex:18
+#, elixir-autogen, elixir-format
+msgid "View integrations"
+msgstr "Ver integrações"

@@ -4,7 +4,7 @@ defmodule HolterWeb.Web.Integrations.LogsLive do
   import HolterWeb.Components.Integrations.IntegrationStatusBadge
   import HolterWeb.Components.Integrations.IntegrationSubnav
 
-  alias Holter.Integrations.IntegrationEventsContext
+  alias Holter.Integrations.{IntegrationEventsContext, Provider}
 
   @page_size 25
 

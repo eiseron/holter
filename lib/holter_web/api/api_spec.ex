@@ -12,6 +12,9 @@ defmodule HolterWeb.Api.ApiSpec do
     DeliveryLogSchemas,
     EmailChannelSchemas,
     IncidentSchemas,
+    IntegrationEventSchemas,
+    IntegrationRuleSchemas,
+    IntegrationSchemas,
     MonitorLogSchemas,
     MonitorSchemas,
     Security,
@@ -46,6 +49,9 @@ defmodule HolterWeb.Api.ApiSpec do
           |> Map.merge(WebhookChannelSchemas.all())
           |> Map.merge(EmailChannelSchemas.all())
           |> Map.merge(DeliveryLogSchemas.all())
+          |> Map.merge(IntegrationSchemas.all())
+          |> Map.merge(IntegrationRuleSchemas.all())
+          |> Map.merge(IntegrationEventSchemas.all())
       }
     }
     |> OpenApiSpex.resolve_schema_modules()

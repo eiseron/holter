@@ -1,5 +1,5 @@
 defmodule Holter.Integrations.ProviderTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Holter.Integrations.Provider
 
@@ -27,6 +27,46 @@ defmodule Holter.Integrations.ProviderTest do
       on_exit(fn -> Application.delete_env(:holter, :integration_providers) end)
 
       assert {:ok, __MODULE__} = Provider.provider_module(:test_stub)
+    end
+  end
+
+  describe "format_action_label/2" do
+    setup do
+      Application.put_env(:holter, :integration_providers, %{
+        google_ads: Holter.Integrations.Google.Ads,
+        meta_ads: Holter.Integrations.Meta.Ads
+      })
+
+      on_exit(fn -> Application.delete_env(:holter, :integration_providers) end)
+    end
+
+    test "returns translated label for a provider-specific action" do
+      assert Provider.format_action_label(:google_ads, "pause_campaign") == "Pause campaign"
+    end
+
+    test "returns translated label for a cross-cutting event name" do
+      assert Provider.format_action_label(:google_ads, "incident_opened") == "Incident opened"
+    end
+
+    test "returns translated label for incident_resolved" do
+      assert Provider.format_action_label(:meta_ads, "incident_resolved") == "Incident resolved"
+    end
+
+    test "returns translated label for meta-specific action" do
+      assert Provider.format_action_label(:meta_ads, "pause_ad_set") == "Pause ad set"
+    end
+
+    test "returns raw action string for unknown actions" do
+      assert Provider.format_action_label(:google_ads, "unknown_action") == "unknown_action"
+    end
+
+    test "falls back to event label map when provider is not registered" do
+      assert Provider.format_action_label(:unknown_provider, "incident_opened") ==
+               "Incident opened"
+    end
+
+    test "returns raw string for unknown actions on unregistered provider" do
+      assert Provider.format_action_label(:unknown_provider, "some_action") == "some_action"
     end
   end
 end

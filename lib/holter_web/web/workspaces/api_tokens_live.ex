@@ -1,9 +1,9 @@
 defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
   use HolterWeb, :workspace_live_view
 
-  alias Eiseron.Identity.Scopes
   alias Holter.Identity.ApiTokens
   alias Holter.Identity.Models.ApiToken
+  alias Holter.Identity.Scopes
 
   def scope_label("read:workspaces"), do: gettext("View workspace")
   def scope_label("read:monitors"), do: gettext("View monitors")
@@ -15,6 +15,8 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
   def scope_label("write:channels"), do: gettext("Manage notification channels")
   def scope_label("ping:channels"), do: gettext("Send test pings")
   def scope_label("read:delivery_logs"), do: gettext("View delivery history")
+  def scope_label("read:integrations"), do: gettext("View integrations")
+  def scope_label("write:integrations"), do: gettext("Manage integrations")
 
   def scope_description("read:workspaces"),
     do: gettext("Read workspace metadata.")
@@ -45,6 +47,12 @@ defmodule HolterWeb.Web.Workspaces.ApiTokensLive do
 
   def scope_description("read:delivery_logs"),
     do: gettext("Read channel delivery history.")
+
+  def scope_description("read:integrations"),
+    do: gettext("List integrations and read their events.")
+
+  def scope_description("write:integrations"),
+    do: gettext("Connect, configure and disconnect integrations.")
 
   @impl true
   def mount(_params, _session, socket) do

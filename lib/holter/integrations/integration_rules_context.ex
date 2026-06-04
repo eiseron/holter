@@ -49,6 +49,12 @@ defmodule Holter.Integrations.IntegrationRulesContext do
     |> Repo.insert()
   end
 
+  def update(%IntegrationRule{} = rule, attrs) do
+    rule
+    |> IntegrationRule.changeset(attrs)
+    |> Repo.update()
+  end
+
   def delete(%IntegrationRule{} = rule) do
     Repo.delete(rule)
   end

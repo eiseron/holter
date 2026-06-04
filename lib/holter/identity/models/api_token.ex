@@ -3,7 +3,7 @@ defmodule Holter.Identity.Models.ApiToken do
 
   import Ecto.Changeset
 
-  alias Eiseron.Identity.Scopes
+  alias Holter.Identity.Scopes
 
   @rand_size 32
   @plaintext_prefix "hk_"
@@ -67,20 +67,20 @@ defmodule Holter.Identity.Models.ApiToken do
         add_error(changeset, :scopes, "must include at least one scope")
 
       scopes when is_list(scopes) ->
-        case Enum.reject(scopes, &Scopes.valid?/1) do
-          [] ->
-            changeset
-
-          invalid ->
-            add_error(
-              changeset,
-              :scopes,
-              "contains invalid scopes: #{Enum.join(invalid, ", ")}"
-            )
-        end
+        reject_invalid_scopes(changeset, scopes)
 
       _ ->
         add_error(changeset, :scopes, "must be a list of strings")
+    end
+  end
+
+  defp reject_invalid_scopes(changeset, scopes) do
+    case Enum.reject(scopes, &Scopes.valid?/1) do
+      [] ->
+        changeset
+
+      invalid ->
+        add_error(changeset, :scopes, "contains invalid scopes: #{Enum.join(invalid, ", ")}")
     end
   end
 end

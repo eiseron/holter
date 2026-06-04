@@ -55,7 +55,7 @@ defmodule HolterWeb.Web.Integrations.LogsLiveTest do
 
       {:ok, lv, _html} = live(conn, ~p"/integrations/#{integration.id}/logs")
 
-      assert has_element?(lv, "[data-role='event-action']", "incident_opened")
+      assert has_element?(lv, "[data-role='event-action']", "Incident opened")
     end
 
     test "renders a failure badge for failed events",

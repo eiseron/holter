@@ -86,6 +86,18 @@ defmodule HolterWeb.Router do
       put "/anti_phishing_code", EmailChannelController, :rotate_anti_phishing_code
       resources "/delivery_logs", DeliveryLogController, only: [:index]
     end
+
+    scope "/workspaces/:workspace_slug" do
+      resources "/integrations", IntegrationController, only: [:index]
+    end
+
+    resources "/integrations", IntegrationController, only: [:show, :update, :delete] do
+      resources "/rules", IntegrationRuleController, only: [:index, :create]
+      resources "/events", IntegrationEventController, only: [:index]
+    end
+
+    resources "/rules", IntegrationRuleController, only: [:show, :update, :delete]
+    resources "/integration_events", IntegrationEventController, only: [:show]
   end
 
   scope "/identity", HolterWeb.Web.Identity do

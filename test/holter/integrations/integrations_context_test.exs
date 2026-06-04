@@ -163,12 +163,26 @@ defmodule Holter.Integrations.IntegrationsContextTest do
                IntegrationsContext.update(integration, %{settings: %{"key" => "value"}})
     end
 
-    test "returns {:error, changeset} for invalid attrs" do
+    test "ignores non-mutable fields (mass-assignment defense)" do
       ws = workspace_fixture()
-      integration = integration_fixture(workspace_id: ws.id)
+      other_ws = workspace_fixture()
+      integration = integration_fixture(workspace_id: ws.id, provider: :google_ads)
+      ws_id = ws.id
 
-      assert {:error, %Ecto.Changeset{}} =
-               IntegrationsContext.update(integration, %{provider: :unknown_provider})
+      assert {:ok,
+              %Integration{
+                name: "Renamed",
+                provider: :google_ads,
+                status: :active,
+                workspace_id: ^ws_id
+              }} =
+               IntegrationsContext.update(integration, %{
+                 name: "Renamed",
+                 provider: :slack,
+                 status: :disabled,
+                 workspace_id: other_ws.id,
+                 credentials_encrypted: %{"access_token" => "stolen"}
+               })
     end
   end
 

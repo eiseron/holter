@@ -9,8 +9,17 @@ defmodule Holter.Integrations.Provider do
   implementations land.
   """
 
+  use Gettext, backend: HolterWeb.Gettext
+
   alias Holter.Integrations.Models.Integration
   alias Holter.Integrations.Request
+
+  @event_labels %{
+    "incident_opened" => gettext_noop("Incident opened"),
+    "incident_resolved" => gettext_noop("Incident resolved"),
+    "webhook_received" => gettext_noop("Webhook received"),
+    "dispatch_error" => gettext_noop("Dispatch error")
+  }
 
   @doc "Safely casts a string to a known provider atom. Returns error for unknown providers."
   @spec cast_provider(binary()) :: {:ok, atom()} | {:error, :unknown_provider}
@@ -32,8 +41,33 @@ defmodule Holter.Integrations.Provider do
     end
   end
 
+  @doc "Returns a translated display label for an action string, delegating to the provider module when possible."
+  @spec format_action_label(atom(), String.t()) :: String.t()
+  def format_action_label(provider, action) when is_atom(provider) and is_binary(action) do
+    with {:ok, mod} <- provider_module(provider),
+         {:ok, atom} <- safe_to_existing_atom(action),
+         true <- atom in mod.supported_actions() do
+      mod.action_label(atom)
+    else
+      _ -> translate_event_label(action)
+    end
+  end
+
   defp providers do
     Application.get_env(:holter, :integration_providers, %{})
+  end
+
+  defp translate_event_label(action) do
+    case Map.fetch(@event_labels, action) do
+      {:ok, msgid} -> Gettext.gettext(HolterWeb.Gettext, msgid)
+      :error -> action
+    end
+  end
+
+  defp safe_to_existing_atom(str) do
+    {:ok, String.to_existing_atom(str)}
+  rescue
+    ArgumentError -> :error
   end
 
   @type credentials :: map()
