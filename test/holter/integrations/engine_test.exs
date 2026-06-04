@@ -20,7 +20,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-111"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -41,7 +41,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-222"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -63,7 +63,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-only-a"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor_b.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor_b.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -84,7 +84,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-disabled"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -114,7 +114,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-222"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -136,7 +136,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "gads-aaa"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -169,7 +169,7 @@ defmodule Holter.Integrations.EngineTest do
           target_id: "meta-1"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
@@ -191,12 +191,19 @@ defmodule Holter.Integrations.EngineTest do
           target_label: "Black Friday"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Engine.dispatch_event(incident, "incident_opened")
 
       [job] = all_enqueued(worker: IntegrationDispatcher)
       assert [%{"label" => "Black Friday"}] = job.args["targets"]
+    end
+
+    test "logs and skips when the incident carries no workspace_id" do
+      incident = %{id: Ecto.UUID.generate(), monitor_id: Ecto.UUID.generate()}
+
+      assert :ok = Engine.dispatch_event(incident, "incident_opened")
+      refute_enqueued(worker: IntegrationDispatcher)
     end
   end
 end

@@ -39,9 +39,9 @@ defmodule Holter.Integrations.IntegrationsContext do
 
   def get!(id), do: Repo.get!(Integration, id)
 
-  def list_by_ids(ids) when is_list(ids) do
+  def list_by_ids(ids, workspace_id) when is_list(ids) do
     Integration
-    |> where([i], i.id in ^ids)
+    |> where([i], i.id in ^ids and i.workspace_id == ^workspace_id)
     |> Repo.all()
   end
 

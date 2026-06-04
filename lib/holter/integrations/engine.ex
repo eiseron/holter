@@ -3,12 +3,17 @@ defmodule Holter.Integrations.Engine do
 
   alias Holter.Integrations.{Broadcaster, IntegrationRulesContext, IntegrationsContext}
   alias Holter.Integrations.Workers.IntegrationDispatcher
-  alias Holter.Monitoring
+  alias Holter.Repo.Tenant
 
   require Logger
 
   @doc """
   Called by EventConsumer when a monitoring incident PubSub message arrives.
+
+  The incident broadcast carries `workspace_id` (stamped by Monitoring at
+  publish time), which we use to enter the tenant context before any read.
+  Without it the reads below would hit FORCE-RLS tables with no GUC and
+  return nothing in production.
 
   Looks up rules for the incident's monitor + event, groups them by
   integration, and enqueues one IntegrationDispatcher job per integration
@@ -17,10 +22,22 @@ defmodule Holter.Integrations.Engine do
   An integration without any rule for the (monitor, event) pair is
   intentionally not triggered — rules are the explicit opt-in.
   """
-  def dispatch_event(incident, event) when is_binary(event) do
-    monitor = Monitoring.get_monitor!(incident.monitor_id)
-    workspace_id = monitor.workspace_id
+  def dispatch_event(%{workspace_id: workspace_id} = incident, event)
+      when is_binary(event) and is_binary(workspace_id) do
+    Tenant.with_workspace!(workspace_id, fn ->
+      do_dispatch_event(incident, workspace_id, event)
+    end)
+  end
 
+  def dispatch_event(incident, event) when is_binary(event) do
+    Logger.warning(
+      "integrations: incident #{inspect(Map.get(incident, :id))} missing workspace_id; skipping dispatch"
+    )
+
+    :ok
+  end
+
+  defp do_dispatch_event(incident, workspace_id, event) do
     grouped =
       incident.monitor_id
       |> IntegrationRulesContext.list_active_for_monitor_event(event)
@@ -29,7 +46,7 @@ defmodule Holter.Integrations.Engine do
     integrations_by_id =
       grouped
       |> Map.keys()
-      |> IntegrationsContext.list_by_ids()
+      |> IntegrationsContext.list_by_ids(workspace_id)
       |> Map.new(&{&1.id, &1})
 
     Enum.each(grouped, fn {integration_id, rules} ->

@@ -26,7 +26,7 @@ defmodule Holter.Integrations.EventConsumerTest do
           target_id: "gads-111"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Phoenix.PubSub.broadcast(
         Holter.PubSub,
@@ -53,7 +53,7 @@ defmodule Holter.Integrations.EventConsumerTest do
           target_id: "gads-222"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Phoenix.PubSub.broadcast(
         Holter.PubSub,
@@ -80,7 +80,7 @@ defmodule Holter.Integrations.EventConsumerTest do
           target_id: "gads-disabled"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Phoenix.PubSub.broadcast(
         Holter.PubSub,
@@ -109,7 +109,7 @@ defmodule Holter.Integrations.EventConsumerTest do
           target_id: "gads-resume"
         )
 
-      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id}
+      incident = %{id: Ecto.UUID.generate(), monitor_id: monitor.id, workspace_id: ws.id}
 
       Phoenix.PubSub.broadcast(
         Holter.PubSub,
