@@ -18,8 +18,7 @@ defmodule Holter.Seeds.Integrations.Integrations do
           "refresh_token" => "seed_google_refresh_token",
           "expires_at" => DateTime.to_iso8601(DateTime.add(now, 3600))
         },
-        settings: %{"campaign_ids" => ["gads-11111", "gads-22222"]},
-        subscribed_events: ["incident_opened", "incident_resolved"]
+        settings: %{"customer_id" => "1234567890"}
       })
 
     {:ok, meta_ads} =
@@ -32,8 +31,7 @@ defmodule Holter.Seeds.Integrations.Integrations do
           "access_token" => "seed_meta_access_token",
           "expires_at" => DateTime.to_iso8601(DateTime.add(now, 5_184_000))
         },
-        settings: %{"campaign_ids" => ["meta-33333"], "ad_set_ids" => ["adset-44444"]},
-        subscribed_events: ["incident_opened", "incident_resolved"]
+        settings: %{"ad_account_id" => "act_9876543210"}
       })
 
     IntegrationEventsContext.log_event!(%{

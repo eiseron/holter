@@ -46,6 +46,7 @@ defmodule HolterWeb.Hooks.UserAuthHook do
 
   alias Holter.Delivery.{EmailChannels, WebhookChannels}
   alias Holter.Identity
+  alias Holter.Integrations
   alias Holter.Monitoring
   alias Holter.Repo.Tenant
 
@@ -174,6 +175,25 @@ defmodule HolterWeb.Hooks.UserAuthHook do
          |> assign(:current_workspace, workspace)
          |> assign(:current_workspace_membership, membership)
          |> assign(:current_channel, channel)}
+      else
+        _ -> {:halt, redirect(socket, to: ~p"/")}
+      end
+    end)
+  end
+
+  def on_mount(:require_integration_member, %{"id" => id}, _session, socket) do
+    user = socket.assigns.current_user
+
+    Tenant.with_user!(user, fn ->
+      with {:ok, integration} <- Integrations.get_integration(id),
+           {:ok, workspace} <- Identity.fetch_workspace_for_member(user, integration.workspace_id),
+           membership when not is_nil(membership) <-
+             Identity.get_workspace_membership(user, workspace) do
+        {:cont,
+         socket
+         |> assign(:current_workspace, workspace)
+         |> assign(:current_workspace_membership, membership)
+         |> assign(:current_integration, integration)}
       else
         _ -> {:halt, redirect(socket, to: ~p"/")}
       end

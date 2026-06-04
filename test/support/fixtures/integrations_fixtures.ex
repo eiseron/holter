@@ -3,8 +3,8 @@ defmodule Holter.IntegrationsFixtures do
   Test helpers for creating Integration and IntegrationEvent entities.
   """
 
-  alias Holter.Integrations.IntegrationBindingsContext
   alias Holter.Integrations.IntegrationEventsContext
+  alias Holter.Integrations.IntegrationRulesContext
   alias Holter.Integrations.IntegrationsContext
 
   def integration_fixture(attrs \\ %{}) do
@@ -31,8 +31,7 @@ defmodule Holter.IntegrationsFixtures do
           "refresh_token" => "test_refresh_token",
           "expires_at" => DateTime.to_iso8601(DateTime.add(DateTime.utc_now(), 3600))
         },
-        settings: %{"campaign_ids" => ["gads-12345"]},
-        subscribed_events: ["incident_opened", "incident_resolved"]
+        settings: %{"customer_id" => "1234567890"}
       })
 
     {:ok, integration} = IntegrationsContext.create(attrs)
@@ -76,7 +75,7 @@ defmodule Holter.IntegrationsFixtures do
     IntegrationEventsContext.log_event!(attrs)
   end
 
-  def integration_binding_fixture(attrs \\ %{}) do
+  def integration_rule_fixture(attrs \\ %{}) do
     attrs = Map.new(attrs)
 
     integration_id =
@@ -84,7 +83,7 @@ defmodule Holter.IntegrationsFixtures do
         id = attrs[:integration_id] -> id
         id = attrs["integration_id"] -> id
         ig = attrs[:integration] -> ig.id
-        true -> raise ArgumentError, "binding fixture requires :integration_id or :integration"
+        true -> raise ArgumentError, "rule fixture requires :integration_id or :integration"
       end
 
     monitor_id =
@@ -92,7 +91,7 @@ defmodule Holter.IntegrationsFixtures do
         id = attrs[:monitor_id] -> id
         id = attrs["monitor_id"] -> id
         m = attrs[:monitor] -> m.id
-        true -> raise ArgumentError, "binding fixture requires :monitor_id or :monitor"
+        true -> raise ArgumentError, "rule fixture requires :monitor_id or :monitor"
       end
 
     base =
@@ -117,8 +116,8 @@ defmodule Holter.IntegrationsFixtures do
         target_label: nil
       })
 
-    {:ok, binding} = IntegrationBindingsContext.create(full)
-    binding
+    {:ok, rule} = IntegrationRulesContext.create(full)
+    rule
   end
 
   defp workspace_id_from_fixtures do

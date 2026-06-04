@@ -30,6 +30,7 @@ defmodule HolterWeb.Authorization do
 
   alias Holter.Delivery.Policies, as: D
   alias Holter.Identity.Policies, as: I
+  alias Holter.Integrations.Policies, as: Int
   alias Holter.Monitoring.Policies, as: M
   alias Holter.System.Policies, as: S
 
@@ -46,6 +47,7 @@ defmodule HolterWeb.Authorization do
     Bodyguard.permit(policy_for_module(resource_module), action, user, parent)
   end
 
+  defp policy_for(%Holter.Integrations.Models.Integration{}), do: Int.Integration
   defp policy_for(%Holter.Monitoring.Models.Monitor{}), do: M.Monitor
   defp policy_for(%Holter.Monitoring.Models.Workspace{}), do: M.Workspace
   defp policy_for(%Holter.Monitoring.Models.Incident{}), do: M.Incident
@@ -58,6 +60,7 @@ defmodule HolterWeb.Authorization do
   defp policy_for(%Holter.System.Models.Admin{}), do: S.Admin
   defp policy_for(%FunWithFlags.Flag{}), do: S.FeatureFlag
 
+  defp policy_for_module(Holter.Integrations.Models.Integration), do: Int.Integration
   defp policy_for_module(Holter.Monitoring.Models.Monitor), do: M.Monitor
   defp policy_for_module(Holter.Monitoring.Models.Workspace), do: M.Workspace
   defp policy_for_module(Holter.Delivery.Models.EmailChannel), do: D.EmailChannel

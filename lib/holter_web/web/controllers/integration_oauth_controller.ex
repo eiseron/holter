@@ -67,12 +67,12 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
            ) do
       conn
       |> put_flash(:info, gettext("Integration connected successfully."))
-      |> redirect(to: ~p"/identity/workspaces/#{workspace.slug}")
+      |> redirect(to: ~p"/integrations/workspaces/#{workspace.slug}")
     else
       {:error, _reason} ->
         conn
         |> put_flash(:error, gettext("Failed to connect integration. Please try again."))
-        |> redirect(to: ~p"/identity/workspaces/#{workspace.slug}")
+        |> redirect(to: ~p"/integrations/workspaces/#{workspace.slug}")
     end
   end
 
@@ -88,7 +88,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
          {:ok, _} <- Holter.Integrations.delete_integration(integration) do
       conn
       |> put_flash(:info, gettext("Integration disconnected."))
-      |> redirect(to: ~p"/identity/workspaces/#{slug}")
+      |> redirect(to: ~p"/integrations/workspaces/#{slug}")
     else
       {:error, :unauthorized} ->
         conn
@@ -96,12 +96,12 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthController do
           :error,
           gettext("You do not have permission to disconnect this integration.")
         )
-        |> redirect(to: ~p"/identity/workspaces/#{slug}")
+        |> redirect(to: ~p"/integrations/workspaces/#{slug}")
 
       _ ->
         conn
         |> put_flash(:error, gettext("Could not disconnect integration."))
-        |> redirect(to: ~p"/identity/workspaces/#{slug}")
+        |> redirect(to: ~p"/integrations/workspaces/#{slug}")
     end
   end
 

@@ -56,4 +56,8 @@
 @import "./components/identity/api_token_scope.css";
 @import "./components/identity/auth_screen.css";
 
+@import "./components/integrations/catalog_card.css";
+@import "./components/integrations/integrations_list.css";
+@import "./components/integrations/provider_logo.css";
+
 .hidden { display: none !important; }

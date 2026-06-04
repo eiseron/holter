@@ -1,7 +1,7 @@
 defmodule Holter.Integrations.Engine do
   @moduledoc false
 
-  alias Holter.Integrations.{Broadcaster, IntegrationBindingsContext, IntegrationsContext}
+  alias Holter.Integrations.{Broadcaster, IntegrationRulesContext, IntegrationsContext}
   alias Holter.Integrations.Workers.IntegrationDispatcher
   alias Holter.Monitoring
 
@@ -10,12 +10,12 @@ defmodule Holter.Integrations.Engine do
   @doc """
   Called by EventConsumer when a monitoring incident PubSub message arrives.
 
-  Looks up bindings for the incident's monitor + event, groups them by
+  Looks up rules for the incident's monitor + event, groups them by
   integration, and enqueues one IntegrationDispatcher job per integration
-  carrying the list of targets from the bindings.
+  carrying the list of targets from the rules.
 
-  An integration without any binding for the (monitor, event) pair is
-  intentionally not triggered — bindings are the explicit opt-in.
+  An integration without any rule for the (monitor, event) pair is
+  intentionally not triggered — rules are the explicit opt-in.
   """
   def dispatch_event(incident, event) when is_binary(event) do
     monitor = Monitoring.get_monitor!(incident.monitor_id)
@@ -23,8 +23,8 @@ defmodule Holter.Integrations.Engine do
 
     grouped =
       incident.monitor_id
-      |> IntegrationBindingsContext.list_active_for_monitor_event(event)
-      |> IntegrationBindingsContext.group_by_integration()
+      |> IntegrationRulesContext.list_active_for_monitor_event(event)
+      |> IntegrationRulesContext.group_by_integration()
 
     integrations_by_id =
       grouped
@@ -32,7 +32,7 @@ defmodule Holter.Integrations.Engine do
       |> IntegrationsContext.list_by_ids()
       |> Map.new(&{&1.id, &1})
 
-    Enum.each(grouped, fn {integration_id, bindings} ->
+    Enum.each(grouped, fn {integration_id, rules} ->
       case Map.fetch(integrations_by_id, integration_id) do
         {:ok, %{status: :active} = integration} ->
           enqueue_dispatch(%{
@@ -40,7 +40,7 @@ defmodule Holter.Integrations.Engine do
             workspace_id: workspace_id,
             event: event,
             incident: incident,
-            bindings: bindings
+            rules: rules
           })
 
         _ ->
@@ -56,7 +56,7 @@ defmodule Holter.Integrations.Engine do
          workspace_id: workspace_id,
          event: event,
          incident: incident,
-         bindings: bindings
+         rules: rules
        }) do
     args = %{
       "integration_id" => integration.id,
@@ -64,7 +64,7 @@ defmodule Holter.Integrations.Engine do
       "event" => event,
       "incident_id" => incident.id,
       "monitor_id" => incident.monitor_id,
-      "targets" => Enum.map(bindings, &serialize_target/1)
+      "targets" => Enum.map(rules, &serialize_target/1)
     }
 
     case Oban.insert(IntegrationDispatcher.new(args)) do
@@ -78,12 +78,12 @@ defmodule Holter.Integrations.Engine do
     end
   end
 
-  defp serialize_target(binding) do
+  defp serialize_target(rule) do
     %{
-      "type" => binding.target_type,
-      "action" => binding.action,
-      "id" => binding.target_id,
-      "label" => binding.target_label
+      "type" => rule.target_type,
+      "action" => rule.action,
+      "id" => rule.target_id,
+      "label" => rule.target_label
     }
   end
 end

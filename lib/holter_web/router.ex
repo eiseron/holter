@@ -16,6 +16,10 @@ defmodule HolterWeb.Router do
     plug :put_secure_browser_headers, %{"content-security-policy" => @content_security_policy}
   end
 
+  pipeline :swagger_csp_nonce do
+    plug :put_swagger_csp_nonce
+  end
+
   pipeline :browser_api do
     plug :accepts, ["json"]
     plug :fetch_session
@@ -277,6 +281,34 @@ defmodule HolterWeb.Router do
   end
 
   scope "/integrations/workspaces/:workspace_slug", HolterWeb.Web.Integrations do
+    pipe_through :browser
+
+    live_session :authenticated_integrations_workspace,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_workspace_member},
+        HolterWeb.Hooks.LocaleHook
+      ] do
+      live "/", IndexLive, :index
+      live "/new", CatalogLive, :index
+    end
+  end
+
+  scope "/integrations", HolterWeb.Web.Integrations do
+    pipe_through :browser
+
+    live_session :authenticated_integration,
+      on_mount: [
+        {HolterWeb.Hooks.UserAuthHook, :require_authenticated},
+        {HolterWeb.Hooks.UserAuthHook, :require_integration_member},
+        HolterWeb.Hooks.LocaleHook
+      ] do
+      live "/:id", ShowLive, :show
+      live "/:id/logs", LogsLive, :show
+    end
+  end
+
+  scope "/integrations/workspaces/:workspace_slug", HolterWeb.Web.Integrations do
     pipe_through :browser_authenticated
 
     get "/:provider/connect", IntegrationOAuthController, :connect
@@ -295,6 +327,22 @@ defmodule HolterWeb.Router do
     get "/:provider/callback", IntegrationOAuthController, :callback
   end
 
+  scope "/api" do
+    pipe_through :api_public
+    get "/openapi", OpenApiSpex.Plug.RenderSpec, []
+  end
+
+  scope "/" do
+    pipe_through [:browser, :swagger_csp_nonce]
+
+    get "/api/swagger", OpenApiSpex.Plug.SwaggerUI,
+      path: "/api/openapi",
+      csp_nonce_assign_key: %{script: :script_src_nonce, style: :style_src_nonce},
+      swagger_ui_css_url: "/vendor/swagger-ui/swagger-ui.css",
+      swagger_ui_js_bundle_url: "/vendor/swagger-ui/swagger-ui-bundle.js",
+      swagger_ui_js_standalone_preset_url: "/vendor/swagger-ui/swagger-ui-standalone-preset.js"
+  end
+
   if Application.compile_env(:holter, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
@@ -307,15 +355,21 @@ defmodule HolterWeb.Router do
       live "/emails", HolterWeb.Web.Dev.EmailPreviewLive
       live "/emails/:preview_key/:variant_key", HolterWeb.Web.Dev.EmailPreviewLive
     end
+  end
 
-    scope "/api" do
-      pipe_through :api_public
-      get "/openapi", OpenApiSpex.Plug.RenderSpec, []
-    end
+  defp put_swagger_csp_nonce(conn, _opts) do
+    nonce = 16 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
 
-    scope "/" do
-      pipe_through :browser
-      get "/api/swagger", OpenApiSpex.Plug.SwaggerUI, path: "/api/openapi"
-    end
+    csp =
+      "default-src 'self'; " <>
+        "script-src 'self' 'nonce-#{nonce}'; " <>
+        "style-src 'self' 'unsafe-inline' 'nonce-#{nonce}'; " <>
+        "img-src 'self' data:; connect-src 'self'; " <>
+        "frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+
+    conn
+    |> Plug.Conn.assign(:script_src_nonce, nonce)
+    |> Plug.Conn.assign(:style_src_nonce, nonce)
+    |> Plug.Conn.put_resp_header("content-security-policy", csp)
   end
 end

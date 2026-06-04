@@ -90,16 +90,6 @@ defmodule Holter.IntegrationsTest do
     end
   end
 
-  describe "list_active_integrations_for_event/2" do
-    test "returns active integrations subscribed to the event" do
-      ws = workspace_fixture()
-      _ig = integration_fixture(workspace_id: ws.id, subscribed_events: ["incident_opened"])
-
-      results = Integrations.list_active_integrations_for_event(ws.id, "incident_opened")
-      assert length(results) == 1
-    end
-  end
-
   describe "update_integration/2" do
     test "updates integration fields and returns {:ok, integration}" do
       ws = workspace_fixture()

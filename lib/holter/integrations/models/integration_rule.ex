@@ -1,4 +1,4 @@
-defmodule Holter.Integrations.Models.IntegrationBinding do
+defmodule Holter.Integrations.Models.IntegrationRule do
   @moduledoc false
   use Ecto.Schema
 
@@ -24,7 +24,7 @@ defmodule Holter.Integrations.Models.IntegrationBinding do
   @target_id_max 255
   @target_label_max 255
 
-  schema "integration_bindings" do
+  schema "integration_rules" do
     field :event_type, :string
     field :action, :string
     field :target_type, :string
@@ -42,8 +42,8 @@ defmodule Holter.Integrations.Models.IntegrationBinding do
   def target_types, do: @target_types
   def target_type_for_action(action), do: Map.get(@action_to_target_type, action)
 
-  def changeset(binding, attrs) do
-    binding
+  def changeset(rule, attrs) do
+    rule
     |> cast(attrs, [
       :integration_id,
       :monitor_id,
@@ -63,8 +63,8 @@ defmodule Holter.Integrations.Models.IntegrationBinding do
     |> assoc_constraint(:monitor)
     |> unique_constraint(
       [:integration_id, :monitor_id, :event_type, :action, :target_id],
-      name: :integration_bindings_uniqueness_index,
-      message: "binding already exists for this monitor, event, and target"
+      name: :integration_rules_uniqueness_index,
+      message: "rule already exists for this monitor, event, and target"
     )
   end
 

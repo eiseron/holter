@@ -12,13 +12,13 @@ defmodule Holter.Integrations.EventConsumerTest do
   end
 
   describe "incident_opened event" do
-    test "enqueues IntegrationDispatcher job when a binding matches the (monitor, event) pair" do
+    test "enqueues IntegrationDispatcher job when a rule matches the (monitor, event) pair" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -39,13 +39,13 @@ defmodule Holter.Integrations.EventConsumerTest do
       assert_enqueued(worker: IntegrationDispatcher, args: %{"event" => "incident_opened"})
     end
 
-    test "does not enqueue jobs when no binding exists for the event" do
+    test "does not enqueue jobs when no rule exists for the event" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_resolved",
@@ -71,8 +71,8 @@ defmodule Holter.Integrations.EventConsumerTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :disabled)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -95,13 +95,13 @@ defmodule Holter.Integrations.EventConsumerTest do
   end
 
   describe "incident_resolved event" do
-    test "enqueues IntegrationDispatcher job when a binding matches the resolved event" do
+    test "enqueues IntegrationDispatcher job when a rule matches the resolved event" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_resolved",

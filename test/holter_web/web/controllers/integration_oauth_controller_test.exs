@@ -111,7 +111,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
       state = build_state_token(ws.id, "slack")
       callback_conn = get(conn, ~p"/integrations/slack/callback?code=auth_code&state=#{state}")
 
-      assert redirected_to(callback_conn) =~ "/identity/workspaces/#{ws.slug}"
+      assert redirected_to(callback_conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(callback_conn.assigns.flash, :info) =~ "connected"
     end
 
@@ -130,7 +130,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
       state = build_state_token(ws.id, "slack")
       callback_conn = get(conn, ~p"/integrations/slack/callback?code=bad_code&state=#{state}")
 
-      assert redirected_to(callback_conn) =~ "/identity/workspaces"
+      assert redirected_to(callback_conn) =~ "/integrations/workspaces"
       assert Phoenix.Flash.get(callback_conn.assigns.flash, :error) =~ "Failed to connect"
     end
 
@@ -167,7 +167,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
 
       conn = delete(conn, ~p"/integrations/workspaces/#{ws.slug}/#{integration.id}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/#{ws.slug}"
+      assert redirected_to(conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "disconnected"
       assert {:error, :not_found} = Integrations.get_integration(integration.id)
     end
@@ -181,14 +181,14 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
 
       conn = delete(conn, ~p"/integrations/workspaces/#{ws.slug}/#{integration.id}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/#{ws.slug}"
+      assert redirected_to(conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Could not disconnect"
     end
 
     test "redirects with error flash when workspace does not exist", %{conn: conn} do
       conn = delete(conn, ~p"/integrations/workspaces/nonexistent/#{Ecto.UUID.generate()}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/nonexistent"
+      assert redirected_to(conn) =~ "/integrations/workspaces/nonexistent"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Could not disconnect"
     end
 
@@ -200,7 +200,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerTest do
 
       conn = delete(conn, ~p"/integrations/workspaces/#{other_ws.slug}/#{Ecto.UUID.generate()}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/#{other_ws.slug}"
+      assert redirected_to(conn) =~ "/integrations/workspaces/#{other_ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "permission"
     end
   end

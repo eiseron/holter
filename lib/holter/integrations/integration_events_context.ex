@@ -10,6 +10,7 @@ defmodule Holter.Integrations.IntegrationEventsContext do
   import Ecto.Query
 
   alias Holter.Integrations.Models.IntegrationEvent
+  alias Holter.Pagination
   alias Holter.Repo
 
   def log_event!(attrs) do
@@ -30,6 +31,23 @@ defmodule Holter.Integrations.IntegrationEventsContext do
     |> order_by([e], desc: e.occurred_at)
     |> limit(^limit)
     |> Repo.all()
+  end
+
+  def list_events_paginated(integration_id, page, page_size) do
+    IntegrationEvent
+    |> where([e], e.integration_id == ^integration_id)
+    |> order_by([e], desc: e.occurred_at)
+    |> Pagination.paginate_query(page, page_size)
+    |> Repo.all()
+  end
+
+  def events_page_info(integration_id, page_size, requested_page) do
+    base_query = where(IntegrationEvent, [e], e.integration_id == ^integration_id)
+
+    {_total_count, total_pages, current_page} =
+      Pagination.calculate(base_query, page_size, requested_page)
+
+    {total_pages, current_page}
   end
 
   defp filter_by_status(query, nil), do: query

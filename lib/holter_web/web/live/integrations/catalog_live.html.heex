@@ -1,0 +1,44 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/integrations/workspaces/#{@current_workspace.slug}"} />
+    {gettext("Add integration")}
+  </:title>
+  <:subtitle>
+    {gettext("Connect a third-party service to automate incident workflows")}
+  </:subtitle>
+
+  <ul class="integrations-catalog" role="list">
+    <%= for entry <- @catalog do %>
+      <li class="integration-card" data-provider={entry.provider} data-role="provider-card">
+        <div class="integration-card-body">
+          <header class="integration-card-header">
+            <.provider_logo provider={entry.provider} alt={entry.display_name} />
+            <h3 class="integration-card-name" data-role="provider-name">
+              {entry.display_name}
+            </h3>
+          </header>
+
+          <p class="integration-card-description" data-role="provider-description">
+            {translate_description(entry.provider)}
+          </p>
+
+          <footer class="integration-card-footer">
+            <span class="integration-card-category" data-role="provider-category">
+              {category_label(entry.category)}
+            </span>
+
+            <.link
+              href={
+                ~p"/integrations/workspaces/#{@current_workspace.slug}/#{entry.provider}/connect"
+              }
+              class="h-btn h-btn-primary h-text-sm"
+              data-role="connect-button"
+            >
+              {gettext("Connect")}
+            </.link>
+          </footer>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</.page_container>

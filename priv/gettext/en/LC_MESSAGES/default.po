@@ -204,6 +204,8 @@ msgstr "Are you absolutely sure you want to delete this monitor? This action can
 #: lib/holter_web/components/delivery/channel_form/channel_form.html.heex:74
 #: lib/holter_web/web/live/delivery/email_channel_live/show.html.heex:151
 #: lib/holter_web/web/live/delivery/webhook_channel_live/show.html.heex:46
+#: lib/holter_web/web/live/integrations/show_live.html.heex:174
+#: lib/holter_web/web/live/integrations/show_live.html.heex:202
 #: lib/holter_web/web/live/monitoring/monitor_live/show.html.heex:127
 #, elixir-autogen, elixir-format
 msgid "Cancel"
@@ -333,6 +335,7 @@ msgstr "Run Now"
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:77
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:33
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:77
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:33
 #: lib/holter_web/web/live/monitoring/monitor_live/log_detail.html.heex:19
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:35
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:86
@@ -461,6 +464,9 @@ msgstr "Down"
 
 #: lib/holter_web/components/monitoring/logs_scatter_chart.ex:96
 #: lib/holter_web/web/admin/workspaces_live/show.ex:29
+#: lib/holter_web/web/live/integrations/index_live.ex:39
+#: lib/holter_web/web/live/integrations/logs_live.ex:77
+#: lib/holter_web/web/live/integrations/logs_live.ex:81
 #: lib/holter_web/web/live/monitoring/monitor_live/logs.html.heex:42
 #, elixir-autogen, elixir-format
 msgid "Unknown"
@@ -731,6 +737,7 @@ msgstr "All Types"
 msgid "Defacement"
 msgstr "Defacement"
 
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:38
 #: lib/holter_web/web/live/monitoring/monitor_live/incident_detail.html.heex:57
 #: lib/holter_web/web/live/monitoring/monitor_live/incidents.html.heex:101
 #, elixir-autogen, elixir-format
@@ -972,6 +979,7 @@ msgid "Send Test"
 msgstr "Send Test"
 
 #: lib/holter_web/web/live/delivery/channels_live.html.heex:60
+#: lib/holter_web/web/live/integrations/show_live.html.heex:50
 #, elixir-autogen, elixir-format
 msgid "Target"
 msgstr "Target"
@@ -1098,6 +1106,7 @@ msgid "e.g. Production Alerts"
 msgstr "e.g. Production Alerts"
 
 #: lib/holter_web/components/workspace_sidebar_live.ex:67
+#: lib/holter_web/web/live/integrations/catalog_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Notifications"
 msgstr "Notifications"
@@ -1112,12 +1121,14 @@ msgstr "Delivery Logs"
 
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:86
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:86
+#: lib/holter_web/web/live/integrations/show_live.html.heex:41
 #, elixir-autogen, elixir-format
 msgid "Event"
 msgstr "Event"
 
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:37
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:37
+#: lib/holter_web/web/live/integrations/logs_live.ex:74
 #, elixir-autogen, elixir-format
 msgid "Failed"
 msgstr "Failed"
@@ -1130,6 +1141,7 @@ msgstr "Logs are retained for 90 days."
 
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:36
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:36
+#: lib/holter_web/web/live/integrations/logs_live.ex:73
 #, elixir-autogen, elixir-format
 msgid "Success"
 msgstr "Success"
@@ -1166,6 +1178,7 @@ msgstr "Holter signs every outbound webhook with HMAC-SHA256. Recompute the sign
 msgid "Log filters"
 msgstr "Log filters"
 
+#: lib/holter_web/components/integrations/integration_subnav.ex:25
 #: lib/holter_web/web/live/delivery/email_channel_live/logs.html.heex:64
 #: lib/holter_web/web/live/delivery/webhook_channel_live/logs.html.heex:64
 #, elixir-autogen, elixir-format
@@ -1514,7 +1527,7 @@ msgstr "Welcome back."
 msgid "You have been signed out."
 msgstr "You have been signed out."
 
-#: lib/holter_web/hooks/user_auth_hook.ex:59
+#: lib/holter_web/hooks/user_auth_hook.ex:60
 #, elixir-autogen, elixir-format
 msgid "You must sign in to access this page."
 msgstr "You must sign in to access this page."
@@ -1757,7 +1770,7 @@ msgid "Member"
 msgstr "Member"
 
 #: lib/holter_web/components/user_sidebar.ex:57
-#: lib/holter_web/components/workspace_sidebar_live.ex:103
+#: lib/holter_web/components/workspace_sidebar_live.ex:114
 #: lib/holter_web/web/identity/user_live/show.ex:30
 #: lib/holter_web/web/identity/user_live/show.html.heex:2
 #, elixir-autogen, elixir-format
@@ -1800,7 +1813,7 @@ msgstr "Use workspace default"
 msgid "Workspace"
 msgstr "Workspace"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:79
+#: lib/holter_web/components/workspace_sidebar_live.ex:90
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Settings"
@@ -1913,7 +1926,7 @@ msgstr "Verification code: %{code}"
 msgid "unknown"
 msgstr "unknown"
 
-#: lib/holter_web/components/workspace_sidebar_live.ex:90
+#: lib/holter_web/components/workspace_sidebar_live.ex:101
 #: lib/holter_web/web/workspaces/api_tokens_live.ex:58
 #: lib/holter_web/web/workspaces/api_tokens_live.html.heex:2
 #, elixir-autogen, elixir-format
@@ -2392,6 +2405,8 @@ msgstr "substring or domain fragment"
 #: lib/holter_web/web/admin/audit_log_live.html.heex:50
 #: lib/holter_web/web/admin/users_live/show.html.heex:94
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:147
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:27
+#: lib/holter_web/web/live/integrations/show_live.html.heex:47
 #, elixir-autogen, elixir-format
 msgid "Action"
 msgstr "Action"
@@ -2554,63 +2569,65 @@ msgstr "e.g. promote_admin"
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:21
 #, elixir-autogen, elixir-format
 msgid "%{n} overrides"
-msgstr ""
+msgstr "%{n} overrides"
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:23
 #, elixir-autogen, elixir-format
 msgid "Admin · Feature flags"
-msgstr ""
+msgstr "Admin · Feature flags"
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:41
 #, elixir-autogen, elixir-format
 msgid "Could not toggle flag."
-msgstr ""
+msgstr "Could not toggle flag."
 
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "Disable"
-msgstr ""
+msgstr "Disable"
 
+#: lib/holter_web/components/integrations/integration_status_badge.ex:24
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:31
+#: lib/holter_web/web/live/integrations/index_live.ex:37
 #, elixir-autogen, elixir-format
 msgid "Disabled"
-msgstr ""
+msgstr "Disabled"
 
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:45
 #, elixir-autogen, elixir-format
 msgid "Enable"
-msgstr ""
+msgstr "Enable"
 
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:26
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:29
 #, elixir-autogen, elixir-format
 msgid "Enabled"
-msgstr ""
+msgstr "Enabled"
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:37
 #, elixir-autogen, elixir-format
 msgid "Flag %{name} toggled."
-msgstr ""
+msgstr "Flag %{name} toggled."
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:14
 #, elixir-autogen, elixir-format
 msgid "Global"
-msgstr ""
+msgstr "Global"
 
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "Kill switches, beta cohorts, canary rollouts. Total: %{n}."
-msgstr ""
+msgstr "Kill switches, beta cohorts, canary rollouts. Total: %{n}."
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:16
 #, elixir-autogen, elixir-format
 msgid "List"
-msgstr ""
+msgstr "List"
 
 #: lib/holter_web/web/admin/feature_flags_live.ex:15
 #, elixir-autogen, elixir-format
 msgid "Percentage"
-msgstr ""
+msgstr "Percentage"
 
 #: lib/holter_web/web/admin/feature_flags_live.html.heex:13
 #, elixir-autogen, elixir-format
@@ -2682,6 +2699,99 @@ msgstr "Search by name or slug"
 msgid "substring"
 msgstr "substring"
 
+#: lib/holter_web/web/live/integrations/catalog_live.ex:21
+#, elixir-autogen, elixir-format
+msgid "Ads"
+msgstr "Ads"
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:25
+#, elixir-autogen, elixir-format
+msgid "Calendar"
+msgstr "Calendar"
+
+#: lib/holter_web/web/live/integrations/catalog_live.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "Connect"
+msgstr "Connect"
+
+#: lib/holter_web/components/integrations/integration_status_badge.ex:21
+#: lib/holter_web/web/live/integrations/index_live.ex:34
+#, elixir-autogen, elixir-format
+msgid "Connected"
+msgstr "Connected"
+
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "Direction"
+msgstr "Direction"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Disconnect"
+msgstr "Disconnect"
+
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "Events will appear here once this integration dispatches actions."
+msgstr "Events will appear here once this integration dispatches actions."
+
+#: lib/holter_web/components/workspace_sidebar_live.ex:79
+#: lib/holter_web/web/live/integrations/index_live.ex:19
+#: lib/holter_web/web/live/integrations/index_live.html.heex:2
+#, elixir-autogen, elixir-format
+msgid "Integrations"
+msgstr "Integrations"
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:23
+#, elixir-autogen, elixir-format
+msgid "Issue Tracking"
+msgstr "Issue Tracking"
+
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "Occurred at"
+msgstr "Occurred at"
+
+#: lib/holter_web/components/integrations/integration_status_badge.ex:25
+#: lib/holter_web/web/live/integrations/index_live.ex:38
+#, elixir-autogen, elixir-format
+msgid "Provider down"
+msgstr "Provider down"
+
+#: lib/holter_web/components/integrations/integration_status_badge.ex:23
+#: lib/holter_web/web/live/integrations/index_live.ex:36
+#: lib/holter_web/web/live/integrations/logs_live.ex:75
+#, elixir-autogen, elixir-format
+msgid "Rate limited"
+msgstr "Rate limited"
+
+#: lib/holter_web/components/integrations/integration_status_badge.ex:22
+#: lib/holter_web/web/live/integrations/index_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "Reconnect needed"
+msgstr "Reconnect needed"
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:24
+#, elixir-autogen, elixir-format
+msgid "Status Page"
+msgstr "Status Page"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:68
+#: lib/holter_web/web/live/integrations/show_live.ex:94
+#, elixir-autogen, elixir-format
+msgid "You are not allowed to update this integration."
+msgstr "You are not allowed to update this integration."
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:29
+#, elixir-autogen, elixir-format
+msgid "Pause/resume campaigns and ad sets"
+msgstr "Pause/resume campaigns and ad sets"
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:28
+#, elixir-autogen, elixir-format
+msgid "Pause/resume campaigns during incidents"
+msgstr "Pause/resume campaigns during incidents"
+
 #: lib/holter_web/web/admin/workspaces_live/show.ex:44
 #, elixir-autogen, elixir-format
 msgid "Admin · %{name}"
@@ -2691,6 +2801,11 @@ msgstr "Admin · %{name}"
 #, elixir-autogen, elixir-format
 msgid "Archived"
 msgstr "Archived"
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:103
+#, elixir-autogen, elixir-format
+msgid "Could not disconnect integration."
+msgstr "Could not disconnect integration."
 
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:9
 #, elixir-autogen, elixir-format
@@ -2707,10 +2822,25 @@ msgstr "Default locale"
 msgid "Delivery plan"
 msgstr "Delivery plan"
 
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:74
+#, elixir-autogen, elixir-format
+msgid "Failed to connect integration. Please try again."
+msgstr "Failed to connect integration. Please try again."
+
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:118
 #, elixir-autogen, elixir-format
 msgid "Health"
 msgstr "Health"
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:69
+#, elixir-autogen, elixir-format
+msgid "Integration connected successfully."
+msgstr "Integration connected successfully."
+
+#: lib/holter_web/web/controllers/integration_oauth_controller.ex:90
+#, elixir-autogen, elixir-format
+msgid "Integration disconnected."
+msgstr "Integration disconnected."
 
 #: lib/holter_web/web/admin/workspaces_live/show.html.heex:96
 #, elixir-autogen, elixir-format
@@ -2787,27 +2917,253 @@ msgstr "Workspace has no members"
 msgid "Workspace has no monitors"
 msgstr "Workspace has no monitors"
 
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:103
-#, elixir-autogen, elixir-format
-msgid "Could not disconnect integration."
-msgstr ""
-
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:74
-#, elixir-autogen, elixir-format
-msgid "Failed to connect integration. Please try again."
-msgstr ""
-
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:69
-#, elixir-autogen, elixir-format
-msgid "Integration connected successfully."
-msgstr ""
-
-#: lib/holter_web/web/controllers/integration_oauth_controller.ex:90
-#, elixir-autogen, elixir-format
-msgid "Integration disconnected."
-msgstr ""
-
 #: lib/holter_web/web/controllers/integration_oauth_controller.ex:97
 #, elixir-autogen, elixir-format
 msgid "You do not have permission to disconnect this integration."
+msgstr "You do not have permission to disconnect this integration."
+
+#: lib/holter_web/web/live/integrations/show_live.ex:135
+#, elixir-autogen, elixir-format
+msgid "(removed monitor)"
 msgstr ""
+
+#: lib/holter_web/web/live/integrations/catalog_live.ex:17
+#: lib/holter_web/web/live/integrations/catalog_live.html.heex:4
+#: lib/holter_web/web/live/integrations/index_live.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Add integration"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:77
+#: lib/holter_web/web/live/integrations/show_live.html.heex:154
+#, elixir-autogen, elixir-format
+msgid "Add rule"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/index_live.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "Connect a provider to automate actions in response to incidents (pause campaigns, post messages, sync status pages)."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/catalog_live.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Connect a third-party service to automate incident workflows"
+msgstr "Connect a third-party service to automate incident workflows"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:71
+#, elixir-autogen, elixir-format
+msgid "Could not add rule. Check the fields."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.ex:99
+#, elixir-autogen, elixir-format
+msgid "Could not remove rule."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Each rule binds one target (campaign, ad set, channel) to one monitor and event. Without rules, this integration is connected but inert."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:146
+#, elixir-autogen, elixir-format
+msgid "Friendly name to identify this target"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:145
+#, elixir-autogen, elixir-format
+msgid "Label (optional)"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:44
+#: lib/holter_web/web/live/integrations/show_live.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "Monitor"
+msgstr "Monitor"
+
+#: lib/holter_web/web/live/integrations/index_live.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "No integrations yet"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "Remove"
+msgstr "Remove"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:63
+#, elixir-autogen, elixir-format
+msgid "Rule added"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.ex:88
+#, elixir-autogen, elixir-format
+msgid "Rule removed"
+msgstr ""
+
+#: lib/holter_web/components/integrations/integration_subnav.ex:17
+#, elixir-autogen, elixir-format
+msgid "Rules"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "Select a monitor"
+msgstr "Select a monitor"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:130
+#, elixir-autogen, elixir-format
+msgid "Target ID"
+msgstr "Target ID"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:110
+#, elixir-autogen, elixir-format
+msgid "Do this"
+msgstr "Do this"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "ID of the resource at the provider (e.g. Google Ads campaign ID)."
+msgstr "ID of the resource at the provider (e.g. Google Ads campaign ID)."
+
+#: lib/holter/integrations/meta/ads.ex:14
+#, elixir-autogen, elixir-format
+msgid "Pause ad set"
+msgstr "Pause ad set"
+
+#: lib/holter/integrations/google/ads.ex:12
+#: lib/holter/integrations/meta/ads.ex:12
+#, elixir-autogen, elixir-format
+msgid "Pause campaign"
+msgstr "Pause campaign"
+
+#: lib/holter/integrations/meta/ads.ex:15
+#, elixir-autogen, elixir-format
+msgid "Resume ad set"
+msgstr "Resume ad set"
+
+#: lib/holter/integrations/google/ads.ex:13
+#: lib/holter/integrations/meta/ads.ex:13
+#, elixir-autogen, elixir-format
+msgid "Resume campaign"
+msgstr "Resume campaign"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "Select an action"
+msgstr "Select an action"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:99
+#, elixir-autogen, elixir-format
+msgid "Select an event"
+msgstr "Select an event"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:131
+#, elixir-autogen, elixir-format
+msgid "Target ID at the provider"
+msgstr "Target ID at the provider"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "This provider does not yet support automated actions."
+msgstr "This provider does not yet support automated actions."
+
+#: lib/holter_web/web/live/integrations/show_live.ex:13
+#, elixir-autogen, elixir-format
+msgid "When an incident is opened"
+msgstr "When an incident is opened"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:14
+#, elixir-autogen, elixir-format
+msgid "When an incident is resolved"
+msgstr "When an incident is resolved"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:15
+#, elixir-autogen, elixir-format
+msgid "When the monitor is paused"
+msgstr "When the monitor is paused"
+
+#: lib/holter_web/web/live/integrations/show_live.ex:16
+#, elixir-autogen, elixir-format
+msgid "When the monitor is resumed"
+msgstr "When the monitor is resumed"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "When this happens"
+msgstr "When this happens"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Active rules"
+msgstr "Active rules"
+
+#: lib/holter_web/components/integrations/integration_subnav.ex:10
+#, elixir-autogen, elixir-format
+msgid "Integration sections"
+msgstr "Integration sections"
+
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Integration logs"
+msgstr "Integration logs"
+
+#: lib/holter_web/web/live/integrations/logs_live.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "No logs yet"
+msgstr "No logs yet"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "Add one below to start automating."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "No rules yet"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:192
+#, elixir-autogen, elixir-format
+msgid "Are you sure you want to disconnect this integration? Rules and history will be permanently removed."
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:190
+#, elixir-autogen, elixir-format
+msgid "Disconnect integration"
+msgstr "Disconnect integration"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:210
+#, elixir-autogen, elixir-format
+msgid "Yes, disconnect"
+msgstr ""
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:163
+#, elixir-autogen, elixir-format
+msgid "Are you sure you want to remove this rule? This action cannot be undone."
+msgstr "Are you sure you want to remove this rule? This action cannot be undone."
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:161
+#, elixir-autogen, elixir-format
+msgid "Remove rule"
+msgstr "Remove rule"
+
+#: lib/holter_web/web/live/integrations/show_live.html.heex:185
+#, elixir-autogen, elixir-format
+msgid "Yes, remove"
+msgstr "Yes, remove"
+
+#: lib/holter_web/web/live/integrations/logs_live.ex:80
+#, elixir-autogen, elixir-format
+msgid "Inbound"
+msgstr "Inbound"
+
+#: lib/holter_web/web/live/integrations/logs_live.ex:79
+#, elixir-autogen, elixir-format
+msgid "Outbound"
+msgstr "Outbound"
+
+#: lib/holter_web/web/live/integrations/logs_live.ex:76
+#, elixir-autogen, elixir-format
+msgid "Retried"
+msgstr "Retried"

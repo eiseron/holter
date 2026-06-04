@@ -80,8 +80,8 @@ defmodule Holter.Security.RlsIntegrationsTest do
           Repo.query!(
             """
             INSERT INTO integrations
-              (id, workspace_id, provider, status, settings, subscribed_events, inserted_at, updated_at)
-            VALUES ($1, $2, 'slack', 'active', '{}', '{}', now(), now())
+              (id, workspace_id, provider, status, settings, inserted_at, updated_at)
+            VALUES ($1, $2, 'slack', 'active', '{}', now(), now())
             """,
             [
               uuid_dump(Ecto.UUID.generate()),

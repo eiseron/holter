@@ -7,8 +7,7 @@ defmodule Holter.Integrations.Engine.PayloadBuilderTest do
     id: "ig-1",
     provider: :google_ads,
     workspace_id: "ws-1",
-    settings: %{"customer_id" => "123"},
-    subscribed_events: ["incident_opened"]
+    settings: %{"customer_id" => "123"}
   }
 
   @incident %{id: "inc-1", monitor_id: "mon-1"}

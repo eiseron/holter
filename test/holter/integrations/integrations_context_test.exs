@@ -122,38 +122,6 @@ defmodule Holter.Integrations.IntegrationsContextTest do
     end
   end
 
-  describe "list_active_for_event/2" do
-    test "returns active integrations subscribed to the given event" do
-      ws = workspace_fixture()
-
-      _subscribed =
-        integration_fixture(workspace_id: ws.id, subscribed_events: ["incident_opened"])
-
-      results = IntegrationsContext.list_active_for_event(ws.id, "incident_opened")
-      assert length(results) == 1
-    end
-
-    test "excludes integrations not subscribed to the event" do
-      ws = workspace_fixture()
-      _other = integration_fixture(workspace_id: ws.id, subscribed_events: ["incident_resolved"])
-
-      assert IntegrationsContext.list_active_for_event(ws.id, "incident_opened") == []
-    end
-
-    test "excludes disabled integrations even if subscribed" do
-      ws = workspace_fixture()
-
-      _disabled =
-        integration_fixture(
-          workspace_id: ws.id,
-          status: :disabled,
-          subscribed_events: ["incident_opened"]
-        )
-
-      assert IntegrationsContext.list_active_for_event(ws.id, "incident_opened") == []
-    end
-  end
-
   describe "update_status/2" do
     test "updates status and error metadata" do
       ws = workspace_fixture()

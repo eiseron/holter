@@ -22,14 +22,6 @@ defmodule Holter.Integrations.IntegrationsContext do
     |> Repo.all()
   end
 
-  def list_active_for_event(workspace_id, event) when is_binary(event) do
-    Integration
-    |> where([i], i.workspace_id == ^workspace_id)
-    |> where([i], i.status == :active)
-    |> where([i], ^event in i.subscribed_events)
-    |> Repo.all()
-  end
-
   def get(id) do
     with {:ok, _} <- Ecto.UUID.cast(id),
          %Integration{} = integration <- Repo.get(Integration, id) do

@@ -6,13 +6,13 @@ defmodule Holter.Integrations.EngineTest do
   alias Holter.Integrations.Workers.IntegrationDispatcher
 
   describe "dispatch_event/2" do
-    test "enqueues a job when a binding exists for the (monitor, event) pair" do
+    test "enqueues a job when a rule exists for the (monitor, event) pair" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -27,13 +27,13 @@ defmodule Holter.Integrations.EngineTest do
       assert_enqueued(worker: IntegrationDispatcher, args: %{"event" => "incident_opened"})
     end
 
-    test "does not enqueue when no binding exists for the event" do
+    test "does not enqueue when no rule exists for the event" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_resolved",
@@ -48,14 +48,14 @@ defmodule Holter.Integrations.EngineTest do
       refute_enqueued(worker: IntegrationDispatcher)
     end
 
-    test "does not enqueue for bindings of other monitors" do
+    test "does not enqueue for rules of other monitors" do
       ws = workspace_fixture()
       monitor_a = monitor_fixture(workspace_id: ws.id)
       monitor_b = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding_on_a =
-        integration_binding_fixture(
+      _rule_on_a =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor_a,
           event_type: "incident_opened",
@@ -70,13 +70,13 @@ defmodule Holter.Integrations.EngineTest do
       refute_enqueued(worker: IntegrationDispatcher)
     end
 
-    test "skips disabled integrations even when a binding exists" do
+    test "skips disabled integrations even when a rule exists" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :disabled)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -91,13 +91,13 @@ defmodule Holter.Integrations.EngineTest do
       refute_enqueued(worker: IntegrationDispatcher)
     end
 
-    test "groups multiple bindings of the same integration into a single job" do
+    test "groups multiple rules of the same integration into a single job" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
       _b1 =
-        integration_binding_fixture(
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -106,7 +106,7 @@ defmodule Holter.Integrations.EngineTest do
         )
 
       _b2 =
-        integration_binding_fixture(
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -128,7 +128,7 @@ defmodule Holter.Integrations.EngineTest do
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
       _b1 =
-        integration_binding_fixture(
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",
@@ -144,7 +144,7 @@ defmodule Holter.Integrations.EngineTest do
       assert [%{"type" => "campaign", "id" => "gads-aaa"}] = job.args["targets"]
     end
 
-    test "enqueues one job per integration when bindings span multiple integrations" do
+    test "enqueues one job per integration when rules span multiple integrations" do
       ws = workspace_fixture()
       monitor = monitor_fixture(workspace_id: ws.id)
 
@@ -154,7 +154,7 @@ defmodule Holter.Integrations.EngineTest do
       ig2 = integration_fixture(workspace_id: ws.id, provider: :meta_ads, status: :active)
 
       _b1 =
-        integration_binding_fixture(
+        integration_rule_fixture(
           integration: ig1,
           monitor: monitor,
           event_type: "incident_opened",
@@ -162,7 +162,7 @@ defmodule Holter.Integrations.EngineTest do
         )
 
       _b2 =
-        integration_binding_fixture(
+        integration_rule_fixture(
           integration: ig2,
           monitor: monitor,
           event_type: "incident_opened",
@@ -181,8 +181,8 @@ defmodule Holter.Integrations.EngineTest do
       monitor = monitor_fixture(workspace_id: ws.id)
       integration = integration_fixture(workspace_id: ws.id, status: :active)
 
-      _binding =
-        integration_binding_fixture(
+      _rule =
+        integration_rule_fixture(
           integration: integration,
           monitor: monitor,
           event_type: "incident_opened",

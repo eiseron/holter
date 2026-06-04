@@ -8,6 +8,8 @@ defmodule HolterWeb.Plugs.IntegrationWebhookSignaturePlugTest do
     @behaviour Holter.Integrations.Provider
 
     def display_name, do: "Stub"
+    def category, do: :notifications
+    def icon, do: "stub"
     def oauth_url(_workspace_id, _state), do: {:ok, "https://example.com"}
     def handle_callback(_params, _state), do: {:ok, %{}}
     def refresh(_credentials), do: {:ok, %{}}

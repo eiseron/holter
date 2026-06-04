@@ -1,0 +1,62 @@
+<div class="h-workspace-content">
+  <.dashboard_header title={gettext("Integrations")}>
+    <:actions>
+      <.link
+        navigate={~p"/integrations/workspaces/#{@current_workspace.slug}/new"}
+        class="h-btn h-btn-primary"
+        data-role="add-integration-button"
+      >
+        <.icon name="plus" />
+        {gettext("Add integration")}
+      </.link>
+    </:actions>
+  </.dashboard_header>
+
+  <%= if Enum.empty?(@integrations) do %>
+    <.empty_state
+      title={gettext("No integrations yet")}
+      description={
+        gettext(
+          "Connect a provider to automate actions in response to incidents (pause campaigns, post messages, sync status pages)."
+        )
+      }
+    >
+      <:icon>
+        <.icon name="bell" class="h-icon-size-8" />
+      </:icon>
+    </.empty_state>
+  <% else %>
+    <ul class="integrations-list" role="list" data-role="integrations-list">
+      <%= for integration <- @integrations do %>
+        <li
+          class="integration-row"
+          data-role="integration-row"
+          data-provider={integration.provider}
+        >
+          <.link
+            navigate={~p"/integrations/#{integration.id}"}
+            class="integration-row-link"
+          >
+            <.provider_logo
+              provider={integration.provider}
+              alt={provider_display_name(integration.provider)}
+              class="h-provider-logo integration-row-logo"
+            />
+            <div class="integration-row-main">
+              <h2 class="integration-row-name">{integration.name}</h2>
+              <p class="integration-row-provider">
+                {provider_display_name(integration.provider)}
+              </p>
+            </div>
+            <span
+              class={["h-badge", status_class(integration.status)]}
+              data-role="integration-status"
+            >
+              {status_label(integration.status)}
+            </span>
+          </.link>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

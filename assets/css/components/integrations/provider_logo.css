@@ -1,0 +1,26 @@
+.h-provider-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  filter: invert(70%);
+  transition: filter var(--transition-fast);
+}
+
+.h-provider-logo:hover {
+  filter: invert(85%);
+}
+
+.h-provider-logo-placeholder {
+  color: var(--color-text-muted);
+}
+
+.integration-card-header {
+  gap: var(--space-3);
+}
+
+.integration-row-logo {
+  flex-shrink: 0;
+}

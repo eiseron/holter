@@ -1,0 +1,213 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/integrations/workspaces/#{@current_workspace.slug}"} />
+    {provider_display_name(@integration.provider)}
+  </:title>
+  <:subtitle>
+    UUID: {@integration.id}
+  </:subtitle>
+  <:actions>
+    <.integration_status_badge status={@integration.status} />
+    <button
+      type="button"
+      class="h-btn h-btn-danger h-text-sm"
+      phx-click={JS.remove_attribute("hidden", to: "#disconnect-modal")}
+      data-role="disconnect-button"
+    >
+      {gettext("Disconnect")}
+    </button>
+  </:actions>
+
+  <.integration_subnav integration_id={@integration.id} current_page={:rules} />
+
+  <div class="h-form-sections h-mt-8">
+    <div class="h-fieldset-card">
+      <h3 class="h-fieldset-legend">{gettext("Active rules")}</h3>
+      <p class="h-help-text">
+        {gettext(
+          "Each rule binds one target (campaign, ad set, channel) to one monitor and event. Without rules, this integration is connected but inert."
+        )}
+      </p>
+
+      <%= if Enum.empty?(@rules) do %>
+        <.empty_state
+          variant="boxed"
+          title={gettext("No rules yet")}
+          description={gettext("Add one below to start automating.")}
+          data-role="no-rules-notice"
+        />
+      <% else %>
+        <.table id="rules-table" rows={@rules}>
+          <:col :let={rule} label={gettext("Event")}>
+            {event_type_label(rule.event_type)}
+          </:col>
+          <:col :let={rule} label={gettext("Monitor")}>
+            {monitor_name(@monitors, rule.monitor_id)}
+          </:col>
+          <:col :let={rule} label={gettext("Action")}>
+            {action_label(@integration.provider, rule.action)}
+          </:col>
+          <:col :let={rule} label={gettext("Target")}>
+            {rule.target_label || rule.target_id}
+          </:col>
+          <:action :let={rule}>
+            <button
+              type="button"
+              class="h-btn h-btn-soft h-text-sm"
+              phx-click={
+                JS.push("ask_delete_rule", value: %{id: rule.id})
+                |> JS.remove_attribute("hidden", to: "#delete-rule-modal")
+              }
+              data-role="delete-rule-button"
+            >
+              {gettext("Remove")}
+            </button>
+          </:action>
+        </.table>
+      <% end %>
+    </div>
+
+    <.form
+      for={%{}}
+      as={:rule}
+      id="rule-form"
+      phx-submit="create_rule"
+      class="h-fieldset-card"
+    >
+      <h3 class="h-fieldset-legend">{gettext("Add rule")}</h3>
+      <div class="h-form-grid h-grid-cols-2">
+        <div>
+          <.input
+            type="select"
+            name="rule[monitor_id]"
+            id="rule-monitor-id"
+            label={gettext("Monitor")}
+            options={Enum.map(@monitors, &{&1.url, &1.id})}
+            prompt={gettext("Select a monitor")}
+            value=""
+            required
+          />
+        </div>
+
+        <div>
+          <.input
+            type="select"
+            name="rule[event_type]"
+            id="rule-event-type"
+            label={gettext("When this happens")}
+            options={Enum.map(@event_type_options, &{event_type_label(&1), &1})}
+            prompt={gettext("Select an event")}
+            value=""
+            required
+          />
+        </div>
+
+        <div>
+          <.input
+            type="select"
+            name="rule[action]"
+            id="rule-action"
+            label={gettext("Do this")}
+            options={Enum.map(@action_options, &{action_label(@integration.provider, &1), &1})}
+            prompt={gettext("Select an action")}
+            value=""
+            required
+          />
+          <p
+            :if={Enum.empty?(@action_options)}
+            class="h-help-text"
+            data-role="no-actions-notice"
+          >
+            {gettext("This provider does not yet support automated actions.")}
+          </p>
+        </div>
+
+        <div>
+          <.input
+            type="text"
+            name="rule[target_id]"
+            id="rule-target-id"
+            label={gettext("Target ID")}
+            placeholder={gettext("Target ID at the provider")}
+            value=""
+            required
+          />
+          <p class="h-help-text">
+            {gettext("ID of the resource at the provider (e.g. Google Ads campaign ID).")}
+          </p>
+        </div>
+
+        <div class="h-col-span-2">
+          <.input
+            type="text"
+            name="rule[target_label]"
+            id="rule-target-label"
+            label={gettext("Label (optional)")}
+            placeholder={gettext("Friendly name to identify this target")}
+            value=""
+          />
+        </div>
+      </div>
+
+      <div class="h-actions-row h-justify-end">
+        <.button type="submit" variant="primary" data-role="add-rule-button">
+          {gettext("Add rule")}
+        </.button>
+      </div>
+    </.form>
+  </div>
+</.page_container>
+
+<.modal id="delete-rule-modal" title={gettext("Remove rule")}>
+  <p>
+    {gettext("Are you sure you want to remove this rule? This action cannot be undone.")}
+  </p>
+  <:footer>
+    <button
+      type="button"
+      class="h-btn h-btn-soft"
+      phx-click={
+        JS.push("cancel_delete_rule")
+        |> JS.set_attribute({"hidden", ""}, to: "#delete-rule-modal")
+      }
+    >
+      {gettext("Cancel")}
+    </button>
+    <button
+      type="button"
+      class="h-btn h-btn-danger"
+      phx-click={
+        JS.push("delete_rule", value: %{id: @pending_delete_rule_id})
+        |> JS.set_attribute({"hidden", ""}, to: "#delete-rule-modal")
+      }
+      data-role="confirm-delete-rule-button"
+    >
+      {gettext("Yes, remove")}
+    </button>
+  </:footer>
+</.modal>
+
+<.modal id="disconnect-modal" title={gettext("Disconnect integration")}>
+  <p>
+    {gettext(
+      "Are you sure you want to disconnect this integration? Rules and history will be permanently removed."
+    )}
+  </p>
+  <:footer>
+    <button
+      type="button"
+      class="h-btn h-btn-soft"
+      phx-click={JS.set_attribute({"hidden", ""}, to: "#disconnect-modal")}
+    >
+      {gettext("Cancel")}
+    </button>
+    <.link
+      href={~p"/integrations/workspaces/#{@current_workspace.slug}/#{@integration.id}"}
+      method="delete"
+      class="h-btn h-btn-danger"
+      data-role="confirm-disconnect-button"
+    >
+      {gettext("Yes, disconnect")}
+    </.link>
+  </:footer>
+</.modal>

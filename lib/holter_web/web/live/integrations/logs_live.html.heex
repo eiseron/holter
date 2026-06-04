@@ -1,0 +1,64 @@
+<.page_container>
+  <:title>
+    <.back_link navigate={~p"/integrations/workspaces/#{@current_workspace.slug}"} />
+    {provider_display_name(@integration.provider)}
+  </:title>
+  <:subtitle>
+    UUID: {@integration.id}
+  </:subtitle>
+  <:actions>
+    <.integration_status_badge status={@integration.status} />
+  </:actions>
+
+  <.integration_subnav integration_id={@integration.id} current_page={:logs} />
+
+  <section aria-label={gettext("Integration logs")}>
+    <%= if Enum.empty?(@activity) do %>
+      <.empty_state
+        title={gettext("No logs yet")}
+        description={gettext("Events will appear here once this integration dispatches actions.")}
+      >
+        <:icon>
+          <.icon name="chart-bar" class="h-icon-size-8" />
+        </:icon>
+      </.empty_state>
+    <% else %>
+      <.table id="activity-table" rows={@activity}>
+        <:col :let={event} label={gettext("Action")}>
+          <span data-role="event-action">{event.action}</span>
+        </:col>
+        <:col :let={event} label={gettext("Direction")}>
+          <span data-role="event-direction">{event_direction_label(event.direction)}</span>
+        </:col>
+        <:col :let={event} label={gettext("Status")}>
+          <span class={["h-badge", event_status_class(event.status)]} data-role="event-status">
+            {event_status_label(event.status)}
+          </span>
+        </:col>
+        <:col :let={event} label={gettext("Duration")}>
+          <span :if={event.duration_ms}>{event.duration_ms}ms</span>
+        </:col>
+        <:col :let={event} label={gettext("Occurred at")}>
+          {event.occurred_at}
+        </:col>
+      </.table>
+
+      <.pagination_nav
+        page_number={@page}
+        total_pages={@total_pages}
+        prev_page_url={
+          if @page > 1, do: ~p"/integrations/#{@integration.id}/logs?page=#{@page - 1}"
+        }
+        next_page_url={
+          if @page < @total_pages,
+            do: ~p"/integrations/#{@integration.id}/logs?page=#{@page + 1}"
+        }
+        page_links={
+          Enum.map(1..@total_pages, fn p ->
+            {p, ~p"/integrations/#{@integration.id}/logs?page=#{p}"}
+          end)
+        }
+      />
+    <% end %>
+  </section>
+</.page_container>

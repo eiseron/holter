@@ -68,6 +68,17 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
             <span class="h-sidebar-badge">{badge_text(@channel_count, @channel_max)}</span>
           </.link>
         </li>
+        <li>
+          <.link
+            navigate={~p"/integrations/workspaces/#{@workspace.slug}"}
+            class={[
+              "h-sidebar-link",
+              active?(@current_view, integrations_views()) && "h-sidebar-link--active"
+            ]}
+          >
+            <span class="h-sidebar-link-label">{gettext("Integrations")}</span>
+          </.link>
+        </li>
         <li :if={admin?(@current_workspace_membership)}>
           <.link
             navigate={~p"/identity/workspaces/#{@workspace.slug}"}
@@ -135,6 +146,13 @@ defmodule HolterWeb.Components.WorkspaceSidebarLive do
       HolterWeb.Web.Delivery.EmailChannelLive.New,
       HolterWeb.Web.Delivery.EmailChannelLive.Show,
       HolterWeb.Web.Delivery.EmailChannelLive.Logs
+    ]
+  end
+
+  defp integrations_views do
+    [
+      HolterWeb.Web.Integrations.CatalogLive,
+      HolterWeb.Web.Integrations.ShowLive
     ]
   end
 

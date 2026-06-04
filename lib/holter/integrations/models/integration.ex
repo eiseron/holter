@@ -23,7 +23,6 @@ defmodule Holter.Integrations.Models.Integration do
     field :status, Ecto.Enum, values: @statuses, default: :active
     field :credentials_encrypted, Holter.Integrations.EncryptedMap
     field :settings, :map, default: %{}
-    field :subscribed_events, {:array, :string}, default: []
     field :last_sync_at, :utc_datetime
     field :last_error_at, :utc_datetime
     field :last_error_reason, :string
@@ -45,7 +44,6 @@ defmodule Holter.Integrations.Models.Integration do
       :status,
       :credentials_encrypted,
       :settings,
-      :subscribed_events,
       :last_sync_at,
       :last_error_at,
       :last_error_reason

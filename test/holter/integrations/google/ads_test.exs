@@ -20,6 +20,18 @@ defmodule Holter.Integrations.Google.AdsTest do
     end
   end
 
+  describe "category/0" do
+    test "returns :ads" do
+      assert Ads.category() == :ads
+    end
+  end
+
+  describe "icon/0" do
+    test "returns google_ads icon key" do
+      assert Ads.icon() == "google_ads"
+    end
+  end
+
   describe "supported_events/0" do
     test "includes incident_opened" do
       assert "incident_opened" in Ads.supported_events()

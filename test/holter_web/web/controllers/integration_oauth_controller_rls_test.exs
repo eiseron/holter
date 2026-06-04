@@ -47,7 +47,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerRlsTest do
 
       conn = get(conn, ~p"/integrations/slack/callback?code=auth_code&state=#{state}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/#{ws.slug}"
+      assert redirected_to(conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "connected"
 
       persisted =
@@ -68,7 +68,7 @@ defmodule HolterWeb.Web.Integrations.IntegrationOAuthControllerRlsTest do
 
       conn = delete(conn, ~p"/integrations/workspaces/#{ws.slug}/#{integration.id}")
 
-      assert redirected_to(conn) =~ "/identity/workspaces/#{ws.slug}"
+      assert redirected_to(conn) =~ "/integrations/workspaces/#{ws.slug}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "disconnected"
 
       remaining =

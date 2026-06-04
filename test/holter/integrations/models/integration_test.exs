@@ -11,8 +11,7 @@ defmodule Holter.Integrations.Models.IntegrationTest do
       attrs = %{
         workspace_id: ws.id,
         provider: :google_ads,
-        name: "Google Ads — Main Account",
-        subscribed_events: ["incident_opened"]
+        name: "Google Ads — Main Account"
       }
 
       changeset = Integration.changeset(%Integration{}, attrs)

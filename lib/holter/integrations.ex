@@ -13,10 +13,6 @@ defmodule Holter.Integrations do
 
   defdelegate list_integrations(workspace_id), to: IntegrationsContext, as: :list
 
-  defdelegate list_active_integrations_for_event(workspace_id, event),
-    to: IntegrationsContext,
-    as: :list_active_for_event
-
   defdelegate get_integration(id), to: IntegrationsContext, as: :get
   defdelegate get_integration!(id), to: IntegrationsContext, as: :get!
 

@@ -4,7 +4,7 @@ defmodule Holter.Integrations.Engine.PayloadBuilder do
   @doc """
   Builds the dispatch payload sent to a provider for a given event and incident.
 
-  `targets` is the list of binding targets resolved by the Engine, e.g.
+  `targets` is the list of rule targets resolved by the Engine, e.g.
   `[%{"type" => "campaign", "id" => "gads-111", "label" => nil}, ...]`.
 
   Pure function — no side effects, no DB calls.

@@ -36,6 +36,26 @@ defmodule HolterWeb.Api.OpenapiSpecTest do
 
       assert html_response(conn, 200) =~ "Swagger UI"
     end
+
+    test "uses self-hosted Swagger UI assets (no CDN reference)", %{conn: conn} do
+      html = conn |> get("/api/swagger") |> html_response(200)
+
+      assert html =~ "/vendor/swagger-ui/swagger-ui.css"
+      assert html =~ "/vendor/swagger-ui/swagger-ui-bundle.js"
+      assert html =~ "/vendor/swagger-ui/swagger-ui-standalone-preset.js"
+      refute html =~ "cdnjs.cloudflare.com"
+    end
+
+    test "renders inline script and style with CSP nonces", %{conn: conn} do
+      conn = get(conn, "/api/swagger")
+      html = html_response(conn, 200)
+
+      [csp] = Plug.Conn.get_resp_header(conn, "content-security-policy")
+      [_, nonce] = Regex.run(~r/'nonce-([A-Za-z0-9_-]+)'/, csp)
+
+      assert html =~ ~s|<script nonce="#{nonce}">|
+      assert html =~ ~s|<style nonce="#{nonce}">|
+    end
   end
 
   describe "webhook dispatch callbacks (issue #28)" do
