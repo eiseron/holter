@@ -1,3 +1,11 @@
+include:
+  - project: eiseron/stack/ci
+    file: /lock.yml
+    ref: v0.9.23
+  - project: eiseron/stack/ci
+    file: /templates/coverage-gate.yml
+    ref: v0.9.23
+
 image: registry.gitlab.com/eiseron/stack/public-image-bases/elixir-builder:latest
 
 stages:
@@ -136,55 +144,6 @@ test:
       when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-coverage-gate:
-  stage: test
-  timeout: 2 minutes
-  needs: [test]
-  image: alpine:3.21
-  before_script:
-    - apk add --no-cache curl jq bc
-  script:
-    - |
-      target_branch="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
-
-      current=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/jobs" \
-        | jq -r '[.[] | select(.name=="test")] | last | .coverage')
-
-      if [ "$current" = "null" ] || [ -z "$current" ]; then
-        echo "No coverage data for current pipeline — skipping"
-        exit 0
-      fi
-
-      target_pipeline=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines?ref=${target_branch}&status=success&per_page=1" \
-        | jq -r '.[0].id')
-
-      if [ "$target_pipeline" = "null" ] || [ -z "$target_pipeline" ]; then
-        echo "No successful pipeline found on target branch (${target_branch}) — skipping coverage gate"
-        exit 0
-      fi
-
-      target_cov=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$target_pipeline/jobs" \
-        | jq -r '[.[] | select(.name=="test")] | last | .coverage')
-
-      if [ "$target_cov" = "null" ] || [ -z "$target_cov" ]; then
-        echo "No coverage data on target branch (${target_branch}) — skipping coverage gate"
-        exit 0
-      fi
-
-      echo "Coverage: current=${current}% target(${target_branch})=${target_cov}%"
-
-      if echo "$current < $target_cov" | bc -q | grep -q 1; then
-        echo "FAILED: coverage dropped (${current}% < ${target_cov}% on ${target_branch})"
-        exit 1
-      fi
-
-      echo "OK: coverage maintained (${current}% >= ${target_cov}% on ${target_branch})"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 mutation:
   stage: test
