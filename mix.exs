@@ -95,8 +95,8 @@ defmodule Holter.MixProject do
       {:ymlr, "~> 5.1"},
       {:logger_json, "~> 6.0"},
       {:sentry, "~> 10.2"},
-      {:hackney, "~> 1.20"},
-      {:tzdata, "~> 1.1"},
+      {:finch, "~> 0.17"},
+      {:tz, "~> 0.27"},
       {:cloak, "~> 1.1"},
       {:cloak_ecto, "~> 1.3"},
       {:hammer, "~> 7.0"}

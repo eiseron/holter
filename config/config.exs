@@ -85,9 +85,10 @@ config :logger, :console,
 
 config :sentry,
   enable_source_code_context: true,
-  root_source_code_paths: [File.cwd!()]
+  root_source_code_paths: [File.cwd!()],
+  client: Holter.SentryFinchClient
 
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
 
 config :phoenix, :json_library, Jason
 
