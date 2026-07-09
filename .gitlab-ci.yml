@@ -308,7 +308,7 @@ deploy_review:
       PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
       RESP=$(curl --fail --silent --show-error -X POST \
         -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
-        -F "ref=main" \
+        -F "ref=production" \
         -F "variables[PREVIEW_REF]=$CI_COMMIT_REF_SLUG" \
         -F "variables[PREVIEW_SHA]=$CI_COMMIT_SHA" \
         -F "variables[PREVIEW_MR_IID]=$CI_MERGE_REQUEST_IID" \
@@ -341,7 +341,7 @@ deploy_main:
       PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
       RESP=$(curl --fail --silent --show-error -X POST \
         -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
-        -F "ref=main" \
+        -F "ref=production" \
         -F "variables[PREVIEW_REF]=main" \
         -F "variables[PREVIEW_SHA]=$CI_COMMIT_SHA" \
         -F "variables[PREVIEW_KIND]=main" \
@@ -373,7 +373,7 @@ stop_review:
       PROJECT_ENC=$(printf '%s' "$PREVIEW_DEPLOYER_PROJECT" | sed 's|/|%2F|g')
       RESP=$(curl --fail --silent --show-error -X POST \
         -F "token=$PREVIEW_DEPLOYER_TRIGGER_TOKEN" \
-        -F "ref=main" \
+        -F "ref=production" \
         -F "variables[PREVIEW_REF]=$CI_COMMIT_REF_SLUG" \
         -F "variables[PREVIEW_ACTION]=stop" \
         "https://gitlab.com/api/v4/projects/$PROJECT_ENC/trigger/pipeline")
